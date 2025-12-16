@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>O+A Architects and Planners</title>
+  <meta name="description" content="O+A Architects and Planners. Based in Milan and Maputo Mozambique." />
+
+  <style>
+    :root{
+      --bg:#0b0c0f;
+      --fg:#f4f5f7;
+      --muted:#a9afba;
+      --line:rgba(255,255,255,.12);
+      --shadow: 0 14px 40px rgba(0,0,0,.55);
+      --radius: 18px;
+      --radius2: 28px;
+      --max: 1160px;
+      --pad: 22px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--font);
+      background:
+        radial-gradient(1200px 700px at 20% -10%, rgba(95,156,255,.18), transparent 55%),
+        radial-gradient(900px 650px at 90% 0%, rgba(255,255,255,.09), transparent 55%),
+        var(--bg);
+      color:var(--fg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    a{color:inherit; text-decoration:none}
+    button{font-family:inherit}
+
+    .container{max-width:var(--max); margin:0 auto; padding:0 var(--pad)}
+    .section{padding:92px 0}
+    .section.tight{padding:70px 0}
+    .grid{display:grid; gap:18px}
+
+    header{
+      position:fixed;
+      top:0; left:0; right:0;
+      z-index:50;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(to bottom, rgba(11,12,15,.92), rgba(11,12,15,.62));
+      border-bottom:1px solid var(--line);
+    }
+    .nav{
+      height:72px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+
+    .brand{display:flex; align-items:center; gap:12px}
+    .logoImg{
+      width:46px;
+      height:46px;
+      object-fit:contain;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.96);
+      padding: 8px;
+      box-shadow: 0 12px 34px rgba(0,0,0,.40);
+      flex:0 0 auto;
+    }
+
+    .brandText{line-height:1.05}
+    .brandText .name{font-weight:650; letter-spacing:.01em}
+    .brandText .tag{font-size:12px; color:var(--muted)}
+
+    .navActions{display:flex; gap:10px; align-items:center}
+    .iconBtn{
+      height:40px; width:40px;
+      display:grid; place-items:center;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background: rgba(255,255,255,.04);
+      color:var(--fg);
+      cursor:pointer;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+    }
+    .iconBtn:hover{transform: translateY(-1px); background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.18)}
+    .icon{width:18px; height:18px; display:block}
+
+    .hero{padding-top: 110px; padding-bottom: 44px}
+    .heroCard{
+      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border-radius: var(--radius2);
+      overflow:hidden;
+      box-shadow: var(--shadow);
+    }
+    .heroInner{padding:52px 42px}
+    .kicker{color:var(--muted); font-size:13px; letter-spacing:.22em; text-transform:uppercase}
+    h1{margin:14px 0 10px; font-size:46px; letter-spacing:-.02em; line-height:1.05}
+    .lead{margin:0; color:rgba(244,245,247,.88); font-size:16px; max-width: 64ch}
+
+    .heroCtas{margin-top:22px; display:flex; gap:10px; flex-wrap:wrap}
+    .btn{
+      display:inline-flex; align-items:center; gap:10px;
+      height:44px; padding:0 16px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color:var(--fg);
+      cursor:pointer;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+    }
+    .btn:hover{transform: translateY(-1px); background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.18)}
+    .btn.primary{background: rgba(255,255,255,.92); color:#0b0c0f; border-color: transparent}
+    .btn.primary:hover{background: rgba(255,255,255,.98)}
+    .btn .mini{width:18px;height:18px}
+
+    .heroMeta{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 0;
+      border-top: 1px solid var(--line);
+    }
+    .heroMeta > div{padding:18px 22px}
+    .heroMeta .row{display:flex; gap:14px; flex-wrap:wrap; align-items:center}
+    .pill{font-size:12px; color:rgba(244,245,247,.9); padding:8px 10px; border:1px solid var(--line); border-radius:999px; background: rgba(255,255,255,.03)}
+    .heroMeta .right{border-left:1px solid var(--line); color:var(--muted); font-size:13px}
+
+    .sectionHead{display:flex; justify-content:space-between; align-items:flex-end; gap:16px; margin-bottom:18px}
+    .sectionHead h2{margin:0; font-size:22px; letter-spacing:-.01em; font-weight:650}
+    .sectionHead p{margin:0; color:var(--muted); font-size:13px; max-width:70ch}
+
+    .card{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      border-radius: var(--radius);
+      padding:18px;
+      box-shadow: 0 10px 22px rgba(0,0,0,.22);
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+    }
+    .card:hover{transform: translateY(-2px); background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18)}
+    .card h3{margin:0 0 6px; font-size:16px; font-weight:650}
+    .card p{margin:0; color:var(--muted); font-size:13px; line-height:1.45}
+
+    .workshopGrid{grid-template-columns: repeat(12, 1fr)}
+    .span7{grid-column: span 7}
+    .span5{grid-column: span 5}
+    .span4{grid-column: span 4}
+    .span6{grid-column: span 6}
+
+    .media{
+      border-radius: var(--radius2);
+      border: 1px solid var(--line);
+      overflow:hidden;
+      min-height: 340px;
+      background:
+        linear-gradient(120deg, rgba(95,156,255,.18), rgba(255,255,255,.06)),
+        url('https://images.unsplash.com/photo-1451976426598-a7593bd6d0b2?auto=format&fit=crop&w=1600&q=70') center/cover no-repeat;
+    }
+
+    .steps{margin-top:14px; display:grid; gap:10px}
+    .step{
+      display:flex; gap:12px; align-items:flex-start;
+      padding:12px 12px;
+      border:1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.03);
+    }
+    .badge{
+      width:28px; height:28px;
+      border-radius: 10px;
+      display:grid; place-items:center;
+      background: rgba(255,255,255,.86);
+      color:#0b0c0f;
+      font-weight:750;
+      flex:0 0 auto;
+    }
+    .stepTitle{font-weight:650}
+
+    .org{display:grid; gap:10px}
+    .org .node{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      padding:12px 14px;
+      border:1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.03);
+    }
+    .org .node .role{font-weight:650}
+    .org .node .who{color:var(--muted); font-size:13px}
+
+    .expertise{grid-template-columns: repeat(12, 1fr)}
+
+    .toolbar{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap}
+    .toolbar .hint{color:var(--muted); font-size:13px}
+    .projects{grid-template-columns: repeat(12, 1fr)}
+
+    .projectCard{
+      grid-column: span 4;
+      border: 1px solid var(--line);
+      border-radius: var(--radius2);
+      overflow:hidden;
+      background: rgba(255,255,255,.03);
+      box-shadow: 0 10px 24px rgba(0,0,0,.26);
+      cursor:pointer;
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+    }
+    .projectCard:hover{transform: translateY(-2px); border-color: rgba(255,255,255,.20); background: rgba(255,255,255,.05)}
+    .projectMedia{height: 190px; background:#111; background-size: cover; background-position:center; position:relative}
+    .projectMedia::after{content:''; position:absolute; inset:0; background: linear-gradient(180deg, transparent, rgba(0,0,0,.55))}
+    .projectBody{padding:14px 14px 16px}
+    .projectTitle{margin:0 0 6px; font-size:15px; font-weight:650}
+    .projectMeta{display:flex; gap:8px; flex-wrap:wrap}
+    .chip{font-size:12px; color:rgba(244,245,247,.9); padding:6px 8px; border:1px solid var(--line); border-radius:999px; background: rgba(255,255,255,.03)}
+
+    .contacts{grid-template-columns: repeat(12, 1fr)}
+    .field{display:grid; gap:6px; margin-top:10px}
+    .input{
+      height:44px; padding:0 12px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color:var(--fg);
+    }
+    textarea.input{height:120px; padding:12px; resize:vertical}
+
+    footer{padding:26px 0 44px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px}
+
+    .overlay{
+      position:fixed; inset:0;
+      background: rgba(11,12,15,.72);
+      backdrop-filter: blur(18px);
+      display:none;
+      z-index:80;
+    }
+    .overlay.show{display:block}
+
+    .sheet{max-width: 980px; margin: 92px auto 0; padding: 0 var(--pad)}
+
+    .panel{
+      border:1px solid var(--line);
+      border-radius: var(--radius2);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .panelHead{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    .panelHead .title{font-weight:650; letter-spacing:.04em}
+    .panelBody{padding: 18px}
+
+    .menuGrid{display:grid; gap:10px}
+    .menuItem{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      cursor:pointer;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+    }
+    .menuItem:hover{transform: translateY(-1px); background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18)}
+    .menuTitle{font-weight:650; letter-spacing:.04em}
+    .menuItem .sub{color:var(--muted); font-size:13px}
+
+    .filters{display:grid; grid-template-columns: repeat(12, 1fr); gap: 12px}
+    .filterBlock{grid-column: span 6; border: 1px solid var(--line); border-radius: 18px; padding: 12px; background: rgba(255,255,255,.03)}
+    .filterBlock label{display:block; color:var(--muted); font-size:12px; margin-bottom:8px; letter-spacing:.12em; text-transform:uppercase}
+    .select{width:100%; height:44px; border-radius: 14px; border:1px solid var(--line); background: rgba(255,255,255,.03); color: var(--fg); padding: 0 10px}
+
+    .modalWrap{max-width: 980px; margin: 88px auto 0; padding: 0 var(--pad)}
+    .modal{border:1px solid var(--line); border-radius: var(--radius2); overflow:hidden; background: rgba(12,13,17,.92); box-shadow: var(--shadow)}
+    .modalHero{height: 300px; background-size:cover; background-position:center; position:relative}
+    .modalHero::after{content:''; position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.78))}
+    .modalContent{padding:18px}
+    .modalContent h3{margin:0 0 6px; font-size:20px; font-weight:650}
+    .modalContent .desc{margin:0 0 14px; color:rgba(244,245,247,.86); line-height:1.5}
+    .kv{display:grid; grid-template-columns: repeat(12, 1fr); gap:10px; margin-top:12px}
+    .kv .k{grid-column: span 6; border:1px solid var(--line); border-radius: 16px; padding:12px; background: rgba(255,255,255,.03)}
+    .kv .k .t{color:var(--muted); font-size:12px; letter-spacing:.12em; text-transform:uppercase}
+    .kv .k .v{margin-top:6px; font-weight:650}
+
+    @media (max-width: 980px){
+      .heroMeta{grid-template-columns: 1fr}
+      .heroMeta .right{border-left:none; border-top:1px solid var(--line)}
+      h1{font-size:38px}
+      .span7,.span5{grid-column: span 12}
+      .projectCard{grid-column: span 6}
+      .filterBlock{grid-column: span 12}
+      .kv .k{grid-column: span 12}
+    }
+    @media (max-width: 620px){
+      .heroInner{padding:36px 18px}
+      h1{font-size:32px}
+      .projectCard{grid-column: span 12}
+      .nav{height:68px}
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <div class="nav">
+        <a class="brand" href="#top" aria-label="Ir ao topo">
+          <img class="logoImg" src="logo.jpg" alt="O+A" />
+          <div class="brandText">
+            <div class="name">O+A Architects and Planners</div>
+            <div class="tag">Architecture and Planning for a Changing World</div>
+          </div>
+        </a>
+
+        <div class="navActions">
+          <button class="iconBtn" id="openFilter" title="Search and Filter Projects" aria-label="Search and Filter Projects">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="7"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+          <button class="iconBtn" id="openMenu" title="Menu" aria-label="Menu">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="7" x2="20" y2="7"></line>
+              <line x1="4" y1="12" x2="20" y2="12"></line>
+              <line x1="4" y1="17" x2="20" y2="17"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="top" class="hero">
+    <div class="container">
+      <div class="heroCard">
+        <div class="heroInner">
+          <div class="kicker">O+A Architects and Planners</div>
+          <h1>Designing places that work today and tomorrow.</h1>
+          <p class="lead">Architecture, urban planning and resilient infrastructure, with a pragmatic approach to delivery, community impact and long term maintenance.</p>
+
+          <div class="heroCtas">
+            <a class="btn primary" href="#projects">
+              <svg class="mini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12h18"></path>
+                <path d="M15 6l6 6-6 6"></path>
+              </svg>
+              Explore Projects
+            </a>
+            <a class="btn" href="#workshop">Workshop</a>
+            <a class="btn" href="#contacts">Contact</a>
+          </div>
+        </div>
+        <div class="heroMeta">
+          <div>
+            <div class="row">
+              <span class="pill">Architecture</span>
+              <span class="pill">Urban Planning</span>
+              <span class="pill">WASH</span>
+              <span class="pill">DRR</span>
+              <span class="pill">Research</span>
+            </div>
+          </div>
+          <div class="right">Based in Milan and Maputo Mozambique, working across provinces and regional collaborations.</div>
+        </div>
+      </div>
+    </div>
+
+    <section id="projects" class="section">
+      <div class="container">
+        <div class="sectionHead">
+          <div>
+            <h2>Projects</h2>
+            <p>Explore our work by discipline, typology, location and status.</p>
+          </div>
+          <div class="toolbar">
+            <div class="hint"><span id="resultsCount">0</span> project(s)</div>
+            <button class="btn" id="openFilter2">Search and Filter</button>
+          </div>
+        </div>
+
+        <div class="grid projects" id="projectsGrid"></div>
+      </div>
+    </section>
+
+    <section id="contacts" class="section tight">
+      <div class="container">
+        <div class="sectionHead">
+          <div>
+            <h2>Contacts</h2>
+            <p>Send us a message.</p>
+          </div>
+        </div>
+
+        <div class="grid contacts">
+          <div class="card span6">
+            <h3>Office</h3>
+            <p>Milan and Maputo Mozambique</p>
+            <div style="margin-top:12px; color:var(--muted); font-size:13px">
+              Email: <a href="mailto:info@oa-architects.com">info@oa-architects.com</a><br/>
+              WhatsApp: <a href="https://wa.me/258000000000" target="_blank" rel="noreferrer">+258 000 000 000</a><br/>
+              Instagram: <a href="#" id="igLink">@oa.workshop</a>
+            </div>
+          </div>
+          <div class="card span6">
+            <h3>Message</h3>
+            <form onsubmit="event.preventDefault(); alert('Obrigado. Mensagem enviada.');">
+              <div class="field">
+                <label style="color:var(--muted); font-size:13px">Name</label>
+                <input class="input" placeholder="Seu nome" required />
+              </div>
+              <div class="field">
+                <label style="color:var(--muted); font-size:13px">Email</label>
+                <input class="input" type="email" placeholder="seu@email.com" required />
+              </div>
+              <div class="field">
+                <label style="color:var(--muted); font-size:13px">Message</label>
+                <textarea class="input" placeholder="Conte nos sobre o projeto" required></textarea>
+              </div>
+              <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
+                <button class="btn primary" type="submit">Send</button>
+                <a class="btn" href="mailto:info@oa-architects.com">Email directly</a>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <footer class="container" style="padding-left:0; padding-right:0">
+          <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap">
+            <div>© <span id="year"></span> O+A Architects and Planners</div>
+            <div><a href="#top">Back to top</a></div>
+          </div>
+        </footer>
+      </div>
+    </section>
+  </main>
+
+  <div class="overlay" id="filterOverlay" aria-hidden="true">
+    <div class="sheet">
+      <div class="panel">
+        <div class="panelHead">
+          <div class="title">Search and Filter Projects</div>
+          <button class="iconBtn" id="closeFilter" aria-label="Fechar filtro" title="Fechar">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="panelBody">
+          <div class="filters">
+            <div class="filterBlock">
+              <label>Keyword</label>
+              <input class="input" id="q" placeholder="e.g., school, maputo, latrine" />
+            </div>
+            <div class="filterBlock">
+              <label>Discipline</label>
+              <select class="select" id="discipline">
+                <option value="">All</option>
+                <option>Architecture</option>
+                <option>Urban Planning</option>
+                <option>WASH</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px">
+            <button class="btn primary" id="apply">Apply</button>
+            <button class="btn" id="reset">Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="projectOverlay" aria-hidden="true">
+    <div class="modalWrap">
+      <div class="modal" role="dialog" aria-modal="true" aria-label="Project">
+        <div class="panelHead" style="position:relative; z-index:2; border-bottom:none">
+          <div class="title">Project</div>
+          <button class="iconBtn" id="closeProject" aria-label="Fechar projeto" title="Fechar">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="modalHero" id="modalHero"></div>
+        <div class="modalContent">
+          <h3 id="modalTitle"></h3>
+          <p class="desc" id="modalDesc"></p>
+          <div class="projectMeta" id="modalChips"></div>
+          <div class="kv" id="modalKV"></div>
+          <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap">
+            <button class="btn" id="closeProject2">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PROJECTS = [
+      { id:'mavie-school', title:'Escola Primária de Mavie Reabilitação e Extensão', discipline:'Architecture', typology:'Schools', status:'Ongoing', location:'Gaza', year:'2025',
+        cover:'https://images.unsplash.com/photo-1529421306668-7f0db3da7f1d?auto=format&fit=crop&w=1600&q=70',
+        desc:'Reabilitação e ampliação de instalações escolares com foco em conforto, durabilidade e operação e manutenção simplificada.',
+        meta:{ Client:'To confirm', Scope:'Rehabilitation and Extension', Deliverables:'Drawings, BoQ, Site Support', Keywords:'school, gaza, classrooms'} },
+      { id:'vip-modular', title:'Módulos Sanitários Escolares VIP Standard Modular', discipline:'WASH', typology:'Sanitation', status:'Completed', location:'Nampula', year:'2025',
+        cover:'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=1600&q=70',
+        desc:'Desenvolvimento de módulos de sanitários escolares com abordagem child friendly e foco em operação e manutenção.',
+        meta:{ Client:'To confirm', Scope:'Modular Design', Deliverables:'Standards, BoQ, O and M Inputs', Keywords:'vip, modular, school'} },
+      { id:'massingir-strategy', title:'Strategy and Vision Massingir Municipality', discipline:'Urban Planning', typology:'Masterplan', status:'Ongoing', location:'Gaza', year:'2025',
+        cover:'https://images.unsplash.com/photo-1502920917128-1aa500764b16?auto=format&fit=crop&w=1600&q=70',
+        desc:'Documento guia para visão estratégica municipal, integração regional e prioridades de investimento.',
+        meta:{ Client:'Massingir Municipality', Scope:'Strategic Vision', Deliverables:'Diagnostics, Maps, Roadmap', Keywords:'massingir, strategy'} }
+    ];
+
+    const filterOverlay = document.getElementById('filterOverlay');
+    const projectOverlay = document.getElementById('projectOverlay');
+    const openFilter = document.getElementById('openFilter');
+    const openFilter2 = document.getElementById('openFilter2');
+    const closeFilter = document.getElementById('closeFilter');
+
+    const projectsGrid = document.getElementById('projectsGrid');
+    const resultsCount = document.getElementById('resultsCount');
+
+    const q = document.getElementById('q');
+    const discipline = document.getElementById('discipline');
+
+    const applyBtn = document.getElementById('apply');
+    const resetBtn = document.getElementById('reset');
+
+    const modalHero = document.getElementById('modalHero');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+    const modalChips = document.getElementById('modalChips');
+    const modalKV = document.getElementById('modalKV');
+
+    const closeProject = document.getElementById('closeProject');
+    const closeProject2 = document.getElementById('closeProject2');
+
+    function show(el){ el.classList.add('show'); el.setAttribute('aria-hidden','false'); }
+    function hide(el){ el.classList.remove('show'); el.setAttribute('aria-hidden','true'); }
+
+    function render(list){
+      projectsGrid.innerHTML = '';
+      resultsCount.textContent = String(list.length);
+
+      list.forEach(p => {
+        const card = document.createElement('article');
+        card.className = 'projectCard';
+        card.tabIndex = 0;
+        card.setAttribute('role','button');
+        card.setAttribute('aria-label', p.title);
+        card.innerHTML = `
+          <div class="projectMedia" style="background-image:url('${p.cover}')"></div>
+          <div class="projectBody">
+            <h3 class="projectTitle">${p.title}</h3>
+            <div class="projectMeta">
+              <span class="chip">${p.discipline}</span>
+              <span class="chip">${p.typology}</span>
+              <span class="chip">${p.location}</span>
+              <span class="chip">${p.status}</span>
+              <span class="chip">${p.year}</span>
+            </div>
+          </div>
+        `;
+        card.addEventListener('click', () => openProject(p));
+        card.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' ') openProject(p); });
+        projectsGrid.appendChild(card);
+      });
+    }
+
+    function openProject(p){
+      modalHero.style.backgroundImage = `url('${p.cover}')`;
+      modalTitle.textContent = p.title;
+      modalDesc.textContent = p.desc;
+      modalChips.innerHTML = `
+        <span class="chip">${p.discipline}</span>
+        <span class="chip">${p.typology}</span>
+        <span class="chip">${p.location}</span>
+        <span class="chip">${p.status}</span>
+        <span class="chip">${p.year}</span>
+      `;
+      modalKV.innerHTML = '';
+      Object.entries(p.meta || {}).forEach(([k,v]) => {
+        const item = document.createElement('div');
+        item.className = 'k';
+        item.innerHTML = `<div class="t">${k}</div><div class="v">${v}</div>`;
+        modalKV.appendChild(item);
+      });
+      show(projectOverlay);
+    }
+
+    function applyFilters(){
+      const qq = (q.value || '').trim().toLowerCase();
+      const d = discipline.value;
+
+      const filtered = PROJECTS.filter(p => {
+        const matchesQ = !qq || (
+          p.title.toLowerCase().includes(qq) ||
+          p.desc.toLowerCase().includes(qq) ||
+          (p.meta?.Keywords || '').toLowerCase().includes(qq)
+        );
+        const matchesD = !d || p.discipline === d;
+        return matchesQ && matchesD;
+      });
+
+      render(filtered);
+      hide(filterOverlay);
+    }
+
+    function resetFilters(){
+      q.value = '';
+      discipline.value = '';
+      render(PROJECTS);
+    }
+
+    openFilter.addEventListener('click', () => show(filterOverlay));
+    openFilter2.addEventListener('click', () => show(filterOverlay));
+    closeFilter.addEventListener('click', () => hide(filterOverlay));
+
+    applyBtn.addEventListener('click', applyFilters);
+    resetBtn.addEventListener('click', resetFilters);
+
+    closeProject.addEventListener('click', () => hide(projectOverlay));
+    closeProject2.addEventListener('click', () => hide(projectOverlay));
+
+    [filterOverlay, projectOverlay].forEach(ov => {
+      ov.addEventListener('click', (e) => { if(e.target === ov) hide(ov); });
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape'){ hide(filterOverlay); hide(projectOverlay); }
+    });
+
+    document.getElementById('year').textContent = String(new Date().getFullYear());
+    render(PROJECTS);
+  </script>
+</body>
+</html>
