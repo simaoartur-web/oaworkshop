@@ -235,6 +235,63 @@ a:hover {
     width: 100%;
 }
 
+/* Language Switcher */
+.lang-switcher {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: var(--space-lg);
+    padding-left: var(--space-lg);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lang-btn {
+    background: none;
+    border: none;
+    color: var(--gray-500);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    padding: 4px;
+    letter-spacing: 0.05em;
+}
+
+.lang-btn:hover {
+    color: var(--gray-100);
+}
+
+.lang-btn.active {
+    color: var(--gray-100);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.lang-divider {
+    color: var(--gray-700);
+    font-size: 0.75rem;
+    user-select: none;
+}
+
+/* Mobile Lang Switcher */
+.menu-lang-switcher {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-lg);
+    margin-top: var(--space-3xl);
+    padding-top: var(--space-xl);
+}
+
+.menu-lang-switcher .lang-btn {
+    font-size: var(--text-lg);
+    padding: var(--space-sm) var(--space-md);
+}
+
+.menu-lang-switcher .lang-divider {
+    font-size: var(--text-lg);
+}
+
 .menu-toggle {
     display: none;
     background: none;
@@ -401,7 +458,8 @@ a:hover {
 .hero-image-overlay {
     position: absolute;
     inset: 0;
-    background-image: url('https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+    background-color: var(--black-900);
+    background-image: linear-gradient(to bottom, rgba(10, 10, 10, 0.4), var(--black-950)), url('https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
     background-size: cover;
     background-position: center;
     filter: grayscale(40%) contrast(110%);
@@ -627,7 +685,8 @@ a:hover {
 }
 
 .media {
-    background: url('https://images.unsplash.com/photo-1503387762-592be5a52680?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
+    background-color: var(--black-900);
+    background: linear-gradient(to bottom, rgba(10, 10, 10, 0.2), rgba(10, 10, 10, 0.6)), url('https://images.unsplash.com/photo-1503387762-592be5a52680?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
     border-radius: var(--radius-lg);
     height: 100%;
     min-height: 400px;

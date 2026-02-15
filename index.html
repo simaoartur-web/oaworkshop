@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>O+A Architects and Planners</title>
-  <meta name="description"
-    content="Architecture and Planning for a Changing World. Based in Milan and Maputo Mozambique.">
+  <title data-i18n="meta.title">O+A Architects and Planners</title>
+  <meta name="description" data-i18n-attr="content:meta.description"
+    content="Arquitetura e Planeamento para um Mundo em Mudança. Baseado em Milão e Maputo, Moçambique.">
 
   <!-- Open Graph / Social Media -->
   <meta property="og:title" content="O+A Architects and Planners">
@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="assets/css/animations.css">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
 
   <!-- Preconnect to CDNs -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
@@ -139,7 +139,8 @@
         <!-- Logo/Brand -->
         <a href="#top" class="brand" aria-label="O+A Architects - Home">
           <div class="logo-mark">
-            <img src="logo.jpg" alt="O+A logo">
+            <img src="assets/images/logo.jpg" alt="O+A logo"
+              onerror="this.src='https://placehold.co/100x100?text=O%2BA'">
           </div>
           <div class="brand-text">
             <div class="brand-name">O+A Architects and Planners</div>
@@ -149,10 +150,15 @@
 
         <!-- Desktop Navigation -->
         <div class="nav-desktop">
-          <a href="#workshop" class="nav-link">Workshop</a>
-          <a href="#expertise" class="nav-link">Expertise</a>
-          <a href="#projects" class="nav-link">Projects</a>
-          <a href="#contacts" class="nav-link">Contact</a>
+          <a href="#workshop" class="nav-link" data-i18n="nav.workshop">Workshop</a>
+          <a href="#expertise" class="nav-link" data-i18n="nav.expertise">Expertise</a>
+          <a href="#projects" class="nav-link" data-i18n="nav.projects">Projectos</a>
+          <a href="#contacts" class="nav-link" data-i18n="nav.contact">Contact</a>
+          <div class="lang-switcher">
+            <button class="lang-btn active" data-lang="pt">PT</button>
+            <span class="lang-divider">|</span>
+            <button class="lang-btn" data-lang="en">ENG</button>
+          </div>
         </div>
 
         <!-- Mobile Menu Button -->
@@ -173,24 +179,29 @@
       <nav class="menu-nav" aria-label="Mobile navigation">
         <a href="#workshop" class="menu-item">
           <span class="menu-item-number">01</span>
-          <span class="menu-item-text">Workshop</span>
+          <span class="menu-item-text" data-i18n="nav.workshop">Workshop</span>
           <i class="bi bi-arrow-right"></i>
         </a>
         <a href="#expertise" class="menu-item">
           <span class="menu-item-number">02</span>
-          <span class="menu-item-text">Expertise</span>
+          <span class="menu-item-text" data-i18n="nav.expertise">Expertise</span>
           <i class="bi bi-arrow-right"></i>
         </a>
         <a href="#projects" class="menu-item">
           <span class="menu-item-number">03</span>
-          <span class="menu-item-text">Projects</span>
+          <span class="menu-item-text" data-i18n="nav.projects">Projectos</span>
           <i class="bi bi-arrow-right"></i>
         </a>
         <a href="#contacts" class="menu-item">
           <span class="menu-item-number">04</span>
-          <span class="menu-item-text">Contact</span>
+          <span class="menu-item-text" data-i18n="nav.contact">Contact</span>
           <i class="bi bi-arrow-right"></i>
         </a>
+        <div class="menu-lang-switcher">
+          <button class="lang-btn active" data-lang="pt">PT</button>
+          <span class="lang-divider">|</span>
+          <button class="lang-btn" data-lang="en">ENG</button>
+        </div>
       </nav>
 
       <!-- Social Links in Menu -->
@@ -217,20 +228,21 @@
     <section class="hero-section">
       <div class="container">
         <div class="hero-content reveal reveal-up">
-          <span class="eyebrow">O+A Architects and Planners</span>
-          <h1 class="hero-title">Designing places that work <span class="text-accent">today and tomorrow</span></h1>
-          <p class="hero-description">
-            Architecture, urban planning and resilient infrastructure, with a pragmatic approach
-            to delivery, community impact and long term maintenance.
+          <span class="eyebrow" data-i18n="hero.eyebrow">O+A Architects and Planners</span>
+          <h1 class="hero-title" data-i18n="hero.title">Projetando lugares que funcionam <span class="text-accent">hoje
+              e amanhã</span></h1>
+          <p class="hero-description" data-i18n="hero.description">
+            Arquitetura, planeamento urbano e infraestrutura resiliente, com uma abordagem pragmática
+            para a entrega, impacto na comunidade e manutenção a longo prazo.
           </p>
 
           <div class="hero-actions">
             <a href="#expertise" class="btn btn-primary">
-              <span>Nossa Expertise</span>
+              <span data-i18n="hero.btnExpertise">Nossa Expertise</span>
               <i class="bi bi-arrow-right"></i>
             </a>
             <a href="#projects" class="btn btn-outline">
-              <span>Ver Projectos</span>
+              <span data-i18n="hero.btnProjects">Ver Projectos</span>
               <i class="bi bi-grid-3x3"></i>
             </a>
           </div>
@@ -239,15 +251,15 @@
           <div class="hero-stats reveal reveal-up delay-200">
             <div class="stat">
               <div class="stat-number">15+</div>
-              <div class="stat-label">Years Experience</div>
+              <div class="stat-label" data-i18n="hero.stats.experience">Anos de Experiência</div>
             </div>
             <div class="stat">
               <div class="stat-number">50+</div>
-              <div class="stat-label">Projects Completed</div>
+              <div class="stat-label" data-i18n="hero.stats.completed">Projectos Concluídos</div>
             </div>
             <div class="stat">
               <div class="stat-number">2</div>
-              <div class="stat-label">Continents</div>
+              <div class="stat-label" data-i18n="hero.stats.continents">Continentes</div>
             </div>
           </div>
         </div>
@@ -265,10 +277,11 @@
       <div class="container">
         <div class="section-head reveal reveal-up">
           <div>
-            <h2 class="text-accent">Workshop</h2>
-            <p>Arquitetura é sobre ouvir, projetar e realizar sonhos com precisão técnica.</p>
+            <h2 class="text-accent" data-i18n="workshop.title">Workshop</h2>
+            <p data-i18n="workshop.subtitle">Arquitetura é sobre ouvir, projetar e realizar sonhos com precisão técnica.
+            </p>
           </div>
-          <a class="btn btn-outline" href="#organogram">Conheça a Equipe</a>
+          <a class="btn btn-outline" href="#organogram" data-i18n="workshop.btnTeam">Conheça a Equipe</a>
         </div>
 
         <div class="grid workshopGrid">
@@ -279,37 +292,42 @@
           </div>
           <div class="span5 reveal reveal-right delay-200">
             <div class="card glass-card" style="height:100%">
-              <h3>Abordagem Centrada no Cliente</h3>
-              <p>Entregamos soluções arquitetônicas que combinam clareza de design, rigor técnico e uma mentalidade de
+              <h3 data-i18n="workshop.cardTitle">Abordagem Centrada no Cliente</h3>
+              <p data-i18n="workshop.cardDesc">Entregamos soluções arquitetónicas que combinam clareza de design, rigor
+                técnico e uma mentalidade de
                 implementação do conceito ao suporte à construção.</p>
 
               <div class="steps">
                 <div class="step">
                   <div class="badge">1</div>
                   <div>
-                    <div class="step-title">Listen</div>
-                    <div class="step-description">Brief, constraints, stakeholders, site realities.</div>
+                    <div class="step-title" data-i18n="workshop.steps.0.title">Listen</div>
+                    <div class="step-description" data-i18n="workshop.steps.0.desc">Briefing, restrições, stakeholders,
+                      realidades do local.</div>
                   </div>
                 </div>
                 <div class="step">
                   <div class="badge">2</div>
                   <div>
-                    <div class="step-title">Design</div>
-                    <div class="step-description">Options, concept to detail, compliance.</div>
+                    <div class="step-title" data-i18n="workshop.steps.1.title">Design</div>
+                    <div class="step-description" data-i18n="workshop.steps.1.desc">Opções, do conceito ao detalhe,
+                      conformidade.</div>
                   </div>
                 </div>
                 <div class="step">
                   <div class="badge">3</div>
                   <div>
-                    <div class="step-title">Deliver</div>
-                    <div class="step-description">Drawings, BoQ, procurement support.</div>
+                    <div class="step-title" data-i18n="workshop.steps.2.title">Deliver</div>
+                    <div class="step-description" data-i18n="workshop.steps.2.desc">Desenhos, Mapas de quantidades,
+                      apoio à contratação.</div>
                   </div>
                 </div>
                 <div class="step">
                   <div class="badge">4</div>
                   <div>
-                    <div class="step-title">Support</div>
-                    <div class="step-description">Site supervision, QA QC, O and M thinking.</div>
+                    <div class="step-title" data-i18n="workshop.steps.3.title">Support</div>
+                    <div class="step-description" data-i18n="workshop.steps.3.desc">Supervisão de obra, QA/QC,
+                      pensamento de O&M.</div>
                   </div>
                 </div>
               </div>
@@ -320,38 +338,39 @@
         <div id="organogram" style="margin-top: 2rem;">
           <div class="section-head animate-on-scroll" style="margin-top: 1.5rem;">
             <div>
-              <h2>Organigrama</h2>
-              <p>Team structure, to be updated with names and photos.</p>
+              <h2 data-i18n="workshop.organogram.title">Organigrama</h2>
+              <p data-i18n="workshop.organogram.subtitle">Estrutura da equipa, a ser atualizada com nomes e fotos.</p>
             </div>
           </div>
           <div class="org animate-on-scroll delay-100">
             <div class="node glass-card">
               <div>
-                <div class="role">Founding Partners</div>
-                <div class="who">Artur Simão and Osvaldo</div>
+                <div class="role" data-i18n="workshop.organogram.roles.partners">Sócios Fundadores</div>
+                <div class="who" data-i18n="workshop.organogram.roles.partnersWho">Artur Simão e Osvaldo</div>
               </div>
-              <span class="chip">Leadership</span>
+              <span class="chip" data-i18n="workshop.organogram.leadership">Liderança</span>
             </div>
             <div class="node glass-card">
               <div>
-                <div class="role">Managing Partner</div>
-                <div class="who">To define</div>
+                <div class="role" data-i18n="workshop.organogram.roles.managing">Sócio-Gerente</div>
+                <div class="who" data-i18n="nav.loading">A definir</div>
               </div>
-              <span class="chip">Management</span>
+              <span class="chip" data-i18n="workshop.organogram.management">Gestão</span>
             </div>
             <div class="node glass-card">
               <div>
-                <div class="role">Project Director</div>
-                <div class="who">To define</div>
+                <div class="role" data-i18n="workshop.organogram.roles.director">Director de Projecto</div>
+                <div class="who" data-i18n="nav.loading">A definir</div>
               </div>
-              <span class="chip">Delivery</span>
+              <span class="chip" data-i18n="workshop.organogram.delivery">Entrega</span>
             </div>
             <div class="node glass-card">
               <div>
-                <div class="role">External Consultants</div>
-                <div class="who">Engineering, Survey, GIS, Specialists</div>
+                <div class="role" data-i18n="workshop.organogram.roles.consultants">Consultores Externos</div>
+                <div class="who" data-i18n="workshop.organogram.roles.consultantsWho">Engenharia, Topografia, GIS,
+                  Especialistas</div>
               </div>
-              <span class="chip">Network</span>
+              <span class="chip" data-i18n="workshop.organogram.network">Rede</span>
             </div>
           </div>
         </div>
@@ -363,8 +382,8 @@
       <div class="container">
         <div class="section-head animate-on-scroll">
           <div>
-            <h2>Expertise</h2>
-            <p>Áreas de especialização e serviços chave.</p>
+            <h2 data-i18n="expertise.title">Expertise</h2>
+            <p data-i18n="expertise.subtitle">Áreas de especialização e serviços chave.</p>
           </div>
         </div>
 
@@ -376,8 +395,9 @@
                 <i class="bi bi-building"></i>
               </div>
               <div class="expertise-info">
-                <h3>Arquitetura</h3>
-                <p>Design conceitual, suporte técnico à construção e interiores.</p>
+                <h3 data-i18n="expertise.cards.arch.title">Arquitetura</h3>
+                <p data-i18n="expertise.cards.arch.desc">Design conceitual, suporte técnico à construção e interiores.
+                </p>
               </div>
             </div>
 
@@ -387,8 +407,9 @@
                 <i class="bi bi-map"></i>
               </div>
               <div class="expertise-info">
-                <h3>Urbanismo</h3>
-                <p>Planos de estrutura, visões estratégicas e zoneamento urbano.</p>
+                <h3 data-i18n="expertise.cards.urban.title">Urbanismo</h3>
+                <p data-i18n="expertise.cards.urban.desc">Planos de estrutura, visões estratégicas e zoneamento urbano.
+                </p>
               </div>
             </div>
 
@@ -398,8 +419,8 @@
                 <i class="bi bi-droplet"></i>
               </div>
               <div class="expertise-info">
-                <h3>WASH</h3>
-                <p>Saneamento modular e infraestrutura escolar resiliente.</p>
+                <h3 data-i18n="expertise.cards.wash.title">WASH</h3>
+                <p data-i18n="expertise.cards.wash.desc">Saneamento modular e infraestrutura escolar resiliente.</p>
               </div>
             </div>
 
@@ -409,8 +430,8 @@
                 <i class="bi bi-shield-check"></i>
               </div>
               <div class="expertise-info">
-                <h3>DRR</h3>
-                <p>Design consciente de riscos e construção resiliente.</p>
+                <h3 data-i18n="expertise.cards.drr.title">DRR</h3>
+                <p data-i18n="expertise.cards.drr.desc">Design consciente de riscos e construção resiliente.</p>
               </div>
             </div>
 
@@ -420,8 +441,8 @@
                 <i class="bi bi-layers"></i>
               </div>
               <div class="expertise-info">
-                <h3>GIS</h3>
-                <p>Análise espacial e evidências territoriais para decisão.</p>
+                <h3 data-i18n="expertise.cards.gis.title">GIS</h3>
+                <p data-i18n="expertise.cards.gis.desc">Análise espacial e evidências territoriais para decisão.</p>
               </div>
             </div>
 
@@ -431,8 +452,8 @@
                 <i class="bi bi-clipboard-check"></i>
               </div>
               <div class="expertise-info">
-                <h3>Gestão</h3>
-                <p>Coordenação de projeto e suporte de implementação.</p>
+                <h3 data-i18n="expertise.cards.mgt.title">Gestão</h3>
+                <p data-i18n="expertise.cards.mgt.desc">Coordenação de projeto e suporte de implementação.</p>
               </div>
             </div>
           </div>
@@ -445,8 +466,8 @@
       <div class="container">
         <div class="section-head animate-on-scroll">
           <div>
-            <h2>Projects</h2>
-            <p>Selected works across architecture, planning and infrastructure.</p>
+            <h2 data-i18n="projects.title">Projectos</h2>
+            <p data-i18n="projects.subtitle">Trabalhos selecionados em arquitetura, planeamento e infraestrutura.</p>
           </div>
         </div>
 
@@ -454,48 +475,48 @@
         <div class="projects-filters glass-panel animate-on-scroll">
           <div class="filter-grid">
             <div class="filter-group">
-              <label class="filter-label">Category</label>
+              <label class="filter-label" data-i18n="projects.filters.category">Categoria</label>
               <select class="filter-select" id="filterCategory" data-filter="category">
-                <option value="">All Categories</option>
-                <option value="architecture">Architecture</option>
-                <option value="urban-planning">Urban Planning</option>
-                <option value="wash">WASH</option>
-                <option value="research">Research</option>
+                <option value="" data-i18n="projects.filters.allCat">Todas as Categorias</option>
+                <option value="architecture" data-i18n="projects.filters.categories.arch">Architecture</option>
+                <option value="urban-planning" data-i18n="projects.filters.categories.urban">Urban Planning</option>
+                <option value="wash" data-i18n="projects.filters.categories.wash">WASH</option>
+                <option value="research" data-i18n="projects.filters.categories.research">Research</option>
               </select>
             </div>
 
             <div class="filter-group">
-              <label class="filter-label">Typology</label>
+              <label class="filter-label" data-i18n="projects.filters.typology">Tipologia</label>
               <select class="filter-select" id="filterTypology" data-filter="typology">
-                <option value="">All Types</option>
-                <option value="school">Schools</option>
-                <option value="housing">Housing</option>
-                <option value="public-space">Public Space</option>
-                <option value="sanitation">Sanitation</option>
-                <option value="masterplan">Masterplan</option>
+                <option value="" data-i18n="projects.filters.allTyp">Todas as Tipologias</option>
+                <option value="school" data-i18n="projects.filters.typologies.school">Schools</option>
+                <option value="housing" data-i18n="projects.filters.typologies.housing">Housing</option>
+                <option value="public-space" data-i18n="projects.filters.typologies.public">Public Space</option>
+                <option value="sanitation" data-i18n="projects.filters.typologies.sanitation">Sanitation</option>
+                <option value="masterplan" data-i18n="projects.filters.typologies.masterplan">Masterplan</option>
               </select>
             </div>
 
             <div class="filter-group">
-              <label class="filter-label">Location</label>
+              <label class="filter-label" data-i18n="projects.filters.location">Localização</label>
               <select class="filter-select" id="filterLocation" data-filter="location">
-                <option value="">All Locations</option>
-                <option value="maputo">Maputo</option>
-                <option value="gaza">Gaza</option>
-                <option value="nampula">Nampula</option>
-                <option value="sofala">Sofala</option>
-                <option value="zambezia">Zambézia</option>
-                <option value="milan">Milan</option>
+                <option value="" data-i18n="projects.filters.allLoc">Todos os Locais</option>
+                <option value="maputo" data-i18n="projects.filters.locations.maputo">Maputo</option>
+                <option value="gaza" data-i18n="projects.filters.locations.gaza">Gaza</option>
+                <option value="nampula" data-i18n="projects.filters.locations.nampula">Nampula</option>
+                <option value="sofala" data-i18n="projects.filters.locations.sofala">Sofala</option>
+                <option value="zambezia" data-i18n="projects.filters.locations.zambezia">Zambézia</option>
+                <option value="milan" data-i18n="projects.filters.locations.milan">Milan</option>
               </select>
             </div>
 
             <div class="filter-group">
-              <label class="filter-label">Status</label>
+              <label class="filter-label" data-i18n="projects.filters.status">Estado</label>
               <select class="filter-select" id="filterStatus" data-filter="status">
-                <option value="">All Status</option>
-                <option value="completed">Completed</option>
-                <option value="ongoing">Ongoing</option>
-                <option value="concept">Concept</option>
+                <option value="" data-i18n="projects.filters.allStat">Todos os Estados</option>
+                <option value="completed" data-i18n="projects.filters.statuses.completed">Completed</option>
+                <option value="ongoing" data-i18n="projects.filters.statuses.ongoing">Ongoing</option>
+                <option value="concept" data-i18n="projects.filters.statuses.concept">Concept</option>
               </select>
             </div>
           </div>
@@ -503,11 +524,11 @@
           <div class="filter-actions">
             <button class="btn apply-filters">
               <i class="bi bi-funnel"></i>
-              <span>Apply Filters</span>
+              <span data-i18n="projects.filters.apply">Aplicar Filtros</span>
             </button>
             <button class="btn btn-outline reset-filters">
               <i class="bi bi-arrow-clockwise"></i>
-              <span>Reset Filters</span>
+              <span data-i18n="projects.filters.reset">Limpar Filtros</span>
             </button>
           </div>
         </div>
@@ -612,15 +633,15 @@
       <div class="container">
         <div class="section-head animate-on-scroll">
           <div>
-            <h2>Contacts</h2>
-            <p>Send us a message.</p>
+            <h2 data-i18n="contact.title">Contactos</h2>
+            <p data-i18n="contact.subtitle">Envie-nos uma mensagem.</p>
           </div>
         </div>
 
         <div class="contacts-grid">
           <div class="contact-info animate-on-scroll">
             <div class="contact-item glass-card">
-              <div class="contact-label">Email</div>
+              <div class="contact-label" data-i18n="contact.labels.email">Email</div>
               <a href="mailto:oa@oa-workshop.com" class="contact-value">
                 <i class="bi bi-envelope"></i>
                 oa@oa-workshop.com
@@ -628,7 +649,7 @@
             </div>
 
             <div class="contact-item glass-card">
-              <div class="contact-label">Phone / WhatsApp</div>
+              <div class="contact-label" data-i18n="contact.labels.phone">Telefone / WhatsApp</div>
               <a href="https://wa.me/258000000000" class="contact-value" target="_blank" rel="noopener noreferrer">
                 <i class="bi bi-telephone"></i>
                 +258 000 000 000
@@ -636,7 +657,7 @@
             </div>
 
             <div class="contact-item glass-card">
-              <div class="contact-label">Locations</div>
+              <div class="contact-label" data-i18n="contact.labels.locations">Localizações</div>
               <div class="contact-value">
                 <div><i class="bi bi-geo-alt"></i> Milan, Italy</div>
                 <div style="margin-top: 0.5rem;"><i class="bi bi-geo-alt"></i> Maputo, Mozambique</div>
@@ -644,7 +665,7 @@
             </div>
 
             <div class="contact-item glass-card">
-              <div class="contact-label">Follow Us</div>
+              <div class="contact-label" data-i18n="contact.labels.follow">Siga-nos</div>
               <div class="social-links">
                 <a href="https://facebook.com" class="social-link facebook" target="_blank" rel="noopener noreferrer"
                   aria-label="Facebook">
@@ -669,42 +690,47 @@
           <div class="contact-form-container animate-on-scroll delay-100">
             <form class="contact-form glass-card" id="contactForm">
               <div class="form-group">
-                <label for="name" class="form-label">Name *</label>
-                <input type="text" id="name" name="name" class="form-input" placeholder="Your name" required
+                <label for="name" class="form-label" data-i18n="contact.form.name">Nome *</label>
+                <input type="text" id="name" name="name" class="form-input"
+                  data-i18n-attr="placeholder:contact.form.placeholderName" placeholder="O seu nome" required
                   autocomplete="name">
               </div>
 
               <div class="form-group">
-                <label for="email" class="form-label">Email *</label>
-                <input type="email" id="email" name="email" class="form-input" placeholder="your@email.com" required
+                <label for="email" class="form-label" data-i18n="contact.form.email">Email *</label>
+                <input type="email" id="email" name="email" class="form-input"
+                  data-i18n-attr="placeholder:contact.form.placeholderEmail" placeholder="o-seu@email.com" required
                   autocomplete="email">
               </div>
 
               <div class="form-group">
-                <label for="subject" class="form-label">Subject</label>
+                <label for="subject" class="form-label" data-i18n="contact.form.subject">Assunto</label>
                 <input type="text" id="subject" name="subject" class="form-input"
-                  placeholder="Project or inquiry subject" autocomplete="off">
+                  data-i18n-attr="placeholder:contact.form.placeholderSubject"
+                  placeholder="Assunto do projecto ou consulta" autocomplete="off">
               </div>
 
               <div class="form-group">
-                <label for="message" class="form-label">Message *</label>
+                <label for="message" class="form-label" data-i18n="contact.form.message">Mensagem *</label>
                 <textarea id="message" name="message" class="form-textarea"
-                  placeholder="Tell us about your project or inquiry..." rows="6" required></textarea>
+                  data-i18n-attr="placeholder:contact.form.placeholderMessage"
+                  placeholder="Conte-nos sobre o seu projecto ou consulta..." rows="6" required></textarea>
               </div>
 
               <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                   <i class="bi bi-send"></i>
-                  <span>Send Message</span>
+                  <span data-i18n="contact.form.submit">Enviar Mensagem</span>
                 </button>
                 <button type="reset" class="btn btn-outline">
                   <i class="bi bi-arrow-clockwise"></i>
-                  <span>Clear Form</span>
+                  <span data-i18n="contact.form.reset">Limpar Formulário</span>
                 </button>
               </div>
 
-              <div class="form-note" style="margin-top: 1rem; font-size: 0.75rem; color: var(--gray-500);">
-                * Required fields. We typically respond within 24-48 hours.
+              <div class="form-note" style="margin-top: 1rem; font-size: 0.75rem; color: var(--gray-500);"
+                data-i18n="contact.form.note">
+                * Campos obrigatórios. Respondemos geralmente dentro de 24-48 horas.
               </div>
             </form>
           </div>
@@ -720,25 +746,25 @@
         <!-- Brand Column -->
         <div class="footer-column">
           <div class="footer-logo">O+A</div>
-          <p class="footer-description">
-            Architecture and Planning for a Changing World. Based in Milan and Maputo Mozambique.
+          <p class="footer-description" data-i18n="footer.description">
+            Arquitetura e Planeamento para um Mundo em Mudança. Baseado em Milão e Maputo, Moçambique.
           </p>
         </div>
 
         <!-- Quick Links -->
         <div class="footer-column">
-          <h4 class="footer-title">Quick Links</h4>
+          <h4 class="footer-title" data-i18n="footer.quickLinks">Links Rápidos</h4>
           <ul class="footer-links">
-            <li><a href="#workshop" class="footer-link">Workshop</a></li>
-            <li><a href="#expertise" class="footer-link">Expertise</a></li>
-            <li><a href="#projects" class="footer-link">Projects</a></li>
-            <li><a href="#contacts" class="footer-link">Contact</a></li>
+            <li><a href="#workshop" class="footer-link" data-i18n="nav.workshop">Workshop</a></li>
+            <li><a href="#expertise" class="footer-link" data-i18n="nav.expertise">Expertise</a></li>
+            <li><a href="#projects" class="footer-link" data-i18n="nav.projects">Projectos</a></li>
+            <li><a href="#contacts" class="footer-link" data-i18n="nav.contact">Contacto</a></li>
           </ul>
         </div>
 
         <!-- Contact Info -->
         <div class="footer-column">
-          <h4 class="footer-title">Contact Info</h4>
+          <h4 class="footer-title" data-i18n="footer.contactInfo">Informação de Contacto</h4>
           <ul class="footer-links">
             <li>
               <a href="mailto:oa@oa-workshop.com" class="footer-link">
@@ -763,7 +789,7 @@
 
         <!-- Social Media -->
         <div class="footer-column">
-          <h4 class="footer-title">Connect With Us</h4>
+          <h4 class="footer-title" data-i18n="footer.connect">Conecte-se Connosco</h4>
           <div class="social-links">
             <a href="https://facebook.com" class="social-link facebook" target="_blank" rel="noopener noreferrer"
               aria-label="Facebook">
@@ -788,18 +814,20 @@
       <!-- Footer Bottom -->
       <div class="footer-bottom">
         <div class="copyright">
-          © <span id="currentYear"></span> O+A Architects and Planners. All rights reserved.
+          © <span id="currentYear"></span> O+A Architects and Planners. <span data-i18n="footer.rights">Todos os
+            direitos reservados.</span>
         </div>
         <div class="footer-legal">
-          <a href="#top" class="footer-legal-link">Back to top</a>
-          <a href="#" class="footer-legal-link">Privacy Policy</a>
-          <a href="#" class="footer-legal-link">Terms of Use</a>
+          <a href="#top" class="footer-legal-link" data-i18n="footer.backToTop">Voltar ao topo</a>
+          <a href="#" class="footer-legal-link" data-i18n="footer.privacy">Política de Privacidade</a>
+          <a href="#" class="footer-legal-link" data-i18n="footer.terms">Termos de Uso</a>
         </div>
       </div>
     </div>
   </footer>
 
   <!-- ===== JAVASCRIPT ===== -->
+  <script src="assets/js/translations.js"></script>
   <script src="assets/js/main.js"></script>
 
   <!-- Inline script for immediate functionality -->
@@ -815,8 +843,11 @@
     // Fallback para imagens quebradas
     document.addEventListener('error', function (e) {
       if (e.target.tagName === 'IMG') {
-        e.target.style.display = 'none';
-        console.warn('Imagem não carregada:', e.target.src);
+        const placeholder = `https://placehold.co/800x600?text=${encodeURIComponent(e.target.alt || 'O+A Architects')}`;
+        if (e.target.src !== placeholder) {
+          e.target.src = placeholder;
+          console.warn('Imagem não carregada, usando placeholder:', e.target.src);
+        }
       }
     }, true);
   </script>

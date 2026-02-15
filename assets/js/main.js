@@ -704,9 +704,92 @@ document.addEventListener('DOMContentLoaded', function () {
         document.addEventListener('touchmove', function () { }, { passive: true });
     }
 
-    // ===== 11. INITIALIZE EVERYTHING OTIMIZADO =====
+    // ===== 11. BILINGUAL SYSTEM (i18n) =====
+    function initLanguage() {
+        const savedLang = localStorage.getItem('site_lang') || 'pt';
+        setLanguage(savedLang);
+
+        // Language toggle listeners
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const lang = this.getAttribute('data-lang');
+                if (lang) {
+                    setLanguage(lang);
+                    // Close mobile menu if open
+                    const menuOverlay = document.querySelector('.menu-overlay');
+                    if (menuOverlay && menuOverlay.classList.contains('active')) {
+                        const menuClose = document.querySelector('.menu-close');
+                        if (menuClose) menuClose.click();
+                    }
+                }
+            });
+        });
+    }
+
+    function setLanguage(lang) {
+        if (!window.translations || !window.translations[lang]) return;
+
+        const dict = window.translations[lang];
+        localStorage.setItem('site_lang', lang);
+
+        // Update active class on buttons
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            if (btn.getAttribute('data-lang') === lang) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        // Update <html> lang attribute
+        document.documentElement.lang = lang;
+
+        // 1. Text content translations
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            const value = getDeepValue(dict, key);
+
+            if (value) {
+                // If the element has children (like <span> in title), we might need to handle it
+                // For simplicity, if it contains <span class="text-accent">, we use innerHTML
+                if (value.includes('<span')) {
+                    el.innerHTML = value;
+                } else {
+                    el.textContent = value;
+                }
+            }
+        });
+
+        // 2. Attribute translations (placeholders, contents)
+        document.querySelectorAll('[data-i18n-attr]').forEach(el => {
+            const attrConfig = el.getAttribute('data-i18n-attr');
+            // Format: "attribute:key" e.g. "placeholder:contact.form.placeholderName"
+            const [attr, key] = attrConfig.split(':');
+            const value = getDeepValue(dict, key);
+            if (value) {
+                el.setAttribute(attr, value);
+            }
+        });
+
+        // 3. Dynamic title/meta update
+        if (dict.meta) {
+            document.title = dict.meta.title;
+        }
+    }
+
+    function getDeepValue(obj, path) {
+        const keys = path.split('.');
+        let current = obj;
+        for (const key of keys) {
+            if (current[key] === undefined) return null;
+            current = current[key];
+        }
+        return current;
+    }
+
+    // ===== 12. INITIALIZE EVERYTHING OTIMIZADO =====
     function init() {
-        console.log('O+A Architects - Initializing with optimizations...');
+        console.log('O+A Architects - Initializing with i18n optimizations...');
 
         // 1. Primeiro o preloader/animação de construção
         initPreloader();
@@ -722,6 +805,9 @@ document.addEventListener('DOMContentLoaded', function () {
         initContactForm();
         initToast();
         initCurrentYear();
+
+        // i18n
+        initLanguage();
 
         // 4. Animações on scroll serão iniciadas após preloader
         // (já chamado em hidePreloader)
