@@ -13,10 +13,12 @@
         opacity: 0;
         transform: translateY(30px) scale(0.95);
     }
+
     60% {
         opacity: 1;
         transform: translateY(0) scale(1);
     }
+
     100% {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -49,6 +51,7 @@
         opacity: 1;
         transform: translateY(0);
     }
+
     from {
         opacity: 0;
         transform: translateY(20px);
@@ -60,6 +63,7 @@
         opacity: 1;
         transform: translateY(0);
     }
+
     from {
         opacity: 0;
         transform: translateY(25px);
@@ -71,6 +75,7 @@
         opacity: 1;
         transform: translateY(0);
     }
+
     from {
         opacity: 0;
         transform: translateY(30px);
@@ -82,6 +87,7 @@
         opacity: 1;
         transform: translateY(0);
     }
+
     from {
         opacity: 0;
         transform: translateY(35px);
@@ -94,6 +100,7 @@
         opacity: 0;
         transform: translateY(15px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -105,6 +112,7 @@
         opacity: 0;
         transform: scale(0.98);
     }
+
     to {
         opacity: 1;
         transform: scale(1);
@@ -123,11 +131,25 @@
 }
 
 /* Delays para animações em sequência */
-.delay-1 { animation-delay: 0.1s; }
-.delay-2 { animation-delay: 0.2s; }
-.delay-3 { animation-delay: 0.3s; }
-.delay-4 { animation-delay: 0.4s; }
-.delay-5 { animation-delay: 0.5s; }
+.delay-1 {
+    animation-delay: 0.1s;
+}
+
+.delay-2 {
+    animation-delay: 0.2s;
+}
+
+.delay-3 {
+    animation-delay: 0.3s;
+}
+
+.delay-4 {
+    animation-delay: 0.4s;
+}
+
+.delay-5 {
+    animation-delay: 0.5s;
+}
 
 /* Animações específicas para elementos do hero */
 .hero-build-in {
@@ -140,6 +162,7 @@
         opacity: 0;
         transform: translateY(40px) scale(0.96);
     }
+
     100% {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -171,8 +194,13 @@
 
 /* Loading spinner otimizado */
 @keyframes smoothSpin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .loading-spinner {
@@ -181,6 +209,7 @@
 
 /* Reduce motion support */
 @media (prefers-reduced-motion: reduce) {
+
     .site-build-wrapper,
     .build-layer-1,
     .build-layer-2,
@@ -195,25 +224,56 @@
         transform: none !important;
         transition: none !important;
     }
-    
+
     .hover-lift {
         transition: none !important;
     }
-    
+
     .hover-lift:hover {
         transform: none !important;
     }
 }
 
 /* Staggered animation para grid items */
-.stagger-grid > * {
+.stagger-grid>* {
     opacity: 0;
     animation: gentleAppear 0.5s ease-out forwards;
 }
 
-.stagger-grid > *:nth-child(1) { animation-delay: 0.05s; }
-.stagger-grid > *:nth-child(2) { animation-delay: 0.1s; }
-.stagger-grid > *:nth-child(3) { animation-delay: 0.15s; }
-.stagger-grid > *:nth-child(4) { animation-delay: 0.2s; }
-.stagger-grid > *:nth-child(5) { animation-delay: 0.25s; }
-.stagger-grid > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger-grid>*:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.stagger-grid>*:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.stagger-grid>*:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.stagger-grid>*:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.stagger-grid>*:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.stagger-grid>*:nth-child(6) {
+    animation-delay: 0.3s;
+}
+
+/* Animação para imagens com lazy loading */
+.project-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: var(--black-900);
+}
+
+.project-image.fade-in {
+    opacity: 1;
+}
