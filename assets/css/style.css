@@ -279,8 +279,8 @@ a:hover {
     justify-content: center;
     align-items: center;
     gap: var(--space-lg);
-    margin-top: var(--space-3xl);
-    padding-top: var(--space-xl);
+    margin-top: var(--space-xl);
+    padding-top: var(--space-lg);
 }
 
 .menu-lang-switcher .lang-btn {
@@ -338,8 +338,8 @@ a:hover {
 
 .menu-container {
     width: 100%;
-    max-width: 600px;
-    padding: var(--space-4xl);
+    max-width: 500px;
+    padding: var(--space-2xl) var(--space-xl);
     text-align: center;
     position: relative;
 }
@@ -368,8 +368,8 @@ a:hover {
 .menu-nav {
     display: flex;
     flex-direction: column;
-    gap: var(--space-lg);
-    margin-bottom: var(--space-3xl);
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
 }
 
 .menu-item {
@@ -379,8 +379,8 @@ a:hover {
     gap: var(--space-md);
     color: var(--gray-100);
     font-family: var(--font-serif);
-    font-size: var(--text-3xl);
-    padding: var(--space-sm) 0;
+    font-size: var(--text-xl);
+    padding: var(--space-xs) 0;
     opacity: 0.6;
     transition: all var(--transition-base);
 }
@@ -400,9 +400,9 @@ a:hover {
 .menu-social {
     display: flex;
     justify-content: center;
-    gap: var(--space-lg);
-    margin-top: var(--space-3xl);
-    padding-top: var(--space-2xl);
+    gap: var(--space-md);
+    margin-top: var(--space-xl);
+    padding-top: var(--space-xl);
     border-top: 1px solid var(--glass-border);
 }
 
@@ -866,6 +866,14 @@ a:hover {
     background-position: right var(--space-md) center;
     background-size: 1rem;
     padding-right: var(--space-2xl);
+    color-scheme: dark;
+    /* Helps with native UI contrast */
+}
+
+.filter-select option {
+    background-color: var(--black-900);
+    color: var(--gray-100);
+    padding: 10px;
 }
 
 .filter-select:focus {
@@ -2290,6 +2298,7 @@ a:hover {
     opacity: 1;
     transform: translateY(0);
 }
+
 /* ===== CONTACT FORM ENHANCEMENTS ===== */
 .form-label-row {
     display: flex;
@@ -2356,6 +2365,7 @@ a:hover {
         opacity: 0;
         transform: translateY(-5px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
