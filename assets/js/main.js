@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
         window.addEventListener('scroll', function () {
             // Cancelar timeout anterior
             clearTimeout(scrollTimeout);
-            
+
             // Usar requestAnimationFrame para performance
             if (!ticking) {
                 window.requestAnimationFrame(function () {
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
                 ticking = true;
             }
-            
+
             // Timeout extra para garantir
             scrollTimeout = setTimeout(handleHeaderScroll, 66); // ~15fps para scroll
         }, { passive: true }); // Otimização: passive listener
@@ -50,20 +50,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Comportamento: hide on scroll down, show on scroll up
             if (currentScroll > lastScrollTop && currentScroll > HEADER_HIDE_THRESHOLD) {
-                // Scroll para baixo - esconder header
+                // Scroll para baixo - esconder header gradualmente
                 siteHeader.classList.add('hidden');
                 siteHeader.classList.remove('compact');
-            } else {
-                // Scroll para cima - mostrar header compacto
+            } else if (currentScroll < lastScrollTop) {
+                // Scroll para cima - mostrar header compacto com destaque
                 siteHeader.classList.remove('hidden');
-                if (currentScroll > HEADER_HIDE_THRESHOLD) {
-                    siteHeader.classList.add('compact');
-                } else {
-                    siteHeader.classList.remove('compact');
-                }
+                siteHeader.classList.add('compact');
             }
         } else {
-            // No topo da página - header completo
+            // No topo da página - header completo e transparente
             siteHeader.classList.remove('scrolled', 'hidden', 'compact');
         }
 
@@ -84,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // ===== 2. PRELOADER ANIMATION (CONSTRUÇÃO DO SITE) =====
     function initPreloader() {
         const preloader = document.getElementById('sitePreloader');
-        
+
         // Se não existir preloader no HTML, criar um
         if (!preloader) {
             createPreloader();
@@ -123,19 +119,19 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         `;
         document.body.prepend(preloader);
-        
+
         // Iniciar animação
         initPreloader();
     }
 
     function hidePreloader(preloader) {
         if (!preloader) return;
-        
+
         preloader.classList.add('hidden');
         setTimeout(() => {
             preloader.style.display = 'none';
             document.body.classList.add('loaded');
-            
+
             // Iniciar animações após preloader
             initScrollAnimations();
         }, 500);
@@ -327,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             projects.forEach(project => {
                 const projectCategory = project.getAttribute('data-category') || '';
-                const projectType = project.getAttribute('data-type') || '';
+                const projectType = project.getAttribute('data-typology') || '';
                 const projectLocation = project.getAttribute('data-location') || '';
                 const projectStatus = project.getAttribute('data-status') || '';
 
@@ -379,7 +375,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const feedback = document.createElement('div');
             feedback.className = 'filter-feedback';
             feedback.textContent = message;
-            
+
             // Estilos inline (evita CSS externo)
             Object.assign(feedback.style, {
                 position: 'fixed',
@@ -497,12 +493,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function showError(field, message) {
             field.classList.add('error');
-            
+
             const errorSpan = document.createElement('span');
             errorSpan.className = 'form-error';
             errorSpan.textContent = message;
             errorSpan.style.cssText = 'color: #f87171; font-size: 0.75rem; margin-top: 0.25rem; display: block;';
-            
+
             field.parentElement.appendChild(errorSpan);
             field.focus();
         }
@@ -689,8 +685,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Performance: usar passive listeners onde possível
-        document.addEventListener('touchstart', function() {}, { passive: true });
-        document.addEventListener('touchmove', function() {}, { passive: true });
+        document.addEventListener('touchstart', function () { }, { passive: true });
+        document.addEventListener('touchmove', function () { }, { passive: true });
     }
 
     // ===== 11. INITIALIZE EVERYTHING OTIMIZADO =====
@@ -699,10 +695,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // 1. Primeiro o preloader/animação de construção
         initPreloader();
-        
+
         // 2. Inicializar otimizações de performance
         initPerformanceOptimizations();
-        
+
         // 3. Inicializar funcionalidades principais
         initHeaderScroll();
         initMobileMenu();
@@ -711,10 +707,10 @@ document.addEventListener('DOMContentLoaded', function () {
         initContactForm();
         initToast();
         initCurrentYear();
-        
+
         // 4. Animações on scroll serão iniciadas após preloader
         // (já chamado em hidePreloader)
-        
+
         // 5. Adicionar classe loaded ao body
         setTimeout(() => {
             document.body.classList.add('loaded');
@@ -739,7 +735,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }, { passive: true });
 
     // ===== 14. CLEANUP ON PAGE HIDE =====
-    window.addEventListener('pagehide', function() {
+    window.addEventListener('pagehide', function () {
         // Limpar timeouts para evitar memory leaks
         clearTimeout(scrollTimeout);
         clearTimeout(resizeTimeout);

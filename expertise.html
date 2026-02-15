@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="pt">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -11,28 +12,34 @@
 
 <body>
 
-  <!-- HEADER -->
-  <header>
+  <!-- ===== HEADER ===== -->
+  <header class="site-header" id="siteHeader">
     <div class="container">
-      <div class="nav">
-        <a class="brand" href="#top" aria-label="Ir ao topo">
-          <img class="logoImg" src="logo.jpg" alt="O+A" />
-          <div class="brandText">
-            <div class="name">O+A Architects and Planners</div>
-            <div class="tag">Architecture and Planning for a Changing World</div>
+      <nav class="main-nav" aria-label="Main navigation">
+        <!-- Logo/Brand -->
+        <a href="index.html" class="brand" aria-label="O+A Architects - Home">
+          <div class="logo-mark">
+            <img src="logo.jpg" alt="O+A logo">
+          </div>
+          <div class="brand-text">
+            <div class="brand-name">O+A Architects and Planners</div>
+            <div class="brand-tagline">Architecture and Planning for a Changing World</div>
           </div>
         </a>
 
-        <div class="navActions">
-          <button class="iconBtn" id="openMenu" aria-label="Menu">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="4" y1="7" x2="20" y2="7"></line>
-              <line x1="4" y1="12" x2="20" y2="12"></line>
-              <line x1="4" y1="17" x2="20" y2="17"></line>
-            </svg>
-          </button>
+        <!-- Desktop Navigation -->
+        <div class="nav-desktop">
+          <a href="index.html#workshop" class="nav-link">Workshop</a>
+          <a href="#expertise" class="nav-link">Expertise</a>
+          <a href="index.html#projects" class="nav-link">Projects</a>
+          <a href="index.html#contacts" class="nav-link">Contact</a>
         </div>
-      </div>
+
+        <!-- Mobile Menu Button -->
+        <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false">
+          <i class="bi bi-list"></i>
+        </button>
+      </nav>
     </div>
   </header>
 
@@ -173,9 +180,18 @@
         </div>
 
         <div class="grid expertise">
-          <div class="card span4"><h3>Architecture</h3><p>Concept, technical design, construction support.</p></div>
-          <div class="card span4"><h3>Urban Planning</h3><p>Structure plans, zoning, public space.</p></div>
-          <div class="card span4"><h3>WASH</h3><p>Sanitation, schools, O&M oriented design.</p></div>
+          <div class="card span4">
+            <h3>Architecture</h3>
+            <p>Concept, technical design, construction support.</p>
+          </div>
+          <div class="card span4">
+            <h3>Urban Planning</h3>
+            <p>Structure plans, zoning, public space.</p>
+          </div>
+          <div class="card span4">
+            <h3>WASH</h3>
+            <p>Sanitation, schools, O&M oriented design.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -212,25 +228,39 @@
 
   </main>
 
-  <!-- MENU OVERLAY -->
-  <div class="overlay" id="menuOverlay" aria-hidden="true">
-    <div class="sheet">
-      <div class="panel">
-        <div class="panelHead">
-          <div class="title">Menu</div>
-          <button class="iconBtn" id="closeMenu" aria-label="Fechar">✕</button>
-        </div>
-        <div class="panelBody">
-          <div class="menuGrid">
-            <div class="menuItem" data-jump="#workshop">Workshop</div>
-            <div class="menuItem" data-jump="#expertise">Expertise</div>
-            <div class="menuItem" data-jump="#contacts">Contacts</div>
-          </div>
-        </div>
-      </div>
+  <!-- ===== MOBILE MENU OVERLAY ===== -->
+  <div class="menu-overlay" id="menuOverlay" aria-hidden="true">
+    <div class="menu-container">
+      <button class="menu-close" id="menuClose" aria-label="Close menu">
+        <i class="bi bi-x-lg"></i>
+      </button>
+
+      <nav class="menu-nav" aria-label="Mobile navigation">
+        <a href="index.html#workshop" class="menu-item">
+          <span class="menu-item-number">01</span>
+          <span class="menu-item-text">Workshop</span>
+          <i class="bi bi-arrow-right"></i>
+        </a>
+        <a href="#top" class="menu-item">
+          <span class="menu-item-number">02</span>
+          <span class="menu-item-text">Expertise</span>
+          <i class="bi bi-arrow-right"></i>
+        </a>
+        <a href="index.html#projects" class="menu-item">
+          <span class="menu-item-number">03</span>
+          <span class="menu-item-text">Projects</span>
+          <i class="bi bi-arrow-right"></i>
+        </a>
+        <a href="index.html#contacts" class="menu-item">
+          <span class="menu-item-number">04</span>
+          <span class="menu-item-text">Contact</span>
+          <i class="bi bi-arrow-right"></i>
+        </a>
+      </nav>
     </div>
   </div>
 
-  <script src="assets/js/script.js"></script>
+  <script src="assets/js/main.js"></script>
 </body>
+
 </html>
