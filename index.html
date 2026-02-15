@@ -704,18 +704,26 @@
               </div>
 
               <div class="form-group">
-                <label for="subject" class="form-label" data-i18n="contact.form.subject">Assunto</label>
+                <div class="form-label-row">
+                  <label for="subject" class="form-label" data-i18n="contact.form.subject">Assunto</label>
+                  <span class="char-counter"><span class="char-counter-value">0 / 100</span></span>
+                </div>
                 <input type="text" id="subject" name="subject" class="form-input"
                   data-i18n-attr="placeholder:contact.form.placeholderSubject"
-                  placeholder="Assunto do projecto ou consulta" autocomplete="off">
+                  placeholder="Assunto do projecto ou consulta" autocomplete="off" data-max-length="100">
               </div>
 
               <div class="form-group">
-                <label for="message" class="form-label" data-i18n="contact.form.message">Mensagem *</label>
+                <div class="form-label-row">
+                  <label for="message" class="form-label" data-i18n="contact.form.message">Mensagem *</label>
+                  <span class="char-counter"><span class="char-counter-value">0 / 1000</span></span>
+                </div>
                 <textarea id="message" name="message" class="form-textarea"
                   data-i18n-attr="placeholder:contact.form.placeholderMessage"
-                  placeholder="Conte-nos sobre o seu projecto ou consulta..." rows="6" required></textarea>
+                  placeholder="Conte-nos sobre o seu projecto ou consulta..." rows="6" required
+                  data-max-length="1000"></textarea>
               </div>
+
 
               <div class="form-actions">
                 <button type="submit" class="btn btn-primary">

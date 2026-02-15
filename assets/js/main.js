@@ -431,6 +431,34 @@ document.addEventListener('DOMContentLoaded', function () {
         const contactForm = document.querySelector('.contact-form');
         if (!contactForm) return;
 
+        // Limite de caracteres
+        const charLimits = {
+            subject: 100,
+            message: 1000
+        };
+
+        // Inicializar contadores
+        contactForm.querySelectorAll('[data-max-length]').forEach(field => {
+            const limit = field.getAttribute('data-max-length');
+            const counter = field.parentElement.querySelector('.char-counter-value');
+            if (counter) counter.textContent = `0 / ${limit}`;
+
+            field.addEventListener('input', function () {
+                const currentLength = this.value.length;
+                if (counter) counter.textContent = `${currentLength} / ${limit}`;
+
+                if (currentLength > limit) {
+                    field.classList.add('error');
+                    if (counter) counter.parentElement.classList.add('limit-exceeded');
+                } else {
+                    if (counter) counter.parentElement.classList.remove('limit-exceeded');
+                    if (!field.required || this.value.trim() !== '') {
+                        field.classList.remove('error');
+                    }
+                }
+            });
+        });
+
         // Validação em tempo real
         contactForm.querySelectorAll('.form-input, .form-textarea').forEach(input => {
             input.addEventListener('blur', function () {
@@ -444,6 +472,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (errorSpan) errorSpan.remove();
                 }
             });
+
         });
 
         // Submissão do formulário
@@ -457,7 +486,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function validateField(field) {
             const value = field.value.trim();
-            let errorSpan = field.parentElement.querySelector('.form-error');
+            const parent = field.closest('.form-group');
+            let errorSpan = parent.querySelector('.form-error');
 
             // Limpar erro anterior
             if (errorSpan) errorSpan.remove();
@@ -475,6 +505,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 return false;
             }
 
+            const maxLength = field.getAttribute('data-max-length');
+            if (maxLength && value.length > parseInt(maxLength)) {
+                showError(field, `Limite de ${maxLength} caracteres excedido`);
+                return false;
+            }
+
             // Sucesso
             field.classList.add('success');
             return true;
@@ -482,9 +518,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function validateForm() {
             let isValid = true;
-            const requiredFields = contactForm.querySelectorAll('[required]');
+            const fields = contactForm.querySelectorAll('[required], [data-max-length]');
 
-            requiredFields.forEach(field => {
+            fields.forEach(field => {
                 if (!validateField(field)) {
                     isValid = false;
                 }
@@ -495,13 +531,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function showError(field, message) {
             field.classList.add('error');
+            const parent = field.closest('.form-group');
 
             const errorSpan = document.createElement('span');
             errorSpan.className = 'form-error';
             errorSpan.textContent = message;
-            errorSpan.style.cssText = 'color: #f87171; font-size: 0.75rem; margin-top: 0.25rem; display: block;';
 
-            field.parentElement.appendChild(errorSpan);
+            parent.appendChild(errorSpan);
             field.focus();
         }
 
@@ -517,6 +553,16 @@ document.addEventListener('DOMContentLoaded', function () {
             submitBtn.innerHTML = '<i class="bi bi-arrow-clockwise" style="animation: spin 1s linear infinite;"></i> Enviando...';
             submitBtn.disabled = true;
 
+            // Coleta e Sanitização de Dados
+            const formData = {
+                name: sanitizeHTML(contactForm.name.value),
+                email: sanitizeHTML(contactForm.email.value),
+                subject: sanitizeHTML(contactForm.subject.value),
+                message: sanitizeHTML(contactForm.message.value)
+            };
+
+            console.log('Dados Sanitizados:', formData);
+
             // Simular envio
             setTimeout(() => {
                 // Sucesso
@@ -526,8 +572,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Resetar formulário
                 contactForm.reset();
-                contactForm.querySelectorAll('.success').forEach(el => {
-                    el.classList.remove('success');
+                contactForm.querySelectorAll('.success, .error').forEach(el => {
+                    el.classList.remove('success', 'error');
+                });
+                contactForm.querySelectorAll('.char-counter-value').forEach(el => {
+                    const limit = el.parentElement.previousElementSibling.getAttribute('data-max-length');
+                    el.textContent = `0 / ${limit}`;
                 });
 
                 // Toast de sucesso
@@ -541,6 +591,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     submitBtn.style.borderColor = '';
                 }, 3000);
             }, 2000);
+        }
+
+        function sanitizeHTML(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
         }
     }
 

@@ -126,7 +126,8 @@ const translations = {
                 placeholderMessage: "Conte-nos sobre o seu projecto ou consulta...",
                 submit: "Enviar Mensagem",
                 reset: "Limpar Formulário",
-                note: "* Campos obrigatórios. Respondemos geralmente dentro de 24-48 horas."
+                note: "* Campos obrigatórios. Respondemos geralmente dentro de 24-48 horas.",
+                charCounter: "caracteres"
             }
         },
         footer: {
@@ -267,7 +268,8 @@ const translations = {
                 placeholderMessage: "Tell us about your project or inquiry...",
                 submit: "Send Message",
                 reset: "Clear Form",
-                note: "* Required fields. We typically respond within 24-48 hours."
+                note: "* Required fields. We typically respond within 24-48 hours.",
+                charCounter: "characters"
             }
         },
         footer: {
