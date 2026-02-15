@@ -2072,19 +2072,19 @@ a:hover {
     }
 }
 
-/* ===== EXPERTISE REDESIGN ===== */
-.expertise-container {
+/* ===== EXPERTISE REDESIGN (High Specificity) ===== */
+#expertise .expertise-container {
     margin-top: var(--space-2xl);
     position: relative;
 }
 
-.expertise-grid {
+#expertise .expertise-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-lg);
+    gap: var(--space-xl);
 }
 
-.expertise-card {
+#expertise .expertise-card {
     background: rgba(30, 30, 30, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: var(--radius-lg);
@@ -2158,18 +2158,20 @@ a:hover {
     background: var(--gray-100);
 }
 
-.expertise-card h3 {
+#expertise .expertise-card h3 {
     font-size: var(--text-lg);
-    font-weight: 600;
-    margin-bottom: var(--space-xs);
+    font-weight: 700;
+    margin-bottom: var(--space-sm);
     color: var(--gray-100);
     font-family: var(--font-sans);
+    letter-spacing: -0.01em;
 }
 
-.expertise-card p {
+#expertise .expertise-card p {
     font-size: var(--text-sm);
-    color: var(--gray-500);
+    color: var(--gray-400);
     line-height: 1.6;
+    margin: 0;
 }
 
 /* ===== MOBILE OPTIMIZATIONS ===== */
