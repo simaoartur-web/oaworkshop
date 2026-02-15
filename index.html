@@ -216,27 +216,27 @@
     <!-- ===== HERO SECTION ===== -->
     <section class="hero-section">
       <div class="container">
-        <div class="hero-content animate-on-scroll">
+        <div class="hero-content reveal reveal-up">
           <span class="eyebrow">O+A Architects and Planners</span>
-          <h1 class="hero-title">Designing places that work today and tomorrow</h1>
+          <h1 class="hero-title">Designing places that work <span class="text-accent">today and tomorrow</span></h1>
           <p class="hero-description">
             Architecture, urban planning and resilient infrastructure, with a pragmatic approach
             to delivery, community impact and long term maintenance.
           </p>
 
           <div class="hero-actions">
-            <a href="#expertise" class="btn btn-primary">
-              <span>Areas de Actuação</span>
-              <i class="bi bi-arrow-down-right"></i>
+            <a href="expertise.html" class="btn btn-primary">
+              <span>Nossa Expertise</span>
+              <i class="bi bi-arrow-right"></i>
             </a>
             <a href="#projects" class="btn btn-outline">
-              <span>View Projects</span>
+              <span>Ver Projectos</span>
               <i class="bi bi-grid-3x3"></i>
             </a>
           </div>
 
           <!-- Hero Stats -->
-          <div class="hero-stats">
+          <div class="hero-stats reveal reveal-up delay-200">
             <div class="stat">
               <div class="stat-number">15+</div>
               <div class="stat-label">Years Experience</div>
@@ -254,35 +254,34 @@
       </div>
 
       <!-- Hero Background Elements -->
-      <div class="hero-bg-elements">
-        <div class="bg-element bg-element-1"></div>
-        <div class="bg-element bg-element-2"></div>
-        <div class="bg-element bg-element-3"></div>
+      <div class="hero-bg-overlay"></div>
+      <div class="hero-media-container">
+        <div class="hero-image-overlay slow-zoom"></div>
       </div>
     </section>
 
     <!-- ===== WORKSHOP SECTION ===== -->
-    <section id="workshop" class="section">
+    <section id="workshop" class="section reveal reveal-up">
       <div class="container">
-        <div class="section-head animate-on-scroll">
+        <div class="section-head reveal reveal-up">
           <div>
-            <h2>Workshop</h2>
-            <p>Who we are, how we work, and how we structure teams around projects.</p>
+            <h2 class="text-accent">Workshop</h2>
+            <p>Arquitetura é sobre ouvir, projetar e realizar sonhos com precisão técnica.</p>
           </div>
-          <a class="btn" href="#organogram">Organigrama</a>
+          <a class="btn btn-outline" href="#organogram">Conheça a Equipe</a>
         </div>
 
         <div class="grid workshopGrid">
-          <div class="span7 animate-on-scroll delay-100">
-            <div class="media" role="img" aria-label="Workshop image">
+          <div class="span7 reveal reveal-left delay-100">
+            <div class="media" role="img" aria-label="Nosso Workshop">
               <!-- Background image via CSS -->
             </div>
           </div>
-          <div class="span5 animate-on-scroll delay-200">
+          <div class="span5 reveal reveal-right delay-200">
             <div class="card glass-card" style="height:100%">
-              <h3>About</h3>
-              <p>We deliver architectural and planning solutions that combine design clarity, technical rigor and an
-                implementation mindset from concept to construction support.</p>
+              <h3>Abordagem Centrada no Cliente</h3>
+              <p>Entregamos soluções arquitetônicas que combinam clareza de design, rigor técnico e uma mentalidade de
+                implementação do conceito ao suporte à construção.</p>
 
               <div class="steps">
                 <div class="step">
@@ -360,7 +359,7 @@
     </section>
 
     <!-- ===== EXPERTISE SECTION ===== -->
-    <section id="expertise" class="section tight">
+    <section id="expertise" class="section tight reveal reveal-up">
       <div class="container">
         <div class="section-head animate-on-scroll">
           <div>
@@ -369,55 +368,80 @@
           </div>
         </div>
 
-        <div class="grid expertise stagger-children">
-          <div class="card span4 glass-card">
-            <div class="expertise-icon">
-              <i class="bi bi-building"></i>
+        <div class="expertise-container">
+          <div class="expertise-grid">
+            <!-- Architecture -->
+            <div class="expertise-card" onclick="this.classList.toggle('expanded')">
+              <div class="expertise-visual">
+                <i class="bi bi-building"></i>
+              </div>
+              <div class="expertise-info">
+                <h3>Arquitetura</h3>
+                <p>Design conceitual, suporte técnico à construção e interiores.</p>
+              </div>
             </div>
-            <h3>Architecture</h3>
-            <p>Concept design, technical design, construction support, interiors, detailing.</p>
-          </div>
-          <div class="card span4 glass-card">
-            <div class="expertise-icon">
-              <i class="bi bi-map"></i>
+
+            <!-- Urban Planning -->
+            <div class="expertise-card" onclick="this.classList.toggle('expanded')">
+              <div class="expertise-visual">
+                <i class="bi bi-map"></i>
+              </div>
+              <div class="expertise-info">
+                <h3>Urbanismo</h3>
+                <p>Planos de estrutura, visões estratégicas e zoneamento urbano.</p>
+              </div>
             </div>
-            <h3>Urban Planning</h3>
-            <p>Structure plans, strategic visions, zoning, public space frameworks, diagnostics.</p>
-          </div>
-          <div class="card span4 glass-card">
-            <div class="expertise-icon">
-              <i class="bi bi-droplet"></i>
+
+            <!-- WASH -->
+            <div class="expertise-card" onclick="this.classList.toggle('expanded')">
+              <div class="expertise-visual">
+                <i class="bi bi-droplet"></i>
+              </div>
+              <div class="expertise-info">
+                <h3>WASH</h3>
+                <p>Saneamento modular e infraestrutura escolar resiliente.</p>
+              </div>
             </div>
-            <h3>WASH</h3>
-            <p>Modular sanitation, school facilities, child friendly and O and M oriented designs.</p>
-          </div>
-          <div class="card span4 glass-card">
-            <div class="expertise-icon">
-              <i class="bi bi-shield-check"></i>
+
+            <!-- DRR -->
+            <div class="expertise-card" onclick="this.classList.toggle('expanded')">
+              <div class="expertise-visual">
+                <i class="bi bi-shield-check"></i>
+              </div>
+              <div class="expertise-info">
+                <h3>DRR</h3>
+                <p>Design consciente de riscos e construção resiliente.</p>
+              </div>
             </div>
-            <h3>DRR</h3>
-            <p>Risk aware design, resilient construction approaches, safer schools and housing.</p>
-          </div>
-          <div class="card span4 glass-card">
-            <div class="expertise-icon">
-              <i class="bi bi-layers"></i>
+
+            <!-- GIS -->
+            <div class="expertise-card" onclick="this.classList.toggle('expanded')">
+              <div class="expertise-visual">
+                <i class="bi bi-layers"></i>
+              </div>
+              <div class="expertise-info">
+                <h3>GIS</h3>
+                <p>Análise espacial e evidências territoriais para decisão.</p>
+              </div>
             </div>
-            <h3>GIS</h3>
-            <p>Cartography, mapping, dashboards, spatial evidence for decision making.</p>
-          </div>
-          <div class="card span4 glass-card">
-            <div class="expertise-icon">
-              <i class="bi bi-clipboard-check"></i>
+
+            <!-- Project Management -->
+            <div class="expertise-card" onclick="this.classList.toggle('expanded')">
+              <div class="expertise-visual">
+                <i class="bi bi-clipboard-check"></i>
+              </div>
+              <div class="expertise-info">
+                <h3>Gestão</h3>
+                <p>Coordenação de projeto e suporte de implementação.</p>
+              </div>
             </div>
-            <h3>Project Management</h3>
-            <p>Workplans, BoQs, procurement support, site coordination, QA QC processes.</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- ===== PROJECTS SECTION ===== -->
-    <section id="projects" class="section projects-section">
+    <section id="projects" class="section projects-section reveal reveal-up">
       <div class="container">
         <div class="section-head animate-on-scroll">
           <div>
@@ -578,7 +602,7 @@
     </section>
 
     <!-- ===== CONTACTS SECTION ===== -->
-    <section id="contacts" class="section contacts-section">
+    <section id="contacts" class="section contacts-section reveal reveal-up">
       <div class="container">
         <div class="section-head animate-on-scroll">
           <div>

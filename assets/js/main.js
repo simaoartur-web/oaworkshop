@@ -611,21 +611,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ===== 8. ANIMAÇÕES ON SCROLL OTIMIZADAS =====
     function initScrollAnimations() {
-        // Observer com threshold baixo para melhor performance
+        // Observer para as novas animações Premium Reveal
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, {
+            threshold: 0.15,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        document.querySelectorAll('.reveal').forEach(el => {
+            revealObserver.observe(el);
+        });
+
+        // Observer legado (mantido para compatibilidade se necessário)
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('animated', 'visible');
-                    observer.unobserve(entry.target); // Parar de observar após animar
+                    observer.unobserve(entry.target);
                 }
             });
         }, {
-            root: null,
-            rootMargin: '0px',
             threshold: 0.1
         });
 
-        // Observar apenas elementos visíveis
         document.querySelectorAll('.animate-on-scroll').forEach(el => {
             observer.observe(el);
         });

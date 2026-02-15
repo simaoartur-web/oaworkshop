@@ -179,18 +179,40 @@
           <h2>Expertise</h2>
         </div>
 
-        <div class="grid expertise">
-          <div class="card span4">
-            <h3>Architecture</h3>
-            <p>Concept, technical design, construction support.</p>
-          </div>
-          <div class="card span4">
-            <h3>Urban Planning</h3>
-            <p>Structure plans, zoning, public space.</p>
-          </div>
-          <div class="card span4">
-            <h3>WASH</h3>
-            <p>Sanitation, schools, O&M oriented design.</p>
+        <div class="expertise-container">
+          <div class="expertise-grid">
+            <!-- Architecture -->
+            <div class="expertise-card" onclick="this.classList.toggle('expanded')">
+              <div class="expertise-visual">
+                <i class="bi bi-building"></i>
+              </div>
+              <div class="expertise-info">
+                <h3>Arquitetura</h3>
+                <p>Design conceitual, suporte técnico à construção e interiores.</p>
+              </div>
+            </div>
+
+            <!-- Urban Planning -->
+            <div class="expertise-card" onclick="this.classList.toggle('expanded')">
+              <div class="expertise-visual">
+                <i class="bi bi-map"></i>
+              </div>
+              <div class="expertise-info">
+                <h3>Urbanismo</h3>
+                <p>Planos de estrutura, visões estratégicas e zoneamento urbano.</p>
+              </div>
+            </div>
+
+            <!-- WASH -->
+            <div class="expertise-card" onclick="this.classList.toggle('expanded')">
+              <div class="expertise-visual">
+                <i class="bi bi-droplet"></i>
+              </div>
+              <div class="expertise-info">
+                <h3>WASH</h3>
+                <p>Saneamento modular e infraestrutura escolar resiliente.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
