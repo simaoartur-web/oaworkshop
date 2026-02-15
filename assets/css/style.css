@@ -116,10 +116,6 @@ a:hover {
     padding: var(--space-4xl) 0;
 }
 
-.tight {
-    padding: var(--space-3xl) 0;
-}
-
 /* ===== HEADER CORRIGIDO ===== */
 .site-header {
     position: fixed;
@@ -1700,13 +1696,6 @@ a:hover {
         gap: var(--space-sm);
     }
 
-    .section {
-        padding: var(--space-3xl) 0;
-    }
-
-    .tight {
-        padding: var(--space-2xl) 0;
-    }
 }
 
 /* ===== MOBILE OPTIMIZATIONS (TOTAL OVERHAUL) ===== */
@@ -1749,44 +1738,47 @@ a:hover {
         padding: var(--section-padding) 0 !important;
     }
 
-    /* Expertise Redesign (Native Mobile) */
+    .hero-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: var(--space-md);
+    }
+
+    /* Expertise Redesign (H-Scroll Mobile) */
+    .expertise-container {
+        overflow-x: auto;
+        margin-right: calc(-1 * var(--container-padding));
+        padding-left: var(--space-md);
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .expertise-container::-webkit-scrollbar {
+        display: none;
+    }
+
     .expertise-grid {
         display: flex;
-        flex-direction: column;
-        width: 100% !important;
-        gap: var(--space-sm);
+        width: max-content;
+        gap: var(--space-md);
+        padding-right: var(--space-md);
+        flex-direction: row;
     }
 
     .expertise-card {
-        flex-direction: row;
-        /* Horizontal layout on mobile */
-        text-align: left;
-        padding: var(--space-md);
-        gap: var(--space-md);
-        justify-content: flex-start;
-        align-items: center;
-        width: 100% !important;
-    }
-
-    .expertise-visual {
-        width: 44px;
-        height: 44px;
-        margin-bottom: 0;
+        width: 280px;
         flex-shrink: 0;
-        font-size: 1.2rem;
+        padding: var(--space-lg);
+        text-align: left;
     }
 
-    .expertise-card h3 {
-        font-size: 1rem;
-        margin-bottom: 2px;
+    .expertise-card.expanded p {
+        display: block !important;
+        margin-top: 4px;
+        opacity: 0.8;
     }
 
-    .expertise-card p {
-        display: none;
-        /* Hide dry text on mobile unless interactive */
-    }
-
-    /* Workshop Overhaul */
+    /* Workshop Mobile fix */
     .workshopGrid {
         display: flex;
         flex-direction: column;
@@ -1794,83 +1786,20 @@ a:hover {
     }
 
     .media {
-        height: 250px;
         min-height: 250px;
     }
 
-    /* Projects Overhaul */
+    /* Projects Mobile fix */
     .projects-grid {
-        display: flex;
-        flex-direction: column;
+        display: flex !important;
+        flex-direction: column !important;
         gap: var(--space-md);
     }
 
     .project-item:nth-child(n) {
-        height: 300px !important;
+        grid-column: span 1;
+        height: 350px !important;
         border-radius: var(--radius-md);
-    }
-
-    /* Navigation Drawer (Native Overhaul) */
-    .menu-overlay {
-        background: var(--black-950);
-        padding: 0;
-    }
-
-    .menu-container {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        padding: var(--space-2xl);
-    }
-
-    .menu-nav {
-        gap: var(--space-xl);
-    }
-
-    .menu-item {
-        font-size: 2rem !important;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        padding: var(--space-lg) 0;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .menu-item-number {
-        font-size: 0.85rem;
-        opacity: 0.4;
-        margin-right: var(--space-md);
-        font-family: var(--font-sans);
-    }
-
-    .menu-close {
-        top: 24px;
-        right: 24px;
-        width: 48px;
-        height: 48px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 50%;
-    }
-
-    /* Section Headings Mobile */
-    .menu-close i {
-        font-size: 1.5rem;
-    }
-
-    .btn {
-        width: 100%;
-        justify-content: center;
-        padding: 14px var(--space-xl);
-    }
-
-    .hero-actions {
-        flex-direction: column;
-        width: 100%;
-        gap: var(--space-md);
     }
 }
 
@@ -1979,24 +1908,9 @@ a:hover {
     padding: var(--space-lg);
 }
 
-/* Animações otimizadas */
-.animate-on-scroll {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
 .animate-on-scroll.animated {
     opacity: 1;
     transform: translateY(0);
-}
-
-.delay-100 {
-    transition-delay: 100ms;
-}
-
-.delay-200 {
-    transition-delay: 200ms;
 }
 
 .delay-300 {
@@ -2201,61 +2115,6 @@ a:hover {
     .expertise-scroll::-webkit-scrollbar {
         display: none;
     }
-
-    .expertise-grid {
-        display: flex;
-        width: max-content;
-        gap: var(--space-md);
-        padding-right: var(--space-md);
-    }
-
-    .expertise-card {
-        width: 280px;
-        flex-shrink: 0;
-        padding: var(--space-lg);
-    }
-
-    .section {
-        padding: var(--section-padding) 0 !important;
-    }
-
-    /* Workshop Mobile fix */
-    .workshopGrid {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-md);
-    }
-
-    .expertise-card.expanded p {
-        display: block !important;
-        margin-top: 4px;
-        opacity: 0.8;
-    }
-
-    .expertise-info {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .media {
-        min-height: 300px;
-    }
-
-    /* Projects Mobile fix */
-    .projects-grid {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-md);
-    }
-
-    .project-item:nth-child(n) {
-        grid-column: span 1;
-        height: 400px !important;
-    }
-}
-
-.section {
-    padding: var(--section-padding) 0;
 }
 
 /* Fix for masonry on desktop if container is too small */
