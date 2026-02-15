@@ -343,20 +343,22 @@ document.addEventListener('DOMContentLoaded', function () {
                     shouldShow = false;
                 }
 
-                // Animar transição
+                // Animar transição fluida
                 if (shouldShow) {
                     project.style.display = 'block';
                     setTimeout(() => {
                         project.style.opacity = '1';
-                        project.style.transform = 'scale(1)';
-                    }, 10);
+                        project.style.transform = 'scale(1) translateY(0)';
+                        project.style.visibility = 'visible';
+                    }, 50);
                     visibleCount++;
                 } else {
                     project.style.opacity = '0';
-                    project.style.transform = 'scale(0.9)';
+                    project.style.transform = 'scale(0.95) translateY(20px)';
+                    project.style.visibility = 'hidden';
                     setTimeout(() => {
                         project.style.display = 'none';
-                    }, 300);
+                    }, 400);
                 }
             });
 
