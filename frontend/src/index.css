@@ -30,7 +30,7 @@
     }
 
     body {
-        @apply bg-white text-black-900 font-sans tracking-wide;
+        @apply bg-black-900 text-white font-sans tracking-wide;
     }
 
     h1,

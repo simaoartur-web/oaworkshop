@@ -34,7 +34,7 @@ const ContactSection = () => {
     };
 
     return (
-        <section id="contact" className="py-24 bg-gray-100 text-black-900 relative overflow-hidden">
+        <section id="contact" className="py-24 bg-black-800 text-white relative overflow-hidden">
             <div className="container-custom">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-24">
 
@@ -69,7 +69,7 @@ const ContactSection = () => {
 
                             <div>
                                 <h4 className="text-xs uppercase tracking-widest text-gray-500 mb-2">Localizações</h4>
-                                <p className="text-lg font-light text-gray-600">Milão, Itália <br /> Maputo, Moçambique</p>
+                                <p className="text-lg font-light text-gray-400">Milão, Itália <br /> Maputo, Moçambique</p>
                             </div>
                         </div>
                     </motion.div>
@@ -79,12 +79,12 @@ const ContactSection = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.8, delay: 0.2 }}
-                        className="bg-white p-8 md:p-12 shadow-sm border border-gray-100"
+                        className="bg-black-900 p-8 md:p-12 shadow-sm border border-white/10"
                     >
                         <h3 className="text-2xl font-light mb-8">Enviar Mensagem</h3>
 
                         {status === 'success' ? (
-                            <div className="bg-black-900 text-white p-8 text-center h-full flex flex-col justify-center items-center min-h-[400px]">
+                            <div className="bg-black-800 text-white p-8 text-center h-full flex flex-col justify-center items-center min-h-[400px]">
                                 <div className="w-16 h-16 border border-white rounded-full flex items-center justify-center mb-6">
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M5 13l4 4L19 7"></path></svg>
                                 </div>
@@ -133,7 +133,7 @@ const ContactSection = () => {
                                 <button
                                     type="submit"
                                     disabled={status === 'loading'}
-                                    className="w-full bg-black-900 text-white py-4 uppercase tracking-widest text-xs hover:bg-black-700 transition-colors disabled:opacity-50"
+                                    className="w-full bg-white text-black-900 py-4 uppercase tracking-widest text-xs hover:bg-gray-200 transition-colors disabled:opacity-50"
                                 >
                                     {status === 'loading' ? 'A enviar...' : 'Enviar Mensagem'}
                                 </button>

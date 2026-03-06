@@ -9,7 +9,7 @@ const WorkshopSection = () => {
     ];
 
     return (
-        <section id="workshop" className="py-24 bg-white text-black-900">
+        <section id="workshop" className="py-24 bg-black-900 text-white">
             <div className="container-custom">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 mb-32">
                     {/* Method Text */}
@@ -57,7 +57,7 @@ const WorkshopSection = () => {
                 </div>
 
                 {/* The Team / A Nossa Equipa */}
-                <div className="mt-32 pt-24 border-t border-gray-200">
+                <div className="mt-32 pt-24 border-t border-white/10">
                     <div className="text-center max-w-2xl mx-auto mb-16">
                         <h2 className="text-xs tracking-[0.2em] uppercase text-gray-500 mb-4">A Nossa Equipa</h2>
                         <h3 className="text-3xl font-light">Os profissionais por trás da realização dos projetos.</h3>
@@ -71,12 +71,8 @@ const WorkshopSection = () => {
                             viewport={{ once: true }}
                             transition={{ duration: 0.6 }}
                         >
-                            <div className="aspect-[3/4] overflow-hidden bg-gray-100 mb-6 relative">
-                                <img
-                                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                                    alt="Artur Simão"
-                                    className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700"
-                                />
+                            <div className="aspect-[3/4] overflow-hidden bg-black-800 mb-6 relative flex items-center justify-center border border-white/5 group-hover:bg-white/5 transition-colors duration-500">
+                                <span className="text-8xl font-light text-white/10 group-hover:text-white/20 transition-colors duration-500">?</span>
                             </div>
                             <h4 className="text-lg font-medium tracking-wide">Artur Simão</h4>
                             <p className="text-xs tracking-widest text-gray-500 uppercase mt-2">Sócio Fundador</p>
@@ -89,12 +85,8 @@ const WorkshopSection = () => {
                             viewport={{ once: true }}
                             transition={{ duration: 0.6, delay: 0.2 }}
                         >
-                            <div className="aspect-[3/4] overflow-hidden bg-gray-100 mb-6 relative">
-                                <img
-                                    src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                                    alt="Osvaldo"
-                                    className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700"
-                                />
+                            <div className="aspect-[3/4] overflow-hidden bg-black-800 mb-6 relative flex items-center justify-center border border-white/5 group-hover:bg-white/5 transition-colors duration-500">
+                                <span className="text-8xl font-light text-white/10 group-hover:text-white/20 transition-colors duration-500">?</span>
                             </div>
                             <h4 className="text-lg font-medium tracking-wide">Osvaldo</h4>
                             <p className="text-xs tracking-widest text-gray-500 uppercase mt-2">Sócio Fundador</p>

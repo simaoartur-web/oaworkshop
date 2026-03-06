@@ -9,7 +9,7 @@ const Admin = () => <div className="min-h-screen pt-24"><div className="containe
 
 function App() {
     return (
-        <div className="flex flex-col min-h-screen bg-white text-black-900">
+        <div className="flex flex-col min-h-screen bg-black-900 text-white">
             <Header />
 
             <main className="flex-grow">
