@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 
 const HeroSection = () => {
     return (
-        <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-black-900">
+        <section className="relative min-h-screen w-full flex flex-col overflow-hidden bg-black-900">
             {/* Background Media with Slow Zoom Effect */}
             <div className="absolute inset-0 z-0 slow-zoom">
                 <img
@@ -14,7 +14,7 @@ const HeroSection = () => {
             </div>
 
             {/* Content Content Constraints */}
-            <div className="container-custom relative z-10 text-white pt-24">
+            <div className="flex-1 flex flex-col justify-center container-custom relative z-10 text-white pt-32 pb-16 w-full">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -51,7 +51,7 @@ const HeroSection = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.8 }}
-                className="absolute bottom-0 w-full bg-black-900/80 backdrop-blur-md border-t border-white/10 py-6"
+                className="relative z-10 w-full bg-black-900/80 backdrop-blur-md border-t border-white/10 py-6 mt-auto"
             >
                 <div className="container-custom grid grid-cols-3 gap-4 md:gap-12 divide-x divide-white/10">
                     <div className="text-center px-4">
