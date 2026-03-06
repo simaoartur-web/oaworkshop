@@ -8,7 +8,7 @@ interface Project {
     category: string;
     location: string;
     client: string | null;
-    completion_year: int | null;
+    completion_year: number | null;
     description: string | null;
     thumbnail_url: string | null;
 }
