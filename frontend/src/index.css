@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+        @apply bg-white text-black-900 font-sans tracking-wide;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-light tracking-tight;
+    }
+}
+
+@layer components {
+
+    /* Layout constraints */
+    .container-custom {
+        @apply w-full max-w-[1600px] mx-auto px-6 md:px-12 lg:px-24;
+    }
+
+    /* Specific animations for the "Foster+Partners feeling" */
+    .slow-zoom:hover img {
+        transform: scale(1.05);
+        transition: transform 1.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .slow-zoom img {
+        transition: transform 1.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .reveal-effect {
+        @apply relative overflow-hidden group hover:cursor-crosshair;
+    }
+
+    /* Admin components */
+    .admin-input {
+        @apply w-full border-b border-gray-300 py-3 bg-transparent focus:outline-none focus:border-black-900 transition-colors;
+    }
+
+    .admin-label {
+        @apply text-xs uppercase tracking-widest text-gray-500 mb-1 block;
+    }
+
+    .admin-btn {
+        @apply bg-black-900 text-white px-6 py-3 uppercase tracking-widest text-xs hover:bg-black-700 transition-colors;
+    }
+}
+
+/* Custom Scrollbar for elegant look */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: white;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #e0e0e0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #bdbdbd;
+}
