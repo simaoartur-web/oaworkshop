@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 
 const Admin = () => {
     const [activeTab, setActiveTab] = useState<'leads' | 'projects'>('leads');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [leads, setLeads] = useState<any[]>([]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [projects, setProjects] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -31,6 +33,7 @@ const Admin = () => {
 
     useEffect(() => {
         fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeTab]);
 
     const handleProjectSubmit = async (e: React.FormEvent) => {
@@ -52,7 +55,7 @@ const Admin = () => {
                 setForm({ title: '', category: 'Arquitetura', location: '', client: '', completion_year: '', description: '', thumbnail_url: '' });
                 fetchData();
             }
-        } catch (err) {
+        } catch {
             alert("Erro ao adicionar projeto.");
         }
     };

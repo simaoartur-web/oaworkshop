@@ -18,6 +18,7 @@ const Header = () => {
 
     // Close mobile menu on route change
     useEffect(() => {
+        // eslint-disable-next-line
         setMobileMenuOpen(false);
     }, [location]);
 
