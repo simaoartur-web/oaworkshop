@@ -13,6 +13,12 @@ const HeroSection = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
 
     useEffect(() => {
+        // Preload images for smoother transitions
+        IMAGES.forEach((src) => {
+            const img = new Image();
+            img.src = src;
+        });
+
         const timer = setInterval(() => {
             setCurrentIndex((prev) => (prev + 1) % IMAGES.length);
         }, 7000); // 7 seconds per slide for a premium slow feel
@@ -23,14 +29,14 @@ const HeroSection = () => {
         <section className="relative min-h-screen w-full flex flex-col overflow-hidden bg-black-900">
             {/* Background Media Slider with Slow Zoom Effect */}
             <div className="absolute inset-0 z-0 bg-black-900">
-                <AnimatePresence initial={false}>
+                <AnimatePresence>
                     <motion.div
                         key={currentIndex}
                         className="absolute inset-0"
                         initial={{ opacity: 0, scale: 1.05 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ 
+                        transition={{
                             opacity: { duration: 2, ease: "easeInOut" },
                             scale: { duration: 10, ease: "linear" }
                         }}
