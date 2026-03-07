@@ -2,9 +2,13 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
+import os
+from dotenv import load_dotenv
 
-from . import models, schemas
-from .database import engine, get_db
+load_dotenv()
+
+import models, schemas
+from database import engine, get_db
 
 # Create DB tables
 models.Base.metadata.create_all(bind=engine)
@@ -105,15 +109,23 @@ def create_lead(lead: schemas.LeadCreate, db: Session = Depends(get_db)):
         msg.set_content(f"Novo Formulário de Contacto Recebido!\n\nNome: {clean_name}\nEmail: {lead.email}\nAssunto: {clean_subject}\nMensagem:\n{clean_message}")
         
         msg['Subject'] = f"Contact Form: {clean_subject}"
-        msg['From'] = "website@oa-workshop.com"
-        msg['To'] = "oa@oa-workshop.com"
+        msg['From'] = os.getenv("SMTP_USER", "website@oa-workshop.com")
+        msg['To'] = os.getenv("RECEIVER_EMAIL", "oa@oa-workshop.com")
         
-        # Configure your production SMTP server here:
-        # with smtplib.SMTP_SSL('smtp.your-provider.com', 465) as server:
-        #     server.login("your_email", "your_password")
-        #     server.send_message(msg)
+        smtp_host = os.getenv("SMTP_HOST")
+        smtp_user = os.getenv("SMTP_USER")
+        smtp_pass = os.getenv("SMTP_PASS")
+        smtp_port = int(os.getenv("SMTP_PORT", 465))
         
-        print(f"--> [EMAIL ALERT (Mock)] Send to oa@oa-workshop.com from {lead.email}")
+        # Só tenta enviar de verdade à internet se houver password configurada
+        if smtp_pass and smtp_pass != "sua_password_de_aplicacao_aqui":
+            with smtplib.SMTP_SSL(smtp_host, smtp_port) as server:
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+            print("--> [EMAIL] Enviado com sucesso via SMTP!")
+        else:
+            print(f"--> [EMAIL_MOCK] Simulacao de Envio (Falta Configurar .env). De: {lead.email} Para: {msg['To']}")
+            
     except Exception as e:
         print(f"Failed to send email: {e}")
         # We don't raise an HTTPException here, because we still saved the lead in DB successfully.
