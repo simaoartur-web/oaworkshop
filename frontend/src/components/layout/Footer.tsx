@@ -7,7 +7,7 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-24">
 
                     <div className="col-span-1 md:col-span-2">
-                        <img src="/logo.jpg" alt="O+A" className="w-16 h-16 object-contain mb-6" />
+                        <img src="/logo.png" alt="O+A" className="w-16 h-16 object-contain mb-6" />
                         <p className="text-gray-400 font-light text-xl max-w-sm leading-relaxed mb-8">
                             Arquitetura e Planeamento para um Mundo em Mudança.
                         </p>

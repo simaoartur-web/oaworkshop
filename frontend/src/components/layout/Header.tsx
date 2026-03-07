@@ -37,7 +37,7 @@ const Header = () => {
                 <div className="container-custom flex justify-between items-center">
                     {/* Logo */}
                     <Link to="/" className="flex items-center gap-4 group">
-                        <img src="/logo.jpg" alt="O+A" className="w-12 h-12 object-contain" />
+                        <img src="/logo.png" alt="O+A" className="w-12 h-12 object-contain" />
                         <div className={`hidden md:block transition-opacity duration-300 text-white`}>
                             <div className="font-semibold tracking-wide text-sm">ARCHITECTS AND PLANNERS</div>
                             <div className="text-[10px] tracking-widest uppercase opacity-70">{t('hero.subtitle')}</div>
