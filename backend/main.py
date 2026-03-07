@@ -76,12 +76,48 @@ def delete_project(project_id: int, db: Session = Depends(get_db)):
 
 # --- LEADS / MESSAGES ---
 
+import html
+import smtplib
+from email.message import EmailMessage
+
 @app.post("/api/leads", response_model=schemas.Lead, status_code=status.HTTP_201_CREATED)
 def create_lead(lead: schemas.LeadCreate, db: Session = Depends(get_db)):
-    db_lead = models.Lead(**lead.model_dump())
+    # 1. Prevent XSS by escaping HTML characters before saving to DB
+    clean_name = html.escape(lead.name)
+    clean_subject = html.escape(lead.subject) if lead.subject else ""
+    clean_message = html.escape(lead.message)
+    
+    # Update lead object with sanitized data
+    db_lead = models.Lead(
+        name=clean_name,
+        email=lead.email,
+        subject=clean_subject,
+        message=clean_message
+    )
+    
     db.add(db_lead)
     db.commit()
     db.refresh(db_lead)
+    
+    # 2. Logic to actually send the email to the company
+    try:
+        msg = EmailMessage()
+        msg.set_content(f"Novo Formulário de Contacto Recebido!\n\nNome: {clean_name}\nEmail: {lead.email}\nAssunto: {clean_subject}\nMensagem:\n{clean_message}")
+        
+        msg['Subject'] = f"Contact Form: {clean_subject}"
+        msg['From'] = "website@oa-workshop.com"
+        msg['To'] = "oa@oa-workshop.com"
+        
+        # Configure your production SMTP server here:
+        # with smtplib.SMTP_SSL('smtp.your-provider.com', 465) as server:
+        #     server.login("your_email", "your_password")
+        #     server.send_message(msg)
+        
+        print(f"--> [EMAIL ALERT (Mock)] Send to oa@oa-workshop.com from {lead.email}")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+        # We don't raise an HTTPException here, because we still saved the lead in DB successfully.
+        
     return db_lead
 
 @app.get("/api/admin/leads", response_model=List[schemas.Lead])
