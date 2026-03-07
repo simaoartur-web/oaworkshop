@@ -1,16 +1,49 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+
+const IMAGES = [
+    "https://images.unsplash.com/photo-1600607686527-6fb886090705?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
+    "https://images.unsplash.com/photo-1628159807538-4e8c56fa2b74?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
+    "https://images.unsplash.com/photo-1545648588-bb71842eb552?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
+    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
+];
 
 const HeroSection = () => {
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentIndex((prev) => (prev + 1) % IMAGES.length);
+        }, 7000); // 7 seconds per slide for a premium slow feel
+        return () => clearInterval(timer);
+    }, []);
+
     return (
         <section className="relative min-h-screen w-full flex flex-col overflow-hidden bg-black-900">
-            {/* Background Media with Slow Zoom Effect */}
-            <div className="absolute inset-0 z-0 slow-zoom">
-                <img
-                    src="https://images.unsplash.com/photo-1600607686527-6fb886090705?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
-                    alt="Modern Architecture"
-                    className="w-full h-full object-cover opacity-60 mix-blend-overlay"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-black-900/60 via-transparent to-black-900/90" />
+            {/* Background Media Slider with Slow Zoom Effect */}
+            <div className="absolute inset-0 z-0 bg-black-900">
+                <AnimatePresence initial={false}>
+                    <motion.div
+                        key={currentIndex}
+                        className="absolute inset-0"
+                        initial={{ opacity: 0, scale: 1.05 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ 
+                            opacity: { duration: 2, ease: "easeInOut" },
+                            scale: { duration: 10, ease: "linear" }
+                        }}
+                    >
+                        <img
+                            src={IMAGES[currentIndex]}
+                            alt="Modern Architecture"
+                            className="w-full h-full object-cover opacity-60 mix-blend-overlay"
+                        />
+                    </motion.div>
+                </AnimatePresence>
+                {/* Fixed gradient overlay on top of all slides */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black-900/60 via-transparent to-black-900/90 mix-blend-multiply z-0 pointer-events-none" />
             </div>
 
             {/* Content Content Constraints */}
