@@ -1,21 +1,68 @@
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
-import { useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 const StatItem = ({ value, label, delay = 0 }: { value: number; label: string; delay?: number }) => {
-    const count = useMotionValue(0);
-    const rounded = useTransform(count, (latest) => Math.round(latest));
+    const [displayValue, setDisplayValue] = useState(0);
+    const [hasTriggered, setHasTriggered] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+
+    const startAnimation = useCallback(() => {
+        if (hasTriggered) return;
+        setHasTriggered(true);
+
+        const totalDuration = 2000; // ms
+        const scrambleDuration = 1200; // random phase
+        const settleDuration = totalDuration - scrambleDuration;
+        const startTime = performance.now() + delay * 1000;
+
+        const tick = (now: number) => {
+            const elapsed = now - startTime;
+            if (elapsed < 0) {
+                requestAnimationFrame(tick);
+                return;
+            }
+
+            if (elapsed < scrambleDuration) {
+                // Random scramble phase — show random numbers that gradually approach the target
+                const progress = elapsed / scrambleDuration;
+                const range = value * (1 - progress * 0.6); // narrowing range
+                const center = value * progress;
+                const randomVal = Math.round(center + (Math.random() - 0.5) * range * 2);
+                setDisplayValue(Math.max(0, Math.min(value * 2, randomVal)));
+                requestAnimationFrame(tick);
+            } else if (elapsed < totalDuration) {
+                // Settle phase — ease into the final value
+                const settleProgress = (elapsed - scrambleDuration) / settleDuration;
+                const eased = 1 - Math.pow(1 - settleProgress, 3); // easeOutCubic
+                const current = Math.round(displayValue + (value - displayValue) * eased);
+                setDisplayValue(current);
+                requestAnimationFrame(tick);
+            } else {
+                setDisplayValue(value);
+            }
+        };
+
+        requestAnimationFrame(tick);
+    }, [hasTriggered, value, delay]);
 
     useEffect(() => {
-        const controls = animate(count, value, {
-            duration: 2,
-            delay: delay + 0.5,
-            ease: [0.22, 1, 0.36, 1],
-        });
-        return controls.stop;
-    }, [count, value, delay]);
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting && !hasTriggered) {
+                    startAnimation();
+                }
+            },
+            { threshold: 0.5 }
+        );
+
+        const el = ref.current;
+        if (el) observer.observe(el);
+        return () => { if (el) observer.unobserve(el); };
+    }, [hasTriggered, startAnimation]);
 
     return (
         <motion.div
+            ref={ref}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
@@ -23,10 +70,10 @@ const StatItem = ({ value, label, delay = 0 }: { value: number; label: string; d
             className="flex flex-col items-center text-center gap-4"
         >
             <div className="flex items-baseline text-white">
-                <motion.span className="text-5xl md:text-6xl font-light tracking-tighter leading-none">
-                    {rounded}
-                </motion.span>
-                <span className="text-2xl md:text-3xl font-light ml-1">+</span>
+                <span className="text-2xl md:text-4xl font-light tracking-tighter leading-none tabular-nums">
+                    {displayValue}
+                </span>
+                <span className="text-xl md:text-2xl font-light ml-1">+</span>
             </div>
             <div className="flex flex-col items-center">
                 {label.split('\n').map((line, i) => (

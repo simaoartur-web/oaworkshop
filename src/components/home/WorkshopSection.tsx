@@ -6,21 +6,21 @@ const SLIDES = [
     {
         id: "architecture",
         label: "ARChitecture",
-        title: <>International <span className="italic font-serif font-extralight text-white/90">Architecture</span></>,
+        title: <>International <span className="italic font-light text-white/90">Architecture</span></>,
         desc: "Excellence in sustainable design and innovative technical implementation across global scales.",
         img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80"
     },
     {
         id: "urbanism",
         label: "URBan Planning",
-        title: <>Urbanism <span className="italic font-serif font-extralight text-white/90">Strategy</span></>,
+        title: <>Urbanism <span className="italic font-light text-white/90">Strategy</span></>,
         desc: "Research-driven planning solutions for the resilient cities and communities of tomorrow.",
         img: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80"
     },
     {
         id: "research",
         label: "RESearch",
-        title: <>Experimental <span className="italic font-serif font-extralight text-white/90">Research</span></>,
+        title: <>Experimental <span className="italic font-light text-white/90">Research</span></>,
         desc: "Pushing boundaries in material science and sustainable construction methodologies.",
         img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80"
     }
@@ -99,6 +99,9 @@ const WorkshopSection = () => {
                 </AnimatePresence>
             </div>
 
+            {/* Bottom gradient for smooth section transition */}
+            <div className="absolute bottom-0 left-0 right-0 h-36 z-10 pointer-events-none bg-gradient-to-t from-black-900 to-transparent" />
+
             <div className="container-custom relative z-20 h-full flex flex-col pt-8 pb-8">
                 {/* Main Content Area - Refined for Organization & Premium Feel */}
                 <div className="relative flex-grow flex items-center min-h-[40vh]">
@@ -118,7 +121,7 @@ const WorkshopSection = () => {
                                         <div className="h-px w-12 bg-white/20" />
                                         <span className="text-white/40 text-[10px] tracking-[0.5em] uppercase">{SLIDES[activeIndex].label}</span>
                                     </div>
-                                    <h3 className="text-5xl md:text-7xl font-light text-white leading-[1] tracking-tighter">
+                                    <h3 className="text-3xl md:text-4xl font-light text-white leading-[1.1] tracking-tight font-sans">
                                         {SLIDES[activeIndex].title}
                                     </h3>
                                 </div>
@@ -152,7 +155,7 @@ const WorkshopSection = () => {
 
                         return (
                             <div key={slide.id} className="relative flex flex-col gap-6 flex-1 group cursor-pointer w-full">
-                                <span className={`text-xl md:text-2xl font-light tracking-[0.2em] uppercase whitespace-nowrap transition-all duration-1000 ${isCurrent || isFilled ? 'text-white' : 'text-white/20'}`}>
+                                <span className={`text-[11px] md:text-[12px] font-light tracking-[0.35em] uppercase whitespace-nowrap transition-all duration-1000 ${isCurrent || isFilled ? 'text-white' : 'text-white/20'}`}>
                                     {slide.label.split('').map((char, charIdx) => {
                                         const charThreshold = (charIdx / slide.label.length) * 100;
                                         const isCharFilled = currentProgress > charThreshold;

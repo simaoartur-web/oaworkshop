@@ -43,21 +43,17 @@ const Header = () => {
                 style={{ opacity: headerOpacity }}
                 animate={{ y: isHidden ? "-100%" : 0 }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="fixed top-0 w-full z-50 py-4 bg-white/10 backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/20"
+                className="fixed top-0 w-full z-50 py-2 bg-white/10 backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/20"
             >
-                <div className="container-custom flex justify-between items-center h-20 md:h-24">
+                <div className="container-custom flex justify-between items-center h-14 md:h-16">
                     {/* Logo Section - Minimal and Clean */}
                     <motion.div layoutId="main-logo-area">
                         <Link to="/" className="flex items-center gap-3 md:gap-6 group shrink-0">
-                            <img 
-                                src="/logo.png" 
-                                alt="O+A" 
-                                className="w-16 h-16 md:w-20 md:h-20 object-contain brightness-110 group-hover:scale-105 transition-transform duration-500" 
+                            <img
+                                src="/logo.png"
+                                alt="O+A"
+                                className="w-20 h-20 md:w-24 md:h-24 object-contain brightness-110 group-hover:scale-105 transition-transform duration-500"
                             />
-                            <div className={`flex-col ${isSearchOpen ? 'hidden xl:flex' : 'hidden md:flex'}`}>
-                                <span className="font-light tracking-[0.25em] text-[12px] md:text-[14px] text-white whitespace-nowrap uppercase">ARCHITECTS AND PLANNERS</span>
-                                <span className="text-[9px] md:text-[10px] tracking-[0.4em] uppercase opacity-40 text-white mt-1 whitespace-nowrap">Workshop • Design • Research</span>
-                            </div>
                         </Link>
                     </motion.div>
 
@@ -65,15 +61,15 @@ const Header = () => {
                     <div className="flex items-center gap-2 md:gap-6">
                         {/* Language Switch */}
                         <div className="hidden md:flex items-center gap-3 text-[10px] tracking-[0.3em] font-medium mr-2">
-                            <button 
-                                onClick={() => changeLanguage('en')} 
+                            <button
+                                onClick={() => changeLanguage('en')}
                                 className={`transition-colors ${i18n.language === 'en' ? 'text-terracota' : 'text-white/40 hover:text-white'}`}
                             >
                                 ENG
                             </button>
                             <span className="text-white/10">|</span>
-                            <button 
-                                onClick={() => changeLanguage('pt')} 
+                            <button
+                                onClick={() => changeLanguage('pt')}
                                 className={`transition-colors ${i18n.language === 'pt' ? 'text-terracota' : 'text-white/40 hover:text-white'}`}
                             >
                                 PT
@@ -98,7 +94,7 @@ const Header = () => {
                                     />
                                 )}
                             </AnimatePresence>
-                            <button 
+                            <button
                                 onClick={() => setIsSearchOpen(!isSearchOpen)}
                                 className="text-white/70 hover:text-white transition-colors p-2 ml-2"
                             >
@@ -123,7 +119,7 @@ const Header = () => {
                 {isMenuOpen && (
                     <>
                         {/* Backdrop to close the menu */}
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -137,15 +133,15 @@ const Header = () => {
                             exit={{ x: '100%' }}
                             onAnimationComplete={() => setIsMenuAnimDone(true)}
                             transition={{ type: 'tween', duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
-                            style={{ 
-                                boxShadow: isMenuAnimDone ? 'inset 0 0 40px rgba(196, 85, 50, 0.2), -10px 0 50px rgba(0, 0, 0, 0.5)' : 'none' 
+                            style={{
+                                boxShadow: isMenuAnimDone ? 'inset 0 0 40px rgba(196, 85, 50, 0.2), -10px 0 50px rgba(0, 0, 0, 0.5)' : 'none'
                             }}
                             className={`fixed top-0 right-0 h-full w-full md:w-1/2 lg:w-[42%] z-[60] bg-[#080808]/70 backdrop-blur-3xl border-l border-white/10 text-white flex flex-col transition-shadow duration-1000 overflow-y-auto`}
                         >
                             {/* Inner Glow Border */}
                             <AnimatePresence>
                                 {isMenuAnimDone && (
-                                    <motion.div 
+                                    <motion.div
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         className="absolute inset-0 border-l border-terracota/30 pointer-events-none z-10"
@@ -155,15 +151,15 @@ const Header = () => {
 
                             {/* Menu Header with Logo and Close Button */}
                             <div className="p-10 md:p-14 lg:p-16 flex justify-between items-start">
-                                <motion.div 
+                                <motion.div
                                     layoutId="main-logo-area"
                                     transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
                                 >
                                     <div className="flex flex-col items-start gap-6">
-                                        <img 
-                                            src="/logo.png" 
-                                            alt="O+A" 
-                                            className="w-20 h-20 md:w-28 md:h-28 object-contain brightness-150 contrast-125" 
+                                        <img
+                                            src="/logo.png"
+                                            alt="O+A"
+                                            className="w-20 h-20 md:w-28 md:h-28 object-contain brightness-150 contrast-125"
                                         />
                                         <div className="flex flex-col space-y-2">
                                             <span className="font-light tracking-[0.3em] text-[11px] md:text-[12px] text-white uppercase">ARCHITECTS AND PLANNERS</span>
@@ -181,33 +177,33 @@ const Header = () => {
                                 <Link to="/#workshop" className="group flex flex-col items-start gap-1">
                                     <div className="flex items-baseline gap-4">
                                         <span className="text-sm md:text-base font-bold tracking-widest text-white/20 group-hover:text-terracota transition-colors duration-500">01.</span>
-                                        <span className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">Workshop</span>
+                                        <span className="text-2xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">Workshop</span>
                                     </div>
-                                    <span className="ml-10 md:ml-16 text-2xl md:text-3xl lg:text-5xl italic text-terracota/80 group-hover:text-terracota group-hover:translate-x-4 transition-all duration-700">Explore Studio</span>
+                                    <span className="ml-8 md:ml-16 text-xl md:text-3xl lg:text-5xl italic text-terracota/80 group-hover:text-terracota group-hover:translate-x-4 transition-all duration-700">Explore Studio</span>
                                 </Link>
 
                                 <Link to="/#expertise" className="group flex flex-col items-start gap-1">
                                     <div className="flex items-baseline gap-4">
                                         <span className="text-sm md:text-base font-bold tracking-widest text-white/20 group-hover:text-terracota transition-colors duration-500">02.</span>
-                                        <span className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">Expertise</span>
+                                        <span className="text-2xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">Expertise</span>
                                     </div>
-                                    <span className="ml-10 md:ml-16 text-2xl md:text-3xl lg:text-5xl italic text-terracota/80 group-hover:text-terracota group-hover:translate-x-4 transition-all duration-700">Our Skills</span>
+                                    <span className="ml-8 md:ml-16 text-xl md:text-3xl lg:text-5xl italic text-terracota/80 group-hover:text-terracota group-hover:translate-x-4 transition-all duration-700">Our Skills</span>
                                 </Link>
 
                                 <Link to="/projects" className="group flex flex-col items-start gap-1">
                                     <div className="flex items-baseline gap-4">
                                         <span className="text-sm md:text-base font-bold tracking-widest text-white/20 group-hover:text-terracota transition-colors duration-500">03.</span>
-                                        <span className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">Projects</span>
+                                        <span className="text-2xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">Projects</span>
                                     </div>
-                                    <span className="ml-10 md:ml-16 text-2xl md:text-3xl lg:text-5xl italic text-terracota/80 group-hover:text-terracota group-hover:translate-x-4 transition-all duration-700">Portfolio</span>
+                                    <span className="ml-8 md:ml-16 text-xl md:text-3xl lg:text-5xl italic text-terracota/80 group-hover:text-terracota group-hover:translate-x-4 transition-all duration-700">Portfolio</span>
                                 </Link>
 
                                 <Link to="/#contact" className="group flex flex-col items-start gap-1">
                                     <div className="flex items-baseline gap-4">
                                         <span className="text-sm md:text-base font-bold tracking-widest text-white/20 group-hover:text-terracota transition-colors duration-500">04.</span>
-                                        <span className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">Contact</span>
+                                        <span className="text-2xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">Contact</span>
                                     </div>
-                                    <span className="ml-10 md:ml-16 text-2xl md:text-3xl lg:text-5xl italic text-white/20 group-hover:text-white group-hover:translate-x-4 transition-all duration-700">Let's Talk</span>
+                                    <span className="ml-8 md:ml-16 text-xl md:text-3xl lg:text-5xl italic text-white/20 group-hover:text-white group-hover:translate-x-4 transition-all duration-700">Let's Talk</span>
                                 </Link>
                             </nav>
 

@@ -1,10 +1,33 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 
+// Premium Heartbeat & Radiating Glow CSS
+const heartbeatCSS = `
+@keyframes heartbeat {
+  0%   { transform: scale(1); }
+  15%  { transform: scale(1.05); }
+  35%  { transform: scale(1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes heartglow-inner {
+  0%   { opacity: 0; transform: scale(1); }
+  15%  { opacity: 0.5; transform: scale(1.1); }
+  35%  { opacity: 0; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1); }
+}
+
+@keyframes heartglow-outer {
+  0%   { opacity: 0; transform: scale(0.9); }
+  15%  { opacity: 0.3; transform: scale(1.2); }
+  35%  { opacity: 0; transform: scale(1.4); }
+  100% { opacity: 0; transform: scale(1.4); }
+}
+`;
+
 const HeroSection = () => {
     const { scrollY } = useScroll();
 
-    // Transform values for scroll animations
     const overlayOpacity = useTransform(scrollY, [0, 500], [0, 0.95]);
     const logoScale = useTransform(scrollY, [0, 500], [1, 0.6]);
     const logoY = useTransform(scrollY, [0, 500], [0, -100]);
@@ -20,10 +43,13 @@ const HeroSection = () => {
 
     return (
         <section className="relative h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-terracota selection:bg-white/20">
-            {/* Grain Texture Overlay for a premium feel */}
+            {/* Inject premium heartbeat CSS */}
+            <style>{heartbeatCSS}</style>
+
+            {/* Grain Texture Overlay */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay z-[5]" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/pinstriped-suit.png")' }}></div>
-            
-            {/* Dark Overlay that appears on scroll */}
+
+            {/* Dark Overlay on scroll */}
             <motion.div
                 style={{ opacity: overlayOpacity }}
                 className="absolute inset-0 bg-black-900 z-10 pointer-events-none"
@@ -37,27 +63,84 @@ const HeroSection = () => {
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1.2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                    className="text-xs md:text-sm tracking-[0.8em] md:tracking-[1em] uppercase text-white/80 mb-6 md:mb-10 font-medium"
+                    className="text-xs md:text-sm tracking-[0.4em] md:tracking-[1em] uppercase text-white/80 mb-6 md:mb-10 font-medium"
                 >
                     We Are
                 </motion.div>
 
-                {/* Logo */}
-                <motion.button
-                    onClick={scrollToNext}
-                    style={{ scale: logoScale, y: logoY }}
-                    initial={{ opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
-                    animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                    transition={{ duration: 1.5, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                    className="mb-8 md:mb-14 cursor-pointer focus:outline-none relative group"
-                >
-                    <div className="absolute inset-0 bg-white/5 blur-[80px] rounded-full scale-125 group-hover:bg-white/10 transition-colors duration-700"></div>
-                    <img
-                        src="/logo.png"
-                        alt="O+A Logo"
-                        className="w-[45vw] max-w-[250px] md:max-w-none md:w-[24rem] max-h-[35vh] object-contain relative z-10 brightness-110 contrast-[1.05]"
-                    />
-                </motion.button>
+                {/* Logo with sophisticated heartbeat */}
+                <div className="relative mb-8 md:mb-14 flex items-center">
+                    <motion.button
+                        onClick={scrollToNext}
+                        style={{ scale: logoScale, y: logoY }}
+                        initial={{ opacity: 0, filter: 'blur(10px)' }}
+                        animate={{ opacity: 1, filter: 'blur(0px)' }}
+                        transition={{ duration: 1.5, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                        className="cursor-pointer focus:outline-none relative group"
+                    >
+                        {/* Outer Radiating Glow (The ripple) */}
+                        <div
+                            className="absolute inset-0 rounded-full pointer-events-none z-0"
+                            style={{
+                                margin: '-30%',
+                                background: 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)',
+                                animation: 'heartglow-outer 4s cubic-bezier(0.25, 0.1, 0.25, 1) infinite',
+                                animationDelay: '2s',
+                            }}
+                        />
+
+                        {/* Inner breathing glow */}
+                        <div
+                            className="absolute inset-0 rounded-full pointer-events-none z-0"
+                            style={{
+                                margin: '-10%',
+                                background: 'radial-gradient(circle, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 40%, transparent 65%)',
+                                animation: 'heartglow-inner 4s cubic-bezier(0.22, 1, 0.36, 1) infinite',
+                                animationDelay: '2s',
+                            }}
+                        />
+
+                        {/* Steady ambient blur backdrop */}
+                        <div className="absolute inset-0 bg-white/5 blur-[90px] rounded-full scale-150 group-hover:bg-white/10 transition-colors duration-1000"></div>
+
+                        {/* Logo — Smoother heartbeat */}
+                        <img
+                            src="/logo.png"
+                            alt="O+A Logo"
+                            className="w-[45vw] max-w-[250px] md:max-w-none md:w-[24rem] max-h-[35vh] object-contain relative z-10 brightness-110 contrast-[1.05]"
+                            style={{
+                                animation: 'heartbeat 4s cubic-bezier(0.22, 1, 0.36, 1) infinite',
+                                animationDelay: '2s',
+                            }}
+                        />
+                    </motion.button>
+
+                    {/* Click Here to Start — side label */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 1, delay: 2.5, ease: [0.22, 1, 0.36, 1] }}
+                        className="absolute -right-8 md:-right-52 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-3"
+                    >
+                        <motion.div
+                            animate={{ x: [0, -6, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                            className="text-white/40"
+                        >
+                            <svg width="24" height="12" viewBox="0 0 24 12" fill="none">
+                                <path d="M6 1L1 6L6 11" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
+                                <line x1="1" y1="6" x2="23" y2="6" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
+                            </svg>
+                        </motion.div>
+                        <motion.span
+                            animate={{ opacity: [0.4, 0.7, 0.4] }}
+                            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                            className="text-[9px] md:text-[10px] tracking-[0.4em] uppercase text-white/50 font-light whitespace-nowrap"
+                        >
+                            Click Here to Start
+                        </motion.span>
+                    </motion.div>
+                </div>
 
                 {/* Names with Premium Typography */}
                 <motion.div
@@ -68,11 +151,11 @@ const HeroSection = () => {
                     className="flex flex-col md:flex-row items-center gap-4 md:gap-16"
                 >
                     <div className="flex flex-col items-center md:items-end">
-                        <span className="text-white font-extralight italic font-serif text-3xl md:text-[2.75rem] tracking-tight leading-none mb-1">Osvaldo Luís</span>
+                        <span className="text-white font-extralight italic font-serif text-2xl md:text-[2.75rem] tracking-tight leading-none mb-1">Osvaldo Luís</span>
                     </div>
 
                     <div className="hidden md:flex h-12 w-[1px] bg-white/10 relative overflow-hidden">
-                        <motion.div 
+                        <motion.div
                             initial={{ top: '-100%' }}
                             animate={{ top: '100%' }}
                             transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
@@ -81,7 +164,7 @@ const HeroSection = () => {
                     </div>
 
                     <div className="flex flex-col items-center md:items-start">
-                        <span className="text-white font-extralight italic font-serif text-3xl md:text-[2.75rem] tracking-tight leading-none mb-1">Artur Simão</span>
+                        <span className="text-white font-extralight italic font-serif text-2xl md:text-[2.75rem] tracking-tight leading-none mb-1">Artur Simão</span>
                     </div>
                 </motion.div>
 
@@ -106,7 +189,7 @@ const HeroSection = () => {
                 className="absolute bottom-6 md:bottom-12 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 md:gap-3 cursor-pointer group"
                 onClick={scrollToNext}
             >
-                <motion.div 
+                <motion.div
                     animate={{ y: [0, 8, 0] }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                     className="text-white/40 group-hover:text-white transition-colors duration-500 mt-2"

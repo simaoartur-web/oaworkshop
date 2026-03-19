@@ -150,7 +150,7 @@ const ProjectsSection = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: false, margin: "-100px" }}
                                 transition={{ duration: 0.6 }}
-                                className="text-4xl md:text-5xl lg:text-[3.5rem] font-medium mb-12 tracking-tight leading-tight"
+                                className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-medium mb-12 tracking-tight leading-tight"
                             >
                                 Projects for the people
                             </motion.h2>
@@ -204,7 +204,7 @@ const ProjectsSection = () => {
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: false }}
                         transition={{ duration: 0.8 }}
-                        className="text-5xl md:text-6xl lg:text-[6rem] font-bold text-terracota tracking-tight uppercase absolute top-0 -translate-y-1/2 left-4 md:left-[2vw]"
+                        className="text-3xl sm:text-5xl md:text-6xl lg:text-[6rem] font-bold text-terracota tracking-tight uppercase absolute top-0 -translate-y-1/2 left-4 md:left-[2vw]"
                     >
                         OUR PROJECTS
                     </motion.h2>

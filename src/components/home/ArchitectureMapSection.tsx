@@ -143,8 +143,8 @@ const ArchitectureMapSection = () => {
             <div className="w-full lg:w-[58%] flex flex-col">
                 
                 {/* Title with Terracota + ARC */}
-                <h2 className="text-4xl md:text-5xl lg:text-[4.5rem] font-bold text-white mb-10 tracking-tight leading-none">
-                    <span className="text-terracota">+ ARC</span>hitecture
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[4.5rem] font-bold text-white mb-10 tracking-tight leading-none">
+                    <span className="text-terracota whitespace-nowrap">+ ARC</span>hitecture
                 </h2>
 
                 {/* Main Interactive Display - LARGER IMAGE as requested */}

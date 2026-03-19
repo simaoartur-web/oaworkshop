@@ -68,13 +68,13 @@ const ExpertiseSection = () => {
                         {/* Content Content Container */}
                         <div className="container-custom relative z-10 w-full flex flex-col justify-center h-full">
                             <div className="max-w-xl">
-                                <h4 className="text-5xl md:text-7xl lg:text-8xl font-light tracking-tighter mb-6 transition-transform duration-700 group-hover:translate-x-4">
+                                <h4 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-light tracking-tighter mb-6 transition-transform duration-700 group-hover:translate-x-4">
                                     {area.title}
                                 </h4>
 
                                 {/* This paragraph reveals on hover in desktop */}
                                 <div className="overflow-hidden">
-                                    <p className="text-gray-300 font-light text-lg md:text-xl lg:text-2xl leading-relaxed transform md:translate-y-full md:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 delay-100">
+                                    <p className="text-gray-300 font-light text-base md:text-xl lg:text-2xl leading-relaxed transform md:translate-y-full md:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 delay-100">
                                         {area.desc}
                                     </p>
                                 </div>
