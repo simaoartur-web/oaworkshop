@@ -39,11 +39,13 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
     const handleZoomOut = () => setScale(prev => Math.max(prev - 0.4, 1));
 
     return (
-        <section id={id} className="relative w-full flex flex-col lg:flex-row bg-[#080808] text-white min-h-[90vh] py-16 md:py-24 px-4 md:px-8 xl:px-16 gap-12 lg:gap-16 overflow-hidden border-t border-white/5">
+        <section id={id} className="relative w-full bg-[#080808] text-white py-16 md:py-24 px-4 md:px-8 xl:px-16 overflow-hidden border-t border-white/5">
             
-            {/* Left Column: Map with Rotating Meteor Glow Border */}
-            <div className="w-full lg:w-[42%] flex flex-col justify-start">
-                <div className="relative w-full aspect-[4/5] md:aspect-[5/6] lg:aspect-[4/5] p-[2px] rounded-[6px] overflow-hidden group">
+            {/* Two-column grid that stretches both columns to equal height */}
+            <div className="flex flex-col lg:grid lg:grid-cols-[38%_1fr] gap-10 lg:gap-14 xl:gap-16">
+
+                {/* Left Column: Map — stretches to match right column height */}
+                <div className="relative w-full min-h-[400px] lg:min-h-0 p-[2px] rounded-[6px] overflow-hidden group self-stretch">
                     
                     {/* Rotating "Meteor" Glow Background */}
                     <div className="absolute inset-[-150%] bg-[conic-gradient(from_0deg,transparent_0deg,transparent_280deg,#C45532_340deg,#C45532_360deg)] animate-[spin_10s_linear_infinite]"></div>
@@ -87,120 +89,120 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                         </motion.div>
 
                         {/* Map Zoom Controls */}
-                        <div className="absolute bottom-6 right-6 flex flex-col border border-white/10 rounded-sm bg-black/80 backdrop-blur-md overflow-hidden z-20 shadow-xl">
-                            <button className="p-3 text-white hover:bg-white/20 transition-colors cursor-pointer active:scale-95" onClick={handleZoomIn}>
-                                <Plus size={20} strokeWidth={1.5} />
+                        <div className="absolute bottom-4 left-4 flex flex-col border border-white/10 rounded-sm bg-black/80 backdrop-blur-md overflow-hidden z-20 shadow-xl">
+                            <button className="p-2.5 text-white hover:bg-white/20 transition-colors cursor-pointer active:scale-95" onClick={handleZoomIn}>
+                                <Plus size={18} strokeWidth={1.5} />
                             </button>
-                            <button className="p-3 text-white hover:bg-white/20 border-t border-white/10 transition-colors cursor-pointer active:scale-95" onClick={handleZoomOut}>
-                                <Minus size={20} strokeWidth={1.5} />
+                            <button className="p-2.5 text-white hover:bg-white/20 border-t border-white/10 transition-colors cursor-pointer active:scale-95" onClick={handleZoomOut}>
+                                <Minus size={18} strokeWidth={1.5} />
                             </button>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Right Column: Title + Main Display + Grid Thumbnails */}
-            <div className="w-full lg:w-[58%] flex flex-col">
-                
-                {/* Title with Terracota + ARC */}
-                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[4.5rem] font-bold text-white mb-10 tracking-tight leading-none">
-                    <span className="text-terracota whitespace-nowrap">{accentTitle}</span>{title}
-                </h2>
+                {/* Right Column: Title + Main Display + Grid Thumbnails */}
+                <div className="flex flex-col justify-between">
+                    
+                    {/* Title */}
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[4rem] xl:text-[4.5rem] font-bold text-white mb-8 tracking-tight leading-none">
+                        <span className="text-terracota whitespace-nowrap">{accentTitle}</span>{title}
+                    </h2>
 
-                {/* Main Interactive Display */}
-                <div className="flex flex-col md:flex-row gap-8 lg:gap-10 mb-14 items-start">
-                    <div 
-                        onClick={() => setIsModalOpen(true)}
-                        className="w-full md:w-[78%] aspect-video bg-[#111] relative overflow-hidden rounded-[4px] shadow-2xl group border border-white/5 cursor-pointer"
-                    >
-                        <AnimatePresence mode="wait">
-                            <motion.img 
-                                key={activeProject.id}
-                                src={activeProject.mainImage}
-                                initial={{ opacity: 0, scale: 1.05 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.98 }}
-                                transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
-                                className="w-full h-full object-cover absolute inset-0 transition-transform duration-700 group-hover:scale-105"
-                                alt={activeProject.title}
-                            />
-                        </AnimatePresence>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none transition-opacity duration-500 group-hover:opacity-20"></div>
-                        
-                        {/* Interactive Hint */}
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-black/40 backdrop-blur-[2px]">
-                            <div className="bg-white/10 border border-white/20 px-6 py-3 rounded-full flex items-center gap-3 active:scale-95 group/btn">
-                                <span className="text-sm font-bold uppercase tracking-widest text-white">Full Details</span>
-                                <Plus size={18} className="text-terracota transition-transform duration-300 group-hover/btn:rotate-90" />
+                    {/* Main Interactive Display */}
+                    <div className="flex flex-col md:flex-row gap-6 lg:gap-8 mb-10 items-start">
+                        <div 
+                            onClick={() => setIsModalOpen(true)}
+                            className="w-full md:w-[75%] aspect-[16/10] bg-[#111] relative overflow-hidden rounded-[4px] shadow-2xl group border border-white/5 cursor-pointer"
+                        >
+                            <AnimatePresence mode="wait">
+                                <motion.img 
+                                    key={activeProject.id}
+                                    src={activeProject.mainImage}
+                                    initial={{ opacity: 0, scale: 1.05 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.98 }}
+                                    transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
+                                    className="w-full h-full object-cover absolute inset-0 transition-transform duration-700 group-hover:scale-105"
+                                    alt={activeProject.title}
+                                />
+                            </AnimatePresence>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none transition-opacity duration-500 group-hover:opacity-20"></div>
+                            
+                            {/* Interactive Hint */}
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-black/40 backdrop-blur-[2px]">
+                                <div className="bg-white/10 border border-white/20 px-6 py-3 rounded-full flex items-center gap-3 active:scale-95 group/btn">
+                                    <span className="text-sm font-bold uppercase tracking-widest text-white">Full Details</span>
+                                    <Plus size={18} className="text-terracota transition-transform duration-300 group-hover/btn:rotate-90" />
+                                </div>
                             </div>
                         </div>
+                        
+                        {/* Metadata column */}
+                        <div className="w-full md:w-[25%] flex flex-col pt-2">
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={activeProject.id}
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -10 }}
+                                    transition={{ duration: 0.5 }}
+                                    className="flex flex-col space-y-6"
+                                >
+                                    <div>
+                                        <span className="block text-[10px] uppercase font-bold text-terracota tracking-[0.3em] mb-3">Expertise</span>
+                                        <span className="text-base lg:text-lg text-white font-medium leading-tight">{activeProject.category}</span>
+                                    </div>
+                                    
+                                    <div>
+                                        <span className="block text-[10px] uppercase font-bold text-white/40 tracking-[0.3em] mb-3">Location</span>
+                                        <span className="text-[13px] text-white/80 font-medium leading-relaxed">{activeProject.location}</span>
+                                    </div>
+                                    
+                                    <div className="pt-5 border-t border-white/10">
+                                        <span className="block text-[10px] uppercase font-bold text-white/40 tracking-[0.3em] mb-2">Completion</span>
+                                        <span className="text-2xl text-white font-bold tracking-tighter">{activeProject.year}</span>
+                                    </div>
+                                </motion.div>
+                            </AnimatePresence>
+                        </div>
                     </div>
-                    
-                    {/* Metadata column */}
-                    <div className="w-full md:w-[22%] flex flex-col pt-4">
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={activeProject.id}
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -10 }}
-                                transition={{ duration: 0.5 }}
-                                className="flex flex-col space-y-7"
-                            >
-                                <div>
-                                    <span className="block text-[10px] uppercase font-bold text-terracota tracking-[0.3em] mb-4">Expertise</span>
-                                    <span className="text-lg text-white font-medium leading-tight">{activeProject.category}</span>
-                                </div>
-                                
-                                <div>
-                                    <span className="block text-[10px] uppercase font-bold text-white/40 tracking-[0.3em] mb-4">Location</span>
-                                    <span className="text-[13px] text-white/80 font-medium leading-relaxed">{activeProject.location}</span>
-                                </div>
-                                
-                                <div className="pt-6 border-t border-white/10">
-                                    <span className="block text-[10px] uppercase font-bold text-white/40 tracking-[0.3em] mb-2">Completion</span>
-                                    <span className="text-2xl text-white font-bold tracking-tighter">{activeProject.year}</span>
-                                </div>
-                            </motion.div>
-                        </AnimatePresence>
-                    </div>
-                </div>
 
-                {/* Sub-projects Grid */}
-                <div className="mt-auto">
-                    <div className="flex items-center justify-between mb-8 opacity-40">
-                        <span className="text-[10px] uppercase font-bold tracking-[0.4em] text-white">Project Library</span>
-                        <div className="h-[1px] flex-grow mx-8 bg-gradient-to-r from-white/20 to-transparent"></div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-6">
-                        {projects.map((proj) => (
-                            <motion.div 
-                                key={proj.id} 
-                                onClick={() => setActiveProject(proj)}
-                                whileHover={{ y: -6 }}
-                                className="flex flex-col group cursor-pointer"
-                            >
-                                <div className={`relative aspect-square overflow-hidden rounded-[3px] transition-all duration-500 border 
-                                    ${activeProject.id === proj.id ? 'border-terracota shadow-[0_15px_40px_rgba(196,85,50,0.3)]' : 'border-white/5 opacity-50 group-hover:opacity-100'}`}>
-                                    <img 
-                                        src={proj.thumbnail} 
-                                        className={`w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 
-                                            ${activeProject.id === proj.id ? 'grayscale-0 scale-105' : 'grayscale group-hover:grayscale-0'}`}
-                                        alt={proj.title}
-                                    />
-                                    {activeProject.id === proj.id && (
-                                        <div className="absolute inset-0 border-[2px] border-terracota/50 pointer-events-none"></div>
-                                    )}
-                                </div>
-                                <div className="mt-4">
-                                    <h4 className={`text-[11px] font-bold uppercase tracking-[0.2em] transition-colors 
-                                        ${activeProject.id === proj.id ? 'text-terracota' : 'text-white/40 group-hover:text-white'}`}>
-                                        {proj.title}
-                                    </h4>
-                                </div>
-                            </motion.div>
-                        ))}
+                    {/* Sub-projects Grid */}
+                    <div className="mt-auto">
+                        <div className="flex items-center justify-between mb-6 opacity-40">
+                            <span className="text-[10px] uppercase font-bold tracking-[0.4em] text-white">Project Library</span>
+                            <div className="h-[1px] flex-grow mx-6 bg-gradient-to-r from-white/20 to-transparent"></div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-5">
+                            {projects.map((proj) => (
+                                <motion.div 
+                                    key={proj.id} 
+                                    onClick={() => setActiveProject(proj)}
+                                    whileHover={{ y: -4 }}
+                                    className="flex flex-col group cursor-pointer"
+                                >
+                                    <div className={`relative aspect-[4/3] overflow-hidden rounded-[3px] transition-all duration-500 border 
+                                        ${activeProject.id === proj.id ? 'border-terracota shadow-[0_10px_30px_rgba(196,85,50,0.25)]' : 'border-white/5 opacity-50 group-hover:opacity-100'}`}>
+                                        <img 
+                                            src={proj.thumbnail} 
+                                            className={`w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 
+                                                ${activeProject.id === proj.id ? 'grayscale-0 scale-105' : 'grayscale group-hover:grayscale-0'}`}
+                                            alt={proj.title}
+                                        />
+                                        {activeProject.id === proj.id && (
+                                            <div className="absolute inset-0 border-[2px] border-terracota/50 pointer-events-none"></div>
+                                        )}
+                                    </div>
+                                    <div className="mt-3">
+                                        <h4 className={`text-[10px] font-bold uppercase tracking-[0.15em] transition-colors leading-tight
+                                            ${activeProject.id === proj.id ? 'text-terracota' : 'text-white/40 group-hover:text-white'}`}>
+                                            {proj.title}
+                                        </h4>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
