@@ -2,75 +2,35 @@ import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus, X, ArrowRight } from 'lucide-react';
 
-const ARCHITECTURE_PROJECTS = [
-    {
-        id: "milan",
-        title: "Milan Cultural Hub",
-        category: "Public Sector",
-        location: "Milan, Italy",
-        year: "2025",
-        mapPosition: { top: "45%", left: "48%" },
-        mainImage: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&q=80&w=2000",
-        thumbnail: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&q=80&w=600",
-        description: "A state-of-the-art facility designed to foster creativity and community engagement. The hub features flexible performance spaces, art galleries, and modern architectural elements that blend seamlessly with the historic Milanese landscape.",
-        scope: ["Architectural Design", "Urban Planning", "Sustainability Consulting"],
-        area: "12,500 sqm"
-    },
-    {
-        id: "karlatornet",
-        title: "Karlatornet",
-        category: "Mixed-Use",
-        location: "Gothenburg, Sweden",
-        year: "2023",
-        mapPosition: { top: "25%", left: "50%" },
-        mainImage: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=2000",
-        thumbnail: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=600",
-        description: "Currently the tallest building in the Nordic countries, Karlatornet is a symbol of Gothenburg's modern evolution. It integrates luxury residential units with world-class amenities and observation decks.",
-        scope: ["Skyscraper Engineering", "Luxury Interiors", "Public Observation"],
-        area: "95,000 sqm"
-    },
-    {
-        id: "carmichael",
-        title: "Carmichael Residences",
-        category: "Residential",
-        location: "Mumbai, India",
-        year: "2022",
-        mapPosition: { top: "60%", left: "75%" },
-        mainImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=2000",
-        thumbnail: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=600",
-        description: "A collection of ultra-exclusive residences in the heart of Mumbai. The design focuses on vertical greenery and sustainable living, providing a sanctuary away from the city's bustling energy.",
-        scope: ["Biophilic Architecture", "High-End Residential", "Structural Innovation"],
-        area: "8,200 sqm"
-    },
-    {
-        id: "rivage",
-        title: "Rivage Bal Harbour",
-        category: "Residential",
-        location: "Florida, United States",
-        year: "2024",
-        mapPosition: { top: "50%", left: "15%" },
-        mainImage: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=2000",
-        thumbnail: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=600",
-        description: "Oceanfront luxury redefined. Rivage Bal Harbour offers unparalleled views of the Atlantic, with expansive terraces and a design that emphasizes transparency and light.",
-        scope: ["Oceanfront Design", "Landscape Integration", "Material Excellence"],
-        area: "15,000 sqm"
-    }
-];
+export interface Project {
+    id: string;
+    title: string;
+    category: string;
+    location: string;
+    year: string;
+    mapPosition: { top: string; left: string };
+    mainImage: string;
+    thumbnail: string;
+    description: string;
+    scope: string[];
+    area: string;
+}
 
-const DUMMY_MARKERS = [
-    { top: "40%", left: "42%" },
-    { top: "35%", left: "44%" },
-    { top: "48%", left: "38%" },
-    { top: "55%", left: "35%" },
-    { top: "55%", left: "58%" },
-    { top: "50%", left: "62%" },
-    { top: "38%", left: "52%" },
-    { top: "32%", left: "46%" },
-    { top: "42%", left: "54%" },
-];
+export interface Marker {
+    top: string;
+    left: string;
+}
 
-const ArchitectureMapSection = () => {
-    const [activeProject, setActiveProject] = useState(ARCHITECTURE_PROJECTS[0]);
+interface CategoryMapSectionProps {
+    id?: string;
+    title: string;
+    accentTitle: string;
+    projects: Project[];
+    dummyMarkers?: Marker[];
+}
+
+const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [] }: CategoryMapSectionProps) => {
+    const [activeProject, setActiveProject] = useState(projects[0]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [scale, setScale] = useState(1);
     const mapRef = useRef<HTMLDivElement>(null);
@@ -79,7 +39,7 @@ const ArchitectureMapSection = () => {
     const handleZoomOut = () => setScale(prev => Math.max(prev - 0.4, 1));
 
     return (
-        <section className="relative w-full flex flex-col lg:flex-row bg-[#080808] text-white min-h-[90vh] py-16 md:py-24 px-4 md:px-8 xl:px-16 gap-12 lg:gap-16 overflow-hidden">
+        <section id={id} className="relative w-full flex flex-col lg:flex-row bg-[#080808] text-white min-h-[90vh] py-16 md:py-24 px-4 md:px-8 xl:px-16 gap-12 lg:gap-16 overflow-hidden border-t border-white/5">
             
             {/* Left Column: Map with Rotating Meteor Glow Border */}
             <div className="w-full lg:w-[42%] flex flex-col justify-start">
@@ -104,7 +64,7 @@ const ArchitectureMapSection = () => {
                                 draggable={false}
                             />
 
-                            {DUMMY_MARKERS.map((pos, i) => (
+                            {dummyMarkers.map((pos, i) => (
                                 <div 
                                     key={`dummy-${i}`} 
                                     className="absolute w-1.5 h-1.5 bg-white rounded-full opacity-30 shadow-[0_0_8px_white] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
@@ -112,7 +72,7 @@ const ArchitectureMapSection = () => {
                                 ></div>
                             ))}
 
-                            {ARCHITECTURE_PROJECTS.map((proj) => {
+                            {projects.map((proj) => {
                                 const isActive = activeProject.id === proj.id;
                                 return (
                                     <div 
@@ -144,10 +104,10 @@ const ArchitectureMapSection = () => {
                 
                 {/* Title with Terracota + ARC */}
                 <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[4.5rem] font-bold text-white mb-10 tracking-tight leading-none">
-                    <span className="text-terracota whitespace-nowrap">+ ARC</span>hitecture
+                    <span className="text-terracota whitespace-nowrap">{accentTitle}</span>{title}
                 </h2>
 
-                {/* Main Interactive Display - LARGER IMAGE as requested */}
+                {/* Main Interactive Display */}
                 <div className="flex flex-col md:flex-row gap-8 lg:gap-10 mb-14 items-start">
                     <div 
                         onClick={() => setIsModalOpen(true)}
@@ -176,7 +136,7 @@ const ArchitectureMapSection = () => {
                         </div>
                     </div>
                     
-                    {/* Metadata column - Smaller width as background is larger */}
+                    {/* Metadata column */}
                     <div className="w-full md:w-[22%] flex flex-col pt-4">
                         <AnimatePresence mode="wait">
                             <motion.div
@@ -214,7 +174,7 @@ const ArchitectureMapSection = () => {
                     </div>
                     
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-6">
-                        {ARCHITECTURE_PROJECTS.map((proj) => (
+                        {projects.map((proj) => (
                             <motion.div 
                                 key={proj.id} 
                                 onClick={() => setActiveProject(proj)}
@@ -338,4 +298,4 @@ const ArchitectureMapSection = () => {
     );
 };
 
-export default ArchitectureMapSection;
+export default CategoryMapSection;
