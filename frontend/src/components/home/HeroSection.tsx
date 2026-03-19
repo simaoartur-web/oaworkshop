@@ -1,111 +1,118 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
-
-const IMAGES = [
-    "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
-    "https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
-    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
-    "https://images.unsplash.com/photo-1541880081250-be23c4a11b65?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
-    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
-];
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
 
 const HeroSection = () => {
-    const [currentIndex, setCurrentIndex] = useState(0);
+    const { scrollY } = useScroll();
 
-    useEffect(() => {
-        // Preload images for smoother transitions
-        IMAGES.forEach((src) => {
-            const img = new Image();
-            img.src = src;
+    // Transform values for scroll animations
+    const overlayOpacity = useTransform(scrollY, [0, 500], [0, 0.95]);
+    const logoScale = useTransform(scrollY, [0, 500], [1, 0.6]);
+    const logoY = useTransform(scrollY, [0, 500], [0, -100]);
+    const nameOpacity = useTransform(scrollY, [0, 300], [1, 0]);
+    const weAreOpacity = useTransform(scrollY, [0, 200], [1, 0]);
+
+    const scrollToNext = () => {
+        window.scrollTo({
+            top: window.innerHeight,
+            behavior: 'smooth'
         });
-
-        const timer = setInterval(() => {
-            setCurrentIndex((prev) => (prev + 1) % IMAGES.length);
-        }, 7000); // 7 seconds per slide for a premium slow feel
-        return () => clearInterval(timer);
-    }, []);
+    };
 
     return (
-        <section className="relative min-h-screen w-full flex flex-col overflow-hidden bg-black-900">
-            {/* Background Media Slider with Slow Zoom Effect */}
-            <div className="absolute inset-0 z-0 bg-black-900">
-                <AnimatePresence>
-                    <motion.div
-                        key={currentIndex}
-                        className="absolute inset-0"
-                        initial={{ opacity: 0, scale: 1.05 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{
-                            opacity: { duration: 2, ease: "easeInOut" },
-                            scale: { duration: 10, ease: "linear" }
-                        }}
-                    >
-                        <img
-                            src={IMAGES[currentIndex]}
-                            alt="Modern Architecture"
-                            className="w-full h-full object-cover opacity-60 mix-blend-overlay"
-                        />
-                    </motion.div>
-                </AnimatePresence>
-                {/* Fixed gradient overlay on top of all slides */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black-900/60 via-transparent to-black-900/90 mix-blend-multiply z-0 pointer-events-none" />
-            </div>
+        <section className="relative h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-terracota selection:bg-white/20">
+            {/* Grain Texture Overlay for a premium feel */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay z-[5]" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/pinstriped-suit.png")' }}></div>
+            
+            {/* Dark Overlay that appears on scroll */}
+            <motion.div
+                style={{ opacity: overlayOpacity }}
+                className="absolute inset-0 bg-black-900 z-10 pointer-events-none"
+            />
 
-            {/* Content Content Constraints */}
-            <div className="flex-1 flex flex-col justify-center container-custom relative z-10 text-white pt-32 pb-16 w-full">
+            {/* Central Composition */}
+            <div className="relative z-20 flex flex-col items-center text-center px-6">
+                {/* WE ARE */}
                 <motion.div
-                    initial={{ opacity: 0, y: 30 }}
+                    style={{ opacity: weAreOpacity }}
+                    initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1, delay: 0.2 }}
-                    className="max-w-4xl"
+                    transition={{ duration: 1.2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    className="text-xs md:text-sm tracking-[0.8em] md:tracking-[1em] uppercase text-white/80 mb-6 md:mb-10 font-medium"
                 >
-                    <div className="text-xs tracking-[0.3em] uppercase mb-6 opacity-80 border-l border-white pl-4">
-                        O+A Architects and Planners
+                    We Are
+                </motion.div>
+
+                {/* Logo */}
+                <motion.button
+                    onClick={scrollToNext}
+                    style={{ scale: logoScale, y: logoY }}
+                    initial={{ opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
+                    animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                    transition={{ duration: 1.5, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    className="mb-8 md:mb-14 cursor-pointer focus:outline-none relative group"
+                >
+                    <div className="absolute inset-0 bg-white/5 blur-[80px] rounded-full scale-125 group-hover:bg-white/10 transition-colors duration-700"></div>
+                    <img
+                        src="/logo.png"
+                        alt="O+A Logo"
+                        className="w-[45vw] max-w-[250px] md:max-w-none md:w-[24rem] max-h-[35vh] object-contain relative z-10 brightness-110 contrast-[1.05]"
+                    />
+                </motion.button>
+
+                {/* Names with Premium Typography */}
+                <motion.div
+                    style={{ opacity: nameOpacity }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 1.5, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                    className="flex flex-col md:flex-row items-center gap-4 md:gap-16"
+                >
+                    <div className="flex flex-col items-center md:items-end">
+                        <span className="text-white font-extralight italic font-serif text-3xl md:text-[2.75rem] tracking-tight leading-none mb-1">Osvaldo Luís</span>
                     </div>
 
-                    <h1 className="text-5xl md:text-7xl font-light tracking-tight leading-tight mb-8">
-                        Projetando lugares que funcionam <br />
-                        <span className="font-semibold">hoje e amanhã</span>
-                    </h1>
-
-                    <p className="text-lg md:text-xl font-light text-gray-300 max-w-2xl mb-12 leading-relaxed">
-                        Arquitetura, planeamento urbano e infraestrutura resiliente, com uma abordagem pragmática
-                        para a entrega, impacto na comunidade e manutenção a longo prazo.
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row gap-6">
-                        <a href="#expertise" className="bg-white text-black-900 px-8 py-4 uppercase text-xs tracking-widest font-medium hover:bg-gray-200 transition-colors inline-block text-center">
-                            Nossa Expertise
-                        </a>
-                        <a href="#projects" className="border border-white/30 text-white px-8 py-4 uppercase text-xs tracking-widest font-medium hover:bg-white/10 transition-colors inline-block text-center">
-                            Ver Projectos
-                        </a>
+                    <div className="hidden md:flex h-12 w-[1px] bg-white/10 relative overflow-hidden">
+                        <motion.div 
+                            initial={{ top: '-100%' }}
+                            animate={{ top: '100%' }}
+                            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                            className="absolute left-0 w-full h-1/2 bg-gradient-to-b from-transparent via-white/40 to-transparent"
+                        />
                     </div>
+
+                    <div className="flex flex-col items-center md:items-start">
+                        <span className="text-white font-extralight italic font-serif text-3xl md:text-[2.75rem] tracking-tight leading-none mb-1">Artur Simão</span>
+                    </div>
+                </motion.div>
+
+                {/* Company Information */}
+                <motion.div
+                    style={{ opacity: nameOpacity }}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 1.5, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                    className="flex flex-col items-center mt-6 md:mt-8 gap-y-1"
+                >
+                    <span className="text-white/60 text-[10px] md:text-xs tracking-[0.4em] uppercase font-medium">Architects and Planners</span>
+                    <span className="text-white/40 text-[10px] tracking-[0.15em] font-light">Workshop • Design • Research</span>
                 </motion.div>
             </div>
 
-            {/* Stats Bar at bottom */}
+            {/* Scroll Indicator */}
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.8 }}
-                className="relative z-10 w-full bg-black-900/80 backdrop-blur-md border-t border-white/10 py-6 mt-auto"
+                transition={{ duration: 1, delay: 2.5 }}
+                className="absolute bottom-6 md:bottom-12 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 md:gap-3 cursor-pointer group"
+                onClick={scrollToNext}
             >
-                <div className="container-custom grid grid-cols-3 gap-4 md:gap-12 divide-x divide-white/10">
-                    <div className="text-center px-4">
-                        <div className="text-2xl md:text-4xl font-light text-white mb-1">15+</div>
-                        <div className="text-[10px] md:text-xs tracking-widest uppercase text-gray-400">Anos de Experiência</div>
-                    </div>
-                    <div className="text-center px-4">
-                        <div className="text-2xl md:text-4xl font-light text-white mb-1">50+</div>
-                        <div className="text-[10px] md:text-xs tracking-widest uppercase text-gray-400">Projectos Concluídos</div>
-                    </div>
-                    <div className="text-center px-4">
-                        <div className="text-2xl md:text-4xl font-light text-white mb-1">2</div>
-                        <div className="text-[10px] md:text-xs tracking-widest uppercase text-gray-400">Continentes</div>
-                    </div>
-                </div>
+                <motion.div 
+                    animate={{ y: [0, 8, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    className="text-white/40 group-hover:text-white transition-colors duration-500 mt-2"
+                >
+                    <ChevronDown size={28} strokeWidth={1} />
+                </motion.div>
             </motion.div>
         </section>
     );

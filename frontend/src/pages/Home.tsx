@@ -1,6 +1,7 @@
 import HeroSection from '../components/home/HeroSection';
 import WorkshopSection from '../components/home/WorkshopSection';
-import ExpertiseSection from '../components/home/ExpertiseSection';
+import ArchitectureMapSection from '../components/home/ArchitectureMapSection';
+import ProjectsSection from '../components/home/ProjectsSection';
 import ContactSection from '../components/home/ContactSection';
 
 const Home = () => {
@@ -8,7 +9,8 @@ const Home = () => {
         <div className="w-full">
             <HeroSection />
             <WorkshopSection />
-            <ExpertiseSection />
+            <ProjectsSection />
+            <ArchitectureMapSection />
             <ContactSection />
         </div>
     );

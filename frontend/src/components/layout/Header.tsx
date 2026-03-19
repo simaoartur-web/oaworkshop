@@ -1,27 +1,36 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Search, X } from 'lucide-react';
+import { motion, AnimatePresence, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
 const Header = () => {
-    const { t, i18n } = useTranslation();
-    const [isScrolled, setIsScrolled] = useState(false);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const { i18n } = useTranslation();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isMenuAnimDone, setIsMenuAnimDone] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [searchValue, setSearchValue] = useState("");
     const location = useLocation();
+    const { scrollY } = useScroll();
+    const [isHidden, setIsHidden] = useState(false);
 
-    useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 50);
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    useMotionValueEvent(scrollY, "change", (latest) => {
+        const previous = scrollY.getPrevious() ?? 0;
+        if (latest > previous && latest > 150) {
+            setIsHidden(true);
+        } else {
+            setIsHidden(false);
+        }
+    });
 
-    // Close mobile menu on route change
+    // Visibility transition based on scroll
+    const headerOpacity = useTransform(scrollY, [0, 100], [0, 1]);
+
+    // Close menus on route change
     useEffect(() => {
-        // eslint-disable-next-line
-        setMobileMenuOpen(false);
+        setIsMenuOpen(false);
+        setIsMenuAnimDone(false);
+        setIsSearchOpen(false);
     }, [location]);
 
     const changeLanguage = (lng: string) => {
@@ -30,78 +39,190 @@ const Header = () => {
 
     return (
         <>
-            <header
-                className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-black-900/95 backdrop-blur-sm border-b border-white/10 py-4' : 'bg-transparent py-6'
-                    }`}
+            <motion.header
+                style={{ opacity: headerOpacity }}
+                animate={{ y: isHidden ? "-100%" : 0 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="fixed top-0 w-full z-50 py-4 bg-white/10 backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/20"
             >
-                <div className="container-custom flex justify-between items-center">
-                    {/* Logo */}
-                    <Link to="/" className="flex items-center gap-4 group">
-                        <img src="/logo.png" alt="O+A" className="w-12 h-12 object-contain" />
-                        <div className={`hidden md:block transition-opacity duration-300 text-white`}>
-                            <div className="font-semibold tracking-wide text-sm">ARCHITECTS AND PLANNERS</div>
-                            <div className="text-[10px] tracking-widest uppercase opacity-70">{t('hero.subtitle')}</div>
-                        </div>
-                    </Link>
+                <div className="container-custom flex justify-between items-center h-20 md:h-24">
+                    {/* Logo Section - Minimal and Clean */}
+                    <motion.div layoutId="main-logo-area">
+                        <Link to="/" className="flex items-center gap-3 md:gap-6 group shrink-0">
+                            <img 
+                                src="/logo.png" 
+                                alt="O+A" 
+                                className="w-16 h-16 md:w-20 md:h-20 object-contain brightness-110 group-hover:scale-105 transition-transform duration-500" 
+                            />
+                            <div className={`flex-col ${isSearchOpen ? 'hidden xl:flex' : 'hidden md:flex'}`}>
+                                <span className="font-light tracking-[0.25em] text-[12px] md:text-[14px] text-white whitespace-nowrap uppercase">ARCHITECTS AND PLANNERS</span>
+                                <span className="text-[9px] md:text-[10px] tracking-[0.4em] uppercase opacity-40 text-white mt-1 whitespace-nowrap">Workshop • Design • Research</span>
+                            </div>
+                        </Link>
+                    </motion.div>
 
-                    {/* Desktop Nav */}
-                    <nav className={`hidden md:flex items-center gap-8 text-sm tracking-widest uppercase font-medium text-white`}>
-                        <Link to="/#workshop" className="hover:opacity-60 transition-opacity">{t('nav.workshop')}</Link>
-                        <Link to="/#expertise" className="hover:opacity-60 transition-opacity">{t('nav.expertise')}</Link>
-                        <Link to="/projects" className="hover:opacity-60 transition-opacity">{t('nav.projects')}</Link>
-                        <Link to="/#contact" className="hover:opacity-60 transition-opacity">{t('nav.contact')}</Link>
-
-                        <div className="flex items-center gap-2 ml-4 text-xs font-bold">
-                            <button
-                                onClick={() => changeLanguage('pt')}
-                                className={`transition-opacity ${i18n.language === 'pt' ? 'opacity-100' : 'opacity-50 hover:opacity-100'}`}
-                            >PT</button>
-                            <span className="opacity-30">|</span>
-                            <button
-                                onClick={() => changeLanguage('en')}
-                                className={`transition-opacity ${i18n.language === 'en' ? 'opacity-100' : 'opacity-50 hover:opacity-100'}`}
-                            >EN</button>
-                        </div>
-                    </nav>
-
-                    {/* Mobile Menu Toggle */}
-                    <button
-                        className={`md:hidden ${isScrolled ? 'text-black-900' : 'text-white'}`}
-                        onClick={() => setMobileMenuOpen(true)}
-                    >
-                        <Menu size={28} strokeWidth={1.5} />
-                    </button>
-                </div>
-            </header>
-
-            {/* Mobile Menu Overlay */}
-            <AnimatePresence>
-                {mobileMenuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, x: '100%' }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: '100%' }}
-                        transition={{ type: 'tween', duration: 0.4 }}
-                        className="fixed inset-0 z-[60] bg-black-900 text-white flex flex-col"
-                    >
-                        <div className="p-6 flex justify-end">
-                            <button onClick={() => setMobileMenuOpen(false)}>
-                                <X size={32} strokeWidth={1} />
+                    {/* Actions: Search & Menu */}
+                    <div className="flex items-center gap-2 md:gap-6">
+                        {/* Language Switch */}
+                        <div className="hidden md:flex items-center gap-3 text-[10px] tracking-[0.3em] font-medium mr-2">
+                            <button 
+                                onClick={() => changeLanguage('en')} 
+                                className={`transition-colors ${i18n.language === 'en' ? 'text-terracota' : 'text-white/40 hover:text-white'}`}
+                            >
+                                ENG
+                            </button>
+                            <span className="text-white/10">|</span>
+                            <button 
+                                onClick={() => changeLanguage('pt')} 
+                                className={`transition-colors ${i18n.language === 'pt' ? 'text-terracota' : 'text-white/40 hover:text-white'}`}
+                            >
+                                PT
                             </button>
                         </div>
 
-                        <nav className="flex-grow flex flex-col justify-center px-12 gap-8 text-3xl font-light tracking-tight">
-                            <Link to="/#workshop" className="hover:pl-4 transition-all">01. {t('nav.workshop')}</Link>
-                            <Link to="/#expertise" className="hover:pl-4 transition-all">02. {t('nav.expertise')}</Link>
-                            <Link to="/projects" className="hover:pl-4 transition-all">03. {t('nav.projects')}</Link>
-                            <Link to="/#contact" className="hover:pl-4 transition-all">04. {t('nav.contact')}</Link>
-                        </nav>
-
-                        <div className="p-12 mb-8 flex gap-6 text-sm tracking-widest opacity-60">
-                            <button onClick={() => changeLanguage('pt')} className={i18n.language === 'pt' ? "text-white opacity-100" : "opacity-60"}>PT</button>
-                            <button onClick={() => changeLanguage('en')} className={i18n.language === 'en' ? "text-white opacity-100" : "opacity-60"}>EN</button>
+                        {/* Expandable Search Input */}
+                        <div className="flex items-center">
+                            <AnimatePresence>
+                                {isSearchOpen && (
+                                    <motion.input
+                                        initial={{ width: 0, opacity: 0 }}
+                                        animate={{ width: typeof window !== 'undefined' && window.innerWidth < 768 ? 140 : 220, opacity: 1 }}
+                                        exit={{ width: 0, opacity: 0 }}
+                                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                                        autoFocus
+                                        type="text"
+                                        value={searchValue}
+                                        onChange={(e) => setSearchValue(e.target.value)}
+                                        placeholder="Search..."
+                                        className="bg-transparent border-b border-white/20 text-[11px] tracking-widest font-light text-white focus:outline-none focus:border-white placeholder-white/30 truncate py-1"
+                                    />
+                                )}
+                            </AnimatePresence>
+                            <button 
+                                onClick={() => setIsSearchOpen(!isSearchOpen)}
+                                className="text-white/70 hover:text-white transition-colors p-2 ml-2"
+                            >
+                                {isSearchOpen ? <X size={18} strokeWidth={1.2} /> : <Search size={18} strokeWidth={1.2} />}
+                            </button>
                         </div>
-                    </motion.div>
+
+                        {/* Expandable Menu "+" Button */}
+                        <button
+                            onClick={() => setIsMenuOpen(true)}
+                            className="text-white/70 hover:text-white transition-colors p-2"
+                        >
+                            <Plus size={22} strokeWidth={1} />
+                        </button>
+                    </div>
+                </div>
+            </motion.header>
+
+            {/* Overlays: Menu and Search */}
+            <AnimatePresence>
+                {/* Sidebar Navigation Overlay */}
+                {isMenuOpen && (
+                    <>
+                        {/* Backdrop to close the menu */}
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsMenuOpen(false)}
+                            className="fixed inset-0 z-[55] bg-black/80 backdrop-blur-md"
+                        ></motion.div>
+
+                        <motion.div
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            onAnimationComplete={() => setIsMenuAnimDone(true)}
+                            transition={{ type: 'tween', duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
+                            style={{ 
+                                boxShadow: isMenuAnimDone ? 'inset 0 0 40px rgba(196, 85, 50, 0.2), -10px 0 50px rgba(0, 0, 0, 0.5)' : 'none' 
+                            }}
+                            className={`fixed top-0 right-0 h-full w-full md:w-1/2 lg:w-[42%] z-[60] bg-[#080808]/70 backdrop-blur-3xl border-l border-white/10 text-white flex flex-col transition-shadow duration-1000 overflow-y-auto`}
+                        >
+                            {/* Inner Glow Border */}
+                            <AnimatePresence>
+                                {isMenuAnimDone && (
+                                    <motion.div 
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="absolute inset-0 border-l border-terracota/30 pointer-events-none z-10"
+                                    ></motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            {/* Menu Header with Logo and Close Button */}
+                            <div className="p-10 md:p-14 lg:p-16 flex justify-between items-start">
+                                <motion.div 
+                                    layoutId="main-logo-area"
+                                    transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
+                                >
+                                    <div className="flex flex-col items-start gap-6">
+                                        <img 
+                                            src="/logo.png" 
+                                            alt="O+A" 
+                                            className="w-20 h-20 md:w-28 md:h-28 object-contain brightness-150 contrast-125" 
+                                        />
+                                        <div className="flex flex-col space-y-2">
+                                            <span className="font-light tracking-[0.3em] text-[11px] md:text-[12px] text-white uppercase">ARCHITECTS AND PLANNERS</span>
+                                            <span className="text-[9px] tracking-[0.4em] uppercase opacity-30 text-white italic">Workshop • Design • Research</span>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                                <button onClick={() => setIsMenuOpen(false)} className="p-4 bg-white/5 border border-white/10 rounded-full hover:bg-terracota hover:border-terracota transition-all duration-500 shadow-xl group">
+                                    <X size={28} strokeWidth={1} className="group-hover:rotate-90 transition-transform duration-500" />
+                                </button>
+                            </div>
+
+                            {/* Navigation List */}
+                            <nav className="flex-grow flex flex-col justify-start px-10 md:px-16 lg:px-20 py-8 gap-8 md:gap-10">
+                                <Link to="/#workshop" className="group flex flex-col items-start gap-1">
+                                    <div className="flex items-baseline gap-4">
+                                        <span className="text-sm md:text-base font-bold tracking-widest text-white/20 group-hover:text-terracota transition-colors duration-500">01.</span>
+                                        <span className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">Workshop</span>
+                                    </div>
+                                    <span className="ml-10 md:ml-16 text-2xl md:text-3xl lg:text-5xl italic text-terracota/80 group-hover:text-terracota group-hover:translate-x-4 transition-all duration-700">Explore Studio</span>
+                                </Link>
+
+                                <Link to="/#expertise" className="group flex flex-col items-start gap-1">
+                                    <div className="flex items-baseline gap-4">
+                                        <span className="text-sm md:text-base font-bold tracking-widest text-white/20 group-hover:text-terracota transition-colors duration-500">02.</span>
+                                        <span className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">Expertise</span>
+                                    </div>
+                                    <span className="ml-10 md:ml-16 text-2xl md:text-3xl lg:text-5xl italic text-terracota/80 group-hover:text-terracota group-hover:translate-x-4 transition-all duration-700">Our Skills</span>
+                                </Link>
+
+                                <Link to="/projects" className="group flex flex-col items-start gap-1">
+                                    <div className="flex items-baseline gap-4">
+                                        <span className="text-sm md:text-base font-bold tracking-widest text-white/20 group-hover:text-terracota transition-colors duration-500">03.</span>
+                                        <span className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">Projects</span>
+                                    </div>
+                                    <span className="ml-10 md:ml-16 text-2xl md:text-3xl lg:text-5xl italic text-terracota/80 group-hover:text-terracota group-hover:translate-x-4 transition-all duration-700">Portfolio</span>
+                                </Link>
+
+                                <Link to="/#contact" className="group flex flex-col items-start gap-1">
+                                    <div className="flex items-baseline gap-4">
+                                        <span className="text-sm md:text-base font-bold tracking-widest text-white/20 group-hover:text-terracota transition-colors duration-500">04.</span>
+                                        <span className="text-3xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">Contact</span>
+                                    </div>
+                                    <span className="ml-10 md:ml-16 text-2xl md:text-3xl lg:text-5xl italic text-white/20 group-hover:text-white group-hover:translate-x-4 transition-all duration-700">Let's Talk</span>
+                                </Link>
+                            </nav>
+
+                            {/* Menu Footer */}
+                            <div className="p-10 md:p-14 lg:p-16 flex justify-between items-center border-t border-white/5 bg-black/40 mt-auto">
+                                <div className="flex gap-8 text-[11px] tracking-[0.3em] font-medium">
+                                    <button onClick={(e) => { e.preventDefault(); changeLanguage('pt'); }} className={i18n.language === 'pt' ? "text-terracota scale-110" : "opacity-30 hover:opacity-100 transition-all"}>PT</button>
+                                    <button onClick={(e) => { e.preventDefault(); changeLanguage('en'); }} className={i18n.language === 'en' ? "text-terracota scale-110" : "opacity-30 hover:opacity-100 transition-all"}>EN</button>
+                                </div>
+                                <div className="text-[10px] tracking-[0.4em] uppercase opacity-10 hidden sm:block">
+                                    O + A • Architects and Planners
+                                </div>
+                            </div>
+                        </motion.div>
+                    </>
                 )}
             </AnimatePresence>
         </>
