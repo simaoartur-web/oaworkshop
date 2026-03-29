@@ -1,4 +1,0 @@
-﻿
-> backend@1.0.0 dev
-> cross-env NODE_OPTIONS=--no-deprecation next dev
-

@@ -115,31 +115,7 @@ const HeroSection = () => {
                         />
                     </motion.button>
 
-                    {/* Click Here to Start — side label */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 1, delay: 2.5, ease: [0.22, 1, 0.36, 1] }}
-                        className="absolute -right-8 md:-right-52 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-3"
-                    >
-                        <motion.div
-                            animate={{ x: [0, -6, 0] }}
-                            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                            className="text-white/40"
-                        >
-                            <svg width="24" height="12" viewBox="0 0 24 12" fill="none">
-                                <path d="M6 1L1 6L6 11" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
-                                <line x1="1" y1="6" x2="23" y2="6" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
-                            </svg>
-                        </motion.div>
-                        <motion.span
-                            animate={{ opacity: [0.4, 0.7, 0.4] }}
-                            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-                            className="text-[9px] md:text-[10px] tracking-[0.4em] uppercase text-white/50 font-light whitespace-nowrap"
-                        >
-                            Click Here to Start
-                        </motion.span>
-                    </motion.div>
+
                 </div>
 
                 {/* Names with Premium Typography */}

@@ -69,6 +69,11 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    disciplines: Discipline;
+    projects: Project;
+    'research-items': ResearchItem;
+    workshops: Workshop;
+    'team-members': TeamMember;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,6 +83,11 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    disciplines: DisciplinesSelect<false> | DisciplinesSelect<true>;
+    projects: ProjectsSelect<false> | ProjectsSelect<true>;
+    'research-items': ResearchItemsSelect<false> | ResearchItemsSelect<true>;
+    workshops: WorkshopsSelect<false> | WorkshopsSelect<true>;
+    'team-members': TeamMembersSelect<false> | TeamMembersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -87,8 +97,20 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'site-settings': SiteSetting;
+    navigation: Navigation;
+    'footer-settings': FooterSetting;
+    homepage: Homepage;
+    stats: Stat;
+  };
+  globalsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    navigation: NavigationSelect<false> | NavigationSelect<true>;
+    'footer-settings': FooterSettingsSelect<false> | FooterSettingsSelect<true>;
+    homepage: HomepageSelect<false> | HomepageSelect<true>;
+    stats: StatsSelect<false> | StatsSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -123,6 +145,7 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
+  roles: ('admin' | 'editor')[];
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -160,6 +183,286 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    tablet?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "disciplines".
+ */
+export interface Discipline {
+  id: number;
+  name: string;
+  /**
+   * A professional overview of this practice area.
+   */
+  intro: string;
+  coverImage?: (number | null) | Media;
+  /**
+   * Hex code for the discipline accent color.
+   */
+  themeColor?: string | null;
+  /**
+   * Optional custom marker icon for map visualization.
+   */
+  mapMarkerIcon?: (number | null) | Media;
+  /**
+   * URL identifier for this discipline.
+   */
+  slug: string;
+  displayOrder?: number | null;
+  activeStatus?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects".
+ */
+export interface Project {
+  id: number;
+  title: string;
+  client?: string | null;
+  project_year?: number | null;
+  discipline: number | Discipline;
+  project_type?: string | null;
+  /**
+   * A brief summary for project cards and map popups.
+   */
+  short_description?: string | null;
+  /**
+   * Detailed project narrative and specifications.
+   */
+  full_description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * The primary cover image used across the site.
+   */
+  featured_image: number | Media;
+  /**
+   * Supporting imagery for the project details page.
+   */
+  gallery?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  city?: string | null;
+  country?: string | null;
+  region?: string | null;
+  /**
+   * Geospatial coordinates for the interactive project globe.
+   */
+  geolocation?: {
+    /**
+     * Decimal degrees
+     */
+    latitude?: number | null;
+    /**
+     * Decimal degrees
+     */
+    longitude?: number | null;
+    /**
+     * Make this project visible as a marker on the global map.
+     */
+    show_on_map?: boolean | null;
+  };
+  seo?: {
+    /**
+     * Search engine title (defaults to project title).
+     */
+    title?: string | null;
+    /**
+     * Search engine meta description.
+     */
+    description?: string | null;
+  };
+  /**
+   * Persistent URL handle. Changing after publish will break links.
+   */
+  slug: string;
+  /**
+   * Pin this project to the top of the homepage feed.
+   */
+  is_featured?: boolean | null;
+  /**
+   * Selected projects will appear as "Related" on the details page.
+   */
+  related_projects?: (number | Project)[] | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "research-items".
+ */
+export interface ResearchItem {
+  id: number;
+  title: string;
+  /**
+   * Short summary for research cards and previews.
+   */
+  abstract: string;
+  /**
+   * The full body of the research paper or article.
+   */
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Primary visual for the research item.
+   */
+  featured_image: number | Media;
+  /**
+   * Downloadable PDF or technical document.
+   */
+  file_attachment?: (number | null) | Media;
+  author?: (number | null) | TeamMember;
+  discipline: number | Discipline;
+  /**
+   * URL identifier for this item.
+   */
+  slug: string;
+  published_date: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "team-members".
+ */
+export interface TeamMember {
+  id: number;
+  fullName: string;
+  role: string;
+  /**
+   * Professional headshot for the team section.
+   */
+  portraitImage: number | Media;
+  /**
+   * Brief professional biography.
+   */
+  bio?: string | null;
+  socialLinks?:
+    | {
+        platform?: ('linkedin' | 'twitter' | 'instagram' | 'website') | null;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Lower numbers appear first in the list.
+   */
+  displayOrder?: number | null;
+  /**
+   * Uncheck to hide this team member from the public website.
+   */
+  activeStatus?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "workshops".
+ */
+export interface Workshop {
+  id: number;
+  title: string;
+  /**
+   * Detailed description of the workshop objectives and agenda.
+   */
+  description: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Main promotional image for the workshop.
+   */
+  coverImage: number | Media;
+  gallery?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  eventDate: string;
+  location?: string | null;
+  /**
+   * External link for participant sign-up.
+   */
+  registrationLink?: string | null;
+  /**
+   * URL identifier for this workshop.
+   */
+  slug: string;
+  status?: ('upcoming' | 'past') | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -192,6 +495,26 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'disciplines';
+        value: number | Discipline;
+      } | null)
+    | ({
+        relationTo: 'projects';
+        value: number | Project;
+      } | null)
+    | ({
+        relationTo: 'research-items';
+        value: number | ResearchItem;
+      } | null)
+    | ({
+        relationTo: 'workshops';
+        value: number | Workshop;
+      } | null)
+    | ({
+        relationTo: 'team-members';
+        value: number | TeamMember;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -240,6 +563,7 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  roles?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -274,6 +598,161 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        tablet?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "disciplines_select".
+ */
+export interface DisciplinesSelect<T extends boolean = true> {
+  name?: T;
+  intro?: T;
+  coverImage?: T;
+  themeColor?: T;
+  mapMarkerIcon?: T;
+  slug?: T;
+  displayOrder?: T;
+  activeStatus?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects_select".
+ */
+export interface ProjectsSelect<T extends boolean = true> {
+  title?: T;
+  client?: T;
+  project_year?: T;
+  discipline?: T;
+  project_type?: T;
+  short_description?: T;
+  full_description?: T;
+  featured_image?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  city?: T;
+  country?: T;
+  region?: T;
+  geolocation?:
+    | T
+    | {
+        latitude?: T;
+        longitude?: T;
+        show_on_map?: T;
+      };
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+      };
+  slug?: T;
+  is_featured?: T;
+  related_projects?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "research-items_select".
+ */
+export interface ResearchItemsSelect<T extends boolean = true> {
+  title?: T;
+  abstract?: T;
+  content?: T;
+  featured_image?: T;
+  file_attachment?: T;
+  author?: T;
+  discipline?: T;
+  slug?: T;
+  published_date?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "workshops_select".
+ */
+export interface WorkshopsSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  coverImage?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  eventDate?: T;
+  location?: T;
+  registrationLink?: T;
+  slug?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "team-members_select".
+ */
+export interface TeamMembersSelect<T extends boolean = true> {
+  fullName?: T;
+  role?: T;
+  portraitImage?: T;
+  bio?: T;
+  socialLinks?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        id?: T;
+      };
+  displayOrder?: T;
+  activeStatus?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -314,6 +793,270 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  studioName: string;
+  contactEmail: string;
+  contactPhone?: string | null;
+  address: string;
+  socialMedia?:
+    | {
+        platform?: ('linkedin' | 'instagram' | 'facebook' | 'twitter') | null;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Fallback titles and descriptions used when specific page SEO is missing.
+   */
+  defaultSEO?: {
+    title?: string | null;
+    description?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation".
+ */
+export interface Navigation {
+  id: number;
+  menuItems: {
+    label: string;
+    link: string;
+    id?: string | null;
+  }[];
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer-settings".
+ */
+export interface FooterSetting {
+  id: number;
+  copyright: string;
+  secondaryLinks?:
+    | {
+        label?: string | null;
+        link?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  newsletterSignup?: {
+    title?: string | null;
+    /**
+     * Encouragement text for newsletter signups.
+     */
+    description?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage".
+ */
+export interface Homepage {
+  id: number;
+  hero: {
+    title: string;
+    subtitle?: string | null;
+    /**
+     * High-resolution wide image for the homepage splash.
+     */
+    backgroundImage?: (number | null) | Media;
+  };
+  intro?: {
+    heading?: string | null;
+    content?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+  };
+  /**
+   * Toggle which architectural storytelling blocks are visible on the homepage.
+   */
+  sectionVisibility?: {
+    showExpertise?: boolean | null;
+    showProjects?: boolean | null;
+    showMap?: boolean | null;
+    showNews?: boolean | null;
+    showWorkshop?: boolean | null;
+    showTeam?: boolean | null;
+    showStats?: boolean | null;
+  };
+  /**
+   * Select up to 6 projects to feature prominently on the homepage.
+   */
+  featuredProjects?: (number | Project)[] | null;
+  cta?: {
+    label?: string | null;
+    /**
+     * Internal path or external URL.
+     */
+    link?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stats".
+ */
+export interface Stat {
+  id: number;
+  items?:
+    | {
+        label: string;
+        value: number;
+        prefix?: string | null;
+        suffix?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  studioName?: T;
+  contactEmail?: T;
+  contactPhone?: T;
+  address?: T;
+  socialMedia?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        id?: T;
+      };
+  defaultSEO?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation_select".
+ */
+export interface NavigationSelect<T extends boolean = true> {
+  menuItems?:
+    | T
+    | {
+        label?: T;
+        link?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer-settings_select".
+ */
+export interface FooterSettingsSelect<T extends boolean = true> {
+  copyright?: T;
+  secondaryLinks?:
+    | T
+    | {
+        label?: T;
+        link?: T;
+        id?: T;
+      };
+  newsletterSignup?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage_select".
+ */
+export interface HomepageSelect<T extends boolean = true> {
+  hero?:
+    | T
+    | {
+        title?: T;
+        subtitle?: T;
+        backgroundImage?: T;
+      };
+  intro?:
+    | T
+    | {
+        heading?: T;
+        content?: T;
+      };
+  sectionVisibility?:
+    | T
+    | {
+        showExpertise?: T;
+        showProjects?: T;
+        showMap?: T;
+        showNews?: T;
+        showWorkshop?: T;
+        showTeam?: T;
+        showStats?: T;
+      };
+  featuredProjects?: T;
+  cta?:
+    | T
+    | {
+        label?: T;
+        link?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stats_select".
+ */
+export interface StatsSelect<T extends boolean = true> {
+  items?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        prefix?: T;
+        suffix?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

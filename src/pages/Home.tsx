@@ -3,6 +3,8 @@ import WorkshopSection from '../components/home/WorkshopSection';
 import ProjectsSection from '../components/home/ProjectsSection';
 import ContactSection from '../components/home/ContactSection';
 import CategoryMapSection from '../components/home/CategoryMapSection';
+import NewsSection from '../components/home/NewsSection';
+import TeamSection from '../components/home/TeamSection';
 import { ARCHITECTURE_PROJECTS, URBANISM_PROJECTS, RESEARCH_PROJECTS, COMMON_MARKERS } from '../data/projects';
 
 const Home = () => {
@@ -14,27 +16,31 @@ const Home = () => {
             
             <CategoryMapSection 
                 id="architecture"
-                accentTitle="+ ARC"
-                title="hitecture"
+                accentTitle="+"
+                title=" ARCHITECTURE"
                 projects={ARCHITECTURE_PROJECTS}
                 dummyMarkers={COMMON_MARKERS}
             />
 
             <CategoryMapSection 
                 id="urbanism"
-                accentTitle="+ URB"
-                title="anism"
+                accentTitle="+"
+                title=" URBAN PLANNING"
                 projects={URBANISM_PROJECTS}
                 dummyMarkers={COMMON_MARKERS}
             />
 
             <CategoryMapSection 
                 id="research"
-                accentTitle="+ RES"
-                title="earch"
+                accentTitle="+"
+                title=" RESEARCH"
                 projects={RESEARCH_PROJECTS}
                 dummyMarkers={COMMON_MARKERS}
             />
+            
+            <NewsSection />
+
+            <TeamSection />
 
             <ContactSection />
         </div>

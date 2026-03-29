@@ -5,22 +5,22 @@ import StatsSection from './StatsSection';
 const SLIDES = [
     {
         id: "architecture",
-        label: "ARChitecture",
-        title: <>International <span className="italic font-light text-white/90">Architecture</span></>,
+        label: "ARCHITECTURE",
+        title: "International Architecture",
         desc: "Excellence in sustainable design and innovative technical implementation across global scales.",
         img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80"
     },
     {
         id: "urbanism",
-        label: "URBan Planning",
-        title: <>Urbanism <span className="italic font-light text-white/90">Strategy</span></>,
+        label: "URBAN PLANNING",
+        title: "Urbanism Strategy",
         desc: "Research-driven planning solutions for the resilient cities and communities of tomorrow.",
         img: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80"
     },
     {
         id: "research",
-        label: "RESearch",
-        title: <>Experimental <span className="italic font-light text-white/90">Research</span></>,
+        label: "RESEARCH",
+        title: "Experimental Research",
         desc: "Pushing boundaries in material science and sustainable construction methodologies.",
         img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80"
     }
@@ -84,7 +84,7 @@ const WorkshopSection = () => {
                     <motion.div
                         key={activeIndex}
                         initial={{ opacity: 0, scale: 1.02 }}
-                        animate={{ opacity: 0.55, scale: 1 }}
+                        animate={{ opacity: 0.85, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.98 }}
                         transition={{ duration: 2.5, ease: [0.22, 1, 0.36, 1] }}
                         className="absolute inset-0 w-full h-full"
@@ -94,7 +94,7 @@ const WorkshopSection = () => {
                             alt="Background"
                             className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-r from-black-900 via-black-900/30 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-black-900/80 via-transparent to-transparent" />
                     </motion.div>
                 </AnimatePresence>
             </div>
@@ -102,7 +102,7 @@ const WorkshopSection = () => {
             {/* Bottom gradient for smooth section transition */}
             <div className="absolute bottom-0 left-0 right-0 h-36 z-10 pointer-events-none bg-gradient-to-t from-black-900 to-transparent" />
 
-            <div className="container-custom relative z-20 h-full flex flex-col pt-8 pb-8">
+            <div className="w-full px-6 md:px-10 relative z-20 h-full flex flex-col pt-8 pb-8">
                 {/* Main Content Area - Refined for Organization & Premium Feel */}
                 <div className="relative flex-grow flex items-center min-h-[40vh]">
                     <AnimatePresence mode="wait">
@@ -111,31 +111,31 @@ const WorkshopSection = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
-                            transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
+                            transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
                             className="relative z-30 w-full flex flex-col items-start"
                         >
-                            <div className="max-w-3xl space-y-12">
-                                <div className="flex flex-col gap-2">
-                                    <div className="flex items-center gap-6 mb-4">
-                                        <span className="text-terracota font-serif italic text-2xl">0{activeIndex + 1}</span>
-                                        <div className="h-px w-12 bg-white/20" />
-                                        <span className="text-white/40 text-[10px] tracking-[0.5em] uppercase">{SLIDES[activeIndex].label}</span>
+                            <div className="w-full md:w-1/2 lg:w-[45%] flex flex-col items-start text-left gap-10">
+                                <div className="flex flex-col gap-6">
+                                    <div className="flex items-center gap-6">
+                                        <span className="text-terracota font-bold text-lg md:text-xl tracking-widest">0{activeIndex + 1}</span>
+                                        <div className="h-[2px] w-12 bg-terracota/50" />
+                                        <span className="text-white/60 text-[11px] font-bold tracking-[0.4em] uppercase">{SLIDES[activeIndex].label}</span>
                                     </div>
-                                    <h3 className="text-3xl md:text-4xl font-light text-white leading-[1.1] tracking-tight font-sans">
+                                    <h3 className="text-4xl md:text-6xl lg:text-[4.5rem] font-medium text-white leading-none tracking-tight">
                                         {SLIDES[activeIndex].title}
                                     </h3>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-end">
-                                    <p className="text-base md:text-lg text-white/40 font-light leading-relaxed max-w-lg border-l border-white/10 pl-8">
+                                <div className="flex flex-col items-start gap-8 w-full">
+                                    <p className="text-base md:text-lg text-white/50 font-light leading-relaxed max-w-md">
                                         {SLIDES[activeIndex].desc}
                                     </p>
                                     
                                     <motion.button 
-                                        whileHover={{ x: 10 }}
-                                        className="group flex items-center gap-8 text-white uppercase tracking-[0.4em] text-[10px] font-bold"
+                                        whileHover={{ scale: 1.02 }}
+                                        className="group flex items-center justify-center border border-white/20 px-8 py-4 hover:bg-white hover:border-white transition-all duration-500 whitespace-nowrap"
                                     >
-                                        <span className="px-10 py-5 border border-white/20 group-hover:bg-white group-hover:text-black transition-all duration-500">
+                                        <span className="text-white group-hover:text-black uppercase tracking-[0.3em] text-[10px] font-bold transition-colors">
                                             Explore Projects
                                         </span>
                                     </motion.button>
@@ -155,20 +155,8 @@ const WorkshopSection = () => {
 
                         return (
                             <div key={slide.id} className="relative flex flex-col gap-6 flex-1 group cursor-pointer w-full">
-                                <span className={`text-[11px] md:text-[12px] font-light tracking-[0.35em] uppercase whitespace-nowrap transition-all duration-1000 ${isCurrent || isFilled ? 'text-white' : 'text-white/20'}`}>
-                                    {slide.label.split('').map((char, charIdx) => {
-                                        const charThreshold = (charIdx / slide.label.length) * 100;
-                                        const isCharFilled = currentProgress > charThreshold;
-                                        return (
-                                            <span 
-                                                key={charIdx}
-                                                className="transition-colors duration-700"
-                                                style={{ color: isCharFilled ? '#A65D4A' : 'inherit' }}
-                                            >
-                                                {char}
-                                            </span>
-                                        );
-                                    })}
+                                <span className={`text-[11px] md:text-[12px] font-bold tracking-[0.35em] uppercase whitespace-nowrap transition-colors duration-700 ${isCurrent || isFilled ? 'text-white' : 'text-white/30 group-hover:text-white/60'}`}>
+                                    {slide.label}
                                 </span>
                                 <div className="h-[1px] w-full bg-white/5 relative overflow-hidden">
                                     <motion.div 

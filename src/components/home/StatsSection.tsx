@@ -69,11 +69,11 @@ const StatItem = ({ value, label, delay = 0 }: { value: number; label: string; d
             transition={{ duration: 1.2, delay, ease: [0.22, 1, 0.36, 1] }}
             className="flex flex-col items-center text-center gap-4"
         >
-            <div className="flex items-baseline text-white">
+            <div className="flex items-center text-white">
                 <span className="text-2xl md:text-4xl font-light tracking-tighter leading-none tabular-nums">
                     {displayValue}
                 </span>
-                <span className="text-xl md:text-2xl font-light ml-1">+</span>
+                <span className="text-3xl md:text-5xl font-light text-terracota ml-1">+</span>
             </div>
             <div className="flex flex-col items-center">
                 {label.split('\n').map((line, i) => (
@@ -98,8 +98,8 @@ const StatsSection = () => {
 
     return (
         <section className="w-full py-6 md:py-8 bg-transparent overflow-hidden">
-            <div className="container-custom">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-4 max-w-5xl mx-auto">
+            <div className="w-full">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-4 w-full">
                     {stats.map((stat, idx) => (
                         <StatItem 
                             key={stat.label} 

@@ -45,7 +45,7 @@ const Header = () => {
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                 className="fixed top-0 w-full z-50 py-2 bg-white/10 backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/20"
             >
-                <div className="container-custom flex justify-between items-center h-14 md:h-16">
+                <div className="w-full px-6 md:px-10 flex justify-between items-center h-14 md:h-16">
                     {/* Logo Section - Minimal and Clean */}
                     <motion.div layoutId="main-logo-area">
                         <Link to="/" className="flex items-center gap-3 md:gap-6 group shrink-0">

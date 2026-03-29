@@ -1,14 +1,16 @@
-import { useState, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus, X, ArrowRight } from 'lucide-react';
-
+import { MapContainer, TileLayer, Marker as LeafletMarker, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 export interface Project {
     id: string;
     title: string;
     category: string;
     location: string;
     year: string;
-    mapPosition: { top: string; left: string };
+    mapPosition: { lat: number; lng: number };
     mainImage: string;
     thumbnail: string;
     description: string;
@@ -16,103 +18,142 @@ export interface Project {
     area: string;
 }
 
-export interface Marker {
-    top: string;
-    left: string;
+export interface MapMarker {
+    lat: number;
+    lng: number;
 }
+
+const createCustomIcon = (isActive: boolean) => L.divIcon({
+    className: 'bg-transparent border-none',
+    html: isActive 
+        ? `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' height='24' width='24'><circle cx='12' cy='12' r='8' fill='#C45532' stroke='white' stroke-width='3' /></svg>`
+        : `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' height='16' width='16'><circle cx='8' cy='8' r='5' fill='rgba(255,255,255,0.7)' /></svg>`,
+    iconSize: isActive ? [24, 24] : [16, 16],
+    iconAnchor: isActive ? [12, 12] : [8, 8]
+});
+
+const dummyIcon = L.divIcon({
+    className: 'bg-transparent border-none',
+    html: `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' height='8' width='8'><circle cx='4' cy='4' r='3' fill='rgba(255,255,255,0.3)' /></svg>`,
+    iconSize: [8, 8],
+    iconAnchor: [4, 4]
+});
+
+// Component to handle flying to an active marker
+const MapController = ({ center }: { center: { lat: number, lng: number } }) => {
+    const map = useMap();
+    useEffect(() => {
+        if (map) {
+            map.flyTo([center.lat, center.lng], 4, { duration: 1.5 });
+        }
+    }, [center, map]);
+    return null;
+};
+
+// Custom Zoom Control to match the previous aesthetic
+const CustomZoomControl = () => {
+    const map = useMap();
+    return (
+        <div className="absolute bottom-4 left-4 flex flex-col border border-white/10 rounded-sm bg-black/80 backdrop-blur-md overflow-hidden z-[400] shadow-xl pointer-events-auto">
+            <button className="p-2.5 text-white hover:bg-white/20 transition-colors cursor-pointer active:scale-95 outline-none" onClick={() => map.zoomIn()}>
+                <Plus size={18} strokeWidth={1.5} />
+            </button>
+            <button className="p-2.5 text-white hover:bg-white/20 border-t border-white/10 transition-colors cursor-pointer active:scale-95 outline-none" onClick={() => map.zoomOut()}>
+                <Minus size={18} strokeWidth={1.5} />
+            </button>
+        </div>
+    );
+};
 
 interface CategoryMapSectionProps {
     id?: string;
     title: string;
     accentTitle: string;
     projects: Project[];
-    dummyMarkers?: Marker[];
+    dummyMarkers?: MapMarker[];
 }
 
 const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [] }: CategoryMapSectionProps) => {
+    
     const [activeProject, setActiveProject] = useState(projects[0]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [scale, setScale] = useState(1);
-    const mapRef = useRef<HTMLDivElement>(null);
 
-    const handleZoomIn = () => setScale(prev => Math.min(prev + 0.4, 3.5));
-    const handleZoomOut = () => setScale(prev => Math.max(prev - 0.4, 1));
 
     return (
-        <section id={id} className="relative w-full bg-[#080808] text-white py-16 md:py-24 px-4 md:px-8 xl:px-16 overflow-hidden border-t border-white/5">
-            
-            {/* Two-column grid that stretches both columns to equal height */}
-            <div className="flex flex-col lg:grid lg:grid-cols-[38%_1fr] gap-10 lg:gap-14 xl:gap-16">
+        <section id={id} className="relative w-full bg-[#080808] text-white pt-10 pb-16 md:pt-14 md:pb-24 px-6 md:px-10 overflow-hidden border-t border-white/5">
 
-                {/* Left Column: Map — stretches to match right column height */}
-                <div className="relative w-full min-h-[400px] lg:min-h-0 p-[2px] rounded-[6px] overflow-hidden group self-stretch">
+            
+            {/* Title above the content for better vertical alignment within the grid */}
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-10 md:mb-14 tracking-tight leading-none uppercase">
+                <span className="text-terracota">{(accentTitle + title).slice(0, 5)}</span>
+                {(accentTitle + title).slice(5)}
+            </h2>
+
+            {/* Two-column grid that stretches both columns to equal height */}
+            <div className="flex flex-col lg:grid lg:grid-cols-[38%_1fr] gap-10 lg:gap-14 xl:gap-16 items-stretch">
+
+                {/* Left Column: Map */}
+                <div className="relative w-full min-h-[400px] lg:min-h-0 p-[2px] rounded-[6px] overflow-hidden group">
                     
                     {/* Rotating "Meteor" Glow Background */}
                     <div className="absolute inset-[-150%] bg-[conic-gradient(from_0deg,transparent_0deg,transparent_280deg,#C45532_340deg,#C45532_360deg)] animate-[spin_10s_linear_infinite]"></div>
                     <div className="absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0deg,transparent_260deg,rgba(196,85,50,0.4)_300deg,rgba(196,85,50,0.8)_360deg)] animate-[spin_10s_linear_infinite] blur-[25px] opacity-70"></div>
                     
-                    <div className="relative w-full h-full bg-[#050505] rounded-[4px] overflow-hidden border border-white/10" ref={mapRef}>
-                        <motion.div 
-                            drag
-                            dragConstraints={mapRef}
-                            animate={{ scale }}
-                            transition={{ type: "spring", stiffness: 200, damping: 30 }}
-                            className="w-[200%] h-[200%] absolute top-[-50%] left-[-50%] touch-none cursor-grab active:cursor-grabbing"
-                        >
-                            <img 
-                                src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000&auto=format&fit=crop" 
-                                className="w-full h-full object-cover grayscale opacity-40 mix-blend-screen pointer-events-none select-none contrast-125 bg-black"
-                                alt="Map Base"
-                                draggable={false}
-                            />
+                    <div className="relative w-full h-full bg-[#050505] rounded-[4px] overflow-hidden border border-white/10">
+                        <div className="w-full h-full relative" style={{ zIndex: 0 }}>
+                            <MapContainer 
+                                center={[activeProject.mapPosition.lat, activeProject.mapPosition.lng]} 
+                                zoom={4} 
+                                zoomControl={false}
+                                attributionControl={false}
+                                className="w-full h-full bg-[#050505]"
+                                style={{ background: '#050505' }}
+                            >
+                                {/* CARTO Dark Matter TileLayer (No API Key Required) */}
+                                <TileLayer
+                                    url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                                    maxZoom={19}
+                                />
+                                
+                                <MapController center={activeProject.mapPosition} />
+                                <CustomZoomControl />
 
-                            {dummyMarkers.map((pos, i) => (
-                                <div 
-                                    key={`dummy-${i}`} 
-                                    className="absolute w-1.5 h-1.5 bg-white rounded-full opacity-30 shadow-[0_0_8px_white] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-                                    style={pos}
-                                ></div>
-                            ))}
+                                {dummyMarkers.map((pos, i) => (
+                                    <LeafletMarker 
+                                        key={`dummy-${i}`} 
+                                        position={[pos.lat, pos.lng]}
+                                        icon={dummyIcon}
+                                        interactive={false}
+                                    />
+                                ))}
 
-                            {projects.map((proj) => {
-                                const isActive = activeProject.id === proj.id;
-                                return (
-                                    <div 
-                                        key={proj.id} 
-                                        onClick={(e) => { e.stopPropagation(); setActiveProject(proj); }}
-                                        className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full cursor-pointer transition-all duration-300 z-10 
-                                            ${isActive ? 'w-[18px] h-[18px] bg-white border-[4px] border-terracota scale-125 shadow-[0_0_20px_#C45532]' : 'w-3 h-3 bg-white hover:scale-150 hover:bg-terracota shadow-[0_0_15px_white]'}`}
-                                        style={proj.mapPosition}
-                                    ></div>
-                                );
-                            })}
-                        </motion.div>
-
-                        {/* Map Zoom Controls */}
-                        <div className="absolute bottom-4 left-4 flex flex-col border border-white/10 rounded-sm bg-black/80 backdrop-blur-md overflow-hidden z-20 shadow-xl">
-                            <button className="p-2.5 text-white hover:bg-white/20 transition-colors cursor-pointer active:scale-95" onClick={handleZoomIn}>
-                                <Plus size={18} strokeWidth={1.5} />
-                            </button>
-                            <button className="p-2.5 text-white hover:bg-white/20 border-t border-white/10 transition-colors cursor-pointer active:scale-95" onClick={handleZoomOut}>
-                                <Minus size={18} strokeWidth={1.5} />
-                            </button>
+                                {projects.map((proj) => {
+                                    const isActive = activeProject.id === proj.id;
+                                    return (
+                                        <LeafletMarker 
+                                            key={proj.id} 
+                                            position={[proj.mapPosition.lat, proj.mapPosition.lng]}
+                                            icon={createCustomIcon(isActive)}
+                                            zIndexOffset={isActive ? 1000 : 0}
+                                            eventHandlers={{
+                                                click: () => setActiveProject(proj)
+                                            }}
+                                        />
+                                    );
+                                })}
+                            </MapContainer>
                         </div>
                     </div>
                 </div>
 
-                {/* Right Column: Title + Main Display + Grid Thumbnails */}
-                <div className="flex flex-col justify-between">
+                {/* Right Column: Main Display + Grid Thumbnails */}
+                <div className="flex flex-col">
                     
-                    {/* Title */}
-                    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[4rem] xl:text-[4.5rem] font-bold text-white mb-8 tracking-tight leading-none">
-                        <span className="text-terracota whitespace-nowrap">{accentTitle}</span>{title}
-                    </h2>
-
                     {/* Main Interactive Display */}
-                    <div className="flex flex-col md:flex-row gap-6 lg:gap-8 mb-10 items-start">
+                    <div className="flex flex-col md:flex-row gap-6 lg:gap-8 mb-12 items-stretch">
                         <div 
                             onClick={() => setIsModalOpen(true)}
-                            className="w-full md:w-[75%] aspect-[16/10] bg-[#111] relative overflow-hidden rounded-[4px] shadow-2xl group border border-white/5 cursor-pointer"
+                            className="w-full md:w-[78%] aspect-[16/10] bg-[#111] relative overflow-hidden rounded-[4px] shadow-2xl group border border-white/5 cursor-pointer flex-shrink-0"
                         >
                             <AnimatePresence mode="wait">
                                 <motion.img 
@@ -121,7 +162,7 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                                     initial={{ opacity: 0, scale: 1.05 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.98 }}
-                                    transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
+                                    transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
                                     className="w-full h-full object-cover absolute inset-0 transition-transform duration-700 group-hover:scale-105"
                                     alt={activeProject.title}
                                 />
@@ -138,27 +179,27 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                         </div>
                         
                         {/* Metadata column */}
-                        <div className="w-full md:w-[25%] flex flex-col pt-2">
+                        <div className="w-full md:flex-grow flex flex-col justify-end pb-2">
                             <AnimatePresence mode="wait">
                                 <motion.div
                                     key={activeProject.id}
                                     initial={{ opacity: 0, x: 20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -10 }}
-                                    transition={{ duration: 0.5 }}
-                                    className="flex flex-col space-y-6"
+                                    transition={{ duration: 0.4 }}
+                                    className="flex md:flex-col gap-6 md:gap-8 overflow-x-auto md:overflow-visible pb-4 md:pb-0"
                                 >
-                                    <div>
-                                        <span className="block text-[10px] uppercase font-bold text-terracota tracking-[0.3em] mb-3">Expertise</span>
-                                        <span className="text-base lg:text-lg text-white font-medium leading-tight">{activeProject.category}</span>
+                                    <div className="flex-shrink-0">
+                                        <span className="block text-[10px] uppercase font-bold text-terracota tracking-[0.3em] mb-2">Expertise</span>
+                                        <span className="text-sm lg:text-base text-white font-medium leading-tight">{activeProject.category}</span>
                                     </div>
                                     
-                                    <div>
-                                        <span className="block text-[10px] uppercase font-bold text-white/40 tracking-[0.3em] mb-3">Location</span>
-                                        <span className="text-[13px] text-white/80 font-medium leading-relaxed">{activeProject.location}</span>
+                                    <div className="flex-shrink-0">
+                                        <span className="block text-[10px] uppercase font-bold text-white/40 tracking-[0.3em] mb-2">Location</span>
+                                        <span className="text-sm lg:text-base text-white/90 font-medium leading-relaxed">{activeProject.location}</span>
                                     </div>
                                     
-                                    <div className="pt-5 border-t border-white/10">
+                                    <div className="flex-shrink-0 pt-0 md:pt-4 md:border-t md:border-white/10">
                                         <span className="block text-[10px] uppercase font-bold text-white/40 tracking-[0.3em] mb-2">Completion</span>
                                         <span className="text-2xl text-white font-bold tracking-tighter">{activeProject.year}</span>
                                     </div>
@@ -169,9 +210,9 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
 
                     {/* Sub-projects Grid */}
                     <div className="mt-auto">
-                        <div className="flex items-center justify-between mb-6 opacity-40">
+                        <div className="flex items-center justify-between mb-4 opacity-40">
                             <span className="text-[10px] uppercase font-bold tracking-[0.4em] text-white">Project Library</span>
-                            <div className="h-[1px] flex-grow mx-6 bg-gradient-to-r from-white/20 to-transparent"></div>
+                            <div className="h-[1px] flex-grow mx-4 bg-gradient-to-r from-white/20 to-transparent"></div>
                         </div>
                         
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-5">
