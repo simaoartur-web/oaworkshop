@@ -4,7 +4,7 @@ import ProjectsSection from '../components/home/ProjectsSection';
 import ContactSection from '../components/home/ContactSection';
 import CategoryMapSection from '../components/home/CategoryMapSection';
 import NewsSection from '../components/home/NewsSection';
-import TeamSection from '../components/home/TeamSection';
+
 import { ARCHITECTURE_PROJECTS, URBANISM_PROJECTS, RESEARCH_PROJECTS, COMMON_MARKERS } from '../data/projects';
 
 const Home = () => {
@@ -40,7 +40,6 @@ const Home = () => {
             
             <NewsSection />
 
-            <TeamSection />
 
             <ContactSection />
         </div>

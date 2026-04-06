@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    leads: Lead;
     disciplines: Discipline;
     projects: Project;
     'research-items': ResearchItem;
@@ -83,6 +84,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    leads: LeadsSelect<false> | LeadsSelect<true>;
     disciplines: DisciplinesSelect<false> | DisciplinesSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
     'research-items': ResearchItemsSelect<false> | ResearchItemsSelect<true>;
@@ -209,6 +211,30 @@ export interface Media {
       filename?: string | null;
     };
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads".
+ */
+export interface Lead {
+  id: number;
+  name: string;
+  email: string;
+  /**
+   * Optional subject line for context.
+   */
+  subject?: string | null;
+  /**
+   * The contact message.
+   */
+  message: string;
+  /**
+   * How this lead was received.
+   */
+  source?: ('contact_form' | 'direct_email' | 'other') | null;
+  status?: ('new' | 'contacted' | 'in_progress' | 'closed') | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -497,6 +523,10 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
+        relationTo: 'leads';
+        value: number | Lead;
+      } | null)
+    | ({
         relationTo: 'disciplines';
         value: number | Discipline;
       } | null)
@@ -632,6 +662,20 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "leads_select".
+ */
+export interface LeadsSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  subject?: T;
+  message?: T;
+  source?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

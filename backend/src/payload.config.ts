@@ -7,6 +7,7 @@ import sharp from 'sharp'
 
 import { Users } from './collections/system/Users'
 import { Media } from './collections/system/Media'
+import { Leads } from './collections/system/Leads'
 import { Disciplines } from './collections/content/Disciplines'
 import { Projects } from './collections/content/Projects'
 import { ResearchItems } from './collections/content/ResearchItems'
@@ -29,7 +30,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Disciplines, Projects, ResearchItems, Workshops, TeamMembers],
+  collections: [Users, Media, Leads, Disciplines, Projects, ResearchItems, Workshops, TeamMembers],
   globals: [SiteSettings, Navigation, FooterSettings, Homepage, Stats],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || 'YOUR_SECRET_HERE',
