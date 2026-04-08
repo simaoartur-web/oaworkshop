@@ -52,7 +52,13 @@ const ProjectDetail = () => {
     if (!project) return <div className="min-h-screen flex items-center justify-center">Projeto não encontrado.</div>;
 
     return (
-        <div className="bg-black-900 text-white min-h-screen pb-32">
+        <motion.div 
+            className="bg-black-900 text-white min-h-screen pb-32"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+        >
             {/* Cinematic Hero */}
             <div className="relative h-[80vh] w-full">
                 <img
@@ -132,7 +138,7 @@ const ProjectDetail = () => {
 
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

@@ -43,7 +43,13 @@ const Projects = () => {
     const filteredProjects = filter === 'All' ? projects : projects.filter(p => p.category === filter);
 
     return (
-        <div className="pt-32 pb-24 min-h-screen bg-gray-100">
+        <motion.div 
+            className="pt-32 pb-24 min-h-screen bg-gray-100"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+        >
             <div className="container-custom">
                 <div className="flex flex-col md:flex-row justify-between items-end mb-16 border-b border-gray-300 pb-8">
                     <div>
@@ -108,7 +114,7 @@ const Projects = () => {
                     </motion.div>
                 )}
             </div>
-        </div>
+        </motion.div>
     );
 };
 

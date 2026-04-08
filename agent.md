@@ -1,116 +1,63 @@
-## Mandatory Step Before Admin/CMS Improvements — Implementation Plan Required
+# O+A Architecture & Planners - Feature & Optimization Backlog
 
-Before implementing any admin interface / CMS usability improvements, you must first present a clear **implementation plan**.
+Este documento contém uma lista organizada de melhorias, otimizações e novas funcionalidades para o site **O+A workshop**, focando em performance (evitar slowdowns) e fluidez de navegação.
 
-Do not start applying changes immediately.
+---
 
-I want to review the plan first to make sure the admin experience is being designed in a structured, intentional, and professional way.
+## 🚀 Performance & Otimização (Evitar Slowdowns)
 
-### The implementation plan must include:
+> [!IMPORTANT]
+> Atualmente, a página Home carrega 3 instâncias do Leaflet Map simultaneamente. Isso é pesado para dispositivos móveis e navegadores menos potentes.
 
-#### 1. Current Admin Experience Assessment
-Explain the current state of the admin/CMS interface:
-- what is confusing
-- what feels too raw or too technical
-- which collections/globals are harder to use
-- where the current CRUD experience is weak
-- where editors are most likely to make mistakes
+### 1. Otimização de Mapas
+- [x] **Lazy Mounting de Mapas**: Implementar `IntersectionObserver` para apenas inicializar e renderizar o componente de mapa quando ele entrar no viewport.
+- [ ] **Instância Única de Mapa (Opcional)**: Refatorar as seções de categorias para usar um único componente de mapa que troca os dados dinamicamente ao invés de ter 3 mapas independentes.
+- [ ] **FlyTo Smoother**: Ajustar os tempos de animação do Leaflet para não travar a main thread durante transições de coordenadas.
 
-#### 2. UX Improvement Strategy
-Explain how you plan to improve the usability of the admin interface.
+### 2. Otimização de Imagens & Ativos
+- [x] **Lazy Loading Nativo**: Adicionar `loading="lazy"` em todas as imagens de projetos e thumbnails.
+- [x] **LCP Optimization**: Adicionar `fetchpriority="high"` e `loading="eager"` no logo principal do `HeroSection` para melhorar o tempo de carregamento percebido.
+- [ ] **WebP Migration**: Converter assets locais para `.webp` ou `.avif` e usar plugins como `vite-plugin-image-optimizer` para compressão automática.
+- [ ] **Local Assets**: Trazer imagens do Unsplash (hardcoded no código) para a pasta `public` ou `assets` para evitar dependência de rede externa e latência de DNS.
 
-This should include:
-- how collections and globals will be organized
-- how field labels will be improved
-- how helper text/descriptions will be used
-- how field grouping/tabs/sections will be structured
-- how visual clutter will be reduced
-- how editing flows will become clearer and faster
+### 3. Melhorias de Renderização (Framer Motion)
+- [ ] **Reduced Motion**: Adicionar suporte a `useReducedMotion` para desativar animações pesadas em dispositivos que preferem menos movimento.
+- [ ] **Backdrop-blur Check**: O modal de detalhes usa `backdrop-blur-xl`. Verificar performance em Safari/Mobile e talvez reduzir para `blur-md` se houver jank.
 
-#### 3. Priority Areas
-Identify which parts of the CMS deserve the most attention first.
+---
 
-At minimum, address:
-- Projects
-- Homepage
-- Navigation
-- TeamMembers
-- ResearchItems
-- Workshops
-- Stats
-- SiteSettings / FooterSettings
+## 🌊 Fluxo de Navegação & UX (Melhoria de Fluxo)
 
-Explain why each one needs specific UX improvements.
+### 4. Transições de Página
+- [x] **AnimatePresence Layout**: Implementar transições suaves entre as rotas (Home -> Projects -> Admin) usando `framer-motion`.
+- [x] **Scroll-to-Top**: Garantir que a navegação para novas páginas sempre resete o scroll suavemente para o topo.
 
-#### 4. Project CRUD Interface Plan
-Because Projects are central to the platform, provide a more detailed sub-plan for the Project editing interface.
+### 5. Interações & Feedback
+- [ ] **Skeleton Loaders**: Adicionar placeholders (skeleton screens) para as imagens dos projetos enquanto elas carregam no `CategoryMapSection`.
+- [ ] **Touch Optimization**: Refinar o "Drag Timeline" no `ProjectsSection` para funcionar melhor em touch screens (atualmente focado em mouse events).
+- [ ] **Mobile Cursor**: Desativar o cursor customizado ("PULL/DRAG") em dispositivos móveis, pois ele interfere no toque nativo.
 
-This must include how you will organize:
-- editorial fields
-- media fields
-- taxonomy/discipline fields
-- map/geographic fields
-- publishing/status fields
-- ordering/highlight controls
+### 6. Arquitetura de Dados
+- [ ] **Centralized Data Storage**: Mover todos os dados de `PROJECTS` e `SERVICES` para arquivos JSON ou um mini-CMS para facilitar edições sem tocar no código do componente.
 
-Make it very clear how the Project editor will be easier and more professional to use.
+---
 
-#### 5. Validation & Mistake Prevention Plan
-Explain how the admin interface will help prevent editorial mistakes.
+## ✨ Funcionalidades a Desenvolver
 
-Examples:
-- required fields
-- clearer toggles/selects
-- structured inputs
-- safer status handling
-- better map coordinate guidance
-- field descriptions for sensitive or important data
+### 7. Core Site Features
+- [ ] **Language Switcher UI**: Implementar um seletor visual de idioma (PT/EN) integrado ao `i18next`.
+- [ ] **Contact Form Logic**: Integrar o formulário de contacto com um serviço (ex: EmailJS, Netlify Forms ou backend próprio).
+- [ ] **SEO & Metadata**: Implementar `react-helmet-async` para títulos dinâmicos e meta-descriptions em cada página de projeto.
 
-#### 6. Technical Payload Admin Strategy
-Explain which Payload admin features/configuration patterns you will use to improve the experience.
+### 8. Admin & Gestão
+- [ ] **Project Editor**: Melhorar a página de Admin para permitir a edição visual das coordenadas do mapa e upload de imagens.
+- [ ] **Auth Guard**: Implementar uma camada básica de proteção na rota `/admin`.
 
-Examples may include:
-- tabs
-- rows
-- collapsible groups
-- field descriptions
-- default values
-- conditional fields
-- sidebar fields
-- admin position
-- relationship field improvements
-- previews where appropriate
+---
 
-Do not stay vague here.  
-Be explicit about how the Payload admin will be configured.
+## 🛠️ Notas Técnicas para o PRÓXIMO Passo
 
-#### 7. Execution Order
-Provide the step-by-step order in which you will implement the admin/CMS improvements.
-
-For example:
-1. review schemas
-2. restructure field groups
-3. improve labels and helper text
-4. apply validations
-5. improve project editor
-6. improve globals
-7. test editorial workflows
-
-The implementation order must be logical and low-risk.
-
-#### 8. Final Review / Validation Plan
-Explain how you will verify that the admin interface is actually easier and more professional after the changes.
-
-This should include:
-- CRUD flow checks
-- editor usability checks
-- validation behavior checks
-- review of content editing speed and clarity
-- consistency across collections/globals
-
-### Important
-Do not implement the admin UX improvements before presenting this plan.
-
-I want the admin interface to be treated with the same seriousness as the backend architecture itself.
-
-The system must not only be technically strong, but also genuinely easy and professional to use.
+Para começar a implementação, sugere-se seguir esta ordem:
+1. **Lazy Loading de Mapas** (Ganho imediato de performance).
+2. **Otimização de Assets** (Melhoria de LCP).
+3. **Transições de Página** (Melhoria de feeling de app premium).

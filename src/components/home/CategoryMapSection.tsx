@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { Plus, Minus, X, ArrowRight } from 'lucide-react';
 import { MapContainer, TileLayer, Marker as LeafletMarker, useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -77,6 +77,9 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
     
     const [activeProject, setActiveProject] = useState(projects[0]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    
+    const mapContainerRef = useRef(null);
+    const isMapInView = useInView(mapContainerRef, { once: true, margin: "200px" });
 
 
     return (
@@ -99,8 +102,9 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                     <div className="absolute inset-[-150%] bg-[conic-gradient(from_0deg,transparent_0deg,transparent_280deg,#C45532_340deg,#C45532_360deg)] animate-[spin_10s_linear_infinite]"></div>
                     <div className="absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0deg,transparent_260deg,rgba(196,85,50,0.4)_300deg,rgba(196,85,50,0.8)_360deg)] animate-[spin_10s_linear_infinite] blur-[25px] opacity-70"></div>
                     
-                    <div className="relative w-full h-full bg-[#050505] rounded-[4px] overflow-hidden border border-white/10">
+                    <div className="relative w-full h-full bg-[#050505] rounded-[4px] overflow-hidden border border-white/10" ref={mapContainerRef}>
                         <div className="w-full h-full relative" style={{ zIndex: 0 }}>
+                            {isMapInView && (
                             <MapContainer 
                                 center={[activeProject.mapPosition.lat, activeProject.mapPosition.lng]} 
                                 zoom={4} 
@@ -142,6 +146,7 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                                     );
                                 })}
                             </MapContainer>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -165,6 +170,7 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                                     transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
                                     className="w-full h-full object-cover absolute inset-0 transition-transform duration-700 group-hover:scale-105"
                                     alt={activeProject.title}
+                                    loading="lazy"
                                 />
                             </AnimatePresence>
                             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none transition-opacity duration-500 group-hover:opacity-20"></div>
@@ -230,6 +236,7 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                                             className={`w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 
                                                 ${activeProject.id === proj.id ? 'grayscale-0 scale-105' : 'grayscale group-hover:grayscale-0'}`}
                                             alt={proj.title}
+                                            loading="lazy"
                                         />
                                         {activeProject.id === proj.id && (
                                             <div className="absolute inset-0 border-[2px] border-terracota/50 pointer-events-none"></div>
@@ -283,6 +290,7 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                                     src={activeProject.mainImage} 
                                     className="w-full h-full object-cover" 
                                     alt={activeProject.title} 
+                                    loading="lazy"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent pointer-events-none"></div>
                             </div>

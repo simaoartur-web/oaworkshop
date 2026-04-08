@@ -112,6 +112,8 @@ const HeroSection = () => {
                                 animation: 'heartbeat 4s cubic-bezier(0.22, 1, 0.36, 1) infinite',
                                 animationDelay: '2s',
                             }}
+                            fetchPriority="high"
+                            loading="eager"
                         />
                     </motion.button>
 

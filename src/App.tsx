@@ -1,24 +1,38 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
+import { useEffect } from 'react';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
+import Projects from './pages/Projects';
+import Admin from './pages/Admin';
+import ProjectDetail from './pages/ProjectDetail';
 
-// Placeholder empty pages for routing structure
-const Projects = () => <div className="min-h-screen pt-24"><div className="container-custom"><h2>Projects Working</h2></div></div>;
-const Admin = () => <div className="min-h-screen pt-24"><div className="container-custom"><h2>Admin Panel Working</h2></div></div>;
+// ScrollToTop component
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [pathname]);
+  return null;
+};
 
 function App() {
+    const location = useLocation();
     return (
         <div className="flex flex-col min-h-screen bg-black-900 text-white">
+            <ScrollToTop />
             <Header />
 
             <main className="flex-grow">
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/projects" element={<Projects />} />
-                    <Route path="/projects/:id" element={<Projects />} />
-                    <Route path="/admin" element={<Admin />} />
-                </Routes>
+                <AnimatePresence mode="wait">
+                    <Routes location={location} key={location.pathname}>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/projects" element={<Projects />} />
+                        <Route path="/projects/:id" element={<ProjectDetail />} />
+                        <Route path="/admin" element={<Admin />} />
+                    </Routes>
+                </AnimatePresence>
             </main>
 
             <Footer />

@@ -189,6 +189,7 @@ const ProjectsSection = () => {
                                 src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=1600" 
                                 alt="Planning" 
                                 className="w-full h-full object-cover absolute inset-0 grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-[1.5s] group-hover:scale-105 pointer-events-none"
+                                loading="lazy"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black-900/50 to-transparent pointer-events-none"></div>
                         </motion.div>
