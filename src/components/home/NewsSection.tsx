@@ -1,185 +1,191 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Variants } from 'framer-motion';
-import { Plus } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 const NEWS = [
     {
         id: 1,
-        category: "Journal / Article / 07 June 2024",
-        title: "Meetings with the Massingir Goverment",
+        tag: "Journal",
+        date: "07 June 2024",
+        title: "Meetings with the Massingir Government",
+        excerpt: "Discussions surrounding the new infrastructure development plan and integration with local environmental objectives.",
         image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2000&auto=format&fit=crop"
     },
     {
         id: 2,
-        category: "Journal / Article / 07 June 2024",
-        title: "Preparation for the Nairobi Bienale",
+        tag: "Article",
+        date: "14 June 2024",
+        title: "Preparation for the Nairobi Biennale",
+        excerpt: "Our team finalizing the exhibition materials and conceptual models for the upcoming international architecture showcase.",
         image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2000&auto=format&fit=crop"
     },
     {
         id: 3,
-        category: "Press Release / 12 July 2024",
+        tag: "Press Release",
+        date: "12 July 2024",
         title: "New Office Opening in Lisbon",
+        excerpt: "Expanding our European presence with a new central studio focused on sustainable urban innovation and historic retrofits.",
         image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2000&auto=format&fit=crop"
     }
 ];
 
 const NewsSection = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [direction, setDirection] = useState(1); // 1 = forward, -1 = backward
+    const [isHovered, setIsHovered] = useState(false);
+    const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    const nextNews = () => {
-        setDirection(1);
-        setCurrentIndex((prev) => (prev + 1) % NEWS.length);
+    const startTimer = () => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        intervalRef.current = setInterval(() => {
+            setCurrentIndex((prev) => (prev + 1) % NEWS.length);
+        }, 6000);
     };
 
-    // Auto-play
     useEffect(() => {
-        const timer = setInterval(() => {
-            nextNews();
-        }, 6000);
-        return () => clearInterval(timer);
-    }, []);
+        if (!isHovered) {
+            startTimer();
+        } else if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+        }
+        return () => {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+        };
+    }, [isHovered, currentIndex]);
+
+    const handleManualSelect = (index: number) => {
+        setCurrentIndex(index);
+        startTimer();
+    };
 
     const activeNews = NEWS[currentIndex];
-    const nextItem = NEWS[(currentIndex + 1) % NEWS.length];
 
-    // Variants for the "closing" and entering animation
-    const imageVariants: Variants = {
-        enter: (dir: number) => ({
-            x: dir > 0 ? 100 : -100,
-            opacity: 0,
-            scale: 0.95,
-        }),
-        center: {
-            x: 0,
-            opacity: 1,
-            scale: 1,
-            transition: { duration: 0.8, ease: [0.19, 1, 0.22, 1] }
-        },
-        exit: (dir: number) => ({
-            x: dir < 0 ? 100 : -100,
-            opacity: 0,
-            scale: 0.9,
-            transition: { duration: 0.6, ease: [0.19, 1, 0.22, 1] }
-        })
-    };
-
-    const textVariants: Variants = {
-        enter: { opacity: 0, y: 20 },
-        center: { opacity: 1, y: 0, transition: { duration: 0.6, delay: 0.2, ease: "easeOut" } },
-        exit: { opacity: 0, y: -20, transition: { duration: 0.3 } }
-    };
+    // Calculate segments for progress bar markers
+    const segmentWidth = 100 / NEWS.length;
 
     return (
-        <section className="w-full bg-[#050505] text-white py-20 md:py-32 px-6 md:px-10 overflow-hidden border-t border-white/5 relative">
-            
-            <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row gap-12 lg:gap-20">
+        <section className="w-full bg-[#050505] text-white pt-24 pb-32 overflow-hidden border-t border-white/5 relative">
+            <div className="container-custom flex flex-col gap-8 md:gap-12">
                 
-                {/* Left Side: Featured News */}
-                <div className="w-full md:w-[60%] flex flex-col relative">
-                    <div className="relative aspect-[16/10] overflow-hidden mb-6 bg-[#111]">
-                        <AnimatePresence custom={direction} mode="popLayout">
-                            <motion.img
-                                key={activeNews.id}
-                                src={activeNews.image}
-                                custom={direction}
-                                variants={imageVariants}
-                                initial="enter"
-                                animate="center"
-                                exit="exit"
-                                className="absolute inset-0 w-full h-full object-cover"
-                            />
-                        </AnimatePresence>
+                {/* Header Row */}
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.8 }}
+                    className="flex justify-between items-end border-b border-white/10 pb-6"
+                >
+                    <h2 className="text-3xl md:text-5xl font-light tracking-tight">JOURNAL</h2>
+                    <div className="text-terracota font-bold tracking-[0.3em] text-sm md:text-base">
+                        0{currentIndex + 1} <span className="text-white/30 font-light">/ 0{NEWS.length}</span>
                     </div>
+                </motion.div>
 
+                {/* Featured Hero Image */}
+                <div 
+                    className="relative w-full aspect-[4/3] md:aspect-[16/9] bg-[#111] rounded-sm overflow-hidden group cursor-pointer"
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                >
                     <AnimatePresence mode="wait">
-                        <motion.div
+                        <motion.img
                             key={activeNews.id}
-                            variants={textVariants}
-                            initial="enter"
-                            animate="center"
-                            exit="exit"
-                            className="flex items-start gap-4"
-                        >
-                            <Plus size={24} strokeWidth={3} className="text-white shrink-0 mt-1" />
-                            <div className="flex flex-col gap-2">
-                                <span className="text-sm md:text-base font-bold underline decoration-2 underline-offset-4">
-                                    {activeNews.category}
-                                </span>
-                                <h3 className="text-2xl md:text-3xl font-bold underline decoration-2 underline-offset-4 leading-tight">
+                            src={activeNews.image}
+                            initial={{ opacity: 0, scale: 1.05 }}
+                            animate={{ 
+                                opacity: 1, 
+                                scale: 1.03,
+                                transition: { opacity: { duration: 0.6 }, scale: { duration: 6, ease: "linear" } }
+                            }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 w-full h-full object-cover origin-center"
+                        />
+                    </AnimatePresence>
+
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
+
+                    {/* Content Overlay */}
+                    <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 flex flex-col items-start z-10">
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={`content-${activeNews.id}`}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.5, delay: 0.1 }}
+                                className="max-w-3xl flex flex-col gap-3 md:gap-4"
+                            >
+                                <div className="flex items-center gap-3 md:gap-4">
+                                    <span className="bg-terracota text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-[2px]">
+                                        {activeNews.tag}
+                                    </span>
+                                    <span className="text-white/60 text-[10px] md:text-[11px] uppercase tracking-widest">
+                                        {activeNews.date}
+                                    </span>
+                                </div>
+                                
+                                <h3 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-[1.1] tracking-tight text-white mb-2">
                                     {activeNews.title}
                                 </h3>
-                            </div>
-                        </motion.div>
-                    </AnimatePresence>
-                </div>
+                                
+                                <p className="text-white/70 text-[13px] md:text-base font-light leading-relaxed max-w-xl md:mb-4">
+                                    {activeNews.excerpt}
+                                </p>
 
-                {/* Right Side: Next News Preview & Navigation */}
-                <div className="w-full md:w-[40%] flex flex-col justify-center gap-8 md:pl-10 relative">
-                    
-                    <div className="flex items-center gap-4 mb-4">
-                        <Plus size={32} strokeWidth={4} className="text-white" />
-                        <h2 className="text-4xl md:text-5xl font-bold tracking-tight">NEWs</h2>
-                    </div>
-
-                    {/* Preview Image */}
-                    <div className="relative aspect-[4/3] w-full max-w-full md:max-w-[350px] overflow-hidden bg-[#111] mb-6 cursor-pointer" onClick={nextNews}>
-                        <AnimatePresence mode="wait">
-                            <motion.img
-                                key={nextItem.id}
-                                src={nextItem.image}
-                                initial={{ opacity: 0, scale: 1.1 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.8, ease: "easeOut" }}
-                                className="absolute inset-0 w-full h-full object-cover opacity-80 hover:scale-105 transition-transform duration-700"
-                            />
+                                <div className="flex items-center gap-3 text-[11px] md:text-xs uppercase font-bold tracking-widest text-white group-hover:text-terracota transition-colors mt-2">
+                                    Read Article <ArrowRight size={14} className="group-hover:translate-x-1.5 transition-transform duration-300" />
+                                </div>
+                            </motion.div>
                         </AnimatePresence>
                     </div>
-
-                    {/* Preview Text */}
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={nextItem.id}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.5, delay: 0.1 }}
-                            className="flex items-start gap-4"
-                        >
-                            <Plus size={20} className="text-white shrink-0 mt-1" />
-                            <div className="flex flex-col gap-1.5 cursor-pointer hover:opacity-80 transition-opacity" onClick={nextNews}>
-                                <span className="text-xs md:text-sm font-bold underline decoration-2 underline-offset-4">
-                                    {nextItem.category}
-                                </span>
-                                <h4 className="text-lg md:text-xl font-bold underline decoration-2 underline-offset-4 leading-tight">
-                                    {nextItem.title}
-                                </h4>
-                            </div>
-                        </motion.div>
-                    </AnimatePresence>
-
-                    {/* Manual Navigation (Far Right) */}
-                    <button 
-                        onClick={nextNews}
-                        className="absolute right-0 top-1/2 -translate-y-1/2 md:-right-10 hidden lg:flex p-4 hover:scale-110 hover:text-terracota transition-all duration-300"
-                    >
-                        <Plus size={40} strokeWidth={3} />
-                    </button>
                 </div>
 
-            </div>
-
-            {/* Dot Indicators */}
-            <div className="flex justify-center gap-3 mt-12 md:mt-16 w-full">
-                {NEWS.map((_, idx) => (
-                    <button 
-                        key={idx} 
-                        onClick={() => { setDirection(idx > currentIndex ? 1 : -1); setCurrentIndex(idx); }}
-                        className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentIndex ? 'bg-terracota w-8' : 'bg-white/20 w-4 hover:bg-white/40'}`}
+                {/* Progress Bar */}
+                <div className="w-full h-[2px] bg-white/10 relative overflow-hidden rounded-full">
+                    <motion.div
+                        key={currentIndex}
+                        initial={{ width: "0%" }}
+                        animate={{ width: isHovered ? "0%" : "100%" }}
+                        transition={{ duration: isHovered ? 0 : 6, ease: "linear" }}
+                        className="h-full bg-terracota absolute left-0 top-0"
                     />
-                ))}
+                    {/* Segment Markers */}
+                    <div className="absolute inset-0 pointer-events-none w-full">
+                        {NEWS.slice(0, -1).map((_, i) => (
+                            <div key={i} className="absolute top-0 bottom-0 w-[2px] bg-[#050505]" style={{ left: `${(i + 1) * segmentWidth}%` }}></div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Card Strip */}
+                <div className="flex overflow-x-auto md:grid md:grid-cols-3 gap-4 md:gap-6 w-full pb-6 md:pb-0 -mt-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                    {NEWS.map((item, idx) => {
+                        const isActive = idx === currentIndex;
+                        return (
+                            <div 
+                                key={item.id}
+                                onClick={() => handleManualSelect(idx)}
+                                className={`min-w-[280px] md:min-w-0 snap-start shrink-0 group flex flex-col gap-4 cursor-pointer transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-50 hover:opacity-80 grayscale hover:grayscale-0'}`}
+                            >
+                                <div className="relative w-full aspect-[4/3] md:aspect-[16/9] overflow-hidden rounded-sm bg-[#111]">
+                                    <img 
+                                        src={item.image} 
+                                        alt={item.title} 
+                                        className={`w-full h-full object-cover transition-transform duration-700 ${isActive ? 'scale-105' : 'group-hover:scale-105'}`} 
+                                    />
+                                    {isActive && (
+                                        <div className="absolute bottom-0 left-0 w-full h-[3px] bg-terracota z-10" />
+                                    )}
+                                </div>
+                                <div className="flex flex-col gap-1.5 px-1 pr-4 md:pr-0">
+                                    <span className={`text-[10px] uppercase tracking-widest font-bold ${isActive ? 'text-terracota' : 'text-white/40 group-hover:text-terracota'} transition-colors`}>{item.tag} / {item.date}</span>
+                                    <h4 className="text-sm md:text-base font-medium leading-tight text-white">{item.title}</h4>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+
             </div>
         </section>
     );
