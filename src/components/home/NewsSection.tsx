@@ -32,7 +32,7 @@ const NEWS = [
 const NewsSection = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
-    const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const startTimer = () => {
         if (intervalRef.current) clearInterval(intervalRef.current);
