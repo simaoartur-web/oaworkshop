@@ -33,6 +33,7 @@ const NewsSection = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const carouselRef = useRef<HTMLDivElement>(null);
 
     const startTimer = () => {
         if (intervalRef.current) clearInterval(intervalRef.current);
@@ -56,6 +57,20 @@ const NewsSection = () => {
         setCurrentIndex(index);
         startTimer();
     };
+
+    // Auto-scroll the carousel when currentIndex changes (e.g. from autoplay)
+    useEffect(() => {
+        if (carouselRef.current) {
+            const activeElement = document.getElementById(`news-thumb-${currentIndex}`);
+            if (activeElement) {
+                // Ensure it scrolls inside the container by simply passing the element's relative offset
+                carouselRef.current.scrollTo({
+                    left: activeElement.offsetLeft - carouselRef.current.offsetLeft,
+                    behavior: 'smooth'
+                });
+            }
+        }
+    }, [currentIndex]);
 
     const activeNews = NEWS[currentIndex];
 
@@ -158,14 +173,18 @@ const NewsSection = () => {
                 </div>
 
                 {/* Card Strip */}
-                <div className="flex overflow-x-auto md:grid md:grid-cols-3 gap-4 md:gap-6 w-full pb-6 md:pb-0 -mt-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                <div 
+                    ref={carouselRef}
+                    className="flex overflow-x-auto gap-3 md:gap-6 w-full pb-6 md:pb-0 mt-4 snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                >
                     {NEWS.map((item, idx) => {
                         const isActive = idx === currentIndex;
                         return (
                             <div 
                                 key={item.id}
+                                id={`news-thumb-${idx}`}
                                 onClick={() => handleManualSelect(idx)}
-                                className={`min-w-[280px] md:min-w-0 snap-start shrink-0 group flex flex-col gap-4 cursor-pointer transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-50 hover:opacity-80 grayscale hover:grayscale-0'}`}
+                                className={`w-[calc(33.333%-8px)] min-w-[110px] md:min-w-[240px] md:max-w-[300px] snap-center md:snap-start shrink-0 group flex flex-col gap-2 md:gap-4 cursor-pointer transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-30 hover:opacity-80 grayscale hover:grayscale-0'}`}
                             >
                                 <div className="relative w-full aspect-[4/3] md:aspect-[16/9] overflow-hidden rounded-sm bg-[#111]">
                                     <img 
@@ -174,12 +193,16 @@ const NewsSection = () => {
                                         className={`w-full h-full object-cover transition-transform duration-700 ${isActive ? 'scale-105' : 'group-hover:scale-105'}`} 
                                     />
                                     {isActive && (
-                                        <div className="absolute bottom-0 left-0 w-full h-[3px] bg-terracota z-10" />
+                                        <div className="absolute inset-x-0 bottom-0 h-[2px] md:h-[3px] bg-terracota z-10" />
                                     )}
                                 </div>
-                                <div className="flex flex-col gap-1.5 px-1 pr-4 md:pr-0">
-                                    <span className={`text-[10px] uppercase tracking-widest font-bold ${isActive ? 'text-terracota' : 'text-white/40 group-hover:text-terracota'} transition-colors`}>{item.tag} / {item.date}</span>
-                                    <h4 className="text-sm md:text-base font-medium leading-tight text-white">{item.title}</h4>
+                                <div className="flex flex-col gap-1 px-1">
+                                    <span className={`text-[8px] md:text-[10px] uppercase tracking-widest font-bold ${isActive ? 'text-terracota' : 'text-white/40 group-hover:text-terracota'} transition-colors whitespace-nowrap overflow-hidden text-ellipsis`}>
+                                        {item.tag} / {item.date}
+                                    </span>
+                                    <h4 className="text-xs md:text-sm font-medium leading-[1.2] text-white line-clamp-2">
+                                        {item.title}
+                                    </h4>
                                 </div>
                             </div>
                         );
