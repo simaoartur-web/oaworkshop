@@ -58,16 +58,20 @@ const Projects = () => {
                     </div>
 
                     {/* Subtle Filters */}
-                    <div className="flex gap-6 mt-8 md:mt-0 overflow-x-auto pb-2 w-full md:w-auto">
-                        {categories.map(cat => (
-                            <button
-                                key={cat}
-                                onClick={() => setFilter(cat)}
-                                className={`text-xs uppercase tracking-widest whitespace-nowrap transition-colors ${filter === cat ? 'text-black-900 font-semibold border-b border-black-900 pb-1' : 'text-gray-500 hover:text-black-900'}`}
-                            >
-                                {cat}
-                            </button>
-                        ))}
+                    <div className="relative mt-8 md:mt-0 w-full md:w-auto max-w-full">
+                        <div className="flex gap-6 overflow-x-auto pb-2 w-full [mask-image:linear-gradient(to_right,black_85%,transparent_100%)] md:[mask-image:none]">
+                            {categories.map(cat => (
+                                <button
+                                    key={cat}
+                                    onClick={() => setFilter(cat)}
+                                    className={`text-xs uppercase tracking-widest whitespace-nowrap transition-colors ${filter === cat ? 'text-black-900 font-semibold border-b border-black-900 pb-1' : 'text-gray-500 hover:text-black-900'}`}
+                                >
+                                    {cat}
+                                </button>
+                            ))}
+                            {/* Extra space for mask fade */}
+                            <div className="w-8 shrink-0 md:hidden"></div>
+                        </div>
                     </div>
                 </div>
 

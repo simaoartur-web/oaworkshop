@@ -124,7 +124,7 @@ const NewsSection = () => {
                     </div>
 
                     {/* Preview Image */}
-                    <div className="relative aspect-[4/3] w-full max-w-[350px] overflow-hidden bg-[#111] mb-6 cursor-pointer" onClick={nextNews}>
+                    <div className="relative aspect-[4/3] w-full max-w-full md:max-w-[350px] overflow-hidden bg-[#111] mb-6 cursor-pointer" onClick={nextNews}>
                         <AnimatePresence mode="wait">
                             <motion.img
                                 key={nextItem.id}
@@ -169,6 +169,17 @@ const NewsSection = () => {
                     </button>
                 </div>
 
+            </div>
+
+            {/* Dot Indicators */}
+            <div className="flex justify-center gap-3 mt-12 md:mt-16 w-full">
+                {NEWS.map((_, idx) => (
+                    <button 
+                        key={idx} 
+                        onClick={() => { setDirection(idx > currentIndex ? 1 : -1); setCurrentIndex(idx); }}
+                        className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentIndex ? 'bg-terracota w-8' : 'bg-white/20 w-4 hover:bg-white/40'}`}
+                    />
+                ))}
             </div>
         </section>
     );

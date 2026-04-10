@@ -93,14 +93,14 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
             </h2>
 
             {/* Two-column grid that stretches both columns to equal height */}
-            <div className="flex flex-col lg:grid lg:grid-cols-[38%_1fr] gap-10 lg:gap-14 xl:gap-16 items-stretch">
+            <div className="flex flex-col-reverse lg:grid lg:grid-cols-[38%_1fr] gap-10 lg:gap-14 xl:gap-16 items-stretch">
 
                 {/* Left Column: Map */}
-                <div className="relative w-full min-h-[400px] lg:min-h-0 p-[2px] rounded-[6px] overflow-hidden group">
+                <div className="relative w-full h-[350px] md:h-[400px] lg:h-auto lg:min-h-0 p-[2px] rounded-[6px] overflow-hidden group">
                     
                     {/* Rotating "Meteor" Glow Background */}
-                    <div className="absolute inset-[-150%] bg-[conic-gradient(from_0deg,transparent_0deg,transparent_280deg,#C45532_340deg,#C45532_360deg)] animate-[spin_10s_linear_infinite]"></div>
-                    <div className="absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0deg,transparent_260deg,rgba(196,85,50,0.4)_300deg,rgba(196,85,50,0.8)_360deg)] animate-[spin_10s_linear_infinite] blur-[25px] opacity-70"></div>
+                    <div className="hidden md:block absolute inset-[-150%] bg-[conic-gradient(from_0deg,transparent_0deg,transparent_280deg,#C45532_340deg,#C45532_360deg)] animate-[spin_10s_linear_infinite]"></div>
+                    <div className="hidden md:block absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0deg,transparent_260deg,rgba(196,85,50,0.4)_300deg,rgba(196,85,50,0.8)_360deg)] animate-[spin_10s_linear_infinite] blur-[25px] opacity-70"></div>
                     
                     <div className="relative w-full h-full bg-[#050505] rounded-[4px] overflow-hidden border border-white/10" ref={mapContainerRef}>
                         <div className="w-full h-full relative" style={{ zIndex: 0 }}>
@@ -176,10 +176,10 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none transition-opacity duration-500 group-hover:opacity-20"></div>
                             
                             {/* Interactive Hint */}
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-black/40 backdrop-blur-[2px]">
-                                <div className="bg-white/10 border border-white/20 px-6 py-3 rounded-full flex items-center gap-3 active:scale-95 group/btn">
-                                    <span className="text-sm font-bold uppercase tracking-widest text-white">Full Details</span>
-                                    <Plus size={18} className="text-terracota transition-transform duration-300 group-hover/btn:rotate-90" />
+                            <div className="absolute inset-0 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-500 bg-black/20 md:bg-black/40 backdrop-blur-[1px] md:backdrop-blur-[2px]">
+                                <div className="bg-white/10 border border-white/20 px-4 md:px-6 py-2 md:py-3 rounded-full flex items-center gap-2 md:gap-3 active:scale-95 group/btn">
+                                    <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-white">Full Details</span>
+                                    <Plus size={16} className="text-terracota transition-transform duration-300 md:group-hover/btn:rotate-90" />
                                 </div>
                             </div>
                         </div>
@@ -258,14 +258,14 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
             {/* Premium Project Details Modal */}
             <AnimatePresence>
                 {isModalOpen && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 md:p-8">
                         {/* Overlay */}
                         <motion.div 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setIsModalOpen(false)}
-                            className="absolute inset-0 bg-[#050505]/95 backdrop-blur-xl"
+                            className="absolute inset-0 bg-[#050505]/95 backdrop-blur-sm md:backdrop-blur-xl"
                         ></motion.div>
 
                         {/* Modal Content */}
@@ -279,7 +279,7 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                             {/* Close Button */}
                             <button 
                                 onClick={() => setIsModalOpen(false)}
-                                className="absolute top-5 right-5 z-50 p-2 bg-black/50 border border-white/10 rounded-full text-white hover:bg-terracota hover:border-terracota transition-all duration-300 active:scale-90 shadow-2xl"
+                                className="absolute top-5 right-5 z-50 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center bg-black/50 border border-white/10 rounded-full text-white hover:bg-terracota hover:border-terracota transition-all duration-300 active:scale-90 shadow-2xl"
                             >
                                 <X size={20} />
                             </button>

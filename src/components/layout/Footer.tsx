@@ -8,7 +8,7 @@ const Footer = () => {
 
                     <div className="col-span-1 md:col-span-2">
                         <img src="/logo.png" alt="O+A" className="w-16 h-16 object-contain mb-6" />
-                        <p className="text-gray-400 font-light text-xl max-w-sm leading-relaxed mb-8">
+                        <p className="text-gray-400 font-light text-base md:text-xl max-w-sm leading-relaxed mb-8">
                             Arquitetura e Planeamento para um Mundo em Mudança.
                         </p>
                         <p className="text-gray-500 text-sm">Baseado em Milão e Maputo, Moçambique.</p>

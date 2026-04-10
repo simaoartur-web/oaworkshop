@@ -77,7 +77,10 @@ const ProjectsSection = () => {
     const smoothX = useSpring(cursorX, { damping: 30, stiffness: 300, mass: 0.5 });
     const smoothY = useSpring(cursorY, { damping: 30, stiffness: 300, mass: 0.5 });
 
+    const [isTouchDevice, setIsTouchDevice] = useState(false);
+
     useEffect(() => {
+        setIsTouchDevice(typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches);
         const moveCursor = (e: MouseEvent) => {
             cursorX.set(e.clientX);
             cursorY.set(e.clientY);
@@ -116,7 +119,7 @@ const ProjectsSection = () => {
     return (
         <section className="relative w-full overflow-hidden flex flex-col bg-black-900 border-t border-white/5">
             {/* Custom Hover/Drag Cursor Overlay */}
-            {typeof window !== 'undefined' && (
+            {!isTouchDevice && typeof window !== 'undefined' && (
                 <motion.div
                     style={{
                         position: 'fixed',
@@ -223,7 +226,7 @@ const ProjectsSection = () => {
                         onMouseDown={handleMouseDown}
                         onMouseUp={handleMouseUp}
                         onMouseMove={handleMouseMove}
-                        className="flex overflow-x-auto gap-0 relative z-10 select-none pb-8 pt-8 cursor-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] scroll-smooth"
+                        className={`flex overflow-x-auto gap-0 relative z-10 select-none pb-8 pt-8 touch-pan-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] ${isDragging ? 'scroll-auto' : 'scroll-smooth'} ${isTouchDevice ? '' : 'cursor-none'}`}
                         style={{ scrollBehavior: isDragging ? 'auto' : 'smooth' }}
                     >
                         {/* Buffer space on left to align roughly with main text container */}
@@ -236,7 +239,7 @@ const ProjectsSection = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: false }}
                                 transition={{ duration: 0.6, delay: 0.1 }}
-                                className="min-w-[320px] md:min-w-[420px] lg:min-w-[480px] shrink-0 flex flex-col items-center text-center relative pointer-events-none group"
+                                className="min-w-[320px] md:min-w-[420px] lg:min-w-[480px] shrink-0 flex flex-col items-center text-center relative pointer-events-auto md:pointer-events-none group"
                             >
                                 {/* Contiguous line segment */}
                                 <div className="absolute top-[5px] left-0 right-0 h-[1px] bg-white/10 -z-10 group-hover:bg-terracota/40 transition-colors duration-500"></div>

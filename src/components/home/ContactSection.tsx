@@ -36,7 +36,7 @@ const ContactSection = () => {
     return (
         <section id="contact" className="py-24 bg-black-800 text-white relative overflow-hidden">
             <div className="container-custom">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-24">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24">
 
                     <motion.div
                         initial={{ opacity: 0, x: -30 }}

@@ -74,8 +74,8 @@ const ProjectDetail = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
                     >
-                        <h1 className="text-5xl md:text-7xl lg:text-8xl font-light tracking-tighter mb-4">{project.title}</h1>
-                        <div className="text-gray-400 tracking-widest uppercase text-xs flex gap-6">
+                        <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-light tracking-tighter mb-4 break-words">{project.title}</h1>
+                        <div className="text-gray-400 tracking-widest uppercase text-xs flex flex-wrap gap-4 md:gap-6">
                             <span>{project.category}</span>
                             <span>{project.location}</span>
                         </div>
@@ -126,11 +126,11 @@ const ProjectDetail = () => {
                         </p>
 
                         {/* Continuity loop - Return / Next */}
-                        <div className="mt-32 pt-12 border-t border-white/10 flex justify-between items-center">
+                        <div className="mt-32 pt-12 border-t border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8">
                             <Link to="/projects" className="text-xs uppercase tracking-widest text-gray-400 hover:text-white transition-colors flex items-center gap-4">
                                 <span className="w-12 h-[1px] bg-gray-400 inline-block" /> Voltar ao Portfólio
                             </Link>
-                            <a href="/#contact" className="bg-white text-black-900 px-8 py-4 uppercase text-xs tracking-widest font-medium hover:bg-gray-200 transition-colors">
+                            <a href="/#contact" className="w-full sm:w-auto text-center bg-white text-black-900 px-8 py-4 uppercase text-xs tracking-widest font-medium hover:bg-gray-200 transition-colors">
                                 Solicitar Proposta
                             </a>
                         </div>

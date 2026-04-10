@@ -43,7 +43,7 @@ const Header = () => {
                 style={{ opacity: headerOpacity }}
                 animate={{ y: isHidden ? "-100%" : 0 }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="fixed top-0 w-full z-50 py-4 bg-white/10 backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/20"
+                className="fixed top-0 w-full z-50 py-4 bg-white/10 backdrop-blur-sm md:backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/20"
             >
                 <div className="w-full px-6 md:px-10 flex justify-between items-center h-18 md:h-20">
                     {/* Logo Section - Minimal and Clean */}
@@ -60,7 +60,7 @@ const Header = () => {
                     {/* Actions: Search & Menu */}
                     <div className="flex items-center gap-2 md:gap-6">
                         {/* Language Switch */}
-                        <div className="hidden md:flex items-center gap-3 text-[10px] tracking-[0.3em] font-medium mr-2">
+                        <div className="flex items-center gap-2 md:gap-3 text-[9px] md:text-[10px] tracking-[0.2em] md:tracking-[0.3em] font-medium mr-1 md:mr-2">
                             <button
                                 onClick={() => changeLanguage('en')}
                                 className={`transition-colors ${i18n.language === 'en' ? 'text-terracota' : 'text-white/40 hover:text-white'}`}
@@ -81,16 +81,16 @@ const Header = () => {
                             <AnimatePresence>
                                 {isSearchOpen && (
                                     <motion.input
-                                        initial={{ width: 0, opacity: 0 }}
-                                        animate={{ width: typeof window !== 'undefined' && window.innerWidth < 768 ? 140 : 220, opacity: 1 }}
-                                        exit={{ width: 0, opacity: 0 }}
+                                        initial={{ maxWidth: 0, opacity: 0 }}
+                                        animate={{ maxWidth: 300, opacity: 1 }}
+                                        exit={{ maxWidth: 0, opacity: 0 }}
                                         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                                         autoFocus
                                         type="text"
                                         value={searchValue}
                                         onChange={(e) => setSearchValue(e.target.value)}
                                         placeholder="Search..."
-                                        className="bg-transparent border-b border-white/20 text-[11px] tracking-widest font-light text-white focus:outline-none focus:border-white placeholder-white/30 truncate py-1"
+                                        className="bg-transparent border-b border-white/20 text-[11px] tracking-widest font-light text-white focus:outline-none focus:border-white placeholder-white/30 truncate py-1 w-[35vw] md:w-[220px]"
                                     />
                                 )}
                             </AnimatePresence>

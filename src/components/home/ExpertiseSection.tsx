@@ -52,14 +52,14 @@ const ExpertiseSection = () => {
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true, margin: "-100px" }}
                         transition={{ duration: 1, delay: index * 0.1 }}
-                        className="group relative h-[60vh] md:h-[75vh] w-full overflow-hidden border-t border-white/10 last:border-b flex items-center"
+                        className="group relative min-h-[300px] h-[45vh] lg:h-[75vh] w-full overflow-hidden border-t border-white/10 last:border-b flex items-center"
                     >
                         {/* Background Image - The "Museum Effect" */}
                         <div className="absolute inset-0 w-full h-full z-0 slow-zoom">
                             <img
                                 src={area.img}
                                 alt={area.title}
-                                className="w-full h-full object-cover filter grayscale opacity-30 group-hover:grayscale-0 group-hover:opacity-60 transition-all duration-[2s] ease-out"
+                                className="w-full h-full object-cover filter grayscale-0 opacity-40 lg:opacity-30 lg:grayscale lg:group-hover:grayscale-0 lg:group-hover:opacity-60 transition-all duration-[2s] ease-out"
                             />
                             {/* Graduate fade for readability */}
                             <div className="absolute inset-0 bg-gradient-to-r from-black-900/90 via-black-900/40 to-transparent group-hover:from-black-900/80 transition-all duration-1000" />
@@ -74,7 +74,7 @@ const ExpertiseSection = () => {
 
                                 {/* This paragraph reveals on hover in desktop */}
                                 <div className="overflow-hidden">
-                                    <p className="text-gray-300 font-light text-base md:text-xl lg:text-2xl leading-relaxed transform md:translate-y-full md:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 delay-100">
+                                    <p className="text-gray-300 font-light text-base md:text-xl lg:text-2xl leading-relaxed transform lg:translate-y-full lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100 transition-all duration-700 delay-100">
                                         {area.desc}
                                     </p>
                                 </div>

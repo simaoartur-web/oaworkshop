@@ -146,7 +146,7 @@ const WorkshopSection = () => {
                 </div>
 
                 {/* Slider Navigation - Moved to the bottom */}
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-12 w-full mt-12 border-t border-white/10 pt-8">
+                <div className="flex flex-row justify-between items-end gap-2 md:gap-12 w-full mt-12 border-t border-white/10 pt-8">
                     {SLIDES.map((slide, idx) => {
                         const isFilled = (state === 'FILLING' && idx < activeIndex) || 
                                          (state === 'RESETTING' && idx < activeIndex);
@@ -154,8 +154,8 @@ const WorkshopSection = () => {
                         const currentProgress = isCurrent ? progress : (isFilled ? 100 : 0);
 
                         return (
-                            <div key={slide.id} className="relative flex flex-col gap-6 flex-1 group cursor-pointer w-full">
-                                <span className={`text-[11px] md:text-[12px] font-bold tracking-[0.35em] uppercase whitespace-nowrap transition-colors duration-700 ${isCurrent || isFilled ? 'text-white' : 'text-white/30 group-hover:text-white/60'}`}>
+                            <div key={slide.id} className="relative flex flex-col gap-3 md:gap-6 flex-1 group cursor-pointer w-full">
+                                <span className={`text-[7px] md:text-[12px] font-bold tracking-[0.1em] md:tracking-[0.35em] uppercase whitespace-nowrap transition-colors duration-700 truncate text-center md:text-left ${isCurrent || isFilled ? 'text-white' : 'text-white/30 group-hover:text-white/60'}`}>
                                     {slide.label}
                                 </span>
                                 <div className="h-[1px] w-full bg-white/5 relative overflow-hidden">
