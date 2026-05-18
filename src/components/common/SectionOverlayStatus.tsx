@@ -67,7 +67,7 @@ const SectionOverlayStatus = ({
                         {badge ?? badgeLabel[variant]}
                     </span>
                     <motion.h3
-                        className="text-3xl font-light uppercase tracking-tight text-white md:text-5xl"
+                        className="text-3xl font-light tracking-tight text-white md:text-5xl"
                         animate={animated ? { opacity: [0.88, 1, 0.88] } : undefined}
                         transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut' }}
                     >

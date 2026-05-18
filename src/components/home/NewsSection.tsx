@@ -80,13 +80,7 @@ const NewsSection = () => {
 
     return (
         <section className="w-full bg-[#050505] text-white pt-24 pb-32 overflow-hidden border-t border-white/5 relative">
-            <SectionOverlayStatus
-                title="Coming Soon"
-                subtitle="This content will be available soon."
-                variant="coming-soon"
-                blurIntensity="strong"
-            />
-            <div className="container-custom flex flex-col gap-8 md:gap-12 pointer-events-none blur-[5px] saturate-50 opacity-45 select-none">
+            <div className="container-custom flex flex-col gap-8 md:gap-12">
                 
                 {/* Header Row */}
                 <motion.div 
@@ -96,12 +90,23 @@ const NewsSection = () => {
                     transition={{ duration: 0.8 }}
                     className="flex justify-between items-end border-b border-white/10 pb-6"
                 >
-                    <h2 className="text-3xl md:text-5xl font-light tracking-tight">JOURNAL</h2>
-                    <div className="text-terracota font-bold tracking-[0.3em] text-sm md:text-base">
-                        0{currentIndex + 1} <span className="text-white/30 font-light">/ 0{NEWS.length}</span>
+                    <div>
+                        <h2 className="text-3xl md:text-5xl font-light tracking-tight">JOURNAL</h2>
+                        <p className="mt-4 max-w-xl text-sm md:text-base text-white/50 font-light leading-relaxed">
+                            Insights, updates and publications from the studio will be available soon.
+                        </p>
                     </div>
+                    <div className="text-terracota font-bold tracking-[0.3em] text-sm md:text-base">Editorial</div>
                 </motion.div>
 
+                <div className="relative">
+                    <SectionOverlayStatus
+                        title="Coming Soon"
+                        subtitle="Insights, updates and publications will be available soon."
+                        variant="coming-soon"
+                        blurIntensity="strong"
+                    />
+                    <div className="pointer-events-none blur-[5px] saturate-50 opacity-45 select-none">
                 {/* Featured Hero Image */}
                 <div 
                     className="relative w-full aspect-[4/3] md:aspect-[16/9] bg-[#111] rounded-sm overflow-hidden group cursor-pointer"
@@ -214,6 +219,8 @@ const NewsSection = () => {
                             </div>
                         );
                     })}
+                </div>
+                    </div>
                 </div>
 
             </div>

@@ -1,27 +1,25 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useCallback } from 'react';
-import StatsSection from './StatsSection';
-import SectionOverlayStatus from '../common/SectionOverlayStatus';
 
 const SLIDES = [
     {
         id: "architecture",
-        label: "ARCHITECTURE",
-        title: "International Architecture",
+        label: "+ ARCHITECTURE",
+        title: "+ Architecture",
         desc: "Excellence in sustainable design and innovative technical implementation across global scales.",
         img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80"
     },
     {
         id: "urbanism",
-        label: "URBAN PLANNING",
-        title: "Urbanism Strategy",
+        label: "+ URBAN PLANNING",
+        title: "+ Urban Planning",
         desc: "Research-driven planning solutions for the resilient cities and communities of tomorrow.",
         img: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80"
     },
     {
         id: "research",
-        label: "RESEARCH",
-        title: "Experimental Research",
+        label: "+ RESEARCH",
+        title: "+ Research",
         desc: "Pushing boundaries in material science and sustainable construction methodologies.",
         img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80"
     }
@@ -80,12 +78,6 @@ const WorkshopSection = () => {
 
     return (
         <section id="workshop" className="min-h-[60vh] bg-black-900 border-t border-white/5 overflow-hidden relative flex flex-col justify-center py-8">
-            <SectionOverlayStatus
-                title="Under Construction"
-                subtitle="This section is currently being refined and will be available soon."
-                variant="under-construction"
-                blurIntensity="medium"
-            />
             <div className="absolute inset-0 z-0">
                 <AnimatePresence mode="popLayout">
                     <motion.div
@@ -99,9 +91,9 @@ const WorkshopSection = () => {
                         <img
                             src={SLIDES[activeIndex].img}
                             alt="Background"
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover blur-[7px] scale-105 saturate-50 opacity-70"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-r from-black-900/80 via-transparent to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-black-900/90 via-black-900/55 to-black-900/30" />
                     </motion.div>
                 </AnimatePresence>
             </div>
@@ -109,7 +101,7 @@ const WorkshopSection = () => {
             {/* Bottom gradient for smooth section transition */}
             <div className="absolute bottom-0 left-0 right-0 h-36 z-10 pointer-events-none bg-gradient-to-t from-black-900 to-transparent" />
 
-            <div className="w-full px-6 md:px-10 relative z-20 h-full flex flex-col pt-8 pb-8 pointer-events-none blur-[5px] saturate-50 opacity-55 select-none">
+            <div className="w-full px-6 md:px-10 relative z-20 h-full flex flex-col pt-8 pb-8">
                 {/* Main Content Area - Refined for Organization & Premium Feel */}
                 <div className="relative flex-grow flex items-center min-h-[40vh]">
                     <AnimatePresence mode="wait">
@@ -131,21 +123,9 @@ const WorkshopSection = () => {
                                     <h3 className="text-4xl md:text-6xl lg:text-[4.5rem] font-medium text-white leading-none tracking-tight">
                                         {SLIDES[activeIndex].title}
                                     </h3>
-                                </div>
-
-                                <div className="flex flex-col items-start gap-8 w-full">
-                                    <p className="text-base md:text-lg text-white/50 font-light leading-relaxed max-w-md">
+                                    <p className="text-base md:text-lg text-white/55 font-light leading-relaxed max-w-md">
                                         {SLIDES[activeIndex].desc}
                                     </p>
-                                    
-                                    <motion.button 
-                                        whileHover={{ scale: 1.02 }}
-                                        className="group flex items-center justify-center border border-white/20 px-8 py-4 hover:bg-white hover:border-white transition-all duration-500 whitespace-nowrap"
-                                    >
-                                        <span className="text-white group-hover:text-black uppercase tracking-[0.3em] text-[10px] font-bold transition-colors">
-                                            Explore Projects
-                                        </span>
-                                    </motion.button>
                                 </div>
                             </div>
                         </motion.div>
@@ -176,9 +156,6 @@ const WorkshopSection = () => {
                         );
                     })}
                 </div>
-
-                {/* Stats Section Integrated */}
-                <StatsSection />
             </div>
         </section>
     );

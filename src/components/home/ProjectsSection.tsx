@@ -217,14 +217,20 @@ const ProjectsSection = () => {
 
             {/* Bottom Dark Timeline Section */}
             <div className="bg-black-800 w-full pt-20 pb-8 md:pt-28 md:pb-12 relative z-10 border-t border-white/10 overflow-hidden">
-                <SectionOverlayStatus
-                    title="Coming Soon"
-                    subtitle="This content will be available soon."
-                    variant="coming-soon"
-                    blurIntensity="strong"
-                />
+                <div className="container-custom">
+                    <p className="max-w-xl text-sm md:text-base text-white/45 font-light leading-relaxed">
+                        Our selected projects will be available soon.
+                    </p>
+                </div>
                 {/* Full Width Native Drag Container */}
-                <div className="relative mt-8 md:mt-12 w-full pointer-events-none blur-[5px] saturate-50 opacity-45 select-none">
+                <div className="relative mt-8 md:mt-12 w-full">
+                    <SectionOverlayStatus
+                        title="Coming Soon"
+                        subtitle="Our selected projects will be available soon."
+                        variant="coming-soon"
+                        blurIntensity="strong"
+                    />
+                    <div className="pointer-events-none blur-[5px] saturate-50 opacity-45 select-none">
                     <div 
                         ref={scrollRef}
                         onMouseEnter={() => setIsHoveringTimeline(true)}
@@ -270,6 +276,7 @@ const ProjectsSection = () => {
                         
                         {/* Buffer space on right */}
                         <div className="shrink-0 w-12 md:w-32 pointer-events-none"></div>
+                    </div>
                     </div>
                 </div>
             </div>

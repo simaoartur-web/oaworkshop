@@ -74,7 +74,14 @@ interface CategoryMapSectionProps {
     dummyMarkers?: MapMarker[];
 }
 
+const SECTION_COPY: Record<string, string> = {
+    architecture: "Excellence in sustainable design and innovative technical implementation across global scales.",
+    urbanism: "Research-driven planning solutions for the resilient cities and communities of tomorrow.",
+    research: "Pushing boundaries in material science and sustainable construction methodologies.",
+};
+
 const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [] }: CategoryMapSectionProps) => {
+    const sectionCopy = SECTION_COPY[id ?? ''] ?? "This section is currently being refined for publication.";
     
     const [activeProject, setActiveProject] = useState(projects[0]);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -85,21 +92,26 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
 
     return (
         <section id={id} className="relative w-full bg-[#080808] text-white pt-10 pb-16 md:pt-14 md:pb-24 px-6 md:px-10 overflow-hidden border-t border-white/5">
-            <SectionOverlayStatus
-                title="Under Construction"
-                subtitle="This section is currently being refined and will be available soon."
-                variant="under-construction"
-                blurIntensity="strong"
-            />
-
             
             {/* Title above the content for better vertical alignment within the grid */}
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-10 md:mb-14 tracking-tight leading-none uppercase">
-                <span className="text-terracota">{(accentTitle + title).slice(0, 5)}</span>
-                {(accentTitle + title).slice(5)}
-            </h2>
+            <div className="mb-10 md:mb-14">
+                <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight leading-none uppercase">
+                    <span className="text-terracota">{(accentTitle + title).slice(0, 5)}</span>
+                    {(accentTitle + title).slice(5)}
+                </h2>
+                <p className="mt-5 max-w-2xl text-sm md:text-base text-white/50 font-light leading-relaxed">
+                    {sectionCopy}
+                </p>
+            </div>
 
             {/* Two-column grid that stretches both columns to equal height */}
+            <div className="relative">
+                <SectionOverlayStatus
+                    title="Under Construction"
+                    subtitle="This section is currently being refined and will be available soon."
+                    variant="under-construction"
+                    blurIntensity="strong"
+                />
             <div className="flex flex-col-reverse lg:grid lg:grid-cols-[38%_1fr] gap-10 lg:gap-14 xl:gap-16 items-stretch pointer-events-none blur-[5px] saturate-50 opacity-45 select-none">
 
                 {/* Left Column: Map */}
@@ -260,6 +272,7 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                         </div>
                     </div>
                 </div>
+            </div>
             </div>
 
             {/* Premium Project Details Modal */}
