@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import SectionOverlayStatus from '../components/common/SectionOverlayStatus';
 
 // API Interface matching FastAPI Schema
 interface Project {
@@ -17,6 +18,7 @@ const Projects = () => {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('All');
+    const [isMockContent, setIsMockContent] = useState(false);
 
     useEffect(() => {
         // Fetch from FastAPI
@@ -24,6 +26,7 @@ const Projects = () => {
             .then(res => res.json())
             .then(data => {
                 setProjects(data);
+                setIsMockContent(false);
                 setLoading(false);
             })
             .catch(err => {
@@ -35,6 +38,7 @@ const Projects = () => {
                     { id: 3, title: 'WASH School Extension', category: 'WASH', location: 'Pemba, MZ', completion_year: 2025, client: 'UNICEF', thumbnail_url: 'https://images.unsplash.com/photo-1541888086925-0c13d46321de?auto=format&fit=crop&w=800' },
                     { id: 4, title: 'Coastal Defense', category: 'DRR', location: 'Beira, MZ', completion_year: 2022, client: null, thumbnail_url: 'https://images.unsplash.com/photo-1464938050520-ef2270bb8ce8?auto=format&fit=crop&w=800' },
                 ]);
+                setIsMockContent(true);
                 setLoading(false);
             });
     }, []);
@@ -50,7 +54,16 @@ const Projects = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
         >
-            <div className="container-custom">
+            <div className="container-custom relative">
+                {!loading && isMockContent && (
+                    <SectionOverlayStatus
+                        title="Coming Soon"
+                        subtitle="This content will be available soon."
+                        variant="coming-soon"
+                        blurIntensity="strong"
+                    />
+                )}
+                <div className={`${!loading && isMockContent ? 'pointer-events-none blur-[5px] saturate-50 opacity-45 select-none' : ''}`}>
                 <div className="flex flex-col md:flex-row justify-between items-end mb-16 border-b border-gray-300 pb-8">
                     <div>
                         <h1 className="text-4xl md:text-6xl font-light tracking-tight">Projectos</h1>
@@ -117,6 +130,7 @@ const Projects = () => {
                         ))}
                     </motion.div>
                 )}
+                </div>
             </div>
         </motion.div>
     );

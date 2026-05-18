@@ -1,5 +1,6 @@
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
+import SectionOverlayStatus from '../common/SectionOverlayStatus';
 
 const SERVICES = [
     { 
@@ -77,10 +78,9 @@ const ProjectsSection = () => {
     const smoothX = useSpring(cursorX, { damping: 30, stiffness: 300, mass: 0.5 });
     const smoothY = useSpring(cursorY, { damping: 30, stiffness: 300, mass: 0.5 });
 
-    const [isTouchDevice, setIsTouchDevice] = useState(false);
+    const [isTouchDevice] = useState(() => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches);
 
     useEffect(() => {
-        setIsTouchDevice(typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches);
         const moveCursor = (e: MouseEvent) => {
             cursorX.set(e.clientX);
             cursorY.set(e.clientY);
@@ -217,8 +217,14 @@ const ProjectsSection = () => {
 
             {/* Bottom Dark Timeline Section */}
             <div className="bg-black-800 w-full pt-20 pb-8 md:pt-28 md:pb-12 relative z-10 border-t border-white/10 overflow-hidden">
+                <SectionOverlayStatus
+                    title="Coming Soon"
+                    subtitle="This content will be available soon."
+                    variant="coming-soon"
+                    blurIntensity="strong"
+                />
                 {/* Full Width Native Drag Container */}
-                <div className="relative mt-8 md:mt-12 w-full">
+                <div className="relative mt-8 md:mt-12 w-full pointer-events-none blur-[5px] saturate-50 opacity-45 select-none">
                     <div 
                         ref={scrollRef}
                         onMouseEnter={() => setIsHoveringTimeline(true)}

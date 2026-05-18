@@ -4,6 +4,7 @@ import { Plus, Minus, X, ArrowRight } from 'lucide-react';
 import { MapContainer, TileLayer, Marker as LeafletMarker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import SectionOverlayStatus from '../common/SectionOverlayStatus';
 export interface Project {
     id: string;
     title: string;
@@ -84,6 +85,12 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
 
     return (
         <section id={id} className="relative w-full bg-[#080808] text-white pt-10 pb-16 md:pt-14 md:pb-24 px-6 md:px-10 overflow-hidden border-t border-white/5">
+            <SectionOverlayStatus
+                title="Under Construction"
+                subtitle="This section is currently being refined and will be available soon."
+                variant="under-construction"
+                blurIntensity="strong"
+            />
 
             
             {/* Title above the content for better vertical alignment within the grid */}
@@ -93,7 +100,7 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
             </h2>
 
             {/* Two-column grid that stretches both columns to equal height */}
-            <div className="flex flex-col-reverse lg:grid lg:grid-cols-[38%_1fr] gap-10 lg:gap-14 xl:gap-16 items-stretch">
+            <div className="flex flex-col-reverse lg:grid lg:grid-cols-[38%_1fr] gap-10 lg:gap-14 xl:gap-16 items-stretch pointer-events-none blur-[5px] saturate-50 opacity-45 select-none">
 
                 {/* Left Column: Map */}
                 <div className="relative w-full h-[350px] md:h-[400px] lg:h-auto lg:min-h-0 p-[2px] rounded-[6px] overflow-hidden group">

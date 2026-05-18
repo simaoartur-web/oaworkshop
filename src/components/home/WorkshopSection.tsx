@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useCallback } from 'react';
 import StatsSection from './StatsSection';
+import SectionOverlayStatus from '../common/SectionOverlayStatus';
 
 const SLIDES = [
     {
@@ -40,7 +41,7 @@ const WorkshopSection = () => {
     }, []);
 
     useEffect(() => {
-        let interval: any;
+        let interval: ReturnType<typeof setInterval>;
 
         if (state === 'FILLING') {
             interval = setInterval(() => {
@@ -79,6 +80,12 @@ const WorkshopSection = () => {
 
     return (
         <section id="workshop" className="min-h-[60vh] bg-black-900 border-t border-white/5 overflow-hidden relative flex flex-col justify-center py-8">
+            <SectionOverlayStatus
+                title="Under Construction"
+                subtitle="This section is currently being refined and will be available soon."
+                variant="under-construction"
+                blurIntensity="medium"
+            />
             <div className="absolute inset-0 z-0">
                 <AnimatePresence mode="popLayout">
                     <motion.div
@@ -102,7 +109,7 @@ const WorkshopSection = () => {
             {/* Bottom gradient for smooth section transition */}
             <div className="absolute bottom-0 left-0 right-0 h-36 z-10 pointer-events-none bg-gradient-to-t from-black-900 to-transparent" />
 
-            <div className="w-full px-6 md:px-10 relative z-20 h-full flex flex-col pt-8 pb-8">
+            <div className="w-full px-6 md:px-10 relative z-20 h-full flex flex-col pt-8 pb-8 pointer-events-none blur-[5px] saturate-50 opacity-55 select-none">
                 {/* Main Content Area - Refined for Organization & Premium Feel */}
                 <div className="relative flex-grow flex items-center min-h-[40vh]">
                     <AnimatePresence mode="wait">

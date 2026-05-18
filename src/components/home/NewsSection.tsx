@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import SectionOverlayStatus from '../common/SectionOverlayStatus';
 
 const NEWS = [
     {
@@ -79,7 +80,13 @@ const NewsSection = () => {
 
     return (
         <section className="w-full bg-[#050505] text-white pt-24 pb-32 overflow-hidden border-t border-white/5 relative">
-            <div className="container-custom flex flex-col gap-8 md:gap-12">
+            <SectionOverlayStatus
+                title="Coming Soon"
+                subtitle="This content will be available soon."
+                variant="coming-soon"
+                blurIntensity="strong"
+            />
+            <div className="container-custom flex flex-col gap-8 md:gap-12 pointer-events-none blur-[5px] saturate-50 opacity-45 select-none">
                 
                 {/* Header Row */}
                 <motion.div 

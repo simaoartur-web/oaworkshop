@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import SectionOverlayStatus from '../components/common/SectionOverlayStatus';
 
 interface Project {
     id: number;
@@ -17,6 +18,7 @@ const ProjectDetail = () => {
     const { id } = useParams<{ id: string }>();
     const [project, setProject] = useState<Project | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isMockContent, setIsMockContent] = useState(false);
 
     useEffect(() => {
         // Scroll to top on load for immersion
@@ -29,6 +31,7 @@ const ProjectDetail = () => {
             })
             .then(data => {
                 setProject(data);
+                setIsMockContent(false);
                 setLoading(false);
             })
             .catch(err => {
@@ -44,6 +47,7 @@ const ProjectDetail = () => {
                     description: "Um plano diretor extenso focado em mobilidade sustentável e infraestrutura verde. O projeto visa revitalizar as conexões centrais da cidade criando eixos pedestres dedicados e áreas comerciais sombreadas, providenciando proteção contra pluviosidade extrema ao abrigo dos princípios DRR da O+A.",
                     thumbnail_url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=2000"
                 });
+                setIsMockContent(true);
                 setLoading(false);
             });
     }, [id]);
@@ -53,12 +57,21 @@ const ProjectDetail = () => {
 
     return (
         <motion.div 
-            className="bg-black-900 text-white min-h-screen pb-32"
+            className="bg-black-900 text-white min-h-screen pb-32 relative"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
         >
+            {isMockContent && (
+                <SectionOverlayStatus
+                    title="Under Construction"
+                    subtitle="This section is currently being refined and will be available soon."
+                    variant="under-construction"
+                    blurIntensity="strong"
+                />
+            )}
+            <div className={isMockContent ? 'pointer-events-none blur-[5px] saturate-50 opacity-45 select-none' : ''}>
             {/* Cinematic Hero */}
             <div className="relative h-[80vh] w-full">
                 <img
@@ -137,6 +150,7 @@ const ProjectDetail = () => {
                     </motion.div>
 
                 </div>
+            </div>
             </div>
         </motion.div>
     );
