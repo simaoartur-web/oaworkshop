@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { Plus, Minus, X, ArrowRight } from 'lucide-react';
 import { MapContainer, TileLayer, Marker as LeafletMarker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import SectionOverlayStatus from '../common/SectionOverlayStatus';
+import { useTranslation } from 'react-i18next';
 export interface Project {
     id: string;
     title: string;
@@ -74,30 +75,38 @@ interface CategoryMapSectionProps {
     dummyMarkers?: MapMarker[];
 }
 
-const SECTION_COPY: Record<string, string> = {
-    architecture: "Excellence in sustainable design and innovative technical implementation across global scales.",
-    urbanism: "Research-driven planning solutions for the resilient cities and communities of tomorrow.",
-    research: "Pushing boundaries in material science and sustainable construction methodologies.",
-};
-
 const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [] }: CategoryMapSectionProps) => {
-    const sectionCopy = SECTION_COPY[id ?? ''] ?? "This section is currently being refined for publication.";
-    
-    const [activeProject, setActiveProject] = useState(projects[0]);
+    const { t } = useTranslation();
+    const localizedProjects = useMemo(
+        () => {
+            const translatedProjects = t(`categorySections.projects.${id}`, { returnObjects: true }) as Partial<Project>[];
+            return projects.map((project, index) => ({ ...project, ...(translatedProjects[index] ?? {}) }));
+        },
+        [projects, id, t]
+    );
+    const sectionTitle = id ? t(`categorySections.${id}.title`, { defaultValue: title.trim() }) : title.trim();
+    const sectionCopy = id ? t(`categorySections.${id}.copy`, { defaultValue: t('categorySections.fallbackCopy') }) : t('categorySections.fallbackCopy');
+
+    const [activeProject, setActiveProject] = useState(localizedProjects[0]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     
     const mapContainerRef = useRef(null);
     const isMapInView = useInView(mapContainerRef, { once: true, margin: "200px" });
 
+    useEffect(() => {
+        setActiveProject(localizedProjects[0]);
+    }, [localizedProjects]);
+
 
     return (
-        <section id={id} className="relative w-full bg-[#080808] text-white pt-10 pb-16 md:pt-14 md:pb-24 px-6 md:px-10 overflow-hidden border-t border-white/5">
+        <section id={id} className="relative w-full bg-[#080808] text-white pt-16 pb-16 md:pt-20 md:pb-24 px-6 md:px-10 overflow-hidden border-t border-white/5">
+            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black-900/60 to-transparent pointer-events-none" />
             
             {/* Title above the content for better vertical alignment within the grid */}
-            <div className="mb-10 md:mb-14">
+            <div className="relative mb-10 md:mb-14">
                 <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight leading-none uppercase">
-                    <span className="text-terracota">{(accentTitle + title).slice(0, 5)}</span>
-                    {(accentTitle + title).slice(5)}
+                    <span className="text-terracota">{(accentTitle + sectionTitle).slice(0, 5)}</span>
+                    {(accentTitle + sectionTitle).slice(5)}
                 </h2>
                 <p className="mt-5 max-w-2xl text-sm md:text-base text-white/50 font-light leading-relaxed">
                     {sectionCopy}
@@ -105,14 +114,14 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
             </div>
 
             {/* Two-column grid that stretches both columns to equal height */}
-            <div className="relative">
+            <div className="relative -mx-6 overflow-hidden px-6 md:-mx-10 md:px-10">
                 <SectionOverlayStatus
-                    title="Under Construction"
-                    subtitle="This section is currently being refined and will be available soon."
+                    title={t('common.underConstruction')}
+                    subtitle={t('common.underConstructionSubtitle')}
                     variant="under-construction"
                     blurIntensity="strong"
                 />
-            <div className="flex flex-col-reverse lg:grid lg:grid-cols-[38%_1fr] gap-10 lg:gap-14 xl:gap-16 items-stretch pointer-events-none blur-[5px] saturate-50 opacity-45 select-none">
+            <div className="relative z-0 flex flex-col-reverse lg:grid lg:grid-cols-[38%_1fr] gap-10 lg:gap-14 xl:gap-16 items-stretch pointer-events-none blur-[5px] saturate-50 opacity-45 select-none">
 
                 {/* Left Column: Map */}
                 <div className="relative w-full h-[350px] md:h-[400px] lg:h-auto lg:min-h-0 p-[2px] rounded-[6px] overflow-hidden group">
@@ -150,7 +159,7 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                                     />
                                 ))}
 
-                                {projects.map((proj) => {
+                                {localizedProjects.map((proj) => {
                                     const isActive = activeProject.id === proj.id;
                                     return (
                                         <LeafletMarker 
@@ -197,7 +206,7 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                             {/* Interactive Hint */}
                             <div className="absolute inset-0 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-500 bg-black/20 md:bg-black/40 backdrop-blur-[1px] md:backdrop-blur-[2px]">
                                 <div className="bg-white/10 border border-white/20 px-4 md:px-6 py-2 md:py-3 rounded-full flex items-center gap-2 md:gap-3 active:scale-95 group/btn">
-                                    <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-white">Full Details</span>
+                                    <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-white">{t('categorySections.fullDetails')}</span>
                                     <Plus size={16} className="text-terracota transition-transform duration-300 md:group-hover/btn:rotate-90" />
                                 </div>
                             </div>
@@ -215,17 +224,17 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                                     className="flex md:flex-col gap-6 md:gap-8 overflow-x-auto md:overflow-visible pb-4 md:pb-0"
                                 >
                                     <div className="flex-shrink-0">
-                                        <span className="block text-[10px] uppercase font-bold text-terracota tracking-[0.3em] mb-2">Expertise</span>
+                                        <span className="block text-[10px] uppercase font-bold text-terracota tracking-[0.3em] mb-2">{t('categorySections.expertise')}</span>
                                         <span className="text-sm lg:text-base text-white font-medium leading-tight">{activeProject.category}</span>
                                     </div>
                                     
                                     <div className="flex-shrink-0">
-                                        <span className="block text-[10px] uppercase font-bold text-white/40 tracking-[0.3em] mb-2">Location</span>
+                                        <span className="block text-[10px] uppercase font-bold text-white/40 tracking-[0.3em] mb-2">{t('categorySections.location')}</span>
                                         <span className="text-sm lg:text-base text-white/90 font-medium leading-relaxed">{activeProject.location}</span>
                                     </div>
                                     
                                     <div className="flex-shrink-0 pt-0 md:pt-4 md:border-t md:border-white/10">
-                                        <span className="block text-[10px] uppercase font-bold text-white/40 tracking-[0.3em] mb-2">Completion</span>
+                                        <span className="block text-[10px] uppercase font-bold text-white/40 tracking-[0.3em] mb-2">{t('categorySections.completion')}</span>
                                         <span className="text-2xl text-white font-bold tracking-tighter">{activeProject.year}</span>
                                     </div>
                                 </motion.div>
@@ -236,12 +245,12 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                     {/* Sub-projects Grid */}
                     <div className="mt-auto">
                         <div className="flex items-center justify-between mb-4 opacity-40">
-                            <span className="text-[10px] uppercase font-bold tracking-[0.4em] text-white">Project Library</span>
+                            <span className="text-[10px] uppercase font-bold tracking-[0.4em] text-white">{t('categorySections.projectLibrary')}</span>
                             <div className="h-[1px] flex-grow mx-4 bg-gradient-to-r from-white/20 to-transparent"></div>
                         </div>
                         
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-5">
-                            {projects.map((proj) => (
+                            {localizedProjects.map((proj) => (
                                 <motion.div 
                                     key={proj.id} 
                                     onClick={() => setActiveProject(proj)}
@@ -330,15 +339,15 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
 
                                 <div className="grid grid-cols-2 gap-6 mb-8">
                                     <div>
-                                        <span className="block text-[9px] uppercase font-bold text-white/30 tracking-[0.2em] mb-1.5 ">Location</span>
+                                        <span className="block text-[9px] uppercase font-bold text-white/30 tracking-[0.2em] mb-1.5 ">{t('categorySections.location')}</span>
                                         <span className="text-[13px] text-white/90 font-medium">{activeProject.location}</span>
                                     </div>
                                     <div>
-                                        <span className="block text-[9px] uppercase font-bold text-white/30 tracking-[0.2em] mb-1.5">Area</span>
+                                        <span className="block text-[9px] uppercase font-bold text-white/30 tracking-[0.2em] mb-1.5">{t('categorySections.area')}</span>
                                         <span className="text-[13px] text-white/90 font-medium">{activeProject.area}</span>
                                     </div>
                                     <div className="col-span-2 border-t border-white/5 pt-5">
-                                        <span className="block text-[9px] uppercase font-bold text-white/30 tracking-[0.2em] mb-3">Scope of Work</span>
+                                        <span className="block text-[9px] uppercase font-bold text-white/30 tracking-[0.2em] mb-3">{t('categorySections.scopeOfWork')}</span>
                                         <div className="flex flex-wrap gap-1.5">
                                             {activeProject.scope.map((tag, i) => (
                                                 <span key={i} className="text-[10px] text-white/60 bg-white/5 border border-white/10 px-2 py-0.5 rounded-[1px]">{tag}</span>
@@ -348,7 +357,7 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                                 </div>
 
                                 <button className="group flex items-center gap-3 text-white/60 hover:text-white transition-colors mt-auto pt-6 border-t border-white/5 w-fit">
-                                    <span className="font-bold text-[11px] uppercase tracking-widest">Inquire</span>
+                                    <span className="font-bold text-[11px] uppercase tracking-widest">{t('categorySections.inquire')}</span>
                                     <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:border-terracota group-hover:bg-terracota">
                                         <ArrowRight size={14} />
                                     </div>

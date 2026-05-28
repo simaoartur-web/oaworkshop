@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useScroll, useTransform, useMotionValueEvent }
 import { useTranslation } from 'react-i18next';
 
 const Header = () => {
-    const { i18n } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isMenuAnimDone, setIsMenuAnimDone] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -28,12 +28,18 @@ const Header = () => {
 
     // Close menus on route change
     useEffect(() => {
-        setIsMenuOpen(false);
-        setIsMenuAnimDone(false);
-        setIsSearchOpen(false);
+        const closeMenus = window.setTimeout(() => {
+            setIsMenuOpen(false);
+            setIsMenuAnimDone(false);
+            setIsSearchOpen(false);
+        }, 0);
+
+        return () => window.clearTimeout(closeMenus);
     }, [location]);
 
-    const changeLanguage = (lng: string) => {
+    const activeLanguage = i18n.resolvedLanguage === 'pt' ? 'pt' : 'en';
+
+    const changeLanguage = (lng: 'en' | 'pt') => {
         i18n.changeLanguage(lng);
     };
 
@@ -43,7 +49,7 @@ const Header = () => {
                 style={{ opacity: headerOpacity }}
                 animate={{ y: isHidden ? "-100%" : 0 }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="fixed top-0 w-full z-50 py-4 bg-white/10 backdrop-blur-sm md:backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/20"
+                className="fixed top-0 w-full z-[80] py-4 bg-[#050505]/45 backdrop-blur-sm md:backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/20"
             >
                 <div className="w-full px-6 md:px-10 flex justify-between items-center h-18 md:h-20">
                     {/* Logo Section - Minimal and Clean */}
@@ -63,14 +69,14 @@ const Header = () => {
                         <div className="flex items-center gap-2 md:gap-3 text-[9px] md:text-[10px] tracking-[0.2em] md:tracking-[0.3em] font-medium mr-1 md:mr-2">
                             <button
                                 onClick={() => changeLanguage('en')}
-                                className={`transition-colors ${i18n.language === 'en' ? 'text-terracota' : 'text-white/40 hover:text-white'}`}
+                                className={`transition-colors ${activeLanguage === 'en' ? 'text-terracota' : 'text-white/40 hover:text-white'}`}
                             >
                                 ENG
                             </button>
                             <span className="text-white/10">|</span>
                             <button
                                 onClick={() => changeLanguage('pt')}
-                                className={`transition-colors ${i18n.language === 'pt' ? 'text-terracota' : 'text-white/40 hover:text-white'}`}
+                                className={`transition-colors ${activeLanguage === 'pt' ? 'text-terracota' : 'text-white/40 hover:text-white'}`}
                             >
                                 PT
                             </button>
@@ -89,7 +95,7 @@ const Header = () => {
                                         type="text"
                                         value={searchValue}
                                         onChange={(e) => setSearchValue(e.target.value)}
-                                        placeholder="Search..."
+                                        placeholder={t('common.searchPlaceholder')}
                                         className="bg-transparent border-b border-white/20 text-[11px] tracking-widest font-light text-white focus:outline-none focus:border-white placeholder-white/30 truncate py-1 w-[35vw] md:w-[220px]"
                                     />
                                 )}
@@ -162,8 +168,8 @@ const Header = () => {
                                             className="w-20 h-20 md:w-28 md:h-28 object-contain brightness-150 contrast-125"
                                         />
                                         <div className="flex flex-col space-y-2">
-                                            <span className="font-light tracking-[0.3em] text-[11px] md:text-[12px] text-white uppercase">ARCHITECTS AND PLANNERS</span>
-                                            <span className="text-[9px] tracking-[0.4em] uppercase opacity-30 text-white italic">Workshop • Design • Research</span>
+                                            <span className="font-light tracking-[0.3em] text-[11px] md:text-[12px] text-white uppercase">{t('common.discipline')}</span>
+                                            <span className="text-[9px] tracking-[0.4em] uppercase opacity-30 text-white italic">{t('common.studioLine')}</span>
                                         </div>
                                     </div>
                                 </motion.div>
@@ -177,44 +183,44 @@ const Header = () => {
                                 <Link to="/#workshop" className="group flex flex-col items-start gap-1">
                                     <div className="flex items-baseline gap-4">
                                         <span className="text-sm md:text-base font-bold tracking-widest text-white/20 group-hover:text-terracota transition-colors duration-500">01.</span>
-                                        <span className="text-2xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">Workshop</span>
+                                        <span className="text-2xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">{t('nav.workshop')}</span>
                                     </div>
-                                    <span className="ml-8 md:ml-16 text-xl md:text-3xl lg:text-5xl italic text-terracota/80 group-hover:text-terracota group-hover:translate-x-4 transition-all duration-700">Explore Studio</span>
+                                    <span className="ml-8 md:ml-16 text-xl md:text-3xl lg:text-5xl italic text-terracota/80 group-hover:text-terracota group-hover:translate-x-4 transition-all duration-700">{t('nav.exploreStudio')}</span>
                                 </Link>
 
                                 <Link to="/#expertise" className="group flex flex-col items-start gap-1">
                                     <div className="flex items-baseline gap-4">
                                         <span className="text-sm md:text-base font-bold tracking-widest text-white/20 group-hover:text-terracota transition-colors duration-500">02.</span>
-                                        <span className="text-2xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">Expertise</span>
+                                        <span className="text-2xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">{t('nav.expertise')}</span>
                                     </div>
-                                    <span className="ml-8 md:ml-16 text-xl md:text-3xl lg:text-5xl italic text-terracota/80 group-hover:text-terracota group-hover:translate-x-4 transition-all duration-700">Our Skills</span>
+                                    <span className="ml-8 md:ml-16 text-xl md:text-3xl lg:text-5xl italic text-terracota/80 group-hover:text-terracota group-hover:translate-x-4 transition-all duration-700">{t('nav.ourSkills')}</span>
                                 </Link>
 
                                 <Link to="/projects" className="group flex flex-col items-start gap-1">
                                     <div className="flex items-baseline gap-4">
                                         <span className="text-sm md:text-base font-bold tracking-widest text-white/20 group-hover:text-terracota transition-colors duration-500">03.</span>
-                                        <span className="text-2xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">Projects</span>
+                                        <span className="text-2xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">{t('nav.projects')}</span>
                                     </div>
-                                    <span className="ml-8 md:ml-16 text-xl md:text-3xl lg:text-5xl italic text-terracota/80 group-hover:text-terracota group-hover:translate-x-4 transition-all duration-700">Portfolio</span>
+                                    <span className="ml-8 md:ml-16 text-xl md:text-3xl lg:text-5xl italic text-terracota/80 group-hover:text-terracota group-hover:translate-x-4 transition-all duration-700">{t('nav.portfolio')}</span>
                                 </Link>
 
                                 <Link to="/#contact" className="group flex flex-col items-start gap-1">
                                     <div className="flex items-baseline gap-4">
                                         <span className="text-sm md:text-base font-bold tracking-widest text-white/20 group-hover:text-terracota transition-colors duration-500">04.</span>
-                                        <span className="text-2xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">Contact</span>
+                                        <span className="text-2xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">{t('nav.contact')}</span>
                                     </div>
-                                    <span className="ml-8 md:ml-16 text-xl md:text-3xl lg:text-5xl italic text-white/20 group-hover:text-white group-hover:translate-x-4 transition-all duration-700">Let's Talk</span>
+                                    <span className="ml-8 md:ml-16 text-xl md:text-3xl lg:text-5xl italic text-white/20 group-hover:text-white group-hover:translate-x-4 transition-all duration-700">{t('nav.letsTalk')}</span>
                                 </Link>
                             </nav>
 
                             {/* Menu Footer */}
                             <div className="p-10 md:p-14 lg:p-16 flex justify-between items-center border-t border-white/5 bg-black/40 mt-auto">
                                 <div className="flex gap-8 text-[11px] tracking-[0.3em] font-medium">
-                                    <button onClick={(e) => { e.preventDefault(); changeLanguage('pt'); }} className={i18n.language === 'pt' ? "text-terracota scale-110" : "opacity-30 hover:opacity-100 transition-all"}>PT</button>
-                                    <button onClick={(e) => { e.preventDefault(); changeLanguage('en'); }} className={i18n.language === 'en' ? "text-terracota scale-110" : "opacity-30 hover:opacity-100 transition-all"}>EN</button>
+                                    <button onClick={(e) => { e.preventDefault(); changeLanguage('pt'); }} className={activeLanguage === 'pt' ? "text-terracota scale-110" : "opacity-30 hover:opacity-100 transition-all"}>PT</button>
+                                    <button onClick={(e) => { e.preventDefault(); changeLanguage('en'); }} className={activeLanguage === 'en' ? "text-terracota scale-110" : "opacity-30 hover:opacity-100 transition-all"}>EN</button>
                                 </div>
                                 <div className="text-[10px] tracking-[0.4em] uppercase opacity-10 hidden sm:block">
-                                    O + A • Architects and Planners
+                                    {t('common.studioName')}
                                 </div>
                             </div>
                         </motion.div>
