@@ -29,7 +29,6 @@ const en = {
         portfolio: "Portfolio",
         letsTalk: "Let's Talk",
         quickLinks: "Quick Links",
-        reservedArea: "Reserved Area",
         privacy: "Privacy",
     },
     hero: {

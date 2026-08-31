@@ -29,7 +29,6 @@ const pt = {
         portfolio: "Portfólio",
         letsTalk: "Vamos Conversar",
         quickLinks: "Links Rápidos",
-        reservedArea: "Área Reservada",
         privacy: "Privacidade",
     },
     hero: {
