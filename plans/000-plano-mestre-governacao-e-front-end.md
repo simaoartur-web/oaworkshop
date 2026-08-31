@@ -1,8 +1,9 @@
 # Plano mestre de governação e conclusão do front-end
 
-> **Estado:** CONCLUÍDO — aguarda aceitação canónica
+> **Estado:** CANÓNICO
 > **Data:** 31 de Agosto de 2026
 > **Aprovação:** concedida pelo utilizador em 31 de Agosto de 2026
+> **Aceitação canónica:** concedida pelo utilizador em 31 de Agosto de 2026
 > **Decisão de base:** o projecto será exclusivamente front-end até este estar concluído e aceite
 
 ## 1. Objectivo
@@ -300,3 +301,4 @@ O programa é aceite quando:
 - Governação em `Side-Oa-workshop`: `git diff --check`, pesquisa de acoplamentos, `npm run lint` e `npm run build` concluídos com sucesso.
 - Observação de desempenho: a compilação assinala um bloco JavaScript superior a 500 kB; a optimização pertence ao plano 060.
 - Salvaguarda: o `stash` não foi eliminado e pode ser inspeccionado ou recuperado.
+- Aceitação canónica: confirmada pelo utilizador; integração em `main` autorizada.

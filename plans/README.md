@@ -66,7 +66,7 @@ Uma alteração material ao âmbito, riscos ou decisões invalida a aprovação 
 
 | Número | Estado | Plano |
 |---:|---|---|
-| 000 | CONCLUÍDO | `000-plano-mestre-governacao-e-front-end.md` |
+| 000 | CANÓNICO | `000-plano-mestre-governacao-e-front-end.md` |
 
 ## Roteiro proposto
 
