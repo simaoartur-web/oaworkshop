@@ -5,7 +5,6 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
 import Projects from './pages/Projects';
-import Admin from './pages/Admin';
 import ProjectDetail from './pages/ProjectDetail';
 
 // ScrollToTop component
@@ -30,7 +29,6 @@ function App() {
                         <Route path="/" element={<Home />} />
                         <Route path="/projects" element={<Projects />} />
                         <Route path="/projects/:id" element={<ProjectDetail />} />
-                        <Route path="/admin" element={<Admin />} />
                     </Routes>
                 </AnimatePresence>
             </main>

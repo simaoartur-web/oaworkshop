@@ -38,7 +38,6 @@ const Footer = () => {
                 <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
                     <div>© {new Date().getFullYear()} O+A Architects and Planners. Todos os direitos reservados.</div>
                     <div className="flex gap-6">
-                        <Link to="/admin" className="hover:text-white transition-colors">Área Reservada</Link>
                         <a href="#" className="hover:text-white transition-colors">Privacidade</a>
                     </div>
                 </div>
