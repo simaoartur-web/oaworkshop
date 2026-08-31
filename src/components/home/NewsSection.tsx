@@ -1,47 +1,41 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import SectionOverlayStatus from '../common/SectionOverlayStatus';
+import { useTranslation } from 'react-i18next';
 
-const NEWS = [
+const NEWS_IMAGES = [
     {
         id: 1,
-        tag: "Journal",
-        date: "07 June 2024",
-        title: "Meetings with the Massingir Government",
-        excerpt: "Discussions surrounding the new infrastructure development plan and integration with local environmental objectives.",
         image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2000&auto=format&fit=crop"
     },
     {
         id: 2,
-        tag: "Article",
-        date: "14 June 2024",
-        title: "Preparation for the Nairobi Biennale",
-        excerpt: "Our team finalizing the exhibition materials and conceptual models for the upcoming international architecture showcase.",
         image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2000&auto=format&fit=crop"
     },
     {
         id: 3,
-        tag: "Press Release",
-        date: "12 July 2024",
-        title: "New Office Opening in Lisbon",
-        excerpt: "Expanding our European presence with a new central studio focused on sustainable urban innovation and historic retrofits.",
         image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2000&auto=format&fit=crop"
     }
 ];
 
 const NewsSection = () => {
+    const { t } = useTranslation();
+    const news = useMemo(() => {
+        const newsText = t('news.items', { returnObjects: true }) as Array<{ id: number; tag: string; date: string; title: string; excerpt: string }>;
+        return newsText.map((item, index) => ({ ...item, image: NEWS_IMAGES[index].image }));
+    }, [t]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const carouselRef = useRef<HTMLDivElement>(null);
 
-    const startTimer = () => {
+    const startTimer = useCallback(() => {
         if (intervalRef.current) clearInterval(intervalRef.current);
         intervalRef.current = setInterval(() => {
-            setCurrentIndex((prev) => (prev + 1) % NEWS.length);
+            setCurrentIndex((prev) => (prev + 1) % news.length);
         }, 6000);
-    };
+    }, [news.length]);
 
     useEffect(() => {
         if (!isHovered) {
@@ -52,7 +46,7 @@ const NewsSection = () => {
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current);
         };
-    }, [isHovered, currentIndex]);
+    }, [isHovered, currentIndex, startTimer]);
 
     const handleManualSelect = (index: number) => {
         setCurrentIndex(index);
@@ -73,10 +67,10 @@ const NewsSection = () => {
         }
     }, [currentIndex]);
 
-    const activeNews = NEWS[currentIndex];
+    const activeNews = news[currentIndex];
 
     // Calculate segments for progress bar markers
-    const segmentWidth = 100 / NEWS.length;
+    const segmentWidth = 100 / news.length;
 
     return (
         <section className="w-full bg-[#050505] text-white pt-24 pb-32 overflow-hidden border-t border-white/5 relative">
@@ -91,22 +85,22 @@ const NewsSection = () => {
                     className="flex justify-between items-end border-b border-white/10 pb-6"
                 >
                     <div>
-                        <h2 className="text-3xl md:text-5xl font-light tracking-tight">JOURNAL</h2>
+                        <h2 className="text-3xl md:text-5xl font-light tracking-tight">{t('news.title')}</h2>
                         <p className="mt-4 max-w-xl text-sm md:text-base text-white/50 font-light leading-relaxed">
-                            Insights, updates and publications from the studio will be available soon.
+                            {t('news.description')}
                         </p>
                     </div>
-                    <div className="text-terracota font-bold tracking-[0.3em] text-sm md:text-base">Editorial</div>
+                    <div className="text-terracota font-bold tracking-[0.3em] text-sm md:text-base">{t('news.editorial')}</div>
                 </motion.div>
 
-                <div className="relative">
+                <div className="relative overflow-hidden">
                     <SectionOverlayStatus
-                        title="Coming Soon"
-                        subtitle="Insights, updates and publications will be available soon."
+                        title={t('common.comingSoon')}
+                        subtitle={t('news.overlaySubtitle')}
                         variant="coming-soon"
                         blurIntensity="strong"
                     />
-                    <div className="pointer-events-none blur-[5px] saturate-50 opacity-45 select-none">
+                    <div className="relative z-0 pointer-events-none blur-[5px] saturate-50 opacity-45 select-none">
                 {/* Featured Hero Image */}
                 <div 
                     className="relative w-full aspect-[4/3] md:aspect-[16/9] bg-[#111] rounded-sm overflow-hidden group cursor-pointer"
@@ -160,7 +154,7 @@ const NewsSection = () => {
                                 </p>
 
                                 <div className="flex items-center gap-3 text-[11px] md:text-xs uppercase font-bold tracking-widest text-white group-hover:text-terracota transition-colors mt-2">
-                                    Read Article <ArrowRight size={14} className="group-hover:translate-x-1.5 transition-transform duration-300" />
+                                    {t('news.readArticle')} <ArrowRight size={14} className="group-hover:translate-x-1.5 transition-transform duration-300" />
                                 </div>
                             </motion.div>
                         </AnimatePresence>
@@ -178,7 +172,7 @@ const NewsSection = () => {
                     />
                     {/* Segment Markers */}
                     <div className="absolute inset-0 pointer-events-none w-full">
-                        {NEWS.slice(0, -1).map((_, i) => (
+                        {news.slice(0, -1).map((_, i) => (
                             <div key={i} className="absolute top-0 bottom-0 w-[2px] bg-[#050505]" style={{ left: `${(i + 1) * segmentWidth}%` }}></div>
                         ))}
                     </div>
@@ -189,7 +183,7 @@ const NewsSection = () => {
                     ref={carouselRef}
                     className="flex overflow-x-auto gap-3 md:gap-6 w-full pb-6 md:pb-0 mt-4 snap-x snap-mandatory scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 >
-                    {NEWS.map((item, idx) => {
+                    {news.map((item, idx) => {
                         const isActive = idx === currentIndex;
                         return (
                             <div 

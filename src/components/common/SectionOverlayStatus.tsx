@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 type OverlayVariant = 'under-construction' | 'coming-soon';
 
@@ -18,11 +19,6 @@ const blurClasses = {
     strong: 'backdrop-blur-xl',
 };
 
-const badgeLabel = {
-    'under-construction': 'In Progress',
-    'coming-soon': 'Launching Soon',
-};
-
 const SectionOverlayStatus = ({
     title,
     subtitle,
@@ -32,26 +28,30 @@ const SectionOverlayStatus = ({
     fullSection = true,
     badge,
 }: SectionOverlayStatusProps) => {
+    const { t } = useTranslation();
     const glow = variant === 'coming-soon' ? 'rgba(212,175,55,0.18)' : 'rgba(196,85,50,0.22)';
+    const badgeLabel = variant === 'coming-soon' ? t('common.launchingSoon') : t('common.inProgress');
 
     return (
         <motion.div
-            className={`${fullSection ? 'absolute inset-0' : 'absolute inset-x-0 top-0 bottom-0'} z-50 flex items-center justify-center px-6 py-12 pointer-events-auto`}
+            className={`${fullSection ? 'absolute inset-0' : 'absolute inset-x-0 top-0 bottom-0'} z-20 flex min-h-[320px] items-center justify-center overflow-hidden px-5 py-12 pointer-events-auto sm:px-6 md:min-h-[380px]`}
             initial={animated ? { opacity: 0 } : false}
             animate={animated ? { opacity: 1 } : undefined}
             transition={{ duration: 0.55, ease: [0.19, 1, 0.22, 1] }}
             aria-label={`${title}: ${subtitle}`}
         >
-            <div className={`absolute inset-0 bg-[#050505]/68 ${blurClasses[blurIntensity]}`} />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(255,255,255,0.08),transparent_34%),linear-gradient(115deg,rgba(255,255,255,0.05),transparent_42%,rgba(166,93,74,0.08))]" />
+            <div className={`absolute inset-0 bg-[#050505]/74 ${blurClasses[blurIntensity]}`} />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(255,255,255,0.095),transparent_34%),linear-gradient(115deg,rgba(255,255,255,0.06),transparent_42%,rgba(166,93,74,0.12))]" />
+            <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#050505]/35 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#050505]/35 to-transparent" />
             <motion.div
-                className="absolute inset-x-8 top-8 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                className="absolute inset-x-8 top-8 h-[1px] bg-gradient-to-r from-transparent via-white/24 to-transparent"
                 animate={animated ? { opacity: [0.25, 0.65, 0.25] } : undefined}
                 transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
             />
 
             <motion.div
-                className="relative w-full max-w-xl overflow-hidden rounded-[10px] border border-white/15 bg-black/45 px-7 py-9 text-center shadow-[0_30px_100px_rgba(0,0,0,0.55)] md:px-12 md:py-11"
+                className="relative w-full max-w-xl overflow-hidden rounded-[8px] border border-white/15 bg-[#050505]/58 px-6 py-8 text-center shadow-[0_30px_100px_rgba(0,0,0,0.55)] ring-1 ring-white/5 md:px-12 md:py-11"
                 style={{ boxShadow: `0 30px 110px rgba(0,0,0,0.58), 0 0 70px ${glow}` }}
                 initial={animated ? { opacity: 0, y: 18, scale: 0.98 } : false}
                 animate={animated ? { opacity: 1, y: 0, scale: 1 } : undefined}
@@ -63,8 +63,8 @@ const SectionOverlayStatus = ({
                     transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
                 />
                 <div className="relative z-10 flex flex-col items-center gap-5">
-                    <span className="rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.38em] text-terracota">
-                        {badge ?? badgeLabel[variant]}
+                    <span className="rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.3em] text-terracota sm:tracking-[0.38em]">
+                        {badge ?? badgeLabel}
                     </span>
                     <motion.h3
                         className="text-3xl font-light tracking-tight text-white md:text-5xl"
@@ -73,7 +73,7 @@ const SectionOverlayStatus = ({
                     >
                         {title}
                     </motion.h3>
-                    <p className="max-w-md text-sm font-light leading-relaxed tracking-wide text-white/58 md:text-base">
+                    <p className="max-w-md text-sm font-light leading-relaxed text-white/64 md:text-base">
                         {subtitle}
                     </p>
                 </div>

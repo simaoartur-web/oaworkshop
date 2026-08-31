@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SectionOverlayStatus from '../components/common/SectionOverlayStatus';
+import { useTranslation } from 'react-i18next';
 
 interface Project {
     id: number;
@@ -14,9 +15,10 @@ interface Project {
 }
 
 const Projects = () => {
+    const { t } = useTranslation();
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState('All');
+    const [filter, setFilter] = useState('__all__');
     const [isMockContent, setIsMockContent] = useState(false);
 
     useEffect(() => {
@@ -30,18 +32,18 @@ const Projects = () => {
             .catch(err => {
                 console.error('Failed to fetch projects', err);
                 setProjects([
-                    { id: 1, title: 'Maputo Central Hub', category: 'Urbanismo', location: 'Maputo, MZ', completion_year: 2024, client: null, thumbnail_url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800' },
-                    { id: 2, title: 'Milan Residence', category: 'Arquitetura', location: 'Milan, IT', completion_year: 2023, client: null, thumbnail_url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800' },
+                    { id: 1, title: t('projectDetail.fallback.title'), category: t('projectDetail.fallback.category'), location: 'Maputo, MZ', completion_year: 2024, client: null, thumbnail_url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800' },
+                    { id: 2, title: 'Milan Residence', category: t('admin.categories.architecture'), location: 'Milan, IT', completion_year: 2023, client: null, thumbnail_url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800' },
                     { id: 3, title: 'WASH School Extension', category: 'WASH', location: 'Pemba, MZ', completion_year: 2025, client: 'UNICEF', thumbnail_url: 'https://images.unsplash.com/photo-1541888086925-0c13d46321de?auto=format&fit=crop&w=800' },
                     { id: 4, title: 'Coastal Defense', category: 'DRR', location: 'Beira, MZ', completion_year: 2022, client: null, thumbnail_url: 'https://images.unsplash.com/photo-1464938050520-ef2270bb8ce8?auto=format&fit=crop&w=800' },
                 ]);
                 setIsMockContent(true);
                 setLoading(false);
             });
-    }, []);
+    }, [t]);
 
-    const categories = ['All', ...Array.from(new Set(projects.map(p => p.category)))];
-    const filteredProjects = filter === 'All' ? projects : projects.filter(p => p.category === filter);
+    const categories = ['__all__', ...Array.from(new Set(projects.map(p => p.category)))];
+    const filteredProjects = filter === '__all__' ? projects : projects.filter(p => p.category === filter);
 
     return (
         <motion.div
@@ -54,9 +56,9 @@ const Projects = () => {
             <div className="container-custom">
                 <div className="mb-16 flex flex-col items-end justify-between border-b border-gray-300 pb-8 md:flex-row">
                     <div>
-                        <h1 className="text-4xl font-light tracking-tight md:text-6xl">Project Library</h1>
+                        <h1 className="text-4xl font-light tracking-tight md:text-6xl">{t('projectsPage.title')}</h1>
                         <p className="mt-4 max-w-lg font-light text-gray-500">
-                            The project library is being curated and will be published soon.
+                            {t('projectsPage.intro')}
                         </p>
                     </div>
 
@@ -72,7 +74,7 @@ const Projects = () => {
                                             : 'text-gray-500 hover:text-black-900'
                                     }`}
                                 >
-                                    {cat}
+                                    {cat === '__all__' ? t('common.all') : cat}
                                 </button>
                             ))}
                             <div className="w-8 shrink-0 md:hidden" />
@@ -82,21 +84,21 @@ const Projects = () => {
 
                 {loading ? (
                     <div className="flex h-64 items-center justify-center text-xs uppercase tracking-widest text-gray-400">
-                        A Carregar...
+                        {t('projectsPage.loading')}
                     </div>
                 ) : (
-                    <div className="relative">
+                    <div className="relative overflow-hidden">
                         {isMockContent && (
                             <SectionOverlayStatus
-                                title="Under Construction"
-                                subtitle="The project library is being curated and will be published soon."
+                                title={t('common.underConstruction')}
+                                subtitle={t('projectsPage.intro')}
                                 variant="under-construction"
                                 blurIntensity="strong"
                             />
                         )}
                         <motion.div
                             layout
-                            className={`grid grid-cols-1 gap-8 md:grid-cols-2 lg:gap-12 ${
+                            className={`relative z-0 grid grid-cols-1 gap-8 md:grid-cols-2 lg:gap-12 ${
                                 isMockContent ? 'pointer-events-none blur-[5px] saturate-50 opacity-45 select-none' : ''
                             }`}
                         >

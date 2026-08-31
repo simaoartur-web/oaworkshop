@@ -34,8 +34,7 @@ const StatItem = ({ value, label, delay = 0 }: { value: number; label: string; d
                 // Settle phase — ease into the final value
                 const settleProgress = (elapsed - scrambleDuration) / settleDuration;
                 const eased = 1 - Math.pow(1 - settleProgress, 3); // easeOutCubic
-                const current = Math.round(displayValue + (value - displayValue) * eased);
-                setDisplayValue(current);
+                setDisplayValue((currentValue) => Math.round(currentValue + (value - currentValue) * eased));
                 requestAnimationFrame(tick);
             } else {
                 setDisplayValue(value);

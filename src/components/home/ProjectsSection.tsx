@@ -1,69 +1,12 @@
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import SectionOverlayStatus from '../common/SectionOverlayStatus';
 
-const SERVICES = [
-    { 
-        title: "We Listen", 
-        description: "Understanding your vision and constraints to establish a solid foundation." 
-    },
-    { 
-        title: "We Research", 
-        description: "Analysis of material sciences and urban fabric for data-driven solutions." 
-    },
-    { 
-        title: "We Design", 
-        description: "Creating innovative spaces prioritizing human experience and elegance." 
-    },
-    { 
-        title: "We Deliver", 
-        description: "Managing execution phases with rigorous technical precision." 
-    },
-    { 
-        title: "We Support", 
-        description: "Continuous commitment to post-occupancy performance and integrity." 
-    }
-];
-
-const PROJECTS = [
-    {
-        year: "2022",
-        title: "Adaptive Reuse Cultural Center",
-        subtitle: "Transformation of Old Silos",
-        description: "Conceptual Design, Structural Assessment, and Community Integration Planning.",
-        location: "Milan"
-    },
-    {
-        year: "2023",
-        title: "Eco-District Masterplan",
-        subtitle: "Sustainable Urban Expansion",
-        description: "Comprehensive Urban Planning, Architectural Strategy, and Environmental Impact Assessment.",
-        location: "Innovation Valley"
-    },
-    {
-        year: "2024",
-        title: "Restoration of the Urban Forest",
-        subtitle: "Development of the North Park",
-        description: "Final and Executive Design, Health & Safety Coordination, and precise Site Supervision.",
-        location: "Municipality of Pescara"
-    },
-    {
-        year: "2025",
-        title: "Coastal Resilience Hub",
-        subtitle: "Marine Research Facility",
-        description: "Advanced environmental engineering, sustainable material integration, and execution management.",
-        location: "Lisbon Port"
-    },
-    {
-        year: "2026",
-        title: "Vertical Green Tower",
-        subtitle: "Mixed-Use Residential",
-        description: "Parametric Facade Design, Energy Efficiency Modeling, and Landscape Architecture.",
-        location: "Luanda"
-    }
-];
-
 const ProjectsSection = () => {
+    const { t } = useTranslation();
+    const services = t('methodology.services', { returnObjects: true }) as Array<{ title: string; description: string }>;
+    const projects = t('projectTimeline.items', { returnObjects: true }) as Array<{ year: string; title: string; subtitle: string; description: string; location: string }>;
     // Scroll Drag Logic - Native fluid scrolling
     const scrollRef = useRef<HTMLDivElement>(null);
     const [isDragging, setIsDragging] = useState(false);
@@ -138,7 +81,7 @@ const ProjectsSection = () => {
                     transition={{ duration: 0.2 }}
                     className="w-20 h-20 md:w-24 md:h-24 bg-terracota border border-white/10 rounded-full flex items-center justify-center -translate-x-1/2 -translate-y-1/2 text-white text-[10px] font-bold tracking-[0.3em] uppercase mix-blend-normal shadow-[0_0_30px_rgba(196,85,50,0.5)] pointer-events-none"
                 >
-                    {isDragging ? 'PULL' : 'DRAG'}
+                    {isDragging ? t('common.pull') : t('common.drag')}
                 </motion.div>
             )}
 
@@ -155,11 +98,11 @@ const ProjectsSection = () => {
                                 transition={{ duration: 0.6 }}
                                 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-medium mb-12 tracking-tight leading-tight"
                             >
-                                Projects for the people
+                                {t('methodology.title')}
                             </motion.h2>
                             
                             <div className="flex flex-col">
-                                {SERVICES.map((service, index) => (
+                                {services.map((service, index) => (
                                     <motion.div 
                                         key={index}
                                         initial={{ opacity: 0, x: -30, borderLeftColor: 'rgba(255,255,255,0)' }}
@@ -210,27 +153,33 @@ const ProjectsSection = () => {
                         transition={{ duration: 0.8 }}
                         className="text-3xl sm:text-5xl md:text-6xl lg:text-[6rem] font-bold text-terracota tracking-tight uppercase absolute top-0 -translate-y-1/2 left-4 md:left-[2vw]"
                     >
-                        OUR PROJECTS
+                        {t('projectTimeline.title')}
                     </motion.h2>
                 </div>
             </div>
 
             {/* Bottom Dark Timeline Section */}
-            <div className="bg-black-800 w-full pt-20 pb-8 md:pt-28 md:pb-12 relative z-10 border-t border-white/10 overflow-hidden">
+            <div className="bg-black-800 w-full pt-20 pb-20 md:pt-28 md:pb-28 relative z-10 border-t border-white/10 overflow-hidden">
                 <div className="container-custom">
                     <p className="max-w-xl text-sm md:text-base text-white/45 font-light leading-relaxed">
-                        Our selected projects will be available soon.
+                        {t('projectTimeline.description')}
                     </p>
                 </div>
-                {/* Full Width Native Drag Container */}
-                <div className="relative mt-8 md:mt-12 w-full">
+
+                {/* Availability stage */}
+                <div className="relative isolate mt-12 min-h-[440px] w-full overflow-hidden border-y border-white/10 bg-[#090909] md:mt-16 md:min-h-[520px]">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,rgba(166,93,74,0.22),transparent_32%),radial-gradient(circle_at_18%_48%,rgba(255,255,255,0.08),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.045),transparent_22%,rgba(0,0,0,0.38)_100%)]" />
+                    <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black-800 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black-800 to-transparent" />
+
                     <SectionOverlayStatus
-                        title="Coming Soon"
-                        subtitle="Our selected projects will be available soon."
+                        title={t('common.comingSoon')}
+                        subtitle={t('projectTimeline.overlaySubtitle')}
                         variant="coming-soon"
                         blurIntensity="strong"
                     />
-                    <div className="pointer-events-none blur-[5px] saturate-50 opacity-45 select-none">
+
+                    <div className="absolute inset-x-0 top-1/2 z-0 -translate-y-1/2 pointer-events-none blur-[5px] saturate-50 opacity-35 select-none">
                     <div 
                         ref={scrollRef}
                         onMouseEnter={() => setIsHoveringTimeline(true)}
@@ -244,7 +193,7 @@ const ProjectsSection = () => {
                         {/* Buffer space on left to align roughly with main text container */}
                         <div className="shrink-0 w-6 md:w-12 xl:w-[calc(50vw-500px)] pointer-events-none"></div>
 
-                        {PROJECTS.map((proj, idx) => (
+                        {projects.map((proj, idx) => (
                             <motion.div 
                                 key={idx}
                                 initial={{ opacity: 0, y: 20 }}
