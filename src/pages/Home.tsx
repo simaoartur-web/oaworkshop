@@ -5,7 +5,6 @@ import ContactSection from '../components/home/ContactSection';
 import CategoryMapSection from '../components/home/CategoryMapSection';
 import NewsSection from '../components/home/NewsSection';
 import { motion } from 'framer-motion';
-
 import { ARCHITECTURE_PROJECTS, URBANISM_PROJECTS, RESEARCH_PROJECTS, COMMON_MARKERS } from '../data/projects';
 
 const Home = () => {
@@ -24,7 +23,6 @@ const Home = () => {
             <CategoryMapSection 
                 id="architecture"
                 accentTitle="+"
-                title=" ARCHITECTURE"
                 projects={ARCHITECTURE_PROJECTS}
                 dummyMarkers={COMMON_MARKERS}
             />
@@ -32,7 +30,6 @@ const Home = () => {
             <CategoryMapSection 
                 id="urbanism"
                 accentTitle="+"
-                title=" URBAN PLANNING"
                 projects={URBANISM_PROJECTS}
                 dummyMarkers={COMMON_MARKERS}
             />
@@ -40,7 +37,6 @@ const Home = () => {
             <CategoryMapSection 
                 id="research"
                 accentTitle="+"
-                title=" RESEARCH"
                 projects={RESEARCH_PROJECTS}
                 dummyMarkers={COMMON_MARKERS}
             />

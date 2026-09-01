@@ -1,7 +1,6 @@
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import SectionOverlayStatus from '../common/SectionOverlayStatus';
 
 const ProjectsSection = () => {
     const { t } = useTranslation();
@@ -133,7 +132,7 @@ const ProjectsSection = () => {
                         >
                             <img 
                                 src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=1600" 
-                                alt="Planning" 
+                                alt={t('methodology.imageAlt')}
                                 className="w-full h-full object-cover absolute inset-0 grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-[1.5s] group-hover:scale-105 pointer-events-none"
                                 loading="lazy"
                             />
@@ -172,14 +171,7 @@ const ProjectsSection = () => {
                     <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black-800 to-transparent" />
                     <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black-800 to-transparent" />
 
-                    <SectionOverlayStatus
-                        title={t('common.comingSoon')}
-                        subtitle={t('projectTimeline.overlaySubtitle')}
-                        variant="coming-soon"
-                        blurIntensity="strong"
-                    />
-
-                    <div className="absolute inset-x-0 top-1/2 z-0 -translate-y-1/2 pointer-events-none blur-[5px] saturate-50 opacity-35 select-none">
+                    <div className="absolute inset-x-0 top-1/2 z-0 -translate-y-1/2">
                     <div 
                         ref={scrollRef}
                         onMouseEnter={() => setIsHoveringTimeline(true)}

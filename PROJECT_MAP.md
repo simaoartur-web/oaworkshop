@@ -64,7 +64,6 @@ Não existe página administrativa. Qualquer proposta para a criar exige novo pl
 | Zona | Ficheiros | Responsabilidade |
 |---|---|---|
 | `src/components/layout/` | `Header.tsx`, `Footer.tsx` | navegação e enquadramento persistente |
-| `src/components/common/` | `SectionOverlayStatus.tsx` | padrões partilhados de estado/separador |
 | `src/components/home/HeroSection.tsx` | apresentação inicial e imagem de entrada | página inicial |
 | `src/components/home/WorkshopSection.tsx` | narrativa e apresentação do atelier | página inicial |
 | `src/components/home/ProjectsSection.tsx` | chamada editorial para projectos | página inicial |
@@ -79,7 +78,7 @@ Não existe página administrativa. Qualquer proposta para a criar exige novo pl
 
 | Caminho | Responsabilidade | Regra de alteração |
 |---|---|---|
-| `src/data/projects.ts` | fonte local tipada de projectos e marcadores | manter identificadores únicos e consumidores sincronizados |
+| `src/data/projects.ts` | fonte local tipada de identificadores, recursos e localização de projectos | manter identificadores únicos; conteúdo público traduzível pertence a `src/locales/` |
 | `src/locales/en.ts` | textos da interface em inglês | manter as mesmas chaves de `pt.ts` |
 | `src/locales/pt.ts` | textos da interface em português | seguir `docs/CONTENT_GUIDE.md` |
 | `public/logo.png` | logótipo público | não substituir sem validação visual |
@@ -105,8 +104,7 @@ Não existe página administrativa. Qualquer proposta para a criar exige novo pl
 ## Caminhos deliberadamente inexistentes
 
 - `backend/` — removido; proibido durante a fase front-end primeiro.
-- `src/pages/Admin.tsx` — removido com a área administrativa.
-- `src/lib/payloadApi.ts` — não faz parte da árvore activa.
+- páginas e clientes do CMS anterior — removidos; não fazem parte da árvore activa.
 - `.env.example` — removido por não existirem variáveis de ambiente necessárias.
 
 ## Exclusões de exploração

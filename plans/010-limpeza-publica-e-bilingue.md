@@ -2,10 +2,10 @@
 
 ## Estado
 
-- **Estado:** PROPOSTO — aguarda aprovação do utilizador.
+- **Estado:** CONCLUÍDO — aprovado em 2026-08-31 e concluído em 2026-09-01; aguarda decisão canónica.
 - **Ramo deste documento:** `codex/plan-public-bilingual-cleanup`.
 - **Ramo previsto para execução:** `codex/feature-public-bilingual-cleanup`.
-- **Execução autorizada:** não. A criação deste plano não autoriza alterações ao produto.
+- **Execução autorizada:** sim, por aprovação explícita do utilizador.
 - **Excepção:** a frase exacta `Implementação forçada` permite avançar sem aprovação prévia do plano, apenas dentro do âmbito expressamente pedido e sem dispensar as regras de segurança, preservação de trabalho e utilização de um ramo alternativo.
 
 ## Objectivo
@@ -206,3 +206,22 @@ Ao aprovar este plano, o utilizador aprova também as duas decisões recomendada
 2. o contacto deixará de simular envio para uma API e passará a usar correio/WhatsApp de forma transparente.
 
 Qualquer alteração a estas decisões deverá ser indicada antes da execução.
+
+## Resultado da execução
+
+- As regras de planeamento, a chave de excepção, o ramo alternativo e a protecção do repositório público foram formalizados nas fontes de governação.
+- Nenhum ficheiro `.env` ou variante privada está versionado. Não foi criado `.env.example`, porque o front-end não necessita de variáveis de ambiente.
+- A inspecção dos ficheiros activos não encontrou candidatos a segredos, chamadas ao servidor anterior nem referências ao produto CMS removido.
+- A listagem, o detalhe e os mapas utilizam uma única fonte local; o conteúdo traduzível reside nos ficheiros PT/EN.
+- O contacto abre o programa de correio com a mensagem preenchida e não apresenta um falso estado de envio.
+- A frase inicial e todas as sobreposições «Coming Soon»/«Under Construction» foram removidas; o componente partilhado deixou de existir.
+- As 105 rotas de conteúdo verificadas mantêm paridade entre português e inglês.
+- `npm run lint` terminou sem erros.
+- `npm run build` terminou com sucesso. Mantém-se o aviso conhecido de bloco JavaScript superior a 500 kB e de dados Browserslist desactualizados; não foi introduzida uma nova dependência para os resolver.
+- A verificação no navegador passou a 375 px, 768 px e 1440 px, nos dois idiomas, sem deslocação horizontal, sobreposição de erro ou mensagens de consola.
+- Foram validados a persistência do idioma, a navegação, o catálogo, o detalhe, a abertura/fecho do diálogo de projecto e a comunicação transparente do contacto.
+
+## Desvios
+
+- A validação tipada de ambiente não foi criada, porque não existem variáveis de ambiente reais. Esta omissão segue a decisão aprovada de não inventar configuração.
+- Não foi necessário alterar o histórico Git nem o `stash` de segurança.

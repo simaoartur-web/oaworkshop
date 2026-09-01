@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
-import SectionOverlayStatus from '../common/SectionOverlayStatus';
 import { useTranslation } from 'react-i18next';
 
 const NEWS_IMAGES = [
@@ -94,13 +92,7 @@ const NewsSection = () => {
                 </motion.div>
 
                 <div className="relative overflow-hidden">
-                    <SectionOverlayStatus
-                        title={t('common.comingSoon')}
-                        subtitle={t('news.overlaySubtitle')}
-                        variant="coming-soon"
-                        blurIntensity="strong"
-                    />
-                    <div className="relative z-0 pointer-events-none blur-[5px] saturate-50 opacity-45 select-none">
+                    <div className="relative z-0">
                 {/* Featured Hero Image */}
                 <div 
                     className="relative w-full aspect-[4/3] md:aspect-[16/9] bg-[#111] rounded-sm overflow-hidden group cursor-pointer"
@@ -153,9 +145,6 @@ const NewsSection = () => {
                                     {activeNews.excerpt}
                                 </p>
 
-                                <div className="flex items-center gap-3 text-[11px] md:text-xs uppercase font-bold tracking-widest text-white group-hover:text-terracota transition-colors mt-2">
-                                    {t('news.readArticle')} <ArrowRight size={14} className="group-hover:translate-x-1.5 transition-transform duration-300" />
-                                </div>
                             </motion.div>
                         </AnimatePresence>
                     </div>
@@ -186,11 +175,13 @@ const NewsSection = () => {
                     {news.map((item, idx) => {
                         const isActive = idx === currentIndex;
                         return (
-                            <div 
+                            <button
+                                type="button"
                                 key={item.id}
                                 id={`news-thumb-${idx}`}
                                 onClick={() => handleManualSelect(idx)}
-                                className={`w-[calc(33.333%-8px)] min-w-[110px] md:min-w-[240px] md:max-w-[300px] snap-center md:snap-start shrink-0 group flex flex-col gap-2 md:gap-4 cursor-pointer transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-30 hover:opacity-80 grayscale hover:grayscale-0'}`}
+                                aria-pressed={isActive}
+                                className={`w-[calc(33.333%-8px)] min-w-[110px] md:min-w-[240px] md:max-w-[300px] snap-center md:snap-start shrink-0 group flex flex-col gap-2 md:gap-4 cursor-pointer text-left transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-30 hover:opacity-80 grayscale hover:grayscale-0'}`}
                             >
                                 <div className="relative w-full aspect-[4/3] md:aspect-[16/9] overflow-hidden rounded-sm bg-[#111]">
                                     <img 
@@ -210,7 +201,7 @@ const NewsSection = () => {
                                         {item.title}
                                     </h4>
                                 </div>
-                            </div>
+                            </button>
                         );
                     })}
                 </div>

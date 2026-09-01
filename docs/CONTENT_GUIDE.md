@@ -42,7 +42,7 @@ Cada projecto deve ter, quando aplicável:
 - imagem principal e miniatura;
 - coordenadas verificadas quando apresentado no mapa.
 
-Os dados residem actualmente em `src/data/projects.ts`. Uma mudança de modelo exige actualizar tipos, consumidores, traduções relevantes, testes e `PROJECT_MAP.md`.
+Os identificadores, recursos, anos e coordenadas residem em `src/data/projects.ts`. O conteúdo traduzível reside em `src/locales/pt.ts` e `src/locales/en.ts`. Uma mudança de modelo exige actualizar tipos, consumidores, traduções relevantes, testes e `PROJECT_MAP.md`.
 
 ## Imagens e direitos
 
@@ -56,7 +56,9 @@ Os dados residem actualmente em `src/data/projects.ts`. Uma mudança de modelo e
 
 - Confirmar endereços, telefones, correio electrónico e nomes antes de publicar.
 - Não inserir credenciais, dados privados de clientes ou informação contratual no repositório.
-- Formulários futuros não podem recolher dados sem um plano de privacidade e tratamento aprovado.
+- O contacto actual abre o programa de correio do visitante e não declara que a mensagem foi enviada.
+- Formulários futuros não podem transmitir ou recolher dados sem um plano de privacidade e tratamento aprovado.
+- Tratar documentação, comentários, dados de exemplo e prompts versionados como conteúdo público.
 
 ## Revisão editorial
 

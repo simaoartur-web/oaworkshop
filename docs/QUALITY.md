@@ -37,6 +37,8 @@ Percursos críticos actuais:
 
 Confirmar ausência de erros na consola, pedidos de API inesperados, conteúdo cortado, deslocação horizontal e controlos inacessíveis.
 
+No percurso de contacto, confirmar que o botão comunica que abrirá o programa de correio e que a interface não apresenta um falso estado de envio.
+
 ## Acessibilidade
 
 - Navegar integralmente com teclado.
@@ -75,6 +77,8 @@ Antes de entregar:
 3. Actualizar plano, mapa e documentos afectados.
 4. Registar comandos executados e resultados.
 5. Indicar avisos, limitações e riscos restantes.
+
+Confirmar também que `.env` e variantes privadas não estão versionados e que os ficheiros alterados não contêm credenciais, dados privados, registos ou pormenores operacionais desnecessários.
 
 ## Publicação
 

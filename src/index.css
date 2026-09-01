@@ -52,7 +52,7 @@
         @apply w-full max-w-[1100px] mx-auto px-6 md:px-12 lg:px-16;
     }
 
-    /* Specific animations for the "Foster+Partners feeling" */
+    /* Slow image reveal */
     .slow-zoom:hover img {
         transform: scale(1.05);
         transition: transform 1.5s cubic-bezier(0.25, 0.1, 0.25, 1);
@@ -66,17 +66,13 @@
         @apply relative overflow-hidden hover:cursor-crosshair;
     }
 
-    /* Admin components */
-    .admin-input {
+    /* Form controls */
+    .form-input {
         @apply w-full border-b border-gray-300 py-3 bg-transparent focus:outline-none focus:border-black-900 transition-colors;
     }
 
-    .admin-label {
+    .form-label {
         @apply text-xs uppercase tracking-widest text-gray-500 mb-1 block;
-    }
-
-    .admin-btn {
-        @apply bg-black-900 text-white px-6 py-3 uppercase tracking-widest text-xs hover:bg-black-700 transition-colors;
     }
 
     /* Text fill utilities */
