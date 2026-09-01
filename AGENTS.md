@@ -19,6 +19,8 @@ Não explorar todo o repositório por rotina. Uma pesquisa ampla só é aceitáv
 - Toda a alteração ao projecto exige um plano em `plans/` e aprovação expressa do utilizador.
 - Criar ou rever o plano não autoriza automaticamente a sua execução.
 - A aprovação deve identificar o plano, por exemplo: `APROVADO: plans/010-retirada-do-backend.md`.
+- A única excepção é a chave exacta e sensível a maiúsculas/minúsculas `Implementação forçada`, escrita pelo utilizador no pedido que autoriza a execução.
+- A chave dispensa apenas o plano e a aprovação prévios: não amplia o âmbito, não autoriza acções destrutivas implícitas e não permite trabalhar directamente em `main`.
 - Uma expansão material do âmbito, uma nova dependência, uma acção destrutiva não prevista ou uma decisão difícil de reverter exige actualização do plano e nova aprovação.
 - Durante a execução, manter no plano o estado, as decisões, os desvios e as verificações.
 
@@ -67,7 +69,16 @@ Não explorar todo o repositório por rotina. Uma pesquisa ampla só é aceitáv
 - Referenciar fontes de verdade em vez de copiar grandes blocos de contexto.
 - Nunca guardar credenciais, tokens, dados pessoais ou segredos em código, documentação, prompts ou registos.
 
-## 8. Verificação e entrega
+## 8. Repositório público e configuração
+
+- Tratar todos os ficheiros versionados como informação pública.
+- Não versionar `.env`, variantes locais, credenciais, contactos privados, dados pessoais não autorizados, dados confidenciais de clientes, registos ou respostas de serviços.
+- Um valor consumido pelo navegador é público, mesmo quando tem origem num ficheiro `.env`.
+- `.env.example`, quando necessário, contém apenas nomes de configuração e valores fictícios.
+- Documentar somente os pormenores técnicos necessários à manutenção segura do projecto.
+- Se um segredo tiver sido versionado, não o reproduzir; recomendar a sua revogação imediata e exigir plano próprio antes de alterar o histórico Git.
+
+## 9. Verificação e entrega
 
 - Seguir `docs/QUALITY.md` e os critérios do plano activo.
 - Como mínimo, executar `npm run lint` e `npm run build` depois de alterações de código.

@@ -16,8 +16,8 @@ Este plano só pode passar a execução depois de o utilizador o aprovar express
 
 - A aplicação pública usa React 19, TypeScript, Vite 7, Tailwind CSS 4, Framer Motion, `react-i18next`, React Router e Leaflet.
 - O conteúdo principal já pode ser apresentado a partir de dados locais em `src/data/projects.ts`.
-- O repositório contém um back-end Payload CMS/Next.js completo em `backend/`.
-- O front-end ainda depende desse back-end através de `src/pages/Admin.tsx`, `src/lib/payloadApi.ts`, da rota `/admin`, da ligação “área reservada”, de `VITE_API_URL` e de referências de configuração/documentação.
+- O repositório continha um CMS com servidor próprio.
+- O front-end dependia desse servidor através de uma área administrativa, um cliente HTTP, configuração local e referências documentais.
 - A publicação actual é estática, por GitHub Pages, e ocorre quando há alterações em `main`.
 - A branch activa, `Side-Oa-workshop`, já é diferente de `main`.
 - Existem alterações locais não registadas, incluindo alterações extensas no back-end e no painel administrativo. Estas alterações não podem ser eliminadas sem uma decisão explícita sobre a sua preservação.
@@ -28,7 +28,7 @@ No fim da execução aprovada:
 
 1. O projecto não contém nem executa qualquer back-end.
 2. O site público funciona apenas com dados e recursos locais.
-3. Não existem rotas, clientes HTTP, variáveis de ambiente ou elementos de navegação que dependam do Payload CMS.
+3. Não existem rotas, clientes HTTP, variáveis de ambiente ou elementos de navegação que dependam do CMS anterior.
 4. Todas as regras permanentes estão centralizadas em `AGENTS.md` e nos documentos por ele referenciados.
 5. Qualquer agente consulta `PROJECT_MAP.md` antes de procurar ficheiros no repositório.
 6. Todos os planos ficam guardados em `plans/`, com estado, critérios de aceitação e registo de aprovação.
@@ -82,7 +82,7 @@ Será a fonte de verdade para o comportamento dos agentes. Deve conter, no míni
 - Não guardar segredos, credenciais, dados pessoais ou tokens em código, documentação, prompts ou registos.
 - Parar e pedir nova aprovação quando surgir uma acção destrutiva não prevista, um conflito com alterações do utilizador ou uma expansão material do âmbito.
 
-O actual `agent.md` e o `agentBackendBuild.md` são prompts antigos, centrados no Payload CMS, e entram em conflito com a nova direcção. Depois de preservado o histórico necessário, serão removidos ou arquivados como documentação obsoleta; não serão usados como regras activas.
+Os prompts antigos eram centrados no CMS e entravam em conflito com a nova direcção. Depois de preservado o histórico necessário, foram removidos; não são usados como regras activas.
 
 ### 4.2. `CONTRIBUTING.md`
 
@@ -218,8 +218,8 @@ Esta fase é obrigatória porque o estado actual contém trabalho não registado
 
 - Retirar a rota `/admin` de `src/App.tsx`.
 - Retirar a ligação de área reservada de `src/components/layout/Footer.tsx`.
-- Remover `src/pages/Admin.tsx` e `src/lib/payloadApi.ts`, depois de confirmar que não têm consumidores restantes.
-- Remover `VITE_API_URL` e actualizar ou eliminar `.env.example` se deixar de ter variáveis úteis.
+- Remover a página administrativa e o cliente HTTP anterior, depois de confirmar que não têm consumidores restantes.
+- Remover configuração de ligação ao servidor e actualizar ou eliminar o exemplo de ambiente se deixar de ter variáveis úteis.
 - Remover configurações que apenas ignoram ou observam `backend/` em Vite e ESLint.
 - Garantir que páginas, projectos, investigação, equipa e restantes secções usam apenas dados locais tipados.
 - Manter a possibilidade de um back-end futuro apenas como decisão documental; não deixar adaptadores, autenticação ou código morto “para mais tarde”.
@@ -227,8 +227,8 @@ Esta fase é obrigatória porque o estado actual contém trabalho não registado
 ### Fase 2 — Remover o back-end e documentação obsoleta
 
 - Eliminar o directório `backend/` depois da salvaguarda aprovada.
-- Remover ou arquivar `agent.md` e `agentBackendBuild.md`.
-- Remover referências activas ao Payload CMS, à sua API, às portas locais e ao painel administrativo.
+- Remover ou arquivar os prompts operacionais obsoletos.
+- Remover referências activas ao CMS anterior, à sua API, às portas locais e ao painel administrativo.
 - Actualizar `README.md`, `PROJECT_MAP.md`, `.gitignore`, fluxos de CI e documentação afectada.
 - Não remover dependências do sistema operativo, serviços externos ou dados fora deste repositório.
 
@@ -238,7 +238,7 @@ Esta fase é obrigatória porque o estado actual contém trabalho não registado
 - Executar `npm ci`, `npm run lint` e `npm run build`.
 - Verificar visualmente página inicial, lista de projectos, detalhe de projecto, navegação, alternância de idioma e ligações internas.
 - Verificar pelo menos larguras de 375 px, 768 px e 1440 px.
-- Confirmar ausência de erros na consola e de pedidos de rede para a API Payload.
+- Confirmar ausência de erros na consola e de pedidos de rede para a API anterior.
 - Confirmar que a publicação estática do GitHub Pages continua funcional.
 
 ## 9. Planos subsequentes propostos

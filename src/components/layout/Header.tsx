@@ -68,14 +68,20 @@ const Header = () => {
                         {/* Language Switch */}
                         <div className="flex items-center gap-2 md:gap-3 text-[9px] md:text-[10px] tracking-[0.2em] md:tracking-[0.3em] font-medium mr-1 md:mr-2">
                             <button
+                                type="button"
                                 onClick={() => changeLanguage('en')}
+                                aria-label={t('common.switchToEnglish')}
+                                aria-pressed={activeLanguage === 'en'}
                                 className={`transition-colors ${activeLanguage === 'en' ? 'text-terracota' : 'text-white/40 hover:text-white'}`}
                             >
                                 ENG
                             </button>
                             <span className="text-white/10">|</span>
                             <button
+                                type="button"
                                 onClick={() => changeLanguage('pt')}
+                                aria-label={t('common.switchToPortuguese')}
+                                aria-pressed={activeLanguage === 'pt'}
                                 className={`transition-colors ${activeLanguage === 'pt' ? 'text-terracota' : 'text-white/40 hover:text-white'}`}
                             >
                                 PT
@@ -101,7 +107,10 @@ const Header = () => {
                                 )}
                             </AnimatePresence>
                             <button
+                                type="button"
                                 onClick={() => setIsSearchOpen(!isSearchOpen)}
+                                aria-label={isSearchOpen ? t('common.closeSearch') : t('common.openSearch')}
+                                aria-expanded={isSearchOpen}
                                 className="text-white/70 hover:text-white transition-colors p-2 ml-2"
                             >
                                 {isSearchOpen ? <X size={18} strokeWidth={1.2} /> : <Search size={18} strokeWidth={1.2} />}
@@ -110,7 +119,10 @@ const Header = () => {
 
                         {/* Expandable Menu "+" Button */}
                         <button
+                            type="button"
                             onClick={() => setIsMenuOpen(true)}
+                            aria-label={t('common.openMenu')}
+                            aria-expanded={isMenuOpen}
                             className="text-white/70 hover:text-white transition-colors p-2"
                         >
                             <Plus size={22} strokeWidth={1} />
@@ -167,13 +179,12 @@ const Header = () => {
                                             alt="O+A"
                                             className="w-20 h-20 md:w-28 md:h-28 object-contain brightness-150 contrast-125"
                                         />
-                                        <div className="flex flex-col space-y-2">
+                                        <div className="flex flex-col">
                                             <span className="font-light tracking-[0.3em] text-[11px] md:text-[12px] text-white uppercase">{t('common.discipline')}</span>
-                                            <span className="text-[9px] tracking-[0.4em] uppercase opacity-30 text-white italic">{t('common.studioLine')}</span>
                                         </div>
                                     </div>
                                 </motion.div>
-                                <button onClick={() => setIsMenuOpen(false)} className="p-4 bg-white/5 border border-white/10 rounded-full hover:bg-terracota hover:border-terracota transition-all duration-500 shadow-xl group">
+                                <button type="button" aria-label={t('common.closeMenu')} onClick={() => setIsMenuOpen(false)} className="p-4 bg-white/5 border border-white/10 rounded-full hover:bg-terracota hover:border-terracota transition-all duration-500 shadow-xl group">
                                     <X size={28} strokeWidth={1} className="group-hover:rotate-90 transition-transform duration-500" />
                                 </button>
                             </div>
@@ -216,8 +227,8 @@ const Header = () => {
                             {/* Menu Footer */}
                             <div className="p-10 md:p-14 lg:p-16 flex justify-between items-center border-t border-white/5 bg-black/40 mt-auto">
                                 <div className="flex gap-8 text-[11px] tracking-[0.3em] font-medium">
-                                    <button onClick={(e) => { e.preventDefault(); changeLanguage('pt'); }} className={activeLanguage === 'pt' ? "text-terracota scale-110" : "opacity-30 hover:opacity-100 transition-all"}>PT</button>
-                                    <button onClick={(e) => { e.preventDefault(); changeLanguage('en'); }} className={activeLanguage === 'en' ? "text-terracota scale-110" : "opacity-30 hover:opacity-100 transition-all"}>EN</button>
+                                    <button type="button" aria-label={t('common.switchToPortuguese')} aria-pressed={activeLanguage === 'pt'} onClick={(e) => { e.preventDefault(); changeLanguage('pt'); }} className={activeLanguage === 'pt' ? "text-terracota scale-110" : "opacity-30 hover:opacity-100 transition-all"}>PT</button>
+                                    <button type="button" aria-label={t('common.switchToEnglish')} aria-pressed={activeLanguage === 'en'} onClick={(e) => { e.preventDefault(); changeLanguage('en'); }} className={activeLanguage === 'en' ? "text-terracota scale-110" : "opacity-30 hover:opacity-100 transition-all"}>EN</button>
                                 </div>
                                 <div className="text-[10px] tracking-[0.4em] uppercase opacity-10 hidden sm:block">
                                     {t('common.studioName')}

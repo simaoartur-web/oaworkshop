@@ -157,7 +157,6 @@ const HeroSection = () => {
                     className="flex flex-col items-center mt-6 md:mt-8 gap-y-1"
                 >
                     <span className="text-white/60 text-[10px] md:text-xs tracking-[0.4em] uppercase font-medium">{t('common.discipline')}</span>
-                    <span className="text-white/40 text-[10px] tracking-[0.15em] font-light">{t('common.studioLine')}</span>
                 </motion.div>
             </div>
 

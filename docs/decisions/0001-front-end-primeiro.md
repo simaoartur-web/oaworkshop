@@ -5,7 +5,7 @@
 
 ## Contexto
 
-O repositório continha uma aplicação pública React/Vite e um back-end Payload CMS/Next.js. O painel administrativo e a API aumentavam o âmbito antes de a experiência pública estar concluída.
+O repositório continha uma aplicação pública React/Vite e um CMS com servidor próprio. O painel administrativo e a API aumentavam o âmbito antes de a experiência pública estar concluída.
 
 ## Decisão
 

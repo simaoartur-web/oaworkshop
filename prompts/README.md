@@ -49,6 +49,9 @@ Todo o prompt deve declarar:
 - Um modelo substituído deve ser removido ou marcado como obsoleto numa alteração aprovada.
 - Uma decisão reutilizável descoberta durante uma tarefa deve migrar para a fonte de verdade adequada.
 - Prompts de execução não substituem o plano nem concedem aprovação.
+- Sem a chave exacta `Implementação forçada`, um prompt de alteração deve referenciar um plano aprovado antes de autorizar edições.
+- A chave é sensível a maiúsculas/minúsculas, vale apenas para o âmbito do pedido que a contém e não dispensa ramo alternativo, segurança ou verificação.
+- Tratar todo o prompt versionado como público: usar marcadores fictícios e omitir segredos, dados privados e pormenores operacionais desnecessários.
 
 ## Escolher um modelo
 

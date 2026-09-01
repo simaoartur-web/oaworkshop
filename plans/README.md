@@ -2,6 +2,8 @@
 
 Este directório é a fonte de verdade para iniciativas que alteram o projecto. Nenhuma execução começa sem um plano aprovado pelo utilizador.
 
+A única excepção é a chave exacta e sensível a maiúsculas/minúsculas `Implementação forçada`, escrita pelo utilizador no pedido correspondente. A chave dispensa o plano e a aprovação prévios, mas mantém o âmbito declarado, o ramo alternativo, as salvaguardas, as verificações e a aceitação antes da integração em `main`.
+
 ## Numeração
 
 - `000–009`: governação e decisões fundadoras;
@@ -67,6 +69,7 @@ Uma alteração material ao âmbito, riscos ou decisões invalida a aprovação 
 | Número | Estado | Plano |
 |---:|---|---|
 | 000 | CANÓNICO | `000-plano-mestre-governacao-e-front-end.md` |
+| 010 | CANÓNICO | `010-limpeza-publica-e-bilingue.md` |
 
 ## Roteiro proposto
 

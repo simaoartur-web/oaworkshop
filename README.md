@@ -43,6 +43,16 @@ Antes de alterar o projecto, consultar por esta ordem:
 
 Nenhuma alteração é executada sem um plano aprovado pelo utilizador. O trabalho decorre numa branch alternativa; `main` só recebe uma versão validada e declarada canónica pelo utilizador. Consultar `CONTRIBUTING.md` para o processo completo.
 
+A única excepção é a chave exacta `Implementação forçada`, nos termos definidos em `AGENTS.md`.
+
+## Repositório público e `.env`
+
+- Todo o conteúdo versionado deve ser considerado público.
+- `.env` e variantes locais não são versionados.
+- `.env.example` só deve existir quando houver configuração necessária e deve conter valores fictícios.
+- Variáveis usadas pelo código do navegador são públicas, mesmo quando têm origem num ficheiro `.env`.
+- Este front-end não pode consumir palavras-passe, chaves privadas, tokens secretos ou outras credenciais.
+
 ## Estrutura resumida
 
 - `src/pages/` — páginas e composição de rotas.

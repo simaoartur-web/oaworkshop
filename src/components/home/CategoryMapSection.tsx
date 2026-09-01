@@ -4,26 +4,14 @@ import { Plus, Minus, X, ArrowRight } from 'lucide-react';
 import { MapContainer, TileLayer, Marker as LeafletMarker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import SectionOverlayStatus from '../common/SectionOverlayStatus';
 import { useTranslation } from 'react-i18next';
-export interface Project {
-    id: string;
-    title: string;
-    category: string;
-    location: string;
-    year: string;
-    mapPosition: { lat: number; lng: number };
-    mainImage: string;
-    thumbnail: string;
-    description: string;
-    scope: string[];
-    area: string;
-}
-
-export interface MapMarker {
-    lat: number;
-    lng: number;
-}
+import { Link } from 'react-router-dom';
+import {
+    localizeProject,
+    type MapMarker,
+    type Project,
+    type ProjectDiscipline,
+} from '../../data/projects';
 
 const createCustomIcon = (isActive: boolean) => L.divIcon({
     className: 'bg-transparent border-none',
@@ -55,12 +43,13 @@ const MapController = ({ center }: { center: { lat: number, lng: number } }) => 
 // Custom Zoom Control to match the previous aesthetic
 const CustomZoomControl = () => {
     const map = useMap();
+    const { t } = useTranslation();
     return (
         <div className="absolute bottom-4 left-4 flex flex-col border border-white/10 rounded-sm bg-black/80 backdrop-blur-md overflow-hidden z-[400] shadow-xl pointer-events-auto">
-            <button className="p-2.5 text-white hover:bg-white/20 transition-colors cursor-pointer active:scale-95 outline-none" onClick={() => map.zoomIn()}>
+            <button type="button" aria-label={t('categorySections.zoomIn')} className="p-2.5 text-white hover:bg-white/20 transition-colors cursor-pointer active:scale-95 outline-none" onClick={() => map.zoomIn()}>
                 <Plus size={18} strokeWidth={1.5} />
             </button>
-            <button className="p-2.5 text-white hover:bg-white/20 border-t border-white/10 transition-colors cursor-pointer active:scale-95 outline-none" onClick={() => map.zoomOut()}>
+            <button type="button" aria-label={t('categorySections.zoomOut')} className="p-2.5 text-white hover:bg-white/20 border-t border-white/10 transition-colors cursor-pointer active:scale-95 outline-none" onClick={() => map.zoomOut()}>
                 <Minus size={18} strokeWidth={1.5} />
             </button>
         </div>
@@ -68,35 +57,27 @@ const CustomZoomControl = () => {
 };
 
 interface CategoryMapSectionProps {
-    id?: string;
-    title: string;
+    id: ProjectDiscipline;
     accentTitle: string;
     projects: Project[];
     dummyMarkers?: MapMarker[];
 }
 
-const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [] }: CategoryMapSectionProps) => {
+const CategoryMapSection = ({ id, accentTitle, projects, dummyMarkers = [] }: CategoryMapSectionProps) => {
     const { t } = useTranslation();
-    const localizedProjects = useMemo(
-        () => {
-            const translatedProjects = t(`categorySections.projects.${id}`, { returnObjects: true }) as Partial<Project>[];
-            return projects.map((project, index) => ({ ...project, ...(translatedProjects[index] ?? {}) }));
-        },
-        [projects, id, t]
-    );
-    const sectionTitle = id ? t(`categorySections.${id}.title`, { defaultValue: title.trim() }) : title.trim();
-    const sectionCopy = id ? t(`categorySections.${id}.copy`, { defaultValue: t('categorySections.fallbackCopy') }) : t('categorySections.fallbackCopy');
+    const localizedProjects = useMemo(() => projects.map((item) => localizeProject(item, t)), [projects, t]);
+    const sectionTitle = t(`categorySections.${id}.title`);
+    const sectionCopy = t(`categorySections.${id}.copy`);
 
-    const [activeProject, setActiveProject] = useState(localizedProjects[0]);
+    const [activeProjectId, setActiveProjectId] = useState(projects[0]?.id);
     const [isModalOpen, setIsModalOpen] = useState(false);
     
     const mapContainerRef = useRef(null);
     const isMapInView = useInView(mapContainerRef, { once: true, margin: "200px" });
 
-    useEffect(() => {
-        setActiveProject(localizedProjects[0]);
-    }, [localizedProjects]);
+    const activeProject = localizedProjects.find((item) => item.id === activeProjectId) ?? localizedProjects[0];
 
+    if (!activeProject) return null;
 
     return (
         <section id={id} className="relative w-full bg-[#080808] text-white pt-16 pb-16 md:pt-20 md:pb-24 px-6 md:px-10 overflow-hidden border-t border-white/5">
@@ -115,13 +96,7 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
 
             {/* Two-column grid that stretches both columns to equal height */}
             <div className="relative -mx-6 overflow-hidden px-6 md:-mx-10 md:px-10">
-                <SectionOverlayStatus
-                    title={t('common.underConstruction')}
-                    subtitle={t('common.underConstructionSubtitle')}
-                    variant="under-construction"
-                    blurIntensity="strong"
-                />
-            <div className="relative z-0 flex flex-col-reverse lg:grid lg:grid-cols-[38%_1fr] gap-10 lg:gap-14 xl:gap-16 items-stretch pointer-events-none blur-[5px] saturate-50 opacity-45 select-none">
+            <div className="relative z-0 flex flex-col-reverse items-stretch gap-10 lg:grid lg:grid-cols-[38%_1fr] lg:gap-14 xl:gap-16">
 
                 {/* Left Column: Map */}
                 <div className="relative w-full h-[350px] md:h-[400px] lg:h-auto lg:min-h-0 p-[2px] rounded-[6px] overflow-hidden group">
@@ -168,7 +143,7 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                                             icon={createCustomIcon(isActive)}
                                             zIndexOffset={isActive ? 1000 : 0}
                                             eventHandlers={{
-                                                click: () => setActiveProject(proj)
+                                                click: () => setActiveProjectId(proj.id)
                                             }}
                                         />
                                     );
@@ -184,9 +159,11 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                     
                     {/* Main Interactive Display */}
                     <div className="flex flex-col md:flex-row gap-6 lg:gap-8 mb-12 items-stretch">
-                        <div 
+                        <motion.button
+                            type="button"
                             onClick={() => setIsModalOpen(true)}
-                            className="w-full md:w-[78%] aspect-[16/10] bg-[#111] relative overflow-hidden rounded-[4px] shadow-2xl group border border-white/5 cursor-pointer flex-shrink-0"
+                            aria-label={t('categorySections.openProject', { title: activeProject.title })}
+                            className="w-full md:w-[78%] aspect-[16/10] bg-[#111] relative overflow-hidden rounded-[4px] shadow-2xl group border border-white/5 cursor-pointer flex-shrink-0 text-left"
                         >
                             <AnimatePresence mode="wait">
                                 <motion.img 
@@ -210,7 +187,7 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                                     <Plus size={16} className="text-terracota transition-transform duration-300 md:group-hover/btn:rotate-90" />
                                 </div>
                             </div>
-                        </div>
+                        </motion.button>
                         
                         {/* Metadata column */}
                         <div className="w-full md:flex-grow flex flex-col justify-end pb-2">
@@ -251,11 +228,13 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                         
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-5">
                             {localizedProjects.map((proj) => (
-                                <motion.div 
+                                <motion.button
+                                    type="button"
                                     key={proj.id} 
-                                    onClick={() => setActiveProject(proj)}
+                                    onClick={() => setActiveProjectId(proj.id)}
+                                    aria-pressed={activeProject.id === proj.id}
                                     whileHover={{ y: -4 }}
-                                    className="flex flex-col group cursor-pointer"
+                                    className="flex flex-col group cursor-pointer text-left"
                                 >
                                     <div className={`relative aspect-[4/3] overflow-hidden rounded-[3px] transition-all duration-500 border 
                                         ${activeProject.id === proj.id ? 'border-terracota shadow-[0_10px_30px_rgba(196,85,50,0.25)]' : 'border-white/5 opacity-50 group-hover:opacity-100'}`}>
@@ -276,7 +255,7 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                                             {proj.title}
                                         </h4>
                                     </div>
-                                </motion.div>
+                                </motion.button>
                             ))}
                         </div>
                     </div>
@@ -289,7 +268,10 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                 {isModalOpen && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 md:p-8">
                         {/* Overlay */}
-                        <motion.div 
+                        <motion.div
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="project-dialog-title"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -307,6 +289,8 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                         >
                             {/* Close Button */}
                             <button 
+                                type="button"
+                                aria-label={t('categorySections.closeProject')}
                                 onClick={() => setIsModalOpen(false)}
                                 className="absolute top-5 right-5 z-50 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center bg-black/50 border border-white/10 rounded-full text-white hover:bg-terracota hover:border-terracota transition-all duration-300 active:scale-90 shadow-2xl"
                             >
@@ -329,7 +313,7 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                                 <span className="inline-block px-2.5 py-0.5 bg-terracota/10 border border-terracota/20 rounded-full text-[9px] font-bold text-terracota uppercase tracking-widest mb-4 w-fit">
                                     {activeProject.category}
                                 </span>
-                                <h3 className="text-2xl md:text-3xl font-bold text-white mb-6 tracking-tight leading-none">
+                                <h3 id="project-dialog-title" className="text-2xl md:text-3xl font-bold text-white mb-6 tracking-tight leading-none">
                                     {activeProject.title}
                                 </h3>
                                 
@@ -356,12 +340,12 @@ const CategoryMapSection = ({ id, title, accentTitle, projects, dummyMarkers = [
                                     </div>
                                 </div>
 
-                                <button className="group flex items-center gap-3 text-white/60 hover:text-white transition-colors mt-auto pt-6 border-t border-white/5 w-fit">
+                                <Link to="/#contact" onClick={() => setIsModalOpen(false)} className="group flex items-center gap-3 text-white/60 hover:text-white transition-colors mt-auto pt-6 border-t border-white/5 w-fit">
                                     <span className="font-bold text-[11px] uppercase tracking-widest">{t('categorySections.inquire')}</span>
                                     <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:border-terracota group-hover:bg-terracota">
                                         <ArrowRight size={14} />
                                     </div>
-                                </button>
+                                </Link>
                             </div>
                         </motion.div>
                     </div>

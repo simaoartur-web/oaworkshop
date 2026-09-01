@@ -8,6 +8,8 @@ O desenvolvimento segue um ciclo controlado:
 
 Nenhuma etapa de execução deve começar antes de existir um plano aprovado.
 
+A chave exacta e sensível a maiúsculas/minúsculas `Implementação forçada`, quando escrita pelo utilizador no pedido, dispensa o plano e a aprovação prévios para esse âmbito. Não dispensa o ramo alternativo, as salvaguardas, a verificação nem a aceitação antes da integração em `main`.
+
 ## 1. Preparar uma iniciativa
 
 1. Consultar `AGENTS.md` e `PROJECT_MAP.md`.
@@ -35,6 +37,8 @@ Criar a branch a partir da versão canónica adequada. Não misturar iniciativas
 - Fazer alterações pequenas e verificáveis.
 - Actualizar documentação, traduções, testes e `PROJECT_MAP.md` juntamente com o código que os afecta.
 - Não introduzir segredos ou dados pessoais.
+- Tratar código, documentação, comentários, exemplos e configuração versionados como conteúdo público.
+- Nunca adicionar `.env` ou variantes privadas; valores usados pelo navegador não são secretos.
 - Não adicionar back-end enquanto vigorar a decisão front-end primeiro.
 
 ## 4. Commits
