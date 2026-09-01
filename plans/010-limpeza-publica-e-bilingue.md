@@ -2,7 +2,7 @@
 
 ## Estado
 
-- **Estado:** CONCLUÍDO — aprovado em 2026-08-31 e concluído em 2026-09-01; aguarda decisão canónica.
+- **Estado:** CANÓNICO — aprovado em 2026-08-31, concluído em 2026-09-01 e aceite para integração em `main` pelo utilizador.
 - **Ramo deste documento:** `codex/plan-public-bilingual-cleanup`.
 - **Ramo previsto para execução:** `codex/feature-public-bilingual-cleanup`.
 - **Execução autorizada:** sim, por aprovação explícita do utilizador.
@@ -225,3 +225,7 @@ Qualquer alteração a estas decisões deverá ser indicada antes da execução.
 
 - A validação tipada de ambiente não foi criada, porque não existem variáveis de ambiente reais. Esta omissão segue a decisão aprovada de não inventar configuração.
 - Não foi necessário alterar o histórico Git nem o `stash` de segurança.
+
+## Promoção canónica
+
+Em 2026-09-01, o utilizador solicitou expressamente o merge deste ramo em `main`. A integração preserva os dois commits da iniciativa e não elimina os ramos de trabalho.

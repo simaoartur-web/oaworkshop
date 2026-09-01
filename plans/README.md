@@ -69,7 +69,7 @@ Uma alteração material ao âmbito, riscos ou decisões invalida a aprovação 
 | Número | Estado | Plano |
 |---:|---|---|
 | 000 | CANÓNICO | `000-plano-mestre-governacao-e-front-end.md` |
-| 010 | CONCLUÍDO | `010-limpeza-publica-e-bilingue.md` |
+| 010 | CANÓNICO | `010-limpeza-publica-e-bilingue.md` |
 
 ## Roteiro proposto
 
