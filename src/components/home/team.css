@@ -1,8 +1,8 @@
-.team-member { transition: background-color 180ms ease; }
-.team-profile-trigger::after { content: ""; position: absolute; inset: -8px; }
-.team-profile-trigger:focus-visible { outline: none; }
-.team-member:has(.team-profile-trigger:focus-visible) { outline: 2px solid var(--color-terracota); outline-offset: 8px; }
-.team-member:active { background-color: var(--color-black-800); }
+.team-profile-trigger { transition: color 180ms ease; }
+.team-profile-trigger::after { content: ""; position: absolute; inset: 0; }
+.team-profile-trigger:focus-visible { outline: 2px solid var(--color-terracota); outline-offset: 4px; }
+.team-profile-trigger svg { transition: transform 180ms ease; }
+.team-member:active .team-profile-trigger { color: white; }
 
 .team-profile-panel {
     position: fixed;
@@ -27,13 +27,15 @@
 @media (min-width: 768px) { .team-profile-panel { width: 480px; } }
 @media (hover: hover) {
     .team-member:hover .team-profile-trigger { color: white; }
-    .team-member:hover .team-avatar { background-color: var(--color-black-700); }
+    .team-member:hover .team-avatar { color: white; }
+    .team-member:hover .team-profile-trigger svg { transform: translate(2px, -2px); }
     .team-panel-close:hover { color: var(--color-terracota); }
 }
-.team-avatar { transition: background-color 180ms ease; }
+.team-avatar { transition: color 180ms ease; }
 @keyframes team-panel-in { from { transform: translateX(24px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes team-panel-out { from { transform: translateX(0); opacity: 1; } to { transform: translateX(24px); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
     .team-profile-panel[open], .team-profile-panel[data-closing] { animation: none; }
-    .team-member, .team-avatar { transition: none; }
+    .team-profile-trigger, .team-profile-trigger svg, .team-avatar { transition: none; }
+    .team-member:hover .team-profile-trigger svg { transform: none; }
 }

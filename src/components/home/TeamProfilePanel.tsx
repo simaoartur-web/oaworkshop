@@ -91,11 +91,13 @@ const TeamProfilePanel = ({ member, onDismiss, returnFocusRef, fallbackFocusRef 
                 </button>
             </header>
             <div className="team-panel-content min-h-0 overflow-y-auto overscroll-contain px-6 py-8 md:px-8">
-                <TeamAvatar name={member.name} image={member.image} className="mb-8 aspect-[5/3] w-full text-6xl" />
-                <p className="mb-3 text-xs uppercase tracking-[0.16em] text-gray-400">{t(member.leadership ? 'team.leadership' : 'team.practice')}</p>
+                <div className="mb-8 flex items-center gap-6">
+                    <TeamAvatar name={member.name} image={member.image} className="aspect-[4/5] w-20 text-4xl" />
+                    <p className="text-xs uppercase leading-relaxed tracking-[0.16em] text-gray-400">{t(member.leadership ? 'team.leadership' : 'team.practice')}</p>
+                </div>
                 <h2 id="team-profile-name" className="break-words text-4xl font-light tracking-tight text-white">{member.name}</h2>
                 <p className="mt-4 text-base font-light leading-relaxed text-gray-300">{t(`team.roles.${member.role}`)}</p>
-                <dl className="mt-8">
+                <dl className="mt-8 border-t border-white/15 pt-6">
                     <dt className="text-xs uppercase tracking-[0.16em] text-gray-400">{t('team.area')}</dt>
                     <dd className="mt-2 text-sm leading-relaxed text-gray-300">{t(`team.categories.${member.category}`)}</dd>
                 </dl>

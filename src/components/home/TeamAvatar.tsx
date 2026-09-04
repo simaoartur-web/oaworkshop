@@ -26,7 +26,7 @@ const TeamAvatar = ({ name, image, className = '' }: {
     const src = image?.src.trim();
     const initials = getTeamInitials(name);
     return (
-        <div aria-hidden="true" className={`team-avatar flex shrink-0 items-center justify-center overflow-hidden bg-black-800 font-serif font-light text-gray-400 ${className}`}>
+        <div aria-hidden="true" className={`team-avatar flex shrink-0 items-center justify-center overflow-hidden font-serif font-light text-gray-400 ${className}`}>
             {src ? <Portrait key={src} image={{ ...image, src }} initials={initials} /> : <span>{initials}</span>}
         </div>
     );

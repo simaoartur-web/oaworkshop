@@ -72,6 +72,7 @@ Uma alteração material ao âmbito, riscos ou decisões invalida a aprovação 
 | 010 | CANÓNICO | `010-limpeza-publica-e-bilingue.md` |
 | 120 | EM VALIDAÇÃO | `120-organograma-da-equipa.md` |
 | 121 | EM VALIDAÇÃO | `121-equipa-perfis-interactivos.md` |
+| 122 | EM VALIDAÇÃO | `122-equipa-refinamento-editorial.md` |
 
 ## Roteiro proposto
 
