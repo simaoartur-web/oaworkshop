@@ -71,6 +71,7 @@ Uma alteração material ao âmbito, riscos ou decisões invalida a aprovação 
 | 000 | CANÓNICO | `000-plano-mestre-governacao-e-front-end.md` |
 | 010 | CANÓNICO | `010-limpeza-publica-e-bilingue.md` |
 | 120 | EM VALIDAÇÃO | `120-organograma-da-equipa.md` |
+| 121 | EM VALIDAÇÃO | `121-equipa-perfis-interactivos.md` |
 
 ## Roteiro proposto
 

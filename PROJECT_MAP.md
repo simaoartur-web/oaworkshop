@@ -15,6 +15,7 @@
 | Alterar aparência global | `src/index.css` | `docs/DESIGN_SYSTEM.md` |
 | Alterar textos PT/EN | `src/locales/pt.ts`, `src/locales/en.ts` | `src/i18n.ts`, `docs/CONTENT_GUIDE.md` |
 | Alterar dados de projectos | `src/data/projects.ts` | páginas e mapas consumidores |
+| Alterar equipa e perfis | `src/components/home/TeamSection.tsx`, `src/data/team.ts` | `TeamMember.tsx`, `TeamAvatar.tsx`, `TeamProfilePanel.tsx`, `team.css`, `src/locales/` |
 | Alterar imagens públicas | `public/` | componente consumidor, `docs/CONTENT_GUIDE.md` |
 | Alterar publicação | `.github/workflows/deploy.yml` | `vite.config.ts`, `CNAME`, `public/CNAME` |
 | Preparar trabalho novo | `plans/README.md` | `AGENTS.md`, modelo de plano |
@@ -73,10 +74,14 @@ Não existe página administrativa. Qualquer proposta para a criar exige novo pl
 | `src/components/home/ExpertiseSection.tsx` | apresentação de competências | disponível; confirmar consumidor antes de alterar |
 | `src/components/home/StatsSection.tsx` | indicadores animados | secções da página inicial |
 | `src/components/home/TeamSection.tsx` | organograma público bilingue da equipa | página inicial, depois de Journal e antes de Contactos |
+| `src/components/home/TeamMember.tsx` | perfil resumido e abertura acessível por pessoa | TeamSection |
+| `src/components/home/TeamAvatar.tsx` | retrato local ou iniciais automáticas, incluindo falha de imagem | TeamMember, TeamProfilePanel |
+| `src/components/home/TeamProfilePanel.tsx` | diálogo lateral com foco, fecho e restauro de scroll | TeamSection |
+| `src/components/home/team.css` | estilos exclusivos da equipa e do diálogo, movimento reduzido | TeamSection |
 
 ## Dados, idiomas e recursos
 
-Equipa: `src/data/team.ts` contém nomes públicos, identificadores, níveis e ordem editorial. Os cargos e títulos pertencem a `src/locales/pt.ts` e `src/locales/en.ts`.
+Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referências tipadas de cargo/categoria/biografia, imagem opcional, liderança e ordem editorial. Os textos pertencem a `src/locales/pt.ts` e `src/locales/en.ts`. Não existe serviço remoto de perfis.
 
 | Caminho | Responsabilidade | Regra de alteração |
 |---|---|---|

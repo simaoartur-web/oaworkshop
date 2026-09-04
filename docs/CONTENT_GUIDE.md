@@ -46,6 +46,18 @@ Os identificadores, recursos, anos e coordenadas residem em `src/data/projects.t
 
 ## Imagens e direitos
 
+### Perfis da equipa
+
+- Editar `src/data/team.ts`: conservar `id` estável e usar `leadership` apenas para os dois membros da direcção conjunta, salvo nova aprovação.
+- Cargos e categorias são chaves de `team.roles` e `team.categories`, presentes nos dois idiomas.
+- Até existirem retratos autorizados, manter `image: null`. Para uma fotografia local aprovada, usar `image: { src: '/images/team/retrato.webp', objectPosition: '50% 35%' }`; `objectPosition` é opcional e ajusta o enquadramento sem alterar o componente.
+- Preparar retratos optimizados, adequados aos recortes 4:5 e 5:3. Não acrescentar pastas ou imagens fictícias só para preencher a estrutura.
+- Imagem nula, caminho vazio ou erro de carregamento apresentam automaticamente as iniciais, sem alterar as dimensões do avatar. O retrato é decorativo para tecnologias de apoio, pois o nome já está identificado no perfil.
+- Manter `bio: null` enquanto não existir texto aprovado. Posteriormente, adicionar a mesma chave em `team.bios` nos dois idiomas e referenciá-la no campo `bio`. O TypeScript exige paridade das chaves utilizáveis.
+- Não inventar formação, qualificações, datas ou biografias. A ausência de biografia omite a secção, sem mensagens provisórias públicas.
+
+### Normas gerais
+
 - Registar a origem e a licença dos recursos finais.
 - Não usar imagens de terceiros como conteúdo definitivo sem autorização adequada.
 - Optimizar dimensões, formato e compressão antes da publicação.

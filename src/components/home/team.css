@@ -1,0 +1,39 @@
+.team-member { transition: background-color 180ms ease; }
+.team-profile-trigger::after { content: ""; position: absolute; inset: -8px; }
+.team-profile-trigger:focus-visible { outline: none; }
+.team-member:has(.team-profile-trigger:focus-visible) { outline: 2px solid var(--color-terracota); outline-offset: 8px; }
+.team-member:active { background-color: var(--color-black-800); }
+
+.team-profile-panel {
+    position: fixed;
+    inset: 0 0 0 auto;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    border: 0;
+    border-left: 1px solid rgb(255 255 255 / 15%);
+    background: var(--color-black-900);
+    color: white;
+}
+.team-profile-panel[open] { display: flex; flex-direction: column; animation: team-panel-in 220ms ease-out both; }
+.team-profile-panel[data-closing] { animation: team-panel-out 220ms ease-in both; }
+.team-profile-panel::backdrop { background: rgb(0 0 0 / 65%); }
+.team-panel-header { padding-top: max(1rem, env(safe-area-inset-top)); }
+.team-panel-content { padding-bottom: max(2rem, env(safe-area-inset-bottom)); overflow-wrap: anywhere; }
+.team-panel-close:focus-visible { outline: 2px solid var(--color-terracota); outline-offset: 2px; }
+@media (min-width: 768px) { .team-profile-panel { width: 480px; } }
+@media (hover: hover) {
+    .team-member:hover .team-profile-trigger { color: white; }
+    .team-member:hover .team-avatar { background-color: var(--color-black-700); }
+    .team-panel-close:hover { color: var(--color-terracota); }
+}
+.team-avatar { transition: background-color 180ms ease; }
+@keyframes team-panel-in { from { transform: translateX(24px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes team-panel-out { from { transform: translateX(0); opacity: 1; } to { transform: translateX(24px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+    .team-profile-panel[open], .team-profile-panel[data-closing] { animation: none; }
+    .team-member, .team-avatar { transition: none; }
+}
