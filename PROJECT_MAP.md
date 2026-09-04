@@ -72,9 +72,11 @@ Não existe página administrativa. Qualquer proposta para a criar exige novo pl
 | `src/components/home/ContactSection.tsx` | informação e acção de contacto | página inicial |
 | `src/components/home/ExpertiseSection.tsx` | apresentação de competências | disponível; confirmar consumidor antes de alterar |
 | `src/components/home/StatsSection.tsx` | indicadores animados | secções da página inicial |
-| `src/components/home/TeamSection.tsx` | apresentação da equipa | disponível; confirmar consumidor antes de alterar |
+| `src/components/home/TeamSection.tsx` | organograma público bilingue da equipa | página inicial, depois de Journal e antes de Contactos |
 
 ## Dados, idiomas e recursos
+
+Equipa: `src/data/team.ts` contém nomes públicos, identificadores, níveis e ordem editorial. Os cargos e títulos pertencem a `src/locales/pt.ts` e `src/locales/en.ts`.
 
 | Caminho | Responsabilidade | Regra de alteração |
 |---|---|---|

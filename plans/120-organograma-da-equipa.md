@@ -1,11 +1,11 @@
 # Plano 120 — Organograma público da equipa
 
-> **Estado:** PROPOSTO
+> **Estado:** EM VALIDAÇÃO
 > **Data:** 2026-09-01
 > **Branch deste plano:** `codex/plan-team-organogram`
 > **Branch prevista para execução:** `codex/feature-team-organogram`
 > **Base:** `main` (`12cc809`)
-> **Aprovação:** pendente
+> **Aprovação:** recebida; as cinco questões editoriais foram confirmadas em 2026-09-04.
 
 ## Objectivo
 
@@ -197,7 +197,24 @@ Os nomes poderão residir em `src/data/team.ts`; títulos, etiquetas e texto de 
 
 ## Resultado
 
-Pendente de aprovação e execução.
+Organograma implementado no ramo `codex/feature-team-organogram`, depois de Journal e antes de Contactos. Aguarda aceitação visual e ensaio com leitor de ecrã real antes da promoção canónica.
+
+### 2026-09-04 — Aprovação e execução
+
+- confirmados Artur Simão, Neide sem apelido, Construction Technician, liderança conjunta e autorização pública dos nomes e cargos;
+- ramo de execução criado a partir do ramo do plano, preservando a base de `main` e sem importar Atlas;
+- dados locais tipados, cargos PT/EN e organograma estático sem fotografias ou animações;
+- ordem editorial mantida pelo próprio array, sem campo numérico redundante;
+- Administração omitida e conteúdo demonstrativo substituído;
+- `npm run lint`, `npm run build` e paridade estrutural PT/EN passaram;
+- teste da fonte local confirmou oito identificadores únicos, dois directores e cargos completos nos dois idiomas;
+- revisão visual no navegador a 375, 768 e 1440 px em PT/EN: nomes legíveis, sem transbordamento da secção;
+- árvore de acessibilidade confirmou título, dois grupos nomeados e ordem dos oito membros; ensaio com leitor de ecrã real não realizado;
+- alternância PT/EN por teclado verificada; a secção não acrescenta controlos nem animações;
+- consola consultada sem erros; não foram adicionadas chamadas de rede;
+- compilação com bloco principal de 654,57 kB e aviso superior a 500 kB, já esperado nesta base; dados Browserslist desactualizados também assinalados, sem actualizar dependências fora do âmbito;
+- a ferramenta de navegador actualmente disponível permitiu a revisão visual anteriormente pendente;
+- `main`, Atlas, publicação e `push` não foram alterados.
 
 ## Aprovação solicitada
 
