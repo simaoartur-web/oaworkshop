@@ -347,7 +347,15 @@ const pt = {
         closeProfile: "Fechar perfil",
         profile: "Perfil",
         area: "Área de prática",
-        biography: "Biografia",
+          biography: "Biografia",
+          socialLinks: "Redes e portefólio",
+          openSocial: "{{platform}} de {{name}} (abre numa nova aba)",
+          socialPlatforms: {
+              linkedin: "LinkedIn",
+              instagram: "Instagram",
+              behance: "Behance",
+              website: "Website",
+          },
         categories: {
             architectureUrbanism: "Arquitectura e urbanismo",
             architecture: "Arquitectura",

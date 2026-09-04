@@ -75,13 +75,13 @@ Não existe página administrativa. Qualquer proposta para a criar exige novo pl
 | `src/components/home/StatsSection.tsx` | indicadores animados | secções da página inicial |
 | `src/components/home/TeamSection.tsx` | organograma público bilingue da equipa | página inicial, depois de Journal e antes de Contactos |
 | `src/components/home/TeamMember.tsx` | perfil resumido e abertura acessível por pessoa | TeamSection |
-| `src/components/home/TeamAvatar.tsx` | retrato local ou iniciais automáticas, incluindo falha de imagem | TeamMember, TeamProfilePanel |
-| `src/components/home/TeamProfilePanel.tsx` | diálogo lateral com foco, fecho e restauro de scroll | TeamSection |
+| `src/components/home/TeamAvatar.tsx` | estados de carregamento do retrato local e iniciais automáticas, incluindo falha de imagem | TeamMember, TeamProfilePanel |
+| `src/components/home/TeamProfilePanel.tsx` | diálogo lateral com informação e ligações sociais, foco, fecho e restauro de scroll | TeamSection |
 | `src/components/home/team.css` | estilos exclusivos da equipa e do diálogo, movimento reduzido | TeamSection |
 
 ## Dados, idiomas e recursos
 
-Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referências tipadas de cargo/categoria/biografia, imagem opcional, liderança e ordem editorial. Os textos pertencem a `src/locales/pt.ts` e `src/locales/en.ts`. Não existe serviço remoto de perfis.
+Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referências tipadas de cargo/categoria/biografia, imagem opcional, ligações HTTPS confirmadas, liderança e ordem editorial. Os textos pertencem a `src/locales/pt.ts` e `src/locales/en.ts`. Não existe serviço remoto de perfis ou redes sociais.
 
 | Caminho | Responsabilidade | Regra de alteração |
 |---|---|---|

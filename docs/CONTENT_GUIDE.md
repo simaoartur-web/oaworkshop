@@ -55,6 +55,9 @@ Os identificadores, recursos, anos e coordenadas residem em `src/data/projects.t
 - Imagem nula, caminho vazio ou erro de carregamento apresentam automaticamente as iniciais, sem alterar as dimensões do avatar. O retrato é decorativo para tecnologias de apoio, pois o nome já está identificado no perfil.
 - Manter `bio: null` enquanto não existir texto aprovado. Posteriormente, adicionar a mesma chave em `team.bios` nos dois idiomas e referenciá-la no campo `bio`. O TypeScript exige paridade das chaves utilizáveis.
 - Não inventar formação, qualificações, datas ou biografias. A ausência de biografia omite a secção, sem mensagens provisórias públicas.
+- As redes públicas de cada pessoa residem em `links` no mesmo registo. Aceitam-se apenas endereços HTTPS exactos, confirmados pelo titular ou pela O+A; nunca procurar uma conta por aproximação de nome.
+- Usar uma plataforma prevista (`linkedin`, `instagram`, `behance` ou `website`) e um `id` único dentro do perfil. Não guardar tokens, credenciais, URLs de administração, parâmetros de autenticação ou ligações privadas.
+- Manter `links: []` quando não existirem contas autorizadas. A interface omite o bloco completo, sem ícones desactivados nem ligações fictícias.
 
 ### Normas gerais
 

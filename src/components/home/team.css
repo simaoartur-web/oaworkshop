@@ -32,10 +32,18 @@
     .team-panel-close:hover { color: var(--color-terracota); }
 }
 .team-avatar { transition: color 180ms ease; }
+.team-avatar-image { opacity: 0; transition: opacity 180ms ease; }
+.team-avatar-image.is-loaded { opacity: 1; }
+.team-avatar-loading { position: absolute; inset: auto auto 0 0; width: 35%; height: 1px; background: var(--color-terracota); }
+.team-social-link { transition: color 180ms ease, border-color 180ms ease; }
+.team-social-link:focus-visible { outline: 2px solid var(--color-terracota); outline-offset: 3px; }
+@media (hover: hover) {
+    .team-social-link:hover { color: white; border-color: rgb(255 255 255 / 35%); }
+}
 @keyframes team-panel-in { from { transform: translateX(24px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes team-panel-out { from { transform: translateX(0); opacity: 1; } to { transform: translateX(24px); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
     .team-profile-panel[open], .team-profile-panel[data-closing] { animation: none; }
-    .team-profile-trigger, .team-profile-trigger svg, .team-avatar { transition: none; }
+    .team-profile-trigger, .team-profile-trigger svg, .team-avatar, .team-avatar-image, .team-social-link { transition: none; }
     .team-member:hover .team-profile-trigger svg { transform: none; }
 }

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { useReducedMotion } from 'framer-motion';
-import { X } from 'lucide-react';
+import { ArrowUpRight, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import type { TeamMember } from '../../data/team';
+import { getSafeTeamProfileUrl, type TeamMember } from '../../data/team';
 import TeamAvatar from './TeamAvatar';
 
 interface Props {
@@ -21,6 +21,13 @@ const TeamProfilePanel = ({ member, onDismiss, returnFocusRef, fallbackFocusRef 
     const pointerStartedOutside = useRef(false);
     const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [closing, setClosing] = useState(false);
+    const seenLinkIds = new Set<string>();
+    const socialLinks = member.links.flatMap((link) => {
+        const href = getSafeTeamProfileUrl(link.url);
+        if (!href || seenLinkIds.has(link.id)) return [];
+        seenLinkIds.add(link.id);
+        return [{ ...link, href }];
+    });
 
     useEffect(() => {
         const dialog = dialogRef.current;
@@ -107,6 +114,26 @@ const TeamProfilePanel = ({ member, onDismiss, returnFocusRef, fallbackFocusRef 
                         <p className="whitespace-pre-line break-words text-base font-light leading-relaxed text-gray-300">{t(`team.bios.${member.bio}`, { defaultValue: '' })}</p>
                     </section>
                 )}
+                {socialLinks.length > 0 ? (
+                    <section aria-labelledby="team-social-title" className="mt-8 border-t border-white/15 pt-6">
+                        <h3 id="team-social-title" className="mb-3 text-xs uppercase tracking-[0.16em] text-gray-400">{t('team.socialLinks')}</h3>
+                        <ul>
+                            {socialLinks.map((link) => {
+                                const platform = t(`team.socialPlatforms.${link.platform}`);
+                                return (
+                                    <li key={link.id}>
+                                        <a href={link.href} target="_blank" rel="noopener noreferrer"
+                                            aria-label={t('team.openSocial', { platform, name: member.name })}
+                                            className="team-social-link flex min-h-11 items-center justify-between gap-4 border-b border-white/15 py-3 text-sm text-gray-300">
+                                            <span>{platform}</span>
+                                            <ArrowUpRight size={17} strokeWidth={1.5} aria-hidden="true" className="shrink-0 text-terracota" />
+                                        </a>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </section>
+                ) : null}
             </div>
         </dialog>,
         document.body,
