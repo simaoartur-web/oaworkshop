@@ -46,6 +46,21 @@ Os identificadores, recursos, anos e coordenadas residem em `src/data/projects.t
 
 ## Imagens e direitos
 
+### Perfis da equipa
+
+- Editar `src/data/team.ts`: conservar `id` estável e usar `leadership` apenas para os dois membros da direcção conjunta, salvo nova aprovação.
+- Cargos e categorias são chaves de `team.roles` e `team.categories`, presentes nos dois idiomas.
+- Até existirem retratos autorizados, manter `image: null`. Para uma fotografia local aprovada, usar `image: { src: '/images/team/retrato.webp', objectPosition: '50% 35%' }`; `objectPosition` é opcional e ajusta o enquadramento sem alterar o componente.
+- Preparar retratos optimizados, adequados ao recorte 4:5 usado nos resumos e no painel. Não acrescentar pastas ou imagens fictícias só para preencher a estrutura.
+- Imagem nula, caminho vazio ou erro de carregamento apresentam automaticamente as iniciais, sem alterar as dimensões do avatar. O retrato é decorativo para tecnologias de apoio, pois o nome já está identificado no perfil.
+- Manter `bio: null` enquanto não existir texto aprovado. Posteriormente, adicionar a mesma chave em `team.bios` nos dois idiomas e referenciá-la no campo `bio`. O TypeScript exige paridade das chaves utilizáveis.
+- Não inventar formação, qualificações, datas ou biografias. A ausência de biografia omite a secção, sem mensagens provisórias públicas.
+- As redes públicas de cada pessoa residem em `links` no mesmo registo. Aceitam-se apenas endereços HTTPS exactos, confirmados pelo titular ou pela O+A; nunca procurar uma conta por aproximação de nome.
+- Usar uma plataforma prevista (`linkedin`, `instagram`, `behance` ou `website`) e um `id` único dentro do perfil. Não guardar tokens, credenciais, URLs de administração, parâmetros de autenticação ou ligações privadas.
+- Manter `links: []` quando não existirem contas autorizadas. A interface omite o bloco completo, sem ícones desactivados nem ligações fictícias.
+
+### Normas gerais
+
 - Registar a origem e a licença dos recursos finais.
 - Não usar imagens de terceiros como conteúdo definitivo sem autorização adequada.
 - Optimizar dimensões, formato e compressão antes da publicação.

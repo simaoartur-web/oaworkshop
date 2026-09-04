@@ -15,6 +15,7 @@
 | Alterar aparência global | `src/index.css` | `docs/DESIGN_SYSTEM.md` |
 | Alterar textos PT/EN | `src/locales/pt.ts`, `src/locales/en.ts` | `src/i18n.ts`, `docs/CONTENT_GUIDE.md` |
 | Alterar dados de projectos | `src/data/projects.ts` | páginas e mapas consumidores |
+| Alterar equipa e perfis | `src/components/home/TeamSection.tsx`, `src/data/team.ts` | `TeamMember.tsx`, `TeamAvatar.tsx`, `TeamProfilePanel.tsx`, `team.css`, `src/locales/` |
 | Alterar imagens públicas | `public/` | componente consumidor, `docs/CONTENT_GUIDE.md` |
 | Alterar publicação | `.github/workflows/deploy.yml` | `vite.config.ts`, `CNAME`, `public/CNAME` |
 | Preparar trabalho novo | `plans/README.md` | `AGENTS.md`, modelo de plano |
@@ -72,9 +73,15 @@ Não existe página administrativa. Qualquer proposta para a criar exige novo pl
 | `src/components/home/ContactSection.tsx` | informação e acção de contacto | página inicial |
 | `src/components/home/ExpertiseSection.tsx` | apresentação de competências | disponível; confirmar consumidor antes de alterar |
 | `src/components/home/StatsSection.tsx` | indicadores animados | secções da página inicial |
-| `src/components/home/TeamSection.tsx` | apresentação da equipa | disponível; confirmar consumidor antes de alterar |
+| `src/components/home/TeamSection.tsx` | organograma público bilingue da equipa | página inicial, depois de Journal e antes de Contactos |
+| `src/components/home/TeamMember.tsx` | perfil resumido e abertura acessível por pessoa | TeamSection |
+| `src/components/home/TeamAvatar.tsx` | estados de carregamento do retrato local e iniciais automáticas, incluindo falha de imagem | TeamMember, TeamProfilePanel |
+| `src/components/home/TeamProfilePanel.tsx` | diálogo lateral com informação e ligações sociais, foco, fecho e restauro de scroll | TeamSection |
+| `src/components/home/team.css` | estilos exclusivos da equipa e do diálogo, movimento reduzido | TeamSection |
 
 ## Dados, idiomas e recursos
+
+Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referências tipadas de cargo/categoria/biografia, imagem opcional, ligações HTTPS confirmadas, liderança e ordem editorial. Os textos pertencem a `src/locales/pt.ts` e `src/locales/en.ts`. Não existe serviço remoto de perfis ou redes sociais.
 
 | Caminho | Responsabilidade | Regra de alteração |
 |---|---|---|
