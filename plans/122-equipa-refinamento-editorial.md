@@ -1,6 +1,6 @@
 # Plano 122 — Equipa: elegância editorial e precisão arquitectónica
 
-> **Estado:** EM VALIDAÇÃO — implementação executada; aceitação visual e ensaios manuais pendentes.
+> **Estado:** CANÓNICO — aceite para integração em `main` em 2026-09-04; ensaios manuais registados mantêm-se.
 > **Data:** 2026-09-04
 > **Base:** implementação do Plano 121, commit `d63e508`.
 > **Ramo documental:** `codex/plan-team-editorial-refinement`.

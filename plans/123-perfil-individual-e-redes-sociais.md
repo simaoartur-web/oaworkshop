@@ -1,6 +1,6 @@
 # Plano 123 — Perfil individual e redes sociais
 
-> **Estado:** EM VALIDAÇÃO — implementação concluída; conteúdo real e aceitação pendentes.
+> **Estado:** CANÓNICO — aceite para integração em `main` em 2026-09-04; conteúdo real continua por fornecer.
 > **Base:** Plano 122, commit `7760221`.
 > **Ramo documental:** `codex/plan-team-profile-socials`.
 > **Ramo de execução previsto:** `codex/feature-team-profile-socials`.

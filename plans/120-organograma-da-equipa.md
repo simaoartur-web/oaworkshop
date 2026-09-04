@@ -1,6 +1,6 @@
 # Plano 120 — Organograma público da equipa
 
-> **Estado:** EM VALIDAÇÃO
+> **Estado:** CANÓNICO — aceite para integração em `main` em 2026-09-04.
 > **Data:** 2026-09-01
 > **Branch deste plano:** `codex/plan-team-organogram`
 > **Branch prevista para execução:** `codex/feature-team-organogram`

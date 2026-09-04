@@ -1,6 +1,6 @@
 # Plano 121 — Our Team: hierarquia espacial e perfis interactivos
 
-> **Estado:** EM VALIDAÇÃO — implementação concluída; ensaios manuais e aceitação pendentes.
+> **Estado:** CANÓNICO — aceite para integração em `main` em 2026-09-04; limitações registadas mantêm-se.
 > **Data:** 2026-09-04
 > **Base inspeccionada:** `codex/feature-team-organogram`, commit `6157029`.
 > **Ramo documental:** `codex/plan-team-profiles`.
