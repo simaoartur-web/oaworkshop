@@ -1,5 +1,9 @@
 # Sistema de design O+A
 
+## Referências de estudo
+
+Antes de planear, rever ou implementar design/UI/UX, consultar também o [O+A Design Mastery Playbook](OA_Design_Mastery_Playbook.md) e o [estudo aplicado à O+A](DESIGN_STUDY.md). O playbook fundamenta as decisões; este sistema continua a definir a identidade, as fontes e os tokens do projecto. Aplicar os princípios relevantes dentro do plano aprovado.
+
 ## Filosofia
 
 A interface traduz uma prática de arquitectura e planeamento: estrutura antes de decoração, matéria antes de ornamento e movimento com propósito. O resultado deve ser editorial, sóbrio, preciso e humano.

@@ -13,6 +13,7 @@
 | Alterar cabeçalho ou navegação | `src/components/layout/Header.tsx` | `src/App.tsx`, `src/locales/` |
 | Alterar rodapé | `src/components/layout/Footer.tsx` | `src/locales/` |
 | Alterar aparência global | `src/index.css` | `docs/DESIGN_SYSTEM.md` |
+| Planear, rever ou implementar design/UI/UX | `docs/DESIGN_SYSTEM.md` | `docs/OA_Design_Mastery_Playbook.md`, `docs/DESIGN_STUDY.md`, plano da tarefa |
 | Alterar textos PT/EN | `src/locales/pt.ts`, `src/locales/en.ts` | `src/i18n.ts`, `docs/CONTENT_GUIDE.md` |
 | Alterar dados de projectos | `src/data/projects.ts` | páginas e mapas consumidores |
 | Alterar equipa e perfis | `src/components/home/TeamSection.tsx`, `src/data/team.ts` | `TeamMember.tsx`, `TeamAvatar.tsx`, `TeamProfilePanel.tsx`, `team.css`, `src/locales/` |
@@ -96,10 +97,13 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 | Caminho | Responsabilidade |
 |---|---|
 | `docs/DESIGN_SYSTEM.md` | filosofia visual, tokens e comportamento |
+| `docs/OA_Design_Mastery_Playbook.md` | playbook original integral; princípios gerais de design e UX |
+| `docs/DESIGN_STUDY.md` | estudo aplicado à O+A, fontes, limitações e método de auto-estudo |
 | `docs/CONTENT_GUIDE.md` | voz, idiomas, conteúdo e imagens |
 | `docs/QUALITY.md` | verificações técnicas, visuais e de acessibilidade |
 | `docs/decisions/` | decisões arquitecturais duradouras |
 | `plans/` | planos numerados, aprovação e estado |
+| `plans/124-design-mastery-playbook.md` | integração das referências de design nas instruções dos agentes |
 | `prompts/` | normas e modelos de prompts |
 
 ## Publicação

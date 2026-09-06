@@ -16,6 +16,8 @@ Um prompt operacional deve apontar para:
 
 Não copiar estas fontes para o prompt. Referenciá-las reduz contradições e contexto desperdiçado.
 
+Para tarefas de design/UI/UX, incluir nas fontes de verdade o [sistema de design](../docs/DESIGN_SYSTEM.md), o [playbook](../docs/OA_Design_Mastery_Playbook.md) e o [estudo aplicado](../docs/DESIGN_STUDY.md). Pedir evidência do problema, hierarquia, comportamento responsivo, estados e critérios de verificação relevantes. O playbook não substitui a aprovação do plano nem autoriza alterações fora do seu âmbito.
+
 ## Contrato mínimo
 
 Todo o prompt deve declarar:
