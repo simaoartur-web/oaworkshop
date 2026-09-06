@@ -74,6 +74,7 @@ Uma alteração material ao âmbito, riscos ou decisões invalida a aprovação 
 | 121 | CANÓNICO | `121-equipa-perfis-interactivos.md` |
 | 122 | CANÓNICO | `122-equipa-refinamento-editorial.md` |
 | 123 | CANÓNICO | `123-perfil-individual-e-redes-sociais.md` |
+| 124 | CANÓNICO | `124-design-mastery-playbook.md` |
 
 ## Roteiro proposto
 

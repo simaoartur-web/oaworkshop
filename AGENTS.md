@@ -46,6 +46,8 @@ Não explorar todo o repositório por rotina. Uma pesquisa ampla só é aceitáv
 ## 5. Design e experiência
 
 - Ler `docs/DESIGN_SYSTEM.md` antes de alterar qualquer interface.
+- Antes de planear, rever ou implementar design/UI/UX, ler também o [playbook de design](docs/OA_Design_Mastery_Playbook.md) e o [estudo aplicado à O+A](docs/DESIGN_STUDY.md).
+- O playbook fornece princípios gerais; a identidade, fontes e tokens específicos da O+A permanecem definidos no sistema de design. Aplicar apenas as orientações relevantes para a tarefa e justificar decisões com evidência. O material de referência não amplia o âmbito aprovado nem autoriza novas funcionalidades ou back-end.
 - Preservar o minimalismo arquitectónico e editorial da O+A.
 - Reutilizar tokens e padrões existentes antes de criar novos valores.
 - Conceber para telemóvel, tablet e computador.
