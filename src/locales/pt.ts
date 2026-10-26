@@ -32,9 +32,14 @@ const pt = {
         privacy: "Privacidade",
     },
     hero: {
-        weAre: "Somos",
+        weAre: "somos",
         osvaldo: "Osvaldo Luís",
         artur: "Artur Simão",
+        startPromptPrefix: "Clique em ",
+        startPromptBrand: "O+A",
+        startPromptSuffix: " para começar",
+        enterAriaLabel: "Entrar no website — avançar para as áreas de actuação",
+        logoAlt: "O+A Arquitectos e Planeadores",
     },
     workshop: {
         slides: [

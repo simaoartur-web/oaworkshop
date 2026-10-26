@@ -66,7 +66,7 @@ Não existe página administrativa. Qualquer proposta para a criar exige novo pl
 | Zona | Ficheiros | Responsabilidade |
 |---|---|---|
 | `src/components/layout/` | `Header.tsx`, `Footer.tsx` | navegação e enquadramento persistente |
-| `src/components/home/HeroSection.tsx` | apresentação inicial e imagem de entrada | página inicial |
+| `src/components/home/HeroSection.tsx` | abertura institucional com fundo `#ED7D31`, símbolo O+A interactivo e entrada para `#workshop` | página inicial |
 | `src/components/home/WorkshopSection.tsx` | narrativa e apresentação do atelier | página inicial |
 | `src/components/home/ProjectsSection.tsx` | chamada editorial para projectos | página inicial |
 | `src/components/home/CategoryMapSection.tsx` | mapa e cartões por disciplina | página inicial, dados de projectos |
