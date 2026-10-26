@@ -40,6 +40,7 @@ const en = {
         startPromptSuffix: " to start",
         enterAriaLabel: "Enter website — go to practice areas",
         logoAlt: "O+A Architects and Planners",
+        scrollAriaLabel: "Scroll to practice areas",
     },
     workshop: {
         slides: [

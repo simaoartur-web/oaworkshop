@@ -40,6 +40,7 @@ const pt = {
         startPromptSuffix: " para começar",
         enterAriaLabel: "Entrar no website — avançar para as áreas de actuação",
         logoAlt: "O+A Arquitectos e Planeadores",
+        scrollAriaLabel: "Deslocar para as áreas de actuação",
     },
     workshop: {
         slides: [

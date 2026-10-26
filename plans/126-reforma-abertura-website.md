@@ -1,77 +1,50 @@
-# Plano 126 — Reforma da abertura do website (R01)
+# Plano 126 — Reforma da abertura do website (R01 e Revisão R01.1)
 
-> **Estado:** CONCLUÍDO
-> **Data:** 2026-10-26
+> **Estado R01 (base):** IMPLEMENTADO em `codex/feature-hero-opening-reform` (commit `cf5b15e`)
+> **Estado Revisão R01.1:** CONCLUÍDO em `codex/feature-hero-opening-reform`
+> **Data:** 2026-10-27
 > **Branch:** `codex/feature-hero-opening-reform`
-> **Aprovação:** aprovado pelo utilizador («Aprovado») em 2026-10-26
 
 ## Objectivo
 
-Reproduzir fielmente a abertura institucional definida no slide 2 do ficheiro de referência `OA.pptx` (`HeroSection`), aplicando a cor de fundo exacta `#ED7D31`, a composição minimalista de quatro elementos (`we are`, logótipo `O+A`, `ARCHITECTS AND PLANNERS` e `Click on O+A to start`), a padronização tipográfica em `Outfit` e a interacção acessível de entrada para `#workshop`, sem interferir nas restantes secções do website.
+1. **R01 (concluída em `cf5b15e`):** reproduzir a estrutura base do slide 2 (`#ED7D31`, quatro elementos centrados, sem nomes dos fundadores e com entrada para `#workshop`).
+2. **Revisão R01.1 (concluída):** evoluir a abertura implementada para a direcção visual premium do protótipo de referência, refinando a hierarquia tipográfica em `Outfit`, recuperando a pulsação suave (*heartbeat*) do logótipo acompanhada por anéis concêntricos subtis (*ripple*) e reintroduzindo o indicador minimalista de deslocação (*chevron* inferior), sem alterar a cor `#ED7D31` nem interferir nas restantes secções.
 
-## Contexto e diagnóstico do estado inicial
+---
 
-### 1. Estado do repositório e Git
+## Revisão R01.1 — Refinamento premium da abertura, tipografia e animação interactiva
 
-- **Branch inicial:** `codex/feature-workshop-showcase` (`HEAD` em `4fa4aee`, alinhado com `main`).
-- **Branch criada para esta reforma:** `codex/feature-hero-opening-reform`.
-- **Árvore de trabalho:** preservadas integralmente todas as alterações locais do Plano 125 (`WorkshopSection.tsx`, `WorkshopTabs.tsx`, `workshop.css` e `plans/125-workshop-showcase-editorial.md`).
+### 1. Contexto e precedência
 
-### 2. Diagnóstico de `HeroSection.tsx` face ao slide 2
+- **Branch e commit de partida:** branch `codex/feature-hero-opening-reform`, commit `cf5b15e` (`feat(hero): reform website opening to match slide 2 specification`).
+- **Árvore de trabalho:** preserva intactas todas as alterações locais não comitadas do Plano 125 (`WorkshopSection.tsx`, `WorkshopTabs.tsx`, `workshop.css` e `plans/125-workshop-showcase-editorial.md`).
+- **Precedência:** esta Revisão R01.1 substitui as disposições da R01 que proibiam a pulsação do logótipo, os anéis concêntricos, o indicador inferior de deslocação e o uso de maiúsculas espaçadas em `"WE ARE"`. Mantêm-se inalteradas a exclusão dos nomes dos fundadores na abertura, a cor exacta `#ED7D31` e a ausência de texturas ou escurecimento de fundo.
 
-| Aspecto | Implementação anterior | Especificação do slide 2 (`OA.pptx`) | Implementação realizada |
+### 2. Medições do protótipo de referência (`1024 × 576`, escala `16:9` → `1440 × 810`)
+
+| Elemento | Medição no protótipo (`1024 × 576`) | Equivalência desktop (`1440 × 810`) | Implementação R01.1 verificada (`1440 × 805`) |
 |---|---|---|---|
-| Cor de fundo | `bg-terracota` (`--color-terracota: #A65D4A`) | Laranja uniforme `#ED7D31` — `RGB(237, 125, 49)` | Criado token `--color-hero-bg: #ED7D31` aplicado exclusivamente à abertura |
-| Texturas e sobreposições | Textura externa, escurecimento no scroll (`overlayOpacity` até `0.95`) e 3 camadas de brilho radial | Fundo plano e uniforme `#ED7D31`, sem texturas, gradientes ou vinhetas | Removidos textura granulada, overlay de scroll e brilhos radiais |
-| Elemento A (`we are`) | `W E   A R E` em maiúsculas, `tracking-[0.4em] md:tracking-[1em]`, `text-white/80`, afastado do logótipo | `we are` em minúsculas, branco sólido (`#FFFFFF`), `Outfit` semibold (`600`), próximo do topo do logótipo | Padronizado em `Outfit` `600`, `#FFFFFF`, minúsculas, `clamp(1.125rem, 1.65vw, 1.5rem)` |
-| Elemento B (Logótipo `O+A`) | `/logo.png` sobredimensionado (`384 px`), filtros `brightness-110 contrast-[1.05]`, `blur(10px)` e animação `heartbeat` | `/logo.png` centrado, sem filtros nem animações contínuas (`~276 px` em `1440 × 805`) | `/logo.png` com `filter: none`, `clamp(11rem, 19.2vw, 17.5rem)` e `max-h-[26vh]` |
-| Nomes dos fundadores e divisória | `Osvaldo Luís \| Artur Simão` em `Playfair Display` itálico e linha animada | Ausentes na abertura | Retirados da abertura; dados dos fundadores mantidos em `src/data/team.ts` e `src/locales/` |
-| Elemento C (`ARCHITECTS AND PLANNERS`) | Abaixo dos nomes dos fundadores, `text-white/60`, `tracking-[0.4em]` | Imediatamente abaixo do logótipo, branco `#FFFFFF`, `Outfit` regular (`400`), maiúsculas | Posicionado logo abaixo do símbolo em `#FFFFFF`, `clamp(0.75rem, 1.18vw, 1.0625rem)`, `tracking: 0.04em` |
-| Elemento D (`Click on O+A to start`) | Ícone `ChevronDown` animado num `<motion.div>` sem semântica de botão | Texto centrado na zona inferior em branco sólido com destaque em **O+A** | Botão acessível com frase traduzível PT/EN e `<strong className="font-bold">O+A</strong>` |
-| Interactividade e destino | `window.scrollTo` para `window.innerHeight` com `smooth` fixo | Clique ou teclado no logótipo (e na frase inferior) avança para `#workshop` respeitando `prefers-reduced-motion` | Ambos os botões avançam para `#workshop`, transferem foco e respeitam `prefers-reduced-motion` |
+| **Cor de fundo** | Laranja uniforme | `#ED7D31` (`RGB(237, 125, 49)`) | `rgb(237, 125, 49)` (`--color-hero-bg: #ED7D31`) uniforme |
+| **Elemento A (`"WE ARE"`)** | `Y = 159..167`, `X = 462..558` (`W = 97 px`), centrado em `X = 510` | `font-size ≈ 16–18 px`, `~45 px` acima do logótipo | `Outfit`, maiúsculas, peso `300`, `16.56 px`, `letter-spacing: 6.96 px` (`0.42em`), `#FFFFFF` |
+| **Elemento B (Logótipo `O+A`)** | `Y = 199..338` (`H = 140 px`), `X = 415..616` (`W = 202 px`) | `~284 × 197 px` (`19,7%` da largura, `24,3%` da altura) | `/logo.png` nítido (`filter: none`), `283.85 × 201.37 px`, com `hero-heartbeat` e anéis concêntricos `.hero-ripple-ring` |
+| **Elemento C (`"ARCHITECTS AND PLANNERS"`)** | `Y = 364..371`, `X = 379..645` (`W = 267 px`), `26 px` abaixo do logótipo | `font-size ≈ 14–16 px`, `~36 px` abaixo do logótipo | `Outfit`, maiúsculas, peso `300`, `14.69 px`, `letter-spacing: 4.41 px` (`0.3em`), `#FFFFFF`, largura `302.89 px` |
+| **Elemento D (`"Click on O+A to start"`)** | `Y = 476..486` (`82,6%` da altura), `X = 429..594` | `font-size ≈ 16–19 px`, posicionado acima do chevron inferior | `Outfit`, peso `300` com `<strong className="font-semibold">O+A</strong>` (`600`), `18 px`, `letter-spacing: 1.08 px` (`0.06em`), `#FFFFFF` |
+| **Elemento E (Indicador inferior — Chevron)** | `Y = 522..530` (`91,3%` da altura), `X = 505..519` | `~20 px`, traço fino (`strokeWidth = 1.25`), centrado junto à margem inferior | Botão acessível com ícone `ChevronDown` (`size = 20`, `strokeWidth = 1.25`), `.hero-chevron-float` e avanço para `#workshop` |
 
-### 3. Auditoria do sistema tipográfico (Secção 5)
+### 3. Verificações realizadas na Revisão R01.1
 
-1. **Famílias instaladas (`src/index.css`):**
-   - `--font-sans`: `"Outfit", "system-ui", "sans-serif"` (pesos `100;200;300;400;500;600;700`).
-   - `--font-serif`: `"Playfair Display", "serif"` (`0,400;0,700;1,400`).
-2. **Usos actuais de `Playfair Display` (`font-serif`):**
-   - Retirado de `HeroSection.tsx` (que passa a usar exclusivamente `Outfit`).
-   - Permanece em `src/components/home/ProjectsSection.tsx` (linha 114, símbolo `+` na metodologia) e `src/components/home/TeamAvatar.tsx` (linha 36, iniciais de reserva).
-3. **Incoerências noutras secções documentadas para a próxima etapa (não alteradas nesta tarefa):**
-   - *Faux-italic* em `Outfit` (`italic` sem `font-serif`) em `Header.tsx` (linhas 199, 207, 215, 223) e `CategoryMapSection.tsx` (linha 320).
-   - Micro-tamanhos arbitrários sub-12px (`text-[8px]` a `text-[11px]`) em `Header.tsx`, `CategoryMapSection.tsx`, `NewsSection.tsx`, `ProjectsSection.tsx` e `StatsSection.tsx`.
-   - Divergência de pesos em títulos `h2`: `font-light` (`300`) na base, `400` em `WorkshopSection` e `font-bold uppercase` (`700`) em `CategoryMapSection.tsx` e `ProjectsSection.tsx`.
-   - `tracking-wide` (`0.025em`) aplicado globalmente no `body`.
+- **`npm run lint`:** concluído sem erros nem avisos.
+- **`npm run build`:** concluído com sucesso (`tsc -b && vite build`).
+- **`git diff --check`:** sem erros de formatação ou *whitespace*.
+- **Verificação visual e comportamental no navegador (`375 px`, `768 px`, `1440 px` em EN e PT):**
+  1. **Cor de fundo exacta:** `rgb(237, 125, 49)` (`#ED7D31`) confirmada em todos os formatos; `--color-terracota: #A65D4A` intacto nas restantes secções.
+  2. **Coerência tipográfica:** `Outfit` (`font-sans`) aplicada em todos os textos da abertura com pesos `300` (`font-light`) e `600` (`font-semibold` apenas em `O+A` dentro do convite) e compensação óptica do `letter-spacing` (`pl-[var(--tracking-*)]`) para alinhamento rigoroso ao centro do logótipo.
+  3. **Pulsação (*Heartbeat*) e *Ripple*:** animação `hero-heartbeat` (`scale: 1 -> 1.04 -> 1`, ciclo `3.8s`) e 3 anéis concêntricos + onda expansiva (`hero-ripple-*`) centrados no símbolo e executados exclusivamente por `transform` e `opacity`.
+  4. **Hover, clique e teclado:** o logótipo, o convite `"Click on O+A to start"` e o *chevron* inferior deslocam suavemente a página até `scrollY = 805` (`#workshop.offsetTop`) e transferem foco para `#workshop`. Durante a transição (`data-entering="true"`), a pulsação fica suspensa para não competir com o movimento.
+  5. **Redução de movimento (`prefers-reduced-motion: reduce`):** verificado via emulação CDP que `animationName` passa a `"none"` no logótipo e nos anéis, a onda expansiva oculta-se (`display: "none"`) e o scroll passa a instantâneo (`auto`).
+  6. **Paridade PT/EN e zero regressões:** testados EN (`WE ARE` / `ARCHITECTS AND PLANNERS` / `Click on O+A to start`) e PT (`SOMOS` / `ARQUITECTOS E PLANEADORES` / `Clique em O+A para começar`), sem barras horizontais (`scrollWidth <= innerWidth`), `0` erros na consola e restantes secções intactas.
 
-## Ficheiros modificados
+### 4. Diferenças explicadas face à imagem do protótipo e limitações conhecidas
 
-- `src/index.css`: adicionados `--color-hero-bg: #ED7D31` e os tokens tipográficos `--text-hero-greeting`, `--text-hero-discipline`, `--text-hero-prompt`, `--tracking-hero-discipline` e `--tracking-hero-prompt`.
-- `src/components/home/HeroSection.tsx`: reconstruída a abertura fiel ao slide 2 com os quatro elementos, tipografia `Outfit`, semântica de botões e transição para `#workshop`.
-- `src/locales/en.ts`: actualizado `hero.weAre` (`"we are"`), preservados `hero.osvaldo` e `hero.artur`, e adicionados `hero.startPromptPrefix`, `hero.startPromptBrand`, `hero.startPromptSuffix`, `hero.enterAriaLabel` e `hero.logoAlt`.
-- `src/locales/pt.ts`: paridade estrutural com `en.ts` (`"somos"`, `"Clique em "`, `"O+A"`, `" para começar"`, `enterAriaLabel` e `logoAlt`).
-- `PROJECT_MAP.md` e `plans/README.md`: actualizados com a nova responsabilidade da abertura e o estado deste plano.
-
-## Verificações realizadas
-
-- `npm run lint`: concluído sem erros nem avisos.
-- `npm run build`: concluído com sucesso (`tsc -b && vite build`); mantêm-se apenas os avisos pré-existentes de Browserslist e do chunk JS > 500 kB.
-- `git diff --check`: sem erros de whitespace.
-- **Verificação visual e DOM no navegador (Edge headless via CDP em `http://localhost:5173/`):**
-  - Larguras testadas: `375 × 812 px` (telemóvel), `768 × 1024 px` (tablet) e `1440 × 805 px` (computador), em EN e PT.
-  - Cor de fundo computada: `rgb(237, 125, 49)` (`#ED7D31`) confirmada em todas as larguras.
-  - Fonte computada: `Outfit, "system-ui", "sans-serif"` em todos os elementos da abertura.
-  - Escala do logótipo em `1440 × 805`: `276,47 × 204,14 px` (`filter: none`), fiel aos `275,6 × 196 px` da referência proporcional do slide 2.
-  - Zero deslocação horizontal (`scrollWidth <= innerWidth` em `375 px`, `768 px` e `1440 px`).
-  - Interacção: clique e activação no logótipo deslocam `window.scrollY` de `0` para `805` (`#workshop.offsetTop`) e transferem foco para `#workshop`.
-  - Idiomas EN (`we are` / `ARCHITECTS AND PLANNERS` / `Click on O+A to start`) e PT (`somos` / `ARQUITECTOS E PLANEADORES` / `Clique em O+A para começar`) verificados.
-  - Consola do navegador: `0` erros.
-  - Restantes secções (`#workshop`, `#architecture`, `#urbanism`, `#research`, `#team`, `#contact`): intactas.
-
-## Registo de decisões e desvios
-
-- Mantida a paleta fiel ao slide 2 (`#ED7D31` com texto `#FFFFFF` a 100% de opacidade, rácio de contraste `2,77:1`), registando a limitação face ao limiar WCAG 2.2 AA e mantendo disponíveis as alternativas de ajuste caso a direcção pretenda priorizar o rácio normativo sobre a cor original do slide.
-
-## Resultado
-
-- Reforma da abertura (R01) implementada, validada e comitada na branch `codex/feature-hero-opening-reform`, aguardando validação final do utilizador antes de qualquer integração em `main`.
+1. **Cor pura `#ED7D31` vs. vinheta/gradiente do protótipo rasterizado:** a imagem do protótipo apresenta uma ligeira variação de iluminação entre o centro e os cantos (`RGB(240, 122, 41)` nos cantos). Em cumprimento estrito da Secção 4 (*«A cor da abertura deve permanecer exatamente #ED7D31 ... não escurecer e não introduzir gradientes no fundo principal»*), o fundo foi mantido em `#ED7D31` uniforme.
+2. **Contraste WCAG 2.2 AA (`2,77 : 1`):** o texto branco `#FFFFFF` em peso `300` sobre `#ED7D31` permanece abaixo dos limiares normativos WCAG 2.2 AA (3,0:1 / 4,5:1). Foi preservada a paleta oficial aprovada com opacidade a 100%, mantendo documentadas as alternativas caso se pretenda priorizar o rácio normativo numa etapa futura.
