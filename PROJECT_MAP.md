@@ -67,7 +67,9 @@ Não existe página administrativa. Qualquer proposta para a criar exige novo pl
 |---|---|---|
 | `src/components/layout/` | `Header.tsx`, `Footer.tsx` | navegação e enquadramento persistente |
 | `src/components/home/HeroSection.tsx` | abertura institucional com fundo `#ED7D31`, símbolo O+A interactivo e entrada para `#workshop` | página inicial |
-| `src/components/home/WorkshopSection.tsx` | narrativa e apresentação do atelier | página inicial |
+| `src/components/home/WorkshopSection.tsx` | secção interactiva Architecture / Urban Planning / Research (Protótipo 01, R02.1) com palco fotográfico, destaque e controlos | página inicial |
+| `src/components/home/WorkshopTabs.tsx` | navegação inferior em 3 colunas sobre fundo preto com indicadores lineares, etiqueta `DESTAQUE` e suporte por teclado | WorkshopSection |
+| `src/components/home/workshop.css` | estilos locais do Protótipo 01 (palco 78%, barra inferior 22%, responsividade e movimento reduzido) | WorkshopSection |
 | `src/components/home/ProjectsSection.tsx` | chamada editorial para projectos | página inicial |
 | `src/components/home/CategoryMapSection.tsx` | mapa e cartões por disciplina | página inicial, dados de projectos |
 | `src/components/home/NewsSection.tsx` | carrossel editorial/notícias locais | página inicial |

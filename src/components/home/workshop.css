@@ -1,0 +1,469 @@
+.workshop-section {
+    --workshop-accent: var(--color-hero-bg, #ED7D31);
+    --workshop-plus-indent: clamp(1.75rem, 3.4vw, 3rem);
+    --workshop-tab-plus-indent: 1.65rem;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: #070707;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    scroll-margin-top: 5rem;
+}
+
+/* ==========================================================================
+   TOP MAIN VISUAL STAGE (~78% height on desktop)
+   ========================================================================== */
+
+.workshop-stage {
+    position: relative;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: clamp(26rem, 76vh, 48rem);
+    overflow: hidden;
+    background: #0a0a0a;
+}
+
+.workshop-image-stage {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    background: #0a0a0a;
+}
+
+.workshop-photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: none;
+    opacity: 0;
+    transform: scale(1.015);
+    transition:
+        opacity 480ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+}
+
+.workshop-photo[data-visible="true"] {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.workshop-stage-gradient {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0.14) 0%,
+            rgba(0, 0, 0, 0) 36%,
+            rgba(5, 5, 5, 0.46) 68%,
+            rgba(6, 6, 6, 0.9) 100%
+        ),
+        linear-gradient(
+            90deg,
+            rgba(5, 5, 5, 0.62) 0%,
+            rgba(5, 5, 5, 0.24) 48%,
+            rgba(5, 5, 5, 0) 78%
+        );
+}
+
+.workshop-stage-inner {
+    position: relative;
+    z-index: 2;
+    width: min(100%, 1680px);
+    margin-inline: auto;
+    padding: clamp(2rem, 4vw, 3.5rem) clamp(1.5rem, 3.5vw, 3.5rem) clamp(1.5rem, 2.6vw, 2.35rem);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.workshop-panel {
+    min-width: 0;
+    flex: 1 1 auto;
+    max-width: 44rem;
+}
+
+.workshop-panel[hidden] {
+    display: none;
+}
+
+.workshop-copy {
+    min-width: 0;
+}
+
+.workshop-featured-tag {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.88);
+    margin-bottom: 0.45rem;
+}
+
+.workshop-heading {
+    display: grid;
+    grid-template-columns: var(--workshop-plus-indent) minmax(0, 1fr);
+    align-items: center;
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: clamp(2.25rem, 4.6vw, 4.125rem);
+    font-weight: 500;
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+}
+
+.workshop-heading-plus {
+    color: var(--workshop-accent);
+    font-size: 0.72em;
+    font-weight: 400;
+    line-height: 1;
+    justify-self: start;
+}
+
+.workshop-heading-text {
+    min-width: 0;
+    overflow-wrap: break-word;
+}
+
+.workshop-description {
+    margin: 0.55rem 0 0;
+    padding-left: var(--workshop-plus-indent);
+    max-width: 42ch;
+    font-family: var(--font-sans);
+    font-size: clamp(0.9375rem, 1.18vw, 1.125rem);
+    font-weight: 300;
+    line-height: 1.45;
+    letter-spacing: 0.005em;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+/* ==========================================================================
+   LOWER-RIGHT CIRCULAR NAVIGATION BUTTONS (< >)
+   ========================================================================== */
+
+.workshop-stage-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+    padding-bottom: 0.15rem;
+}
+
+.workshop-nav-btn {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    background: rgba(10, 10, 10, 0.42);
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+    transition:
+        background-color 180ms ease,
+        border-color 180ms ease,
+        transform 180ms ease;
+}
+
+.workshop-nav-btn-prev {
+    border: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.workshop-nav-btn-next {
+    border: 1.5px solid var(--workshop-accent);
+}
+
+.workshop-nav-btn:hover {
+    background: rgba(237, 125, 49, 0.18);
+    border-color: var(--workshop-accent);
+    transform: translateY(-1px);
+}
+
+.workshop-nav-btn:active {
+    transform: translateY(0);
+    background: rgba(237, 125, 49, 0.28);
+}
+
+/* ==========================================================================
+   BOTTOM NAVIGATION BAR (3 COLUMNS ON SOLID BLACK BACKGROUND)
+   ========================================================================== */
+
+.workshop-nav-bar {
+    position: relative;
+    z-index: 3;
+    background: linear-gradient(180deg, #0d0d0d 0%, #050505 100%);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.workshop-tabs {
+    width: min(100%, 1680px);
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.workshop-tab {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    text-align: left;
+    padding: clamp(1.15rem, 2vw, 1.65rem) clamp(1.5rem, 3.5vw, 3.5rem) clamp(1.25rem, 2.2vw, 1.85rem);
+    background: transparent;
+    border: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.56);
+    cursor: pointer;
+    transition:
+        color 200ms ease,
+        background-color 200ms ease;
+}
+
+.workshop-tab:last-child {
+    border-right: 0;
+}
+
+.workshop-tab-header {
+    display: grid;
+    grid-template-columns: var(--workshop-tab-plus-indent) minmax(0, 1fr);
+    align-items: center;
+}
+
+.workshop-tab-plus {
+    font-family: var(--font-sans);
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.42);
+    transition: color 200ms ease;
+}
+
+.workshop-tab-label {
+    font-family: var(--font-sans);
+    font-size: clamp(0.75rem, 0.9vw, 0.875rem);
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    line-height: 1.35;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.62);
+    transition: color 200ms ease, font-weight 200ms ease;
+}
+
+.workshop-tab-line {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 1px;
+    margin-top: 0.7rem;
+    margin-bottom: 0.85rem;
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.workshop-tab-line::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: -0.5px;
+    width: 56%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.28);
+    transition: opacity 200ms ease;
+}
+
+.workshop-tab-line::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: -0.5px;
+    width: 56%;
+    height: 2px;
+    background: var(--workshop-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.workshop-tab-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-left: var(--workshop-tab-plus-indent);
+}
+
+.workshop-tab-tag {
+    font-family: var(--font-sans);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.42);
+    transition: color 200ms ease;
+}
+
+.workshop-tab-desc {
+    font-family: var(--font-sans);
+    font-size: clamp(0.75rem, 0.88vw, 0.84375rem);
+    font-weight: 300;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.5);
+    max-width: 36ch;
+    transition: color 200ms ease;
+}
+
+/* Active & Hover States on Bottom Navigation Columns */
+.workshop-tab:hover {
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.workshop-tab:hover .workshop-tab-label {
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.workshop-tab:hover .workshop-tab-desc {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.workshop-tab[aria-selected="true"] {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.workshop-tab[aria-selected="true"] .workshop-tab-plus {
+    color: var(--workshop-accent);
+}
+
+.workshop-tab[aria-selected="true"] .workshop-tab-label {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.workshop-tab[aria-selected="true"] .workshop-tab-line::before {
+    opacity: 0;
+}
+
+.workshop-tab[aria-selected="true"] .workshop-tab-line::after {
+    transform: scaleX(1);
+}
+
+.workshop-tab[aria-selected="true"] .workshop-tab-tag {
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.workshop-tab[aria-selected="true"] .workshop-tab-desc {
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.workshop-section :is(button, a, [role="tabpanel"]):focus-visible {
+    outline: 2px solid var(--workshop-accent);
+    outline-offset: -2px;
+}
+
+/* ==========================================================================
+   RESPONSIVE BREAKPOINTS (Tablet 768px & Mobile 375px)
+   ========================================================================== */
+
+@media (max-width: 1023px) {
+    .workshop-section {
+        min-height: auto;
+    }
+
+    .workshop-stage {
+        min-height: clamp(24rem, 62vh, 34rem);
+    }
+
+    .workshop-tab {
+        padding: 1.15rem 1.25rem 1.35rem;
+    }
+
+    .workshop-tab-label {
+        letter-spacing: 0.15em;
+        font-size: 0.72rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .workshop-section {
+        --workshop-plus-indent: 1.5rem;
+        --workshop-tab-plus-indent: 1.35rem;
+    }
+
+    .workshop-stage {
+        min-height: 24rem;
+    }
+
+    .workshop-stage-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-end;
+        gap: 1.15rem;
+        padding: 1.75rem 1.25rem 1.35rem;
+    }
+
+    .workshop-heading {
+        font-size: clamp(1.9rem, 8.2vw, 2.5rem);
+    }
+
+    .workshop-description {
+        padding-left: 0;
+        font-size: 0.9375rem;
+        max-width: 100%;
+    }
+
+    .workshop-stage-controls {
+        align-self: flex-end;
+    }
+
+    .workshop-tabs {
+        grid-template-columns: 1fr;
+    }
+
+    .workshop-tab {
+        border-right: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 1rem 1.25rem;
+    }
+
+    .workshop-tab:last-child {
+        border-bottom: 0;
+    }
+
+    .workshop-tab-line {
+        margin-top: 0.5rem;
+        margin-bottom: 0.55rem;
+    }
+
+    /* Prevent excessive repetition on narrow mobile screens: show full detail on the active tab and compact headers on inactive tabs */
+    .workshop-tab[aria-selected="false"] .workshop-tab-body {
+        display: none;
+    }
+
+    .workshop-tab[aria-selected="false"] .workshop-tab-line {
+        margin-bottom: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .workshop-section *,
+    .workshop-section *::before,
+    .workshop-section *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+}
