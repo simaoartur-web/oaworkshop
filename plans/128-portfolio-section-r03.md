@@ -1,0 +1,57 @@
+# Plano 128 — Reforma da secção `+ PORTFOLIO` (R03)
+
+> **Estado:** CONCLUÍDO
+> **Data:** 2026-10-27
+> **Branch prevista:** `codex/feature-hero-opening-reform`
+> **Aprovação:** aprovado pelo utilizador em 2026-10-27 (`"Aprovado"`)
+
+## Objectivo
+
+Implementar a secção **`+ PORTFOLIO`** conforme o slide de referência anexado pelo utilizador (`media_1793087543476_b0d04527.jpg`), integrando as 4 fotografias oficiais fornecidas e mantendo os 2 espaços restantes com marcador visual de ponto de interrogação (`?`) para adição posterior, conforme instruído (*«Tem mais uma imagem que ainda não foi adicionada. Iremos adicionar duas imagems mais tarde então deixe como ponto de interogação para adicionar mais tarde»*).
+
+---
+
+## Âmbito implementado
+
+1. **Cabeçalho e Barra de Filtros (`+ PORTFOLIO`):**
+   - Título principal em maiúsculas: `+` em laranja (`#ED7D31`) + `PORTFOLIO` em branco puro (`font-weight: 700`).
+   - Barra horizontal de 8 categorias separadas por `/`:
+     `Show all / Architecture / Urban Planning / Competitions / Interior design / landscaping / furniture / Heritage`
+   - Sublinhado laranja (`#ED7D31`) sob o filtro activo (`Show all` por omissão) e filtragem interactiva dos cartões por disciplina.
+2. **Grelha 3×2 de Projectos (6 Cartões em Desktop):**
+   - **Cartão 1:** `Professor House - Architecture` | `Maputo, Mozambique 2026` (`public/images/portfolio/professor-house.jpg`).
+   - **Cartão 2:** `Metita House - Architecture + landscape` | `Maputo, Mozambique 2026` (`public/images/portfolio/metita-house.jpg`).
+   - **Cartão 3:** `Nelson House - Architecture + interior design` | `Maputo, Mozambique 2026` (`public/images/portfolio/nelson-house.jpg`).
+   - **Cartão 4:** `Wagner House - Architecture + landscape + interior design` | `Maputo, Mozambique 2026` (`public/images/portfolio/wagner-house.jpg`).
+   - **Cartões 5 e 6 (Pendentes — `?`):** moldura `16:10` escura com acabamento arquitectónico subtil e símbolo `?` centrado em destaque (`#ED7D31`), preservando o alinhamento da grelha 3×2 até as duas imagens finais serem adicionadas.
+   - Em cada cartão: barra vertical laranja (`2px`, `#ED7D31`) à esquerda do bloco de legenda.
+3. **Responsividade verificada:**
+   - **Desktop (`1440 px`):** grelha de 3 colunas × 2 linhas (`portfolio-1440.png`).
+   - **Tablet (`768 px`):** grelha de 2 colunas × 3 linhas (`portfolio-768.png`).
+   - **Mobile (`375 px`):** grelha de 1 coluna com filtros deslizáveis horizontalmente sem overflow da página (`portfolio-375.png`).
+
+---
+
+## Ficheiros alterados
+
+- `src/components/home/ProjectsSection.tsx`
+- `src/components/home/portfolio.css`
+- `src/locales/pt.ts`
+- `src/locales/en.ts`
+- `public/images/portfolio/professor-house.jpg`
+- `public/images/portfolio/metita-house.jpg`
+- `public/images/portfolio/nelson-house.jpg`
+- `public/images/portfolio/wagner-house.jpg`
+- `PROJECT_MAP.md`
+- `plans/128-portfolio-section-r03.md`
+- `plans/README.md`
+
+---
+
+## Verificações realizadas
+
+- `npm run lint`: concluído sem erros (`0 errors`).
+- `npm run build`: compilação TypeScript (`tsc -b`) e bundle Vite concluídos com sucesso.
+- `git diff --check`: sem erros de formatação.
+- **Verificação visual e DOM via CDP (`1440×980`, `768×1024`, `375×812`):**
+  - `headingText: "+ PORTFOLIO"`, `filtersCount: 8`, `cardsCount: 6` (4 com imagens completas + 2 com `placeholderMark: "?"`), `horizontalOverflow: false`, `consoleErrors: []`.

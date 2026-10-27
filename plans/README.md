@@ -78,6 +78,7 @@ Uma alteração material ao âmbito, riscos ou decisões invalida a aprovação 
 | 125 | EM VALIDAÇÃO | `125-workshop-showcase-editorial.md` |
 | 126 | CONCLUÍDO | `126-reforma-abertura-website.md` |
 | 127 | CONCLUÍDO | `127-workshop-section-r02-1.md` |
+| 128 | CONCLUÍDO | `128-portfolio-section-r03.md` |
 
 ## Roteiro proposto
 
