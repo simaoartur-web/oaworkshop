@@ -7,7 +7,7 @@
 
 ## Objectivo
 
-Implementar a secção **`+ PORTFOLIO`** conforme o slide de referência anexado pelo utilizador (`media_1793087543476_b0d04527.jpg`), integrando as 4 fotografias oficiais fornecidas e mantendo os 2 espaços restantes com marcador visual de ponto de interrogação (`?`) para adição posterior, conforme instruído (*«Tem mais uma imagem que ainda não foi adicionada. Iremos adicionar duas imagems mais tarde então deixe como ponto de interogação para adicionar mais tarde»*).
+Implementar a secção **`+ PORTFOLIO`** conforme o slide de referência anexado pelo utilizador (`media_1793087543476_b0d04527.jpg`), integrando as 5 fotografias oficiais fornecidas e mantendo o 6.º espaço com marcador visual de ponto de interrogação (`?`) para adição posterior.
 
 ---
 
@@ -23,12 +23,9 @@ Implementar a secção **`+ PORTFOLIO`** conforme o slide de referência anexado
    - **Cartão 2:** `Metita House - Architecture + landscape` | `Maputo, Mozambique 2026` (`public/images/portfolio/metita-house.jpg`).
    - **Cartão 3:** `Nelson House - Architecture + interior design` | `Maputo, Mozambique 2026` (`public/images/portfolio/nelson-house.jpg`).
    - **Cartão 4:** `Wagner House - Architecture + landscape + interior design` | `Maputo, Mozambique 2026` (`public/images/portfolio/wagner-house.jpg`).
-   - **Cartões 5 e 6 (Pendentes — `?`):** moldura `16:10` escura com acabamento arquitectónico subtil e símbolo `?` centrado em destaque (`#ED7D31`), preservando o alinhamento da grelha 3×2 até as duas imagens finais serem adicionadas.
+   - **Cartão 5:** `Wagner House - Architecture + landscape + interior design` | `Maputo, Mozambique 2026` (`public/images/portfolio/wagner-house-2.jpg` — residência com parede cobogó em terracota).
+   - **Cartão 6 (Pendente — `?`):** moldura `16:10` escura com acabamento arquitectónico subtil e símbolo `?` centrado em destaque (`#ED7D31`), preservando o alinhamento da grelha 3×2 até a 6.ª imagem ser adicionada.
    - Em cada cartão: barra vertical laranja (`2px`, `#ED7D31`) à esquerda do bloco de legenda.
-3. **Responsividade verificada:**
-   - **Desktop (`1440 px`):** grelha de 3 colunas × 2 linhas (`portfolio-1440.png`).
-   - **Tablet (`768 px`):** grelha de 2 colunas × 3 linhas (`portfolio-768.png`).
-   - **Mobile (`375 px`):** grelha de 1 coluna com filtros deslizáveis horizontalmente sem overflow da página (`portfolio-375.png`).
 
 ---
 
@@ -42,6 +39,7 @@ Implementar a secção **`+ PORTFOLIO`** conforme o slide de referência anexado
 - `public/images/portfolio/metita-house.jpg`
 - `public/images/portfolio/nelson-house.jpg`
 - `public/images/portfolio/wagner-house.jpg`
+- `public/images/portfolio/wagner-house-2.jpg`
 - `PROJECT_MAP.md`
 - `plans/128-portfolio-section-r03.md`
 - `plans/README.md`
@@ -54,4 +52,4 @@ Implementar a secção **`+ PORTFOLIO`** conforme o slide de referência anexado
 - `npm run build`: compilação TypeScript (`tsc -b`) e bundle Vite concluídos com sucesso.
 - `git diff --check`: sem erros de formatação.
 - **Verificação visual e DOM via CDP (`1440×980`, `768×1024`, `375×812`):**
-  - `headingText: "+ PORTFOLIO"`, `filtersCount: 8`, `cardsCount: 6` (4 com imagens completas + 2 com `placeholderMark: "?"`), `horizontalOverflow: false`, `consoleErrors: []`.
+  - `headingText: "+ PORTFOLIO"`, `filtersCount: 8`, `cardsCount: 6` (5 com imagens completas + 1 com `placeholderMark: "?"`), `horizontalOverflow: false`, `consoleErrors: []`.
