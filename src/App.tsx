@@ -7,13 +7,23 @@ import Home from './pages/Home';
 import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
 
-// ScrollToTop component
+// ScrollToTop component with hash anchor support
 const ScrollToTop = () => {
-  const { pathname } = useLocation();
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'auto' });
-  }, [pathname]);
-  return null;
+    const { pathname, hash } = useLocation();
+    useEffect(() => {
+        if (hash && hash !== '#top') {
+            const targetId = hash.slice(1);
+            const frame = requestAnimationFrame(() => {
+                const element = document.getElementById(targetId);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+            return () => cancelAnimationFrame(frame);
+        }
+        window.scrollTo({ top: 0, behavior: 'auto' });
+    }, [pathname, hash]);
+    return null;
 };
 
 function App() {
@@ -35,7 +45,7 @@ function App() {
 
             <Footer />
         </div>
-    )
+    );
 }
 
-export default App
+export default App;

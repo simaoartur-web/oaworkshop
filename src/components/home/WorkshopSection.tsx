@@ -52,8 +52,8 @@ const AREAS: readonly WorkshopArea[] = [
 const SLIDE_DURATION_MS = 8000;
 const withoutPlus = (text: string) => text.replace(/^\+\s*/, '');
 
-function focusArea(targetId: WorkshopAreaId, reducedMotion: boolean) {
-    const destination = document.getElementById(targetId);
+function focusSection(sectionId: string, reducedMotion: boolean) {
+    const destination = document.getElementById(sectionId);
     if (!destination) return;
     const heading = destination.querySelector<HTMLElement>('h2') ?? destination;
     const previousTabIndex = heading.getAttribute('tabindex');
@@ -115,9 +115,12 @@ export default function WorkshopSection() {
     useEffect(() => {
         const target = AREAS.find((item) => `#${item.targetId}` === hash);
         if (!target) return;
-        const frame = requestAnimationFrame(() => focusArea(target.targetId, true));
+        const frame = requestAnimationFrame(() => {
+            setActiveId(target.id);
+            focusSection('workshop', Boolean(reducedMotion));
+        });
         return () => cancelAnimationFrame(frame);
-    }, [hash]);
+    }, [hash, reducedMotion]);
 
     const selectArea = (id: WorkshopAreaId) => {
         setInteractionTick((tick) => tick + 1);
