@@ -70,6 +70,8 @@ Não existe página administrativa. Qualquer proposta para a criar exige novo pl
 | `src/components/home/WorkshopSection.tsx` | secção interactiva Architecture / Urban Planning / Research (Protótipo 01, R02.1) com palco fotográfico, destaque e controlos | página inicial |
 | `src/components/home/WorkshopTabs.tsx` | navegação inferior em 3 colunas sobre fundo preto com indicadores lineares, etiqueta `DESTAQUE` e suporte por teclado | WorkshopSection |
 | `src/components/home/workshop.css` | estilos locais do Protótipo 01 (palco 78%, barra inferior 22%, responsividade e movimento reduzido) | WorkshopSection |
+| `src/components/home/StudioAboutSection.tsx` | secção institucional `+ WORKSHOP` (R05, Slide 6) com fotografia real do escritório, retrato P&B dos fundadores e citação oficial | página inicial |
+| `src/components/home/studio-about.css` | estilos dedicados da secção institucional `+ WORKSHOP` (grelha 70/30 desktop, tablet e mobile) | StudioAboutSection |
 | `src/components/home/ProjectsSection.tsx` | secção `+ PORTFOLIO` (R03) com barra de 8 filtros e grelha 3×2 de 6 projectos com fotografias oficiais | página inicial |
 | `src/components/home/portfolio.css` | estilos locais da secção `+ PORTFOLIO`, grelha 3×2, estados de filtro e placeholders `?` | ProjectsSection |
 | `src/components/home/CategoryMapSection.tsx` | mapa e cartões por disciplina | legado desacoplado de `Home.tsx` (R04); preservado no repositório |

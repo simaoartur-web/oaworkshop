@@ -81,6 +81,7 @@ Uma alteração material ao âmbito, riscos ou decisões invalida a aprovação 
 | 128 | CANÓNICO | `128-portfolio-section-r03.md` |
 | 129 | CANÓNICO | `129-simplificacao-estrutural-r04.md` |
 | 130 | CANÓNICO | `130-release-01-publicacao-dominio-principal.md` |
+| 131 | CONCLUÍDO | `131-seccao-institucional-workshop-r05.md` |
 
 ## Roteiro proposto
 

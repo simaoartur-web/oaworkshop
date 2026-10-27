@@ -1,0 +1,187 @@
+.studio-about-section {
+    --studio-about-accent: var(--color-hero-bg, #ED7D31);
+    position: relative;
+    width: 100%;
+    background: #000000;
+    color: #ffffff;
+    padding: clamp(3rem, 5vw, 4.75rem) clamp(1.5rem, 3.8vw, 4rem) clamp(3.5rem, 6vw, 5.5rem);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    scroll-margin-top: 5rem;
+}
+
+.studio-about-shell {
+    width: min(100%, 1600px);
+    margin-inline: auto;
+}
+
+.studio-about-header {
+    margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
+}
+
+.studio-about-heading {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.32em;
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: clamp(2.35rem, 4.5vw, 3.85rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #ffffff;
+}
+
+.studio-about-heading-plus {
+    color: var(--studio-about-accent);
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* Mobile-first (< 768px): 4-step vertical stack */
+.studio-about-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+}
+
+.studio-about-office-figure {
+    position: relative;
+    margin: 0;
+    width: 100%;
+    background: #050505;
+    overflow: hidden;
+}
+
+.studio-about-office-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1435 / 721;
+    object-fit: cover;
+    object-position: left bottom;
+}
+
+.studio-about-aside {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background: #000000;
+}
+
+.studio-about-founders-figure {
+    margin: 0;
+    width: 100%;
+    background: #000000;
+    overflow: hidden;
+}
+
+.studio-about-founders-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 552 / 385;
+    object-fit: contain;
+    object-position: center bottom;
+    background: #000000;
+}
+
+.studio-about-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #555658;
+    color: #ffffff;
+    padding: 1.35rem 1.35rem 1.25rem;
+}
+
+.studio-about-quote {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: clamp(1rem, 1.15vw, 1.1875rem);
+    font-weight: 600;
+    line-height: 1.32;
+    letter-spacing: 0.005em;
+    color: #ffffff;
+}
+
+.studio-about-signature {
+    margin: 1rem 0 0;
+    font-family: var(--font-sans);
+    font-size: clamp(1.2rem, 1.4vw, 1.4rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: #ffffff;
+}
+
+/* Tablet (768px to 1023px): Full-width workspace photo above balanced 2-column founders + statement */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .studio-about-grid {
+        gap: 1.25rem;
+    }
+
+    .studio-about-aside {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        align-items: stretch;
+    }
+
+    .studio-about-founders-img {
+        height: 100%;
+        object-fit: cover;
+        object-position: center top;
+    }
+
+    .studio-about-card {
+        padding: 1.5rem 1.65rem;
+    }
+}
+
+/* Desktop (>= 1024px, including 1440px): Asymmetric ~70% / ~30% horizontal composition matching Slide 6 render */
+@media (min-width: 1024px) {
+    .studio-about-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 69.8%) minmax(0, 30.2%);
+        gap: clamp(1rem, 1.35vw, 1.375rem);
+        align-items: stretch;
+    }
+
+    .studio-about-office-figure {
+        height: 100%;
+    }
+
+    .studio-about-office-img {
+        width: 100%;
+        height: 100%;
+        aspect-ratio: auto;
+        object-fit: cover;
+        object-position: left bottom;
+    }
+
+    .studio-about-aside {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .studio-about-founders-figure {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+
+    .studio-about-founders-img {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 552 / 385;
+        object-fit: cover;
+        object-position: center top;
+    }
+
+    .studio-about-card {
+        flex: 1 1 auto;
+        padding: clamp(1.1rem, 1.45vw, 1.45rem) clamp(1.15rem, 1.5vw, 1.5rem);
+    }
+}
