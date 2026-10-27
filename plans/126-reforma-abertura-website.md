@@ -1,7 +1,7 @@
 # Plano 126 — Reforma da abertura do website (R01 e Revisão R01.1)
 
 > **Estado R01 (base):** IMPLEMENTADO em `codex/feature-hero-opening-reform` (commit `cf5b15e`)
-> **Estado Revisão R01.1:** CONCLUÍDO em `codex/feature-hero-opening-reform`
+> **Estado Revisão R01.1:** CANÓNICO em `codex/feature-hero-opening-reform`
 > **Data:** 2026-10-27
 > **Branch:** `codex/feature-hero-opening-reform`
 

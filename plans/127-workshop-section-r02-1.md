@@ -1,6 +1,6 @@
 # Plano 127 — Reforma da secção Architecture / Urban Planning / Research (R02.1 — Protótipo 01)
 
-> **Estado:** CONCLUÍDO
+> **Estado:** CANÓNICO
 > **Data:** 2026-10-27
 > **Branch prevista:** `codex/feature-hero-opening-reform` (preservando os commits `cf5b15e` e `74e4b2e` da abertura R01.1 aprovada)
 > **Aprovação:** aprovado pelo utilizador em 2026-10-27 (`"Ja esta."` com envio das imagens dos slides)

@@ -1,6 +1,6 @@
 # Plano 128 — Reforma da secção `+ PORTFOLIO` (R03)
 
-> **Estado:** CONCLUÍDO
+> **Estado:** CANÓNICO
 > **Data:** 2026-10-27
 > **Branch prevista:** `codex/feature-hero-opening-reform`
 > **Aprovação:** aprovado pelo utilizador em 2026-10-27 (`"Aprovado"`)

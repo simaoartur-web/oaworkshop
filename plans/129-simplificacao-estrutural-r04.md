@@ -1,6 +1,6 @@
 # Simplificação estrutural da página inicial e remoção das secções antigas (R04)
 
-> **Estado:** CONCLUÍDO
+> **Estado:** CANÓNICO
 > **Data:** 2026-10-27
 > **Branch prevista:** `codex/feature-hero-opening-reform`
 > **Aprovação:** aprovado pelo utilizador em 2026-10-27 (`Aprovado`)
