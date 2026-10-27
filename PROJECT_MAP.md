@@ -66,15 +66,18 @@ Não existe página administrativa. Qualquer proposta para a criar exige novo pl
 | Zona | Ficheiros | Responsabilidade |
 |---|---|---|
 | `src/components/layout/` | `Header.tsx`, `Footer.tsx` | navegação e enquadramento persistente |
-| `src/components/home/HeroSection.tsx` | apresentação inicial e imagem de entrada | página inicial |
-| `src/components/home/WorkshopSection.tsx` | narrativa e apresentação do atelier | página inicial |
-| `src/components/home/ProjectsSection.tsx` | chamada editorial para projectos | página inicial |
-| `src/components/home/CategoryMapSection.tsx` | mapa e cartões por disciplina | página inicial, dados de projectos |
-| `src/components/home/NewsSection.tsx` | carrossel editorial/notícias locais | página inicial |
+| `src/components/home/HeroSection.tsx` | abertura institucional com fundo `#ED7D31`, símbolo O+A interactivo e entrada para `#workshop` | página inicial |
+| `src/components/home/WorkshopSection.tsx` | secção interactiva Architecture / Urban Planning / Research (Protótipo 01, R02.1) com palco fotográfico, destaque e controlos | página inicial |
+| `src/components/home/WorkshopTabs.tsx` | navegação inferior em 3 colunas sobre fundo preto com indicadores lineares, etiqueta `DESTAQUE` e suporte por teclado | WorkshopSection |
+| `src/components/home/workshop.css` | estilos locais do Protótipo 01 (palco 78%, barra inferior 22%, responsividade e movimento reduzido) | WorkshopSection |
+| `src/components/home/ProjectsSection.tsx` | secção `+ PORTFOLIO` (R03) com barra de 8 filtros e grelha 3×2 de 6 projectos com fotografias oficiais | página inicial |
+| `src/components/home/portfolio.css` | estilos locais da secção `+ PORTFOLIO`, grelha 3×2, estados de filtro e placeholders `?` | ProjectsSection |
+| `src/components/home/CategoryMapSection.tsx` | mapa e cartões por disciplina | legado desacoplado de `Home.tsx` (R04); preservado no repositório |
+| `src/components/home/NewsSection.tsx` | carrossel editorial/notícias locais | legado desacoplado de `Home.tsx` (R04); preservado no repositório |
 | `src/components/home/ContactSection.tsx` | informação e acção de contacto | página inicial |
 | `src/components/home/ExpertiseSection.tsx` | apresentação de competências | disponível; confirmar consumidor antes de alterar |
 | `src/components/home/StatsSection.tsx` | indicadores animados | secções da página inicial |
-| `src/components/home/TeamSection.tsx` | organograma público bilingue da equipa | página inicial, depois de Journal e antes de Contactos |
+| `src/components/home/TeamSection.tsx` | organograma público bilingue da equipa | página inicial, depois de `+ PORTFOLIO` e antes de Contactos |
 | `src/components/home/TeamMember.tsx` | perfil resumido e abertura acessível por pessoa | TeamSection |
 | `src/components/home/TeamAvatar.tsx` | estados de carregamento do retrato local e iniciais automáticas, incluindo falha de imagem | TeamMember, TeamProfilePanel |
 | `src/components/home/TeamProfilePanel.tsx` | diálogo lateral com informação e ligações sociais, foco, fecho e restauro de scroll | TeamSection |

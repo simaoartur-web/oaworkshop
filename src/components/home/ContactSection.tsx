@@ -3,8 +3,6 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
 const PUBLIC_EMAIL = 'oa@oa-workshop.com';
-const PUBLIC_PHONE_DISPLAY = '+258 000 000 000';
-const PUBLIC_PHONE_LINK = '+258000000000';
 
 const ContactSection = () => {
     const { t } = useTranslation();
@@ -38,10 +36,6 @@ const ContactSection = () => {
                             <div>
                                 <h4 className="mb-2 text-xs uppercase tracking-widest text-gray-500">{t('contact.emailLabel')}</h4>
                                 <a href={`mailto:${PUBLIC_EMAIL}`} className="text-2xl font-light transition-colors hover:text-gray-500">{PUBLIC_EMAIL}</a>
-                            </div>
-                            <div>
-                                <h4 className="mb-2 text-xs uppercase tracking-widest text-gray-500">{t('contact.phone')}</h4>
-                                <a href={`tel:${PUBLIC_PHONE_LINK}`} className="text-2xl font-light transition-colors hover:text-gray-500">{PUBLIC_PHONE_DISPLAY}</a>
                             </div>
                             <div>
                                 <h4 className="mb-2 text-xs uppercase tracking-widest text-gray-500">{t('contact.locations')}</h4>

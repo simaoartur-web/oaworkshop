@@ -199,7 +199,7 @@ const Header = () => {
                                     <span className="ml-8 md:ml-16 text-xl md:text-3xl lg:text-5xl italic text-terracota/80 group-hover:text-terracota group-hover:translate-x-4 transition-all duration-700">{t('nav.exploreStudio')}</span>
                                 </Link>
 
-                                <Link to="/#expertise" className="group flex flex-col items-start gap-1">
+                                <Link to="/#portfolio" className="group flex flex-col items-start gap-1">
                                     <div className="flex items-baseline gap-4">
                                         <span className="text-sm md:text-base font-bold tracking-widest text-white/20 group-hover:text-terracota transition-colors duration-500">02.</span>
                                         <span className="text-2xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/50 group-hover:text-white transition-all duration-700">{t('nav.expertise')}</span>

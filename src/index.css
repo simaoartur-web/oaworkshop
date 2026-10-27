@@ -7,6 +7,7 @@
     --color-black-800: #222222;
     --color-black-700: #333333;
     --color-terracota: #A65D4A;
+    --color-hero-bg: #ED7D31;
 
     --color-gray-100: #f5f5f5;
     --color-gray-200: #eeeeee;
@@ -16,6 +17,13 @@
 
     --font-sans: "Outfit", "system-ui", "sans-serif";
     --font-serif: "Playfair Display", "serif";
+
+    --text-hero-greeting: clamp(0.8125rem, 1.15vw, 1.0625rem);
+    --text-hero-discipline: clamp(0.6875rem, 1.02vw, 0.9375rem);
+    --text-hero-prompt: clamp(0.9375rem, 1.25vw, 1.1875rem);
+    --tracking-hero-greeting: 0.42em;
+    --tracking-hero-discipline: 0.3em;
+    --tracking-hero-prompt: 0.06em;
 
     --spacing-18: 4.5rem;
     --spacing-22: 5.5rem;
@@ -105,4 +113,148 @@
 
 ::-webkit-scrollbar-thumb:hover {
     background: #bdbdbd;
+}
+
+/* Opening (HeroSection R01.1) — Heartbeat, Concentric Ripple & Scroll Indicator */
+@keyframes hero-heartbeat {
+    0%,
+    44%,
+    100% {
+        transform: scale(1);
+    }
+    18% {
+        transform: scale(1.04);
+    }
+}
+
+@keyframes hero-ripple-inner {
+    0%,
+    55%,
+    100% {
+        transform: scale(0.98);
+        opacity: 0.16;
+    }
+    22% {
+        transform: scale(1.03);
+        opacity: 0.25;
+    }
+}
+
+@keyframes hero-ripple-mid {
+    0%,
+    60%,
+    100% {
+        transform: scale(0.98);
+        opacity: 0.11;
+    }
+    26% {
+        transform: scale(1.04);
+        opacity: 0.19;
+    }
+}
+
+@keyframes hero-ripple-outer {
+    0%,
+    65%,
+    100% {
+        transform: scale(0.98);
+        opacity: 0.06;
+    }
+    30% {
+        transform: scale(1.05);
+        opacity: 0.12;
+    }
+}
+
+@keyframes hero-ripple-wave {
+    0% {
+        transform: scale(0.82);
+        opacity: 0;
+    }
+    18% {
+        opacity: 0.16;
+    }
+    70% {
+        transform: scale(1.34);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1.34);
+        opacity: 0;
+    }
+}
+
+@keyframes hero-chevron-float {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(4px);
+    }
+}
+
+.hero-heartbeat {
+    animation: hero-heartbeat 3.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    will-change: transform;
+}
+
+.hero-ripple-ring {
+    position: absolute;
+    border-radius: 9999px;
+    border: 1px solid rgb(255 255 255 / 90%);
+    pointer-events: none;
+    will-change: transform, opacity;
+}
+
+.hero-ripple-ring--inner {
+    width: clamp(13.5rem, 21vw, 19.5rem);
+    height: clamp(13.5rem, 21vw, 19.5rem);
+    opacity: 0.16;
+    animation: hero-ripple-inner 3.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.hero-ripple-ring--mid {
+    width: clamp(18.5rem, 30.6vw, 27.6rem);
+    height: clamp(18.5rem, 30.6vw, 27.6rem);
+    opacity: 0.11;
+    animation: hero-ripple-mid 3.8s cubic-bezier(0.22, 1, 0.36, 1) 0.14s infinite;
+}
+
+.hero-ripple-ring--outer {
+    width: clamp(22.25rem, 38.8vw, 35rem);
+    height: clamp(22.25rem, 38.8vw, 35rem);
+    opacity: 0.06;
+    animation: hero-ripple-outer 3.8s cubic-bezier(0.22, 1, 0.36, 1) 0.28s infinite;
+}
+
+.hero-ripple-ring--wave {
+    width: clamp(18.5rem, 30.6vw, 27.6rem);
+    height: clamp(18.5rem, 30.6vw, 27.6rem);
+    opacity: 0;
+    animation: hero-ripple-wave 3.8s cubic-bezier(0.22, 1, 0.36, 1) 0.08s infinite;
+}
+
+.hero-chevron-float {
+    animation: hero-chevron-float 2.8s ease-in-out infinite;
+    will-change: transform;
+}
+
+[data-entering="true"] .hero-heartbeat,
+[data-entering="true"] .hero-ripple-ring,
+[data-entering="true"] .hero-chevron-float {
+    animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-heartbeat,
+    .hero-ripple-ring,
+    .hero-chevron-float {
+        animation: none !important;
+    }
+
+    .hero-ripple-ring--wave {
+        display: none;
+    }
+
 }

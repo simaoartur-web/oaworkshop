@@ -21,7 +21,7 @@ const Footer = () => {
                         <h4 className="text-xs uppercase tracking-widest text-gray-500 mb-6">{t('nav.quickLinks')}</h4>
                         <ul className="space-y-4 font-light text-gray-300">
                             <li><Link to="/#workshop" className="hover:text-white transition-colors">{t('nav.workshop')}</Link></li>
-                            <li><Link to="/#expertise" className="hover:text-white transition-colors">{t('nav.expertise')}</Link></li>
+                            <li><Link to="/#portfolio" className="hover:text-white transition-colors">{t('nav.expertise')}</Link></li>
                             <li><Link to="/projects" className="hover:text-white transition-colors">{t('nav.projects')}</Link></li>
                             <li><Link to="/#contact" className="hover:text-white transition-colors">{t('nav.contact')}</Link></li>
                         </ul>
@@ -31,7 +31,7 @@ const Footer = () => {
                         <h4 className="text-xs uppercase tracking-widest text-gray-500 mb-6">{t('footer.contacts')}</h4>
                         <ul className="space-y-4 font-light text-gray-300">
                             <li><a href="mailto:oa@oa-workshop.com" className="hover:text-white transition-colors">oa@oa-workshop.com</a></li>
-                            <li><a href="tel:+258000000000" className="hover:text-white transition-colors">+258 000 000 000</a></li>
+
                             <li className="pt-4">{t('contact.locationLine')}</li>
                             <li>{t('contact.locationLine2')}</li>
                         </ul>
