@@ -66,7 +66,7 @@ const en = {
                 label: "+ ARCHITECTURE",
                 title: "+ Architecture",
                 tag: "DESTAQUE",
-                desc: "O+A Projecta novo campus do Instituto Politecnico de Vilankulos",
+                desc: "O+A designs the new campus of the Polytechnic Institute of Vilankulos",
                 cta: "Explore architecture",
             },
             {
@@ -74,7 +74,7 @@ const en = {
                 label: "+ URBAN PLANNING",
                 title: "+ Urban Planning",
                 tag: "DESTAQUE",
-                desc: "O+A junta-se a rede de empresas internacionais para apoiar na Elaboração do Plano Estrategico de Massingiri",
+                desc: "O+A joins an international network of firms to support the preparation of the Massingiri Strategic Plan",
                 cta: "View urban planning",
             },
             {
@@ -82,7 +82,7 @@ const en = {
                 label: "+ RESEARCH",
                 title: "+ Research",
                 tag: "DESTAQUE",
-                desc: "O+A junta-se GENO e juntos pesquisam ferramentas para orientar o desenvolvimento de Bairros estratégicos em países do Sul Global",
+                desc: "O+A partners with GENO to research tools for guiding the development of strategic neighbourhoods in Global South countries",
                 cta: "Discover research",
             },
         ],
