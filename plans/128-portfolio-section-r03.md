@@ -24,7 +24,7 @@ Implementar a secção **`+ PORTFOLIO`** conforme o slide de referência anexado
    - **Cartão 3:** `Nelson House - Architecture + interior design` | `Maputo, Mozambique 2026` (`public/images/portfolio/nelson-house.jpg`).
    - **Cartão 4:** `Wagner House - Architecture + landscape + interior design` | `Maputo, Mozambique 2026` (`public/images/portfolio/wagner-house.jpg`).
    - **Cartão 5:** `Wagner House - Architecture + landscape + interior design` | `Maputo, Mozambique 2026` (`public/images/portfolio/wagner-house-2.jpg` — residência com parede cobogó em terracota).
-   - **Cartão 6 (Pendente — `?`):** moldura `16:10` escura com acabamento arquitectónico subtil e símbolo `?` centrado em destaque (`#ED7D31`), preservando o alinhamento da grelha 3×2 até a 6.ª imagem ser adicionada.
+   - **Cartão 6:** `Wagner House - Architecture + landscape + interior design` | `Maputo, Mozambique 2026` (`public/images/portfolio/wagner-house-3.jpg` — residência com cobogó azul e pérgola de madeira).
    - Em cada cartão: barra vertical laranja (`2px`, `#ED7D31`) à esquerda do bloco de legenda.
 
 ---
@@ -40,6 +40,7 @@ Implementar a secção **`+ PORTFOLIO`** conforme o slide de referência anexado
 - `public/images/portfolio/nelson-house.jpg`
 - `public/images/portfolio/wagner-house.jpg`
 - `public/images/portfolio/wagner-house-2.jpg`
+- `public/images/portfolio/wagner-house-3.jpg`
 - `PROJECT_MAP.md`
 - `plans/128-portfolio-section-r03.md`
 - `plans/README.md`

@@ -66,7 +66,7 @@ const PORTFOLIO_CARDS: readonly PortfolioCardMeta[] = [
     },
     {
         id: 'wagner-house-3',
-        isPlaceholder: true,
+        imageSrc: `${import.meta.env.BASE_URL}images/portfolio/wagner-house-3.jpg`,
         categories: [
             'architecture',
             'urbanPlanning',
