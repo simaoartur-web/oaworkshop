@@ -485,6 +485,11 @@ const en = {
         back: "Back to Portfolio",
         requestProposal: "Request Proposal",
     },
+    notFound: {
+        title: "Page not found",
+        description: "The page you are looking for does not exist or has been moved. You can return to the homepage or explore our practice areas.",
+        backHome: "Back to home",
+    },
     footer: {
         copyright: "All rights reserved.",
         contacts: "Contacts",

@@ -485,6 +485,11 @@ const pt = {
         back: "Voltar ao Portfólio",
         requestProposal: "Solicitar Proposta",
     },
+    notFound: {
+        title: "Página não encontrada",
+        description: "A página que procura não existe ou foi movida. Pode regressar à página inicial ou explorar as nossas áreas de actuação.",
+        backHome: "Voltar ao início",
+    },
     footer: {
         copyright: "Todos os direitos reservados.",
         contacts: "Contactos",
