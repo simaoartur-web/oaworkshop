@@ -22,33 +22,33 @@ const ContactSection = () => {
     };
 
     return (
-        <section id="contact" className="relative overflow-hidden bg-black-800 py-24 text-white">
+        <section id="contact" className="relative overflow-hidden bg-gradient-to-b from-[#0b0b0b] to-[#111111] py-16 md:py-28 text-white scroll-mt-24">
             <div className="container-custom">
-                <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-24">
-                    <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
-                        <h2 className="mb-6 text-xs uppercase tracking-[0.2em] text-gray-500">{t('contact.eyebrow')}</h2>
-                        <h3 className="mb-8 text-4xl font-light leading-tight md:text-6xl">
+                <div className="grid grid-cols-1 gap-10 md:gap-14 lg:grid-cols-2 lg:gap-24">
+                    <motion.div initial={{ opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
+                        <h2 className="mb-4 md:mb-6 text-xs uppercase tracking-[0.2em] text-gray-400">{t('contact.eyebrow')}</h2>
+                        <h3 className="mb-6 md:mb-8 text-3xl sm:text-4xl font-light leading-tight md:text-6xl">
                             {t('contact.titleStart')} <br /><span className="font-semibold">{t('contact.titleStrong')}</span>
                         </h3>
-                        <p className="mb-16 max-w-md text-lg font-light leading-relaxed text-gray-500">{t('contact.intro')}</p>
+                        <p className="mb-10 md:mb-14 max-w-md text-base sm:text-lg font-light leading-relaxed text-gray-400">{t('contact.intro')}</p>
 
-                        <div className="space-y-12">
+                        <div className="space-y-8 md:space-y-10">
                             <div>
                                 <h4 className="mb-2 text-xs uppercase tracking-widest text-gray-500">{t('contact.emailLabel')}</h4>
-                                <a href={`mailto:${PUBLIC_EMAIL}`} className="text-2xl font-light transition-colors hover:text-gray-500">{PUBLIC_EMAIL}</a>
+                                <a href={`mailto:${PUBLIC_EMAIL}`} className="text-xl sm:text-2xl font-light transition-colors hover:text-gray-300 break-all">{PUBLIC_EMAIL}</a>
                             </div>
                             <div>
                                 <h4 className="mb-2 text-xs uppercase tracking-widest text-gray-500">{t('contact.locations')}</h4>
-                                <p className="text-lg font-light text-gray-400">{t('contact.locationLine')} <br /> {t('contact.locationLine2')}</p>
+                                <p className="text-base sm:text-lg font-light text-gray-400">{t('contact.locationLine')} <br /> {t('contact.locationLine2')}</p>
                             </div>
                         </div>
                     </motion.div>
 
-                    <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.2 }} className="border border-white/10 bg-black-900 p-8 shadow-sm md:p-12">
-                        <h3 className="mb-3 text-2xl font-light">{t('contact.formTitle')}</h3>
-                        <p className="mb-8 text-sm font-light leading-relaxed text-gray-400">{t('contact.formHelp')}</p>
+                    <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.15 }} className="border border-white/10 bg-[#080808] p-6 sm:p-8 shadow-sm md:p-12">
+                        <h3 className="mb-2.5 text-xl sm:text-2xl font-light">{t('contact.formTitle')}</h3>
+                        <p className="mb-6 md:mb-8 text-sm font-light leading-relaxed text-gray-400">{t('contact.formHelp')}</p>
 
-                        <form onSubmit={handleSubmit} className="space-y-8">
+                        <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
                             <div>
                                 <label htmlFor="contact-name" className="form-label">{t('contact.name')}</label>
                                 <input id="contact-name" type="text" required autoComplete="name" value={formData.name} onChange={(event) => setFormData({ ...formData, name: event.target.value })} className="form-input" placeholder={t('contact.namePlaceholder')} />
@@ -65,7 +65,7 @@ const ContactSection = () => {
                                 <label htmlFor="contact-message" className="form-label">{t('contact.message')}</label>
                                 <textarea id="contact-message" required rows={4} value={formData.message} onChange={(event) => setFormData({ ...formData, message: event.target.value })} className="form-input resize-none" placeholder={t('contact.messagePlaceholder')} />
                             </div>
-                            <button type="submit" className="w-full bg-white py-4 text-xs uppercase tracking-widest text-black-900 transition-colors hover:bg-gray-200">
+                            <button type="submit" className="w-full min-h-[48px] bg-white py-3.5 text-xs font-medium uppercase tracking-widest text-black-900 transition-colors hover:bg-gray-200 cursor-pointer">
                                 {t('contact.openEmail')}
                             </button>
                         </form>

@@ -3,9 +3,9 @@
 @import "tailwindcss";
 
 @theme {
-    --color-black-900: #111111;
-    --color-black-800: #222222;
-    --color-black-700: #333333;
+    --color-black-900: #0b0b0b;
+    --color-black-800: #111111;
+    --color-black-700: #1c1c1c;
     --color-terracota: #A65D4A;
     --color-hero-bg: #ED7D31;
 
@@ -18,11 +18,11 @@
     --font-sans: "Outfit", "system-ui", "sans-serif";
     --font-serif: "Playfair Display", "serif";
 
-    --text-hero-greeting: clamp(0.8125rem, 1.15vw, 1.0625rem);
-    --text-hero-discipline: clamp(0.6875rem, 1.02vw, 0.9375rem);
-    --text-hero-prompt: clamp(0.9375rem, 1.25vw, 1.1875rem);
+    --text-hero-greeting: clamp(0.75rem, 1.15vw, 1.0625rem);
+    --text-hero-discipline: clamp(0.65rem, 1.02vw, 0.9375rem);
+    --text-hero-prompt: clamp(0.875rem, 1.25vw, 1.1875rem);
     --tracking-hero-greeting: 0.42em;
-    --tracking-hero-discipline: 0.3em;
+    --tracking-hero-discipline: 0.28em;
     --tracking-hero-prompt: 0.06em;
 
     --spacing-18: 4.5rem;
@@ -40,7 +40,7 @@
     }
 
     body {
-        @apply bg-black-900 text-white font-sans tracking-wide;
+        @apply bg-black-900 text-white font-sans tracking-wide overflow-x-hidden;
     }
 
     h1,
@@ -57,7 +57,7 @@
 
     /* Layout constraints */
     .container-custom {
-        @apply w-full max-w-[1100px] mx-auto px-6 md:px-12 lg:px-16;
+        @apply w-full max-w-[1600px] mx-auto px-5 sm:px-6 md:px-12 lg:px-16;
     }
 
     /* Slow image reveal */
@@ -76,11 +76,11 @@
 
     /* Form controls */
     .form-input {
-        @apply w-full border-b border-gray-300 py-3 bg-transparent focus:outline-none focus:border-black-900 transition-colors;
+        @apply w-full border-b border-white/20 py-3 bg-transparent text-white placeholder-white/30 focus:outline-none focus:border-white transition-colors;
     }
 
     .form-label {
-        @apply text-xs uppercase tracking-widest text-gray-500 mb-1 block;
+        @apply text-xs uppercase tracking-widest text-gray-400 mb-1.5 block;
     }
 
     /* Text fill utilities */
@@ -104,84 +104,37 @@
 }
 
 ::-webkit-scrollbar-track {
-    background: white;
+    background: #0a0a0a;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #e0e0e0;
+    background: #2b2b2b;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #bdbdbd;
+    background: #444444;
 }
 
-/* Opening (HeroSection R01.1) — Heartbeat, Concentric Ripple & Scroll Indicator */
-@keyframes hero-heartbeat {
-    0%,
-    44%,
-    100% {
-        transform: scale(1);
-    }
-    18% {
-        transform: scale(1.04);
-    }
+/* Opening (HeroSection) — Original Heartbeat & Diffuse White Heartglow (commit 4fa4aee) */
+@keyframes heartbeat {
+    0%   { transform: scale(1); }
+    15%  { transform: scale(1.05); }
+    35%  { transform: scale(1); }
+    100% { transform: scale(1); }
 }
 
-@keyframes hero-ripple-inner {
-    0%,
-    55%,
-    100% {
-        transform: scale(0.98);
-        opacity: 0.16;
-    }
-    22% {
-        transform: scale(1.03);
-        opacity: 0.25;
-    }
+@keyframes heartglow-inner {
+    0%   { opacity: 0; transform: scale(1); }
+    15%  { opacity: 0.5; transform: scale(1.1); }
+    35%  { opacity: 0; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1); }
 }
 
-@keyframes hero-ripple-mid {
-    0%,
-    60%,
-    100% {
-        transform: scale(0.98);
-        opacity: 0.11;
-    }
-    26% {
-        transform: scale(1.04);
-        opacity: 0.19;
-    }
-}
-
-@keyframes hero-ripple-outer {
-    0%,
-    65%,
-    100% {
-        transform: scale(0.98);
-        opacity: 0.06;
-    }
-    30% {
-        transform: scale(1.05);
-        opacity: 0.12;
-    }
-}
-
-@keyframes hero-ripple-wave {
-    0% {
-        transform: scale(0.82);
-        opacity: 0;
-    }
-    18% {
-        opacity: 0.16;
-    }
-    70% {
-        transform: scale(1.34);
-        opacity: 0;
-    }
-    100% {
-        transform: scale(1.34);
-        opacity: 0;
-    }
+@keyframes heartglow-outer {
+    0%   { opacity: 0; transform: scale(0.9); }
+    15%  { opacity: 0.3; transform: scale(1.2); }
+    35%  { opacity: 0; transform: scale(1.4); }
+    100% { opacity: 0; transform: scale(1.4); }
 }
 
 @keyframes hero-chevron-float {
@@ -195,44 +148,31 @@
 }
 
 .hero-heartbeat {
-    animation: hero-heartbeat 3.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    animation: heartbeat 4s cubic-bezier(0.22, 1, 0.36, 1) 2s infinite;
     will-change: transform;
 }
 
-.hero-ripple-ring {
-    position: absolute;
-    border-radius: 9999px;
-    border: 1px solid rgb(255 255 255 / 90%);
-    pointer-events: none;
+.hero-heartglow-inner {
+    margin: -10%;
+    background: radial-gradient(
+        circle,
+        rgba(255, 255, 255, 0.5) 0%,
+        rgba(255, 255, 255, 0.1) 40%,
+        transparent 65%
+    );
+    animation: heartglow-inner 4s cubic-bezier(0.22, 1, 0.36, 1) 2s infinite;
     will-change: transform, opacity;
 }
 
-.hero-ripple-ring--inner {
-    width: clamp(13.5rem, 21vw, 19.5rem);
-    height: clamp(13.5rem, 21vw, 19.5rem);
-    opacity: 0.16;
-    animation: hero-ripple-inner 3.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
-}
-
-.hero-ripple-ring--mid {
-    width: clamp(18.5rem, 30.6vw, 27.6rem);
-    height: clamp(18.5rem, 30.6vw, 27.6rem);
-    opacity: 0.11;
-    animation: hero-ripple-mid 3.8s cubic-bezier(0.22, 1, 0.36, 1) 0.14s infinite;
-}
-
-.hero-ripple-ring--outer {
-    width: clamp(22.25rem, 38.8vw, 35rem);
-    height: clamp(22.25rem, 38.8vw, 35rem);
-    opacity: 0.06;
-    animation: hero-ripple-outer 3.8s cubic-bezier(0.22, 1, 0.36, 1) 0.28s infinite;
-}
-
-.hero-ripple-ring--wave {
-    width: clamp(18.5rem, 30.6vw, 27.6rem);
-    height: clamp(18.5rem, 30.6vw, 27.6rem);
-    opacity: 0;
-    animation: hero-ripple-wave 3.8s cubic-bezier(0.22, 1, 0.36, 1) 0.08s infinite;
+.hero-heartglow-outer {
+    margin: -30%;
+    background: radial-gradient(
+        circle,
+        rgba(255, 255, 255, 0.2) 0%,
+        transparent 70%
+    );
+    animation: heartglow-outer 4s cubic-bezier(0.25, 0.1, 0.25, 1) 2s infinite;
+    will-change: transform, opacity;
 }
 
 .hero-chevron-float {
@@ -241,20 +181,22 @@
 }
 
 [data-entering="true"] .hero-heartbeat,
-[data-entering="true"] .hero-ripple-ring,
+[data-entering="true"] .hero-heartglow-inner,
+[data-entering="true"] .hero-heartglow-outer,
 [data-entering="true"] .hero-chevron-float {
     animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {
     .hero-heartbeat,
-    .hero-ripple-ring,
+    .hero-heartglow-inner,
+    .hero-heartglow-outer,
     .hero-chevron-float {
         animation: none !important;
     }
 
-    .hero-ripple-ring--wave {
+    .hero-heartglow-inner,
+    .hero-heartglow-outer {
         display: none;
     }
-
 }

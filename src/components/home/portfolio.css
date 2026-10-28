@@ -2,12 +2,11 @@
     --portfolio-accent: var(--color-hero-bg, #ED7D31);
     position: relative;
     width: 100%;
-    background: #030303;
+    background: linear-gradient(180deg, #090909 0%, #0b0b0b 100%);
     color: #ffffff;
-    padding: clamp(3rem, 5vw, 4.75rem) clamp(1.5rem, 3.8vw, 4rem) clamp(3.5rem, 6vw, 5.5rem);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: clamp(2.5rem, 4.5vw, 4.25rem) clamp(1.25rem, 3.8vw, 4rem) clamp(3.25rem, 5.5vw, 5.25rem);
     overflow: hidden;
-    scroll-margin-top: 5rem;
+    scroll-margin-top: 4.5rem;
 }
 
 .portfolio-shell {
@@ -16,16 +15,16 @@
 }
 
 .portfolio-header {
-    margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
+    margin-bottom: clamp(1.5rem, 2.8vw, 2.35rem);
 }
 
 .portfolio-heading {
     display: inline-flex;
     align-items: center;
     gap: 0.32em;
-    margin: 0 0 1.25rem;
+    margin: 0 0 1.1rem;
     font-family: var(--font-sans);
-    font-size: clamp(2.35rem, 4.5vw, 3.85rem);
+    font-size: clamp(2rem, 4.5vw, 3.85rem);
     font-weight: 700;
     line-height: 1;
     letter-spacing: 0.02em;
@@ -43,7 +42,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    row-gap: 0.65rem;
+    row-gap: 0.5rem;
     column-gap: clamp(0.65rem, 1.35vw, 1.35rem);
 }
 
@@ -55,7 +54,8 @@
 
 .portfolio-filter-btn {
     position: relative;
-    padding: 0.25rem 0 0.45rem;
+    min-height: 2.35rem;
+    padding: 0.35rem 0 0.5rem;
     background: transparent;
     border: 0;
     font-family: var(--font-sans);
@@ -74,7 +74,7 @@
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: 0.15rem;
     height: 2px;
     background: var(--portfolio-accent);
     transform: scaleX(0);
@@ -98,7 +98,7 @@
 .portfolio-filter-sep {
     font-family: var(--font-sans);
     font-size: 0.8125rem;
-    color: rgba(255, 255, 255, 0.38);
+    color: rgba(255, 255, 255, 0.34);
     user-select: none;
 }
 
@@ -124,7 +124,7 @@
     width: 100%;
     aspect-ratio: 16 / 10;
     overflow: hidden;
-    background: #0d0d0d;
+    background: #111111;
 }
 
 .portfolio-card-img {
@@ -246,7 +246,7 @@
 }
 
 /* ==========================================================================
-   RESPONSIVE BREAKPOINTS (Tablet 768px & Mobile 375px)
+   RESPONSIVE BREAKPOINTS (Tablet 768px & Mobile 360px–430px)
    ========================================================================== */
 
 @media (max-width: 1023px) {
@@ -257,7 +257,7 @@
 
 @media (max-width: 639px) {
     .portfolio-section {
-        padding: 2.5rem 1.25rem 3rem;
+        padding: 2.25rem 1.25rem 2.75rem;
     }
 
     .portfolio-filters {
@@ -265,7 +265,9 @@
         overflow-x: auto;
         overscroll-behavior-x: contain;
         scrollbar-width: none;
-        padding-bottom: 0.35rem;
+        padding-bottom: 0.25rem;
+        margin-inline: -0.25rem;
+        padding-inline: 0.25rem;
     }
 
     .portfolio-filters::-webkit-scrollbar {
@@ -274,7 +276,11 @@
 
     .portfolio-grid {
         grid-template-columns: 1fr;
-        row-gap: 1.75rem;
+        row-gap: 1.65rem;
+    }
+
+    .portfolio-card-media {
+        aspect-ratio: 16 / 10.2;
     }
 }
 

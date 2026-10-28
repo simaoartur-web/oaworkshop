@@ -1,6 +1,6 @@
 # Implementação da secção institucional `+ WORKSHOP` (R05)
 
-> **Estado:** CONCLUÍDO
+> **Estado:** CANÓNICO
 > **Data:** 2026-10-27
 > **Branch prevista:** `codex/feature-hero-opening-reform`
 > **Aprovação:** aprovado pelo utilizador em 2026-10-27 (`Plano Aprovado`)

@@ -10,7 +10,7 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    scroll-margin-top: 5rem;
+    scroll-margin-top: 4.5rem;
 }
 
 /* ==========================================================================
@@ -25,7 +25,7 @@
     justify-content: flex-end;
     min-height: clamp(26rem, 76vh, 48rem);
     overflow: hidden;
-    background: #0a0a0a;
+    background: #070707;
 }
 
 .workshop-image-stage {
@@ -33,7 +33,7 @@
     inset: 0;
     z-index: 0;
     overflow: hidden;
-    background: #0a0a0a;
+    background: #070707;
 }
 
 .workshop-photo {
@@ -65,23 +65,23 @@
             180deg,
             rgba(0, 0, 0, 0.14) 0%,
             rgba(0, 0, 0, 0) 36%,
-            rgba(5, 5, 5, 0.46) 68%,
-            rgba(6, 6, 6, 0.9) 100%
+            rgba(7, 7, 7, 0.48) 68%,
+            rgba(7, 7, 7, 0.92) 100%
         ),
         linear-gradient(
             90deg,
-            rgba(5, 5, 5, 0.62) 0%,
-            rgba(5, 5, 5, 0.24) 48%,
-            rgba(5, 5, 5, 0) 78%
+            rgba(7, 7, 7, 0.62) 0%,
+            rgba(7, 7, 7, 0.24) 48%,
+            rgba(7, 7, 7, 0) 78%
         );
 }
 
 .workshop-stage-inner {
     position: relative;
     z-index: 2;
-    width: min(100%, 1680px);
+    width: min(100%, 1600px);
     margin-inline: auto;
-    padding: clamp(2rem, 4vw, 3.5rem) clamp(1.5rem, 3.5vw, 3.5rem) clamp(1.5rem, 2.6vw, 2.35rem);
+    padding: clamp(2rem, 4vw, 3.5rem) clamp(1.25rem, 3.8vw, 4rem) clamp(1.5rem, 2.6vw, 2.35rem);
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
@@ -171,7 +171,7 @@
     align-items: center;
     justify-content: center;
     color: #ffffff;
-    background: rgba(10, 10, 10, 0.42);
+    background: rgba(10, 10, 10, 0.46);
     backdrop-filter: blur(4px);
     cursor: pointer;
     transition:
@@ -200,18 +200,18 @@
 }
 
 /* ==========================================================================
-   BOTTOM NAVIGATION BAR (3 COLUMNS ON SOLID BLACK BACKGROUND)
+   BOTTOM NAVIGATION BAR (3 COLUMNS ON SOLID DARK ARCHITECTURAL CANVAS)
    ========================================================================== */
 
 .workshop-nav-bar {
     position: relative;
     z-index: 3;
-    background: linear-gradient(180deg, #0d0d0d 0%, #050505 100%);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: #070707;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .workshop-tabs {
-    width: min(100%, 1680px);
+    width: min(100%, 1600px);
     margin-inline: auto;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -224,10 +224,10 @@
     align-items: stretch;
     justify-content: flex-start;
     text-align: left;
-    padding: clamp(1.15rem, 2vw, 1.65rem) clamp(1.5rem, 3.5vw, 3.5rem) clamp(1.25rem, 2.2vw, 1.85rem);
+    padding: clamp(1.15rem, 2vw, 1.65rem) clamp(1.25rem, 3.5vw, 3.5rem) clamp(1.25rem, 2.2vw, 1.85rem);
     background: transparent;
     border: 0;
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
     color: rgba(255, 255, 255, 0.56);
     cursor: pointer;
     transition:
@@ -258,7 +258,7 @@
     font-family: var(--font-sans);
     font-size: clamp(0.75rem, 0.9vw, 0.875rem);
     font-weight: 400;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.2em;
     line-height: 1.35;
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.62);
@@ -272,7 +272,7 @@
     height: 1px;
     margin-top: 0.7rem;
     margin-bottom: 0.85rem;
-    background: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.14);
 }
 
 .workshop-tab-line::before {
@@ -282,7 +282,7 @@
     top: -0.5px;
     width: 56%;
     height: 2px;
-    background: rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.26);
     transition: opacity 200ms ease;
 }
 
@@ -375,7 +375,7 @@
 }
 
 /* ==========================================================================
-   RESPONSIVE BREAKPOINTS (Tablet 768px & Mobile 375px)
+   RESPONSIVE BREAKPOINTS (Tablet 768px & Mobile 360px–430px)
    ========================================================================== */
 
 @media (max-width: 1023px) {
@@ -384,77 +384,107 @@
     }
 
     .workshop-stage {
-        min-height: clamp(24rem, 62vh, 34rem);
+        min-height: clamp(25rem, 64vh, 34rem);
     }
 
     .workshop-tab {
-        padding: 1.15rem 1.25rem 1.35rem;
+        padding: 1.1rem 1.15rem 1.25rem;
     }
 
     .workshop-tab-label {
-        letter-spacing: 0.15em;
+        letter-spacing: 0.14em;
         font-size: 0.72rem;
     }
 }
 
 @media (max-width: 767px) {
     .workshop-section {
-        --workshop-plus-indent: 1.5rem;
-        --workshop-tab-plus-indent: 1.35rem;
+        --workshop-plus-indent: 1.35rem;
+        --workshop-tab-plus-indent: 0.9rem;
     }
 
     .workshop-stage {
-        min-height: 24rem;
+        min-height: clamp(24.5rem, 68svh, 31rem);
+    }
+
+    .workshop-stage-gradient {
+        background:
+            linear-gradient(
+                180deg,
+                rgba(0, 0, 0, 0.18) 0%,
+                rgba(0, 0, 0, 0.04) 34%,
+                rgba(7, 7, 7, 0.62) 66%,
+                rgba(7, 7, 7, 0.95) 100%
+            );
     }
 
     .workshop-stage-inner {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
         justify-content: flex-end;
-        gap: 1.15rem;
-        padding: 1.75rem 1.25rem 1.35rem;
+        gap: 1rem;
+        padding: 1.5rem 1.25rem 1.25rem;
     }
 
     .workshop-heading {
-        font-size: clamp(1.9rem, 8.2vw, 2.5rem);
+        font-size: clamp(1.85rem, 7.8vw, 2.35rem);
     }
 
     .workshop-description {
-        padding-left: 0;
-        font-size: 0.9375rem;
+        padding-left: var(--workshop-plus-indent);
+        font-size: 0.9rem;
+        line-height: 1.42;
         max-width: 100%;
     }
 
     .workshop-stage-controls {
         align-self: flex-end;
+        gap: 0.65rem;
     }
 
+    /* Compact 3-column horizontal tab bar on mobile — avoids tall vertical blocks */
     .workshop-tabs {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .workshop-tab {
-        border-right: 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 1rem 1.25rem;
+        min-height: 3.5rem;
+        justify-content: space-between;
+        border-right: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 0;
+        padding: 0.75rem 0.65rem 0.75rem;
     }
 
-    .workshop-tab:last-child {
-        border-bottom: 0;
+    .workshop-tab-header {
+        grid-template-columns: auto minmax(0, 1fr);
+        column-gap: 0.25rem;
+        align-items: baseline;
+    }
+
+    .workshop-tab-plus {
+        font-size: 0.9rem;
+    }
+
+    .workshop-tab-label {
+        font-size: clamp(0.625rem, 2.5vw, 0.72rem);
+        letter-spacing: 0.08em;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
     }
 
     .workshop-tab-line {
         margin-top: 0.5rem;
-        margin-bottom: 0.55rem;
-    }
-
-    /* Prevent excessive repetition on narrow mobile screens: show full detail on the active tab and compact headers on inactive tabs */
-    .workshop-tab[aria-selected="false"] .workshop-tab-body {
-        display: none;
-    }
-
-    .workshop-tab[aria-selected="false"] .workshop-tab-line {
         margin-bottom: 0;
+    }
+
+    .workshop-tab-line::before,
+    .workshop-tab-line::after {
+        width: 100%;
+    }
+
+    /* Full featured description is already visible inside the stage above */
+    .workshop-tab-body {
+        display: none;
     }
 }
 
