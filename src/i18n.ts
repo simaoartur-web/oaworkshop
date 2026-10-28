@@ -12,8 +12,18 @@ const resources = {
     },
 };
 
-const savedLanguage = typeof window !== 'undefined' ? window.localStorage.getItem('oa-language') : null;
-const defaultLanguage = savedLanguage === 'pt' || savedLanguage === 'en' ? savedLanguage : 'en';
+function getInitialLanguage(): 'en' | 'pt' {
+    if (typeof window !== 'undefined') {
+        const path = window.location.pathname;
+        if (path === '/pt' || path.startsWith('/pt/')) return 'pt';
+        if (path === '/en' || path.startsWith('/en/')) return 'en';
+        const savedLanguage = window.localStorage.getItem('oa-language');
+        if (savedLanguage === 'pt' || savedLanguage === 'en') return savedLanguage;
+    }
+    return 'en';
+}
+
+const defaultLanguage = getInitialLanguage();
 
 i18n
     .use(initReactI18next)

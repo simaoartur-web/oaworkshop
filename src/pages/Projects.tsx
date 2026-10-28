@@ -1,13 +1,15 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { ALL_PROJECTS, localizeProject, type ProjectDiscipline } from '../data/projects';
+import { getLocalizedInternalLink } from '../seo/routes';
 
 const FILTERS: Array<'all' | ProjectDiscipline> = ['all', 'architecture', 'urbanism', 'research'];
 
 const Projects = () => {
     const { t } = useTranslation();
+    const location = useLocation();
     const [filter, setFilter] = useState<'all' | ProjectDiscipline>('all');
     const projects = useMemo(() => ALL_PROJECTS.map((item) => localizeProject(item, t)), [t]);
     const filteredProjects = filter === 'all' ? projects : projects.filter((item) => item.discipline === filter);
@@ -44,7 +46,7 @@ const Projects = () => {
                 <motion.div layout className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:gap-12">
                     {filteredProjects.map((item) => (
                         <motion.article layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} key={item.id} className="group">
-                            <Link to={`/projects/${item.id}`}>
+                            <Link to={getLocalizedInternalLink(`/projects/${item.id}`, location.pathname)}>
                                 <div className="relative mb-6 aspect-[4/3] overflow-hidden bg-gray-200">
                                     <img src={item.thumbnail} alt={item.title} className="h-full w-full object-cover transition-transform duration-[2s] group-hover:scale-105" />
                                     <div className="absolute inset-0 bg-black-900/0 transition-colors duration-500 group-hover:bg-black-900/10" />

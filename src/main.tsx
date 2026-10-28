@@ -1,14 +1,28 @@
 import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { HashRouter } from 'react-router-dom'
+import { createRoot, hydrateRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
 import './index.css'
 import './i18n'
 
-createRoot(document.getElementById('root')!).render(
+// Redirect legacy hash routes (#/projects) to clean paths (/projects)
+if (typeof window !== 'undefined' && window.location.hash.startsWith('#/')) {
+    const legacyPath = window.location.hash.slice(1);
+    window.history.replaceState(null, '', legacyPath);
+}
+
+const rootElement = document.getElementById('root')!;
+
+const app = (
     <StrictMode>
-        <HashRouter>
+        <BrowserRouter>
             <App />
-        </HashRouter>
-    </StrictMode>,
-)
+        </BrowserRouter>
+    </StrictMode>
+);
+
+if (rootElement.hasChildNodes()) {
+    hydrateRoot(rootElement, app);
+} else {
+    createRoot(rootElement).render(app);
+}
