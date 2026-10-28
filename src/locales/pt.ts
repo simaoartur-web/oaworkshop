@@ -87,6 +87,15 @@ const pt = {
             },
         ],
     },
+    studioAbout: {
+        sectionLabel: "Apresentação institucional O+A Workshop",
+        title: "WORKSHOP",
+        photoLabel: "About",
+        officeImageAlt: "Espaço de trabalho do estúdio O+A com mesa de trabalho, computadores e quadro de projectos",
+        foundersImageAlt: "Retrato a preto e branco dos fundadores Osvaldo Luís e Artur Simão",
+        quote: "“Somos um estúdio africano de arquitectura sustentável, urbanismo, investigação e design, fundado pelos Arquitectos Osvaldo Luís e Artur Simão em 2025”",
+        signature: "O+A",
+    },
     portfolio: {
         sectionLabel: "Portfólio de projectos",
         title: "PORTFOLIO",
