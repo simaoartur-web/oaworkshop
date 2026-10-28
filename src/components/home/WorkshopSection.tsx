@@ -81,7 +81,7 @@ export default function WorkshopSection() {
     const reducedMotion = useReducedMotion();
     const sectionRef = useRef<HTMLElement>(null);
     const inViewport = useInView(sectionRef, { amount: 0.3 });
-    const [pageVisible, setPageVisible] = useState(() => !document.hidden);
+    const [pageVisible, setPageVisible] = useState(() => (typeof document !== 'undefined' ? !document.hidden : true));
     const [isPausedByInteraction, setIsPausedByInteraction] = useState(false);
     const [activeId, setActiveId] = useState<WorkshopAreaId>('architecture');
     const [interactionTick, setInteractionTick] = useState(0);

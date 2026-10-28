@@ -112,9 +112,10 @@ const HeroSection = () => {
                 </div>
 
                 {/* Element C — "ARCHITECTS AND PLANNERS" */}
-                <p className="relative z-10 mt-[clamp(1.2rem,4vh,2.25rem)] text-[length:var(--text-hero-discipline)] font-light uppercase tracking-[var(--tracking-hero-discipline)] pl-[var(--tracking-hero-discipline)] leading-none text-white">
+                <h1 className="relative z-10 mt-[clamp(1.2rem,4vh,2.25rem)] text-[length:var(--text-hero-discipline)] font-light uppercase tracking-[var(--tracking-hero-discipline)] pl-[var(--tracking-hero-discipline)] leading-none text-white m-0">
+                    <span className="sr-only">{t('common.brand')} — </span>
                     {t('common.discipline')}
-                </p>
+                </h1>
             </motion.div>
 
             {/* Bottom Region: Element D ("Click on O+A to start") & Element E (Minimalist Chevron Indicator) */}

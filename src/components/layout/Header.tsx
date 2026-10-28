@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Plus, Search, X } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { buildLocalizedPath, getHomePrefix, getLocalizedInternalLink } from '../../seo/routes';
 
 const Header = () => {
     const { t, i18n } = useTranslation();
@@ -38,6 +39,11 @@ const Header = () => {
     }, [location]);
 
     const activeLanguage = i18n.resolvedLanguage === 'pt' ? 'pt' : 'en';
+    const homePrefix = getHomePrefix(location.pathname);
+    const homeLink = homePrefix;
+    const projectsLink = getLocalizedInternalLink('/projects', location.pathname);
+    const targetEnPath = buildLocalizedPath(location.pathname, 'en', location.hash);
+    const targetPtPath = buildLocalizedPath(location.pathname, 'pt', location.hash);
 
     const changeLanguage = (lng: 'en' | 'pt') => {
         i18n.changeLanguage(lng);
@@ -54,7 +60,7 @@ const Header = () => {
                 <div className="w-full max-w-[1680px] mx-auto px-4 sm:px-6 md:px-10 flex justify-between items-center h-14 sm:h-16 md:h-20">
                     {/* Logo Section - Minimal and Clean */}
                     <motion.div layoutId="main-logo-area">
-                        <Link to="/" className="flex items-center gap-3 md:gap-6 group shrink-0">
+                        <Link to={homeLink} className="flex items-center gap-3 md:gap-6 group shrink-0">
                             <img
                                 src="/logo.png"
                                 alt="O+A"
@@ -67,25 +73,25 @@ const Header = () => {
                     <div className="flex items-center gap-1 sm:gap-2 md:gap-5">
                         {/* Language Switch */}
                         <div className="flex items-center gap-1 sm:gap-2 text-[10px] tracking-[0.2em] md:tracking-[0.28em] font-medium mr-0.5 md:mr-2">
-                            <button
-                                type="button"
+                            <Link
+                                to={targetEnPath}
                                 onClick={() => changeLanguage('en')}
                                 aria-label={t('common.switchToEnglish')}
-                                aria-pressed={activeLanguage === 'en'}
+                                aria-current={activeLanguage === 'en' ? 'page' : undefined}
                                 className={`min-h-[36px] px-1.5 inline-flex items-center justify-center transition-colors ${activeLanguage === 'en' ? 'text-terracota font-semibold' : 'text-white/50 hover:text-white'}`}
                             >
                                 ENG
-                            </button>
+                            </Link>
                             <span className="text-white/15 select-none">|</span>
-                            <button
-                                type="button"
+                            <Link
+                                to={targetPtPath}
                                 onClick={() => changeLanguage('pt')}
                                 aria-label={t('common.switchToPortuguese')}
-                                aria-pressed={activeLanguage === 'pt'}
+                                aria-current={activeLanguage === 'pt' ? 'page' : undefined}
                                 className={`min-h-[36px] px-1.5 inline-flex items-center justify-center transition-colors ${activeLanguage === 'pt' ? 'text-terracota font-semibold' : 'text-white/50 hover:text-white'}`}
                             >
                                 PT
-                            </button>
+                            </Link>
                         </div>
 
                         {/* Expandable Search Input */}
@@ -191,7 +197,7 @@ const Header = () => {
 
                             {/* Navigation List */}
                             <nav className="flex-grow flex flex-col justify-start px-6 sm:px-10 md:px-16 lg:px-20 py-4 sm:py-8 gap-6 sm:gap-8 md:gap-10">
-                                <Link to="/#workshop" className="group flex flex-col items-start gap-1">
+                                <Link to={`${homePrefix}#workshop`} onClick={() => setIsMenuOpen(false)} className="group flex flex-col items-start gap-1">
                                     <div className="flex items-baseline gap-3 sm:gap-4">
                                         <span className="text-xs sm:text-sm md:text-base font-bold tracking-widest text-white/25 group-hover:text-terracota transition-colors duration-500">01.</span>
                                         <span className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/60 group-hover:text-white transition-all duration-500">{t('nav.workshop')}</span>
@@ -199,7 +205,7 @@ const Header = () => {
                                     <span className="ml-7 sm:ml-10 md:ml-16 text-lg sm:text-xl md:text-3xl lg:text-4xl italic text-terracota/85 group-hover:text-terracota group-hover:translate-x-3 transition-all duration-500">{t('nav.exploreStudio')}</span>
                                 </Link>
 
-                                <Link to="/#portfolio" className="group flex flex-col items-start gap-1">
+                                <Link to={`${homePrefix}#portfolio`} onClick={() => setIsMenuOpen(false)} className="group flex flex-col items-start gap-1">
                                     <div className="flex items-baseline gap-3 sm:gap-4">
                                         <span className="text-xs sm:text-sm md:text-base font-bold tracking-widest text-white/25 group-hover:text-terracota transition-colors duration-500">02.</span>
                                         <span className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/60 group-hover:text-white transition-all duration-500">{t('nav.expertise')}</span>
@@ -207,7 +213,7 @@ const Header = () => {
                                     <span className="ml-7 sm:ml-10 md:ml-16 text-lg sm:text-xl md:text-3xl lg:text-4xl italic text-terracota/85 group-hover:text-terracota group-hover:translate-x-3 transition-all duration-500">{t('nav.ourSkills')}</span>
                                 </Link>
 
-                                <Link to="/projects" className="group flex flex-col items-start gap-1">
+                                <Link to={projectsLink} onClick={() => setIsMenuOpen(false)} className="group flex flex-col items-start gap-1">
                                     <div className="flex items-baseline gap-3 sm:gap-4">
                                         <span className="text-xs sm:text-sm md:text-base font-bold tracking-widest text-white/25 group-hover:text-terracota transition-colors duration-500">03.</span>
                                         <span className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/60 group-hover:text-white transition-all duration-500">{t('nav.projects')}</span>
@@ -215,7 +221,7 @@ const Header = () => {
                                     <span className="ml-7 sm:ml-10 md:ml-16 text-lg sm:text-xl md:text-3xl lg:text-4xl italic text-terracota/85 group-hover:text-terracota group-hover:translate-x-3 transition-all duration-500">{t('nav.portfolio')}</span>
                                 </Link>
 
-                                <Link to="/#contact" className="group flex flex-col items-start gap-1">
+                                <Link to={`${homePrefix}#contact`} onClick={() => setIsMenuOpen(false)} className="group flex flex-col items-start gap-1">
                                     <div className="flex items-baseline gap-3 sm:gap-4">
                                         <span className="text-xs sm:text-sm md:text-base font-bold tracking-widest text-white/25 group-hover:text-terracota transition-colors duration-500">04.</span>
                                         <span className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/60 group-hover:text-white transition-all duration-500">{t('nav.contact')}</span>
@@ -227,8 +233,8 @@ const Header = () => {
                             {/* Menu Footer */}
                             <div className="p-6 sm:p-10 md:p-14 lg:p-16 flex justify-between items-center border-t border-white/5 bg-black/40 mt-auto">
                                 <div className="flex gap-6 sm:gap-8 text-[11px] tracking-[0.3em] font-medium">
-                                    <button type="button" aria-label={t('common.switchToPortuguese')} aria-pressed={activeLanguage === 'pt'} onClick={(e) => { e.preventDefault(); changeLanguage('pt'); }} className={`min-h-[36px] px-2 ${activeLanguage === 'pt' ? "text-terracota scale-110 font-semibold" : "opacity-40 hover:opacity-100 transition-all"}`}>PT</button>
-                                    <button type="button" aria-label={t('common.switchToEnglish')} aria-pressed={activeLanguage === 'en'} onClick={(e) => { e.preventDefault(); changeLanguage('en'); }} className={`min-h-[36px] px-2 ${activeLanguage === 'en' ? "text-terracota scale-110 font-semibold" : "opacity-40 hover:opacity-100 transition-all"}`}>EN</button>
+                                    <Link to={targetPtPath} aria-label={t('common.switchToPortuguese')} aria-current={activeLanguage === 'pt' ? 'page' : undefined} onClick={() => changeLanguage('pt')} className={`min-h-[36px] px-2 inline-flex items-center ${activeLanguage === 'pt' ? "text-terracota scale-110 font-semibold" : "opacity-40 hover:opacity-100 transition-all"}`}>PT</Link>
+                                    <Link to={targetEnPath} aria-label={t('common.switchToEnglish')} aria-current={activeLanguage === 'en' ? 'page' : undefined} onClick={() => changeLanguage('en')} className={`min-h-[36px] px-2 inline-flex items-center ${activeLanguage === 'en' ? "text-terracota scale-110 font-semibold" : "opacity-40 hover:opacity-100 transition-all"}`}>EN</Link>
                                 </div>
                                 <div className="text-[10px] tracking-[0.4em] uppercase opacity-20 hidden sm:block">
                                     {t('common.studioName')}
