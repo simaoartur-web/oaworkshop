@@ -45,10 +45,14 @@
 
 | Caminho | Responsabilidade | Consumidores principais |
 |---|---|---|
-| `src/main.tsx` | montagem React, `HashRouter`, estilos e i18n | navegador |
-| `src/App.tsx` | estrutura global, rotas e transições entre páginas | `src/main.tsx` |
+| `src/main.tsx` | montagem React, `BrowserRouter`, hidratação, estilos e i18n | navegador |
+| `src/entry-server.tsx` | ponto de entrada SSR para pré-renderização estática multi-rota | `scripts/prerender.mjs` |
+| `src/App.tsx` | estrutura global, rotas e transições entre páginas | `src/main.tsx`, `src/entry-server.tsx` |
 | `src/index.css` | tokens Tailwind, estilos base e utilitários globais | `src/main.tsx` |
-| `src/i18n.ts` | inicialização e selecção de idioma | aplicação inteira |
+| `src/i18n.ts` | inicialização e selecção de idioma (com suporte a rotas URL) | aplicação inteira |
+| `src/seo/routes.ts` | resolução de rotas bilingues e links canónicos | `Header.tsx`, `Footer.tsx`, SEO |
+| `src/seo/metadata.ts` | metadados tipados, Open Graph, Twitter e JSON-LD Organization | `DocumentHead.tsx`, prerender |
+| `src/seo/DocumentHead.tsx` | actualização dinâmica de títulos e metadados no cliente | `src/App.tsx` |
 | `src/vite-env.d.ts` | tipos de ambiente do Vite | TypeScript |
 
 ## Páginas
@@ -58,6 +62,7 @@
 | `src/pages/Home.tsx` | composição da página inicial e das secções temáticas |
 | `src/pages/Projects.tsx` | catálogo geral de projectos |
 | `src/pages/ProjectDetail.tsx` | detalhe de um projecto identificado pela rota |
+| `src/pages/NotFound.tsx` | resposta 404 bilingue com directiva noindex |
 
 Não existe página administrativa. Qualquer proposta para a criar exige novo plano e a revogação aprovada da decisão front-end primeiro.
 
@@ -108,6 +113,7 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 | `docs/QUALITY.md` | verificações técnicas, visuais e de acessibilidade |
 | `docs/decisions/` | decisões arquitecturais duradouras |
 | `plans/` | planos numerados, aprovação e estado |
+| `plans/080-seo-infraestrutura-indexacao.md` | plano de infraestrutura SEO, indexação orgânica e pré-renderização |
 | `plans/124-design-mastery-playbook.md` | integração das referências de design nas instruções dos agentes |
 | `prompts/` | normas e modelos de prompts |
 
@@ -115,6 +121,8 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 
 | Caminho | Responsabilidade |
 |---|---|
+| `scripts/prerender.mjs` | pré-renderização estática multi-rota e geração de sitemap.xml |
+| `public/robots.txt` | directivas de rastreio para motores de busca e endereço do sitemap |
 | `.github/workflows/deploy.yml` | instala, compila e publica `dist/` no GitHub Pages em alterações de `main` |
 
 ## Caminhos deliberadamente inexistentes
