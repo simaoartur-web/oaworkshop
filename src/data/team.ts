@@ -38,6 +38,13 @@ export const getSafeTeamProfileUrl = (value: string): string | null => {
     }
 };
 
+export const getTeamInitials = (name: string): string => {
+    const words = name.trim().split(/\s+/).filter(Boolean);
+    const first = Array.from(words[0] ?? '')[0] ?? '';
+    const last = words.length > 1 ? Array.from(words[words.length - 1])[0] : '';
+    return (first + last).toLocaleUpperCase();
+};
+
 // Array order is the public editorial order within each organisational level.
 export const TEAM_MEMBERS: readonly TeamMember[] = [
     { id: 'osvaldo-luis', name: 'Osvaldo Luís', leadership: true, role: 'managingDirector', category: 'architectureUrbanism', image: null, bio: null, links: [] },

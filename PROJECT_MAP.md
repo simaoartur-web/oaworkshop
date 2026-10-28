@@ -79,7 +79,7 @@ Não existe página administrativa. Qualquer proposta para a criar exige novo pl
 | `src/components/home/ContactSection.tsx` | informação e acção de contacto | página inicial |
 | `src/components/home/ExpertiseSection.tsx` | apresentação de competências | disponível; confirmar consumidor antes de alterar |
 | `src/components/home/StatsSection.tsx` | indicadores animados | secções da página inicial |
-| `src/components/home/TeamSection.tsx` | organograma público bilingue da equipa | página inicial, depois de `+ PORTFOLIO` e antes de Contactos |
+| `src/components/home/TeamSection.tsx` | secção editorial `Our Team` com Joint Leadership permanente, botão interactivo `Discover our team` e grelha expansível de colaboradores | página inicial, depois de `+ PORTFOLIO` e antes de Contactos |
 | `src/components/home/TeamMember.tsx` | perfil resumido e abertura acessível por pessoa | TeamSection |
 | `src/components/home/TeamAvatar.tsx` | estados de carregamento do retrato local e iniciais automáticas, incluindo falha de imagem | TeamMember, TeamProfilePanel |
 | `src/components/home/TeamProfilePanel.tsx` | diálogo lateral com informação e ligações sociais, foco, fecho e restauro de scroll | TeamSection |
