@@ -1,8 +1,8 @@
 import { motion, useInView, useReducedMotion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 import WorkshopTabs from './WorkshopTabs';
 import './workshop.css';
 
@@ -13,6 +13,7 @@ interface WorkshopArea {
     order: number;
     targetId: WorkshopAreaId;
     imageSrc: string;
+    imageWebp: string;
     objectPosition: string;
 }
 
@@ -31,6 +32,7 @@ const AREAS: readonly WorkshopArea[] = [
         order: 1,
         targetId: 'architecture',
         imageSrc: `${import.meta.env.BASE_URL}images/workshop-architecture.jpg`,
+        imageWebp: `${import.meta.env.BASE_URL}images/workshop-architecture.webp`,
         objectPosition: '50% 48%',
     },
     {
@@ -38,6 +40,7 @@ const AREAS: readonly WorkshopArea[] = [
         order: 2,
         targetId: 'urbanism',
         imageSrc: `${import.meta.env.BASE_URL}images/workshop-urbanism.jpg`,
+        imageWebp: `${import.meta.env.BASE_URL}images/workshop-urbanism.webp`,
         objectPosition: '50% 52%',
     },
     {
@@ -45,6 +48,7 @@ const AREAS: readonly WorkshopArea[] = [
         order: 3,
         targetId: 'research',
         imageSrc: `${import.meta.env.BASE_URL}images/workshop-research.jpg`,
+        imageWebp: `${import.meta.env.BASE_URL}images/workshop-research.webp`,
         objectPosition: '50% 45%',
     },
 ];
@@ -76,15 +80,23 @@ function focusSection(sectionId: string, reducedMotion: boolean) {
 }
 
 export default function WorkshopSection() {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const { hash } = useLocation();
     const reducedMotion = useReducedMotion();
     const sectionRef = useRef<HTMLElement>(null);
-    const inViewport = useInView(sectionRef, { amount: 0.3 });
-    const [pageVisible, setPageVisible] = useState(() => (typeof document !== 'undefined' ? !document.hidden : true));
-    const [isPausedByInteraction, setIsPausedByInteraction] = useState(false);
+    const inViewport = useInView(sectionRef, { amount: 0.15 });
+
+    const [pageVisible, setPageVisible] = useState(() => {
+        if (typeof document === 'undefined') return true;
+        return !document.hidden;
+    });
+    const [isPlaying, setIsPlaying] = useState(true);
+    const [isHovered, setIsHovered] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
     const [activeId, setActiveId] = useState<WorkshopAreaId>('architecture');
-    const [interactionTick, setInteractionTick] = useState(0);
+    const [idleTick, setIdleTick] = useState(0);
+
+    const idleTimerRef = useRef<number | null>(null);
 
     const copies = t('workshop.slides', { returnObjects: true }) as WorkshopCopy[];
     const defaultTag = t('workshop.featuredTag');
@@ -93,9 +105,26 @@ export default function WorkshopSection() {
     const nextId = AREAS[(activeIndex + 1) % AREAS.length].id;
     const prevId = AREAS[(activeIndex - 1 + AREAS.length) % AREAS.length].id;
 
-    const canAutoRotate =
-        !reducedMotion && pageVisible && inViewport && !isPausedByInteraction;
+    // Trigger temporary pause on user action, auto-resuming after SLIDE_DURATION_MS of idle
+    const registerUserInteraction = useCallback(() => {
+        if (idleTimerRef.current !== null) {
+            window.clearTimeout(idleTimerRef.current);
+        }
+        idleTimerRef.current = window.setTimeout(() => {
+            setIdleTick((tick) => tick + 1);
+        }, SLIDE_DURATION_MS);
+    }, []);
 
+    // Clean up idle timer on unmount
+    useEffect(() => {
+        return () => {
+            if (idleTimerRef.current !== null) {
+                window.clearTimeout(idleTimerRef.current);
+            }
+        };
+    }, []);
+
+    // Page Visibility listener
     useEffect(() => {
         const handleVisibility = () => setPageVisible(!document.hidden);
         document.addEventListener('visibilitychange', handleVisibility);
@@ -104,14 +133,19 @@ export default function WorkshopSection() {
         };
     }, []);
 
+    // Autoplay condition: respects reducedMotion, pageVisible, viewport, user play/pause, hover, and focus
+    const canAutoRotate =
+        !reducedMotion && pageVisible && inViewport && isPlaying && !isHovered && !isFocused;
+
     useEffect(() => {
         if (!canAutoRotate) return;
         const timer = window.setTimeout(() => {
             setActiveId(nextId);
         }, SLIDE_DURATION_MS);
         return () => window.clearTimeout(timer);
-    }, [canAutoRotate, nextId, interactionTick, i18n.resolvedLanguage]);
+    }, [canAutoRotate, nextId, idleTick]);
 
+    // Hash navigation handling
     useEffect(() => {
         const target = AREAS.find((item) => `#${item.targetId}` === hash);
         if (!target) return;
@@ -123,17 +157,23 @@ export default function WorkshopSection() {
     }, [hash, reducedMotion]);
 
     const selectArea = (id: WorkshopAreaId) => {
-        setInteractionTick((tick) => tick + 1);
+        registerUserInteraction();
         if (id === activeId) return;
         setActiveId(id);
     };
 
     const selectPrevious = () => {
-        selectArea(prevId);
+        registerUserInteraction();
+        setActiveId(prevId);
     };
 
     const selectNext = () => {
-        selectArea(nextId);
+        registerUserInteraction();
+        setActiveId(nextId);
+    };
+
+    const togglePlayPause = () => {
+        setIsPlaying((prev) => !prev);
     };
 
     return (
@@ -144,14 +184,18 @@ export default function WorkshopSection() {
             aria-label={t('workshop.sectionLabel')}
             onPointerEnter={(event) => {
                 if (event.pointerType === 'mouse') {
-                    setIsPausedByInteraction(true);
+                    setIsHovered(true);
                 }
             }}
-            onPointerLeave={() => setIsPausedByInteraction(false)}
-            onFocusCapture={() => setIsPausedByInteraction(true)}
+            onPointerLeave={() => {
+                setIsHovered(false);
+                registerUserInteraction();
+            }}
+            onFocusCapture={() => setIsFocused(true)}
             onBlurCapture={(event) => {
                 if (!event.currentTarget.contains(event.relatedTarget)) {
-                    setIsPausedByInteraction(false);
+                    setIsFocused(false);
+                    registerUserInteraction();
                 }
             }}
         >
@@ -160,19 +204,24 @@ export default function WorkshopSection() {
                     {AREAS.map((item) => {
                         const visible = item.id === activeId;
                         return (
-                            <img
+                            <picture
                                 key={item.id}
-                                src={item.imageSrc}
-                                width={1920}
-                                height={1080}
-                                decoding="async"
-                                alt={visible ? t(`workshop.imageAlt.${item.id}`) : ''}
-                                aria-hidden={!visible}
-                                className="workshop-photo"
+                                className="workshop-photo-picture"
                                 data-area={item.id}
                                 data-visible={visible}
-                                style={{ objectPosition: item.objectPosition }}
-                            />
+                            >
+                                <source srcSet={item.imageWebp} type="image/webp" />
+                                <img
+                                    src={item.imageSrc}
+                                    width={1920}
+                                    height={1080}
+                                    decoding="async"
+                                    alt={visible ? t(`workshop.imageAlt.${item.id}`) : ''}
+                                    aria-hidden={!visible}
+                                    className="workshop-photo"
+                                    style={{ objectPosition: item.objectPosition }}
+                                />
+                            </picture>
                         );
                     })}
                     <div className="workshop-stage-gradient" aria-hidden="true" />
@@ -183,7 +232,6 @@ export default function WorkshopSection() {
                         id={`workshop-panel-${activeId}`}
                         role="tabpanel"
                         aria-labelledby={`workshop-tab-${activeId}`}
-                        tabIndex={0}
                         className="workshop-panel"
                     >
                         <motion.div
@@ -219,6 +267,23 @@ export default function WorkshopSection() {
                             onClick={selectPrevious}
                         >
                             <ChevronLeft size={18} strokeWidth={1.75} aria-hidden="true" />
+                        </button>
+                        <button
+                            type="button"
+                            className="workshop-nav-btn workshop-nav-btn-playback"
+                            aria-label={
+                                isPlaying
+                                    ? t('workshop.pauseSlideshow')
+                                    : t('workshop.playSlideshow')
+                            }
+                            aria-pressed={!isPlaying}
+                            onClick={togglePlayPause}
+                        >
+                            {isPlaying ? (
+                                <Pause size={16} strokeWidth={2} aria-hidden="true" />
+                            ) : (
+                                <Play size={16} strokeWidth={2} aria-hidden="true" className="translate-x-[1px]" />
+                            )}
                         </button>
                         <button
                             type="button"

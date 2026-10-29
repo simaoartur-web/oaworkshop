@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next';
 import './studio-about.css';
 
 const OFFICE_IMAGE_SRC = `${import.meta.env.BASE_URL}images/workshop-about/office-space.png`;
+const OFFICE_IMAGE_WEBP = `${import.meta.env.BASE_URL}images/workshop-about/office-space.webp`;
 const FOUNDERS_IMAGE_SRC = `${import.meta.env.BASE_URL}images/workshop-about/founders-portrait.png`;
+const FOUNDERS_IMAGE_WEBP = `${import.meta.env.BASE_URL}images/workshop-about/founders-portrait.webp`;
 
 const StudioAboutSection = () => {
     const { t } = useTranslation();
@@ -39,15 +41,18 @@ const StudioAboutSection = () => {
                         }}
                         className="studio-about-office-figure"
                     >
-                        <img
-                            src={OFFICE_IMAGE_SRC}
-                            alt={t('studioAbout.officeImageAlt')}
-                            width={1435}
-                            height={721}
-                            loading="lazy"
-                            decoding="async"
-                            className="studio-about-office-img"
-                        />
+                        <picture>
+                            <source srcSet={OFFICE_IMAGE_WEBP} type="image/webp" />
+                            <img
+                                src={OFFICE_IMAGE_SRC}
+                                alt={t('studioAbout.officeImageAlt')}
+                                width={1435}
+                                height={721}
+                                loading="lazy"
+                                decoding="async"
+                                className="studio-about-office-img"
+                            />
+                        </picture>
                         <figcaption className="sr-only">
                             {t('studioAbout.photoLabel')}
                         </figcaption>
@@ -68,15 +73,18 @@ const StudioAboutSection = () => {
                         className="studio-about-aside"
                     >
                         <figure className="studio-about-founders-figure">
-                            <img
-                                src={FOUNDERS_IMAGE_SRC}
-                                alt={t('studioAbout.foundersImageAlt')}
-                                width={552}
-                                height={385}
-                                loading="lazy"
-                                decoding="async"
-                                className="studio-about-founders-img"
-                            />
+                            <picture>
+                                <source srcSet={FOUNDERS_IMAGE_WEBP} type="image/webp" />
+                                <img
+                                    src={FOUNDERS_IMAGE_SRC}
+                                    alt={t('studioAbout.foundersImageAlt')}
+                                    width={552}
+                                    height={385}
+                                    loading="lazy"
+                                    decoding="async"
+                                    className="studio-about-founders-img"
+                                />
+                            </picture>
                         </figure>
 
                         <div className="studio-about-card">
