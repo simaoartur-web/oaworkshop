@@ -12,13 +12,24 @@ const resources = {
     },
 };
 
-function getInitialLanguage(): 'en' | 'pt' {
+/**
+ * Deterministic initial language policy (SEO-01):
+ * - URL path is the single authoritative source of truth for the initial render and SSR.
+ * - /pt and /pt/* strictly initialize in Portuguese ('pt').
+ * - /en and /en/* strictly initialize in English ('en').
+ * - Root (/) and all unprefixed canonical routes initialize in English ('en' / x-default).
+ * - Legacy hash routes (e.g. #/pt) are supported on initial load if present.
+ * - localStorage ('oa-language') stores the user's explicit preference across sessions,
+ *   but NEVER overrides or contradicts the canonical URL's language, preventing hydration mismatches.
+ */
+export function getInitialLanguage(): 'en' | 'pt' {
     if (typeof window !== 'undefined') {
         const path = window.location.pathname;
         if (path === '/pt' || path.startsWith('/pt/')) return 'pt';
         if (path === '/en' || path.startsWith('/en/')) return 'en';
-        const savedLanguage = window.localStorage.getItem('oa-language');
-        if (savedLanguage === 'pt' || savedLanguage === 'en') return savedLanguage;
+        const hash = window.location.hash;
+        if (hash.startsWith('#/pt') || hash.startsWith('#pt')) return 'pt';
+        if (hash.startsWith('#/en') || hash.startsWith('#en')) return 'en';
     }
     return 'en';
 }

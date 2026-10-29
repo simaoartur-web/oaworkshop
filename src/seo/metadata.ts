@@ -5,7 +5,9 @@ import {
     stripLanguagePrefix,
     buildLocalizedPath,
 } from './routes';
-import { ALL_PROJECTS } from '../data/projects';
+import { ALL_PROJECTS, hasVerifiedProjects, type Project } from '../data/projects';
+import enLocale from '../locales/en';
+import ptLocale from '../locales/pt';
 
 export interface AlternateLink {
     hrefLang: string;
@@ -105,6 +107,73 @@ export function buildOrganizationJsonLd(lang: SupportedLanguage): Record<string,
 }
 
 /**
+ * Resolves localized project details (title and description) from local locale dictionaries.
+ */
+function getProjectDetails(
+    project: Project,
+    lang: SupportedLanguage
+): { title: string; description: string } {
+    const localeResource = lang === 'pt' ? ptLocale : enLocale;
+    const disciplineProjects =
+        localeResource.categorySections?.projects?.[project.discipline];
+    const item = Array.isArray(disciplineProjects)
+        ? disciplineProjects[project.contentIndex]
+        : undefined;
+    const projectTitle = item?.title || project.id;
+    const projectDesc = item?.description || '';
+    return { title: projectTitle, description: projectDesc };
+}
+
+/**
+ * Returns canonical 404 / Not Found metadata with noindex, no canonical, no og:url, no alternates, and no JSON-LD.
+ */
+export function getNotFoundMetadata(lang: SupportedLanguage): PageMetadata {
+    const isPt = lang === 'pt';
+    const siteName = isPt ? 'O+A Arquitectos e Planeadores' : 'O+A Architects and Planners';
+    const imageAlt = isPt ? DEFAULT_OG_IMAGE_ALT_PT : DEFAULT_OG_IMAGE_ALT_EN;
+    const locale = isPt ? 'pt_PT' : 'en_US';
+    const localeAlternate = isPt ? 'en_US' : 'pt_PT';
+
+    const notFoundTitle = isPt
+        ? '404 — Página Não Encontrada | O+A'
+        : '404 — Page Not Found | O+A';
+    const notFoundDesc = isPt
+        ? 'A página solicitada não foi encontrada no sítio da O+A Arquitectos e Planeadores.'
+        : 'The requested page could not be found on the O+A Architects and Planners website.';
+
+    return {
+        title: notFoundTitle,
+        description: notFoundDesc,
+        canonical: '', // 404 pages must never provide a canonical tag
+        robots: 'noindex, nofollow',
+        lang,
+        isIndexable: false,
+        og: {
+            title: notFoundTitle,
+            description: notFoundDesc,
+            url: '', // Cleaned on 404 to avoid inheriting previous og:url
+            type: 'website',
+            image: DEFAULT_OG_IMAGE,
+            imageWidth: 1200,
+            imageHeight: 630,
+            imageAlt,
+            locale,
+            localeAlternate,
+            siteName,
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: notFoundTitle,
+            description: notFoundDesc,
+            image: DEFAULT_OG_IMAGE,
+            imageAlt,
+        },
+        alternates: [],
+        jsonLd: undefined,
+    };
+}
+
+/**
  * Returns complete SEO metadata for any given pathname and optional language override.
  */
 export function getPageMetadata(
@@ -176,6 +245,7 @@ export function getPageMetadata(
 
     // 2. Project Catalog: '/projects'
     if (stripped === '/projects') {
+        const isVerified = hasVerifiedProjects();
         const canonical = `${SITE_URL}${buildLocalizedPath('/projects', lang)}`;
         const title = isPt
             ? 'Biblioteca de Projectos | O+A Arquitectos e Planeadores'
@@ -185,14 +255,13 @@ export function getPageMetadata(
             ? 'Selecção de estudos e projectos em arquitectura, planeamento urbano e investigação em diferentes territórios.'
             : 'Selection of studies and projects in architecture, urban planning and research across diverse territories.';
 
-        // Unverified catalog has noindex until formal editorial validation
         return {
             title,
             description,
             canonical,
-            robots: 'noindex, nofollow',
+            robots: isVerified ? 'index, follow' : 'noindex, nofollow',
             lang,
-            isIndexable: false,
+            isIndexable: isVerified,
             og: {
                 title,
                 description,
@@ -217,6 +286,7 @@ export function getPageMetadata(
                 { hrefLang: 'en', href: `${SITE_URL}/en/projects` },
                 { hrefLang: 'pt', href: `${SITE_URL}/pt/projects` },
             ],
+            jsonLd: undefined,
         };
     }
 
@@ -224,27 +294,34 @@ export function getPageMetadata(
     if (stripped.startsWith('/projects/')) {
         const projectId = stripped.replace('/projects/', '').trim();
         const found = ALL_PROJECTS.find((p) => p.id === projectId);
-        const resolvedTitle = dynamicTitle || (found ? `${found.id} | O+A` : 'Project | O+A');
+        if (!found) {
+            // Non-existent project treated consistently as 404
+            return getNotFoundMetadata(lang);
+        }
+
+        const details = getProjectDetails(found, lang);
+        const resolvedTitle = dynamicTitle || details.title;
 
         const title = `${resolvedTitle} | ${siteName}`;
-        const description = isPt
+        const description = details.description || (isPt
             ? 'Detalhes do projecto e intervenção territorial O+A Arquitectos e Planeadores.'
-            : 'Project details and spatial intervention by O+A Architects and Planners.';
+            : 'Project details and spatial intervention by O+A Architects and Planners.');
         const canonical = `${SITE_URL}${buildLocalizedPath(`/projects/${projectId}`, lang)}`;
+        const isVerified = found.editorialStatus === 'verified';
 
         return {
             title,
             description,
             canonical,
-            robots: 'noindex, nofollow', // Mock unsplash projects stay noindex
+            robots: isVerified ? 'index, follow' : 'noindex, nofollow',
             lang,
-            isIndexable: false,
+            isIndexable: isVerified,
             og: {
                 title,
                 description,
                 url: canonical,
                 type: 'article',
-                image: found?.mainImage || DEFAULT_OG_IMAGE,
+                image: found.mainImage || DEFAULT_OG_IMAGE,
                 imageWidth: 1200,
                 imageHeight: 630,
                 imageAlt: resolvedTitle,
@@ -256,51 +333,17 @@ export function getPageMetadata(
                 card: 'summary_large_image',
                 title,
                 description,
-                image: found?.mainImage || DEFAULT_OG_IMAGE,
+                image: found.mainImage || DEFAULT_OG_IMAGE,
                 imageAlt: resolvedTitle,
             },
             alternates: [
                 { hrefLang: 'en', href: `${SITE_URL}/en/projects/${projectId}` },
                 { hrefLang: 'pt', href: `${SITE_URL}/pt/projects/${projectId}` },
             ],
+            jsonLd: undefined,
         };
     }
 
-    // 4. Not Found / 404
-    const notFoundTitle = isPt
-        ? '404 — Página Não Encontrada | O+A'
-        : '404 — Page Not Found | O+A';
-    const notFoundDesc = isPt
-        ? 'A página solicitada não foi encontrada no sítio da O+A Arquitectos e Planeadores.'
-        : 'The requested page could not be found on the O+A Architects and Planners website.';
-
-    return {
-        title: notFoundTitle,
-        description: notFoundDesc,
-        canonical: '', // 404 pages must never provide a canonical tag
-        robots: 'noindex, nofollow',
-        lang,
-        isIndexable: false,
-        og: {
-            title: notFoundTitle,
-            description: notFoundDesc,
-            url: '',
-            type: 'website',
-            image: DEFAULT_OG_IMAGE,
-            imageWidth: 1200,
-            imageHeight: 630,
-            imageAlt,
-            locale,
-            localeAlternate,
-            siteName,
-        },
-        twitter: {
-            card: 'summary_large_image',
-            title: notFoundTitle,
-            description: notFoundDesc,
-            image: DEFAULT_OG_IMAGE,
-            imageAlt,
-        },
-        alternates: [],
-    };
+    // 4. Not Found / 404 fallback for any other unmapped route
+    return getNotFoundMetadata(lang);
 }

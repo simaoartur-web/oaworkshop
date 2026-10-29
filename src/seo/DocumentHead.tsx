@@ -8,33 +8,39 @@ interface DocumentHeadProps {
     dynamicTitle?: string;
 }
 
-function setOrCreateMeta(name: string, content: string, isProperty = false) {
+function setOrCreateMeta(name: string, content: string | undefined, isProperty = false) {
     const attribute = isProperty ? 'property' : 'name';
-    let element = document.head.querySelector(`meta[${attribute}="${name}"]`) as HTMLMetaElement | null;
-    if (!element) {
-        element = document.createElement('meta');
-        element.setAttribute(attribute, name);
-        document.head.appendChild(element);
+    const element = document.head.querySelector(`meta[${attribute}="${name}"]`) as HTMLMetaElement | null;
+    if (!content) {
+        if (element) element.remove();
+        return;
     }
-    element.content = content;
+    let target = element;
+    if (!target) {
+        target = document.createElement('meta');
+        target.setAttribute(attribute, name);
+        document.head.appendChild(target);
+    }
+    target.content = content;
 }
 
 function setOrCreateLink(rel: string, href: string, hreflang?: string) {
     const selector = hreflang
         ? `link[rel="${rel}"][hreflang="${hreflang}"]`
         : `link[rel="${rel}"]:not([hreflang])`;
-    let element = document.head.querySelector(selector) as HTMLLinkElement | null;
+    const element = document.head.querySelector(selector) as HTMLLinkElement | null;
     if (!href) {
         if (element) element.remove();
         return;
     }
-    if (!element) {
-        element = document.createElement('link');
-        element.rel = rel;
-        if (hreflang) element.hreflang = hreflang;
-        document.head.appendChild(element);
+    let target = element;
+    if (!target) {
+        target = document.createElement('link');
+        target.rel = rel;
+        if (hreflang) target.hreflang = hreflang;
+        document.head.appendChild(target);
     }
-    element.href = href;
+    target.href = href;
 }
 
 export default function DocumentHead({ dynamicTitle }: DocumentHeadProps) {
@@ -55,19 +61,19 @@ export default function DocumentHead({ dynamicTitle }: DocumentHeadProps) {
         setOrCreateMeta('description', metadata.description);
         setOrCreateMeta('robots', metadata.robots);
 
-        // 3. Canonical
+        // 3. Canonical (removed when empty, e.g. on 404)
         setOrCreateLink('canonical', metadata.canonical);
 
-        // 4. Alternates (clean up old ones and add current)
+        // 4. Alternates (clean up old ones and add current; empty on 404)
         document.head.querySelectorAll('link[rel="alternate"][hreflang]').forEach((node) => node.remove());
         metadata.alternates.forEach((alt) => {
             setOrCreateLink('alternate', alt.href, alt.hrefLang);
         });
 
-        // 5. Open Graph
+        // 5. Open Graph (og:url is cleanly removed if empty)
         setOrCreateMeta('og:title', metadata.og.title, true);
         setOrCreateMeta('og:description', metadata.og.description, true);
-        if (metadata.og.url) setOrCreateMeta('og:url', metadata.og.url, true);
+        setOrCreateMeta('og:url', metadata.og.url, true);
         setOrCreateMeta('og:type', metadata.og.type, true);
         setOrCreateMeta('og:image', metadata.og.image, true);
         setOrCreateMeta('og:image:width', String(metadata.og.imageWidth), true);
