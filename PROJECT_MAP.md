@@ -115,12 +115,14 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 | `plans/` | planos numerados, aprovação e estado |
 | `plans/080-seo-infraestrutura-indexacao.md` | plano de infraestrutura SEO, indexação orgânica e pré-renderização |
 | `plans/124-design-mastery-playbook.md` | integração das referências de design nas instruções dos agentes |
+| `plans/134-performance-imagens-autoplay-fades.md` | plano R06: pipeline de optimização Sharp, autoplay robusto e crossfades |
 | `prompts/` | normas e modelos de prompts |
 
 ## Publicação
 
 | Caminho | Responsabilidade |
 |---|---|
+| `scripts/optimize-images.mjs` | pipeline Sharp de conversão para WebP e geração de variantes responsivas |
 | `scripts/prerender.mjs` | pré-renderização estática multi-rota e geração de sitemap.xml |
 | `public/robots.txt` | directivas de rastreio para motores de busca e endereço do sitemap |
 | `.github/workflows/deploy.yml` | instala, compila e publica `dist/` no GitHub Pages em alterações de `main` |
