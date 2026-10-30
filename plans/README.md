@@ -70,7 +70,7 @@ Uma alteração material ao âmbito, riscos ou decisões invalida a aprovação 
 |---:|---|---|
 | 000 | CANÓNICO | `000-plano-mestre-governacao-e-front-end.md` |
 | 010 | CANÓNICO | `010-limpeza-publica-e-bilingue.md` |
-| 080 | CONCLUÍDO | `080-seo-infraestrutura-indexacao.md` |
+| 080 | CANÓNICO | `080-seo-infraestrutura-indexacao.md` |
 | 120 | CANÓNICO | `120-organograma-da-equipa.md` |
 | 121 | CANÓNICO | `121-equipa-perfis-interactivos.md` |
 | 122 | CANÓNICO | `122-equipa-refinamento-editorial.md` |
@@ -84,6 +84,8 @@ Uma alteração material ao âmbito, riscos ou decisões invalida a aprovação 
 | 130 | CANÓNICO | `130-release-01-publicacao-dominio-principal.md` |
 | 131 | CANÓNICO | `131-seccao-institucional-workshop-r05.md` |
 | 132 | CANÓNICO | `132-refinamento-ux-ui-mobile-hero-continuidade.md` |
+| 133 | CANÓNICO | `133-redesign-seccao-our-team.md` |
+| 134 | CANÓNICO | `134-performance-imagens-autoplay-fades.md` |
 
 ## Roteiro proposto
 

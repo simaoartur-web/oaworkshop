@@ -1,6 +1,6 @@
 # Plano 134 — Performance de Imagens, Autoplay do Slideshow e Refinamento de Fades (R06)
 
-**Estado:** EXECUTADO (Validações concluídas com sucesso)  
+**Estado:** CANÓNICO (Aprovado pelo utilizador e integrado em main)  
 **Branch:** `codex/r06-performance-autoplay-images`  
 **Data:** 2026-10-29  
 **Missão:** R06 — Corrigir o congelamento do slideshow, implementar pipeline de otimização de imagens com Sharp no build, melhorar o crossfade e a continuidade visual entre secções, preservando a SEO-01.
