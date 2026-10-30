@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next';
 
 export type ProjectDiscipline = 'architecture' | 'urbanism' | 'research';
+export type EditorialStatus = 'demo' | 'verified';
 
 export interface MapMarker {
     lat: number;
@@ -15,6 +16,7 @@ export interface Project {
     mapPosition: MapMarker;
     mainImage: string;
     thumbnail: string;
+    editorialStatus?: EditorialStatus;
 }
 
 export interface LocalizedProject extends Project {
@@ -30,7 +32,7 @@ const project = (
     discipline: ProjectDiscipline,
     contentIndex: number,
     data: Omit<Project, 'discipline' | 'contentIndex'>,
-): Project => ({ discipline, contentIndex, ...data });
+): Project => ({ discipline, contentIndex, editorialStatus: 'demo', ...data });
 
 export const ARCHITECTURE_PROJECTS: Project[] = [
     project('architecture', 0, {
@@ -128,3 +130,6 @@ export const COMMON_MARKERS: MapMarker[] = [
     { lat: 52.52, lng: 13.405 },
     { lat: 30.0444, lng: 31.2357 },
 ];
+
+export const hasVerifiedProjects = (): boolean =>
+    ALL_PROJECTS.some((item) => item.editorialStatus === 'verified');

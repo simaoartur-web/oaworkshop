@@ -16,6 +16,7 @@ export type PortfolioFilterKey =
 interface PortfolioCardMeta {
     id: string;
     imageSrc?: string;
+    imageWebp?: string;
     isPlaceholder?: boolean;
     categories: readonly PortfolioFilterKey[];
 }
@@ -42,31 +43,37 @@ const PORTFOLIO_CARDS: readonly PortfolioCardMeta[] = [
     {
         id: 'professor-house',
         imageSrc: `${import.meta.env.BASE_URL}images/portfolio/professor-house.jpg`,
+        imageWebp: `${import.meta.env.BASE_URL}images/portfolio/professor-house.webp`,
         categories: ['architecture'],
     },
     {
         id: 'metita-house',
         imageSrc: `${import.meta.env.BASE_URL}images/portfolio/metita-house.jpg`,
+        imageWebp: `${import.meta.env.BASE_URL}images/portfolio/metita-house.webp`,
         categories: ['architecture', 'landscaping'],
     },
     {
         id: 'nelson-house',
         imageSrc: `${import.meta.env.BASE_URL}images/portfolio/nelson-house.jpg`,
+        imageWebp: `${import.meta.env.BASE_URL}images/portfolio/nelson-house.webp`,
         categories: ['architecture', 'interiorDesign'],
     },
     {
         id: 'wagner-house-1',
         imageSrc: `${import.meta.env.BASE_URL}images/portfolio/wagner-house.jpg`,
+        imageWebp: `${import.meta.env.BASE_URL}images/portfolio/wagner-house.webp`,
         categories: ['architecture', 'landscaping', 'interiorDesign'],
     },
     {
         id: 'wagner-house-2',
         imageSrc: `${import.meta.env.BASE_URL}images/portfolio/wagner-house-2.jpg`,
+        imageWebp: `${import.meta.env.BASE_URL}images/portfolio/wagner-house-2.webp`,
         categories: ['architecture', 'landscaping', 'interiorDesign'],
     },
     {
         id: 'wagner-house-3',
         imageSrc: `${import.meta.env.BASE_URL}images/portfolio/wagner-house-3.jpg`,
+        imageWebp: `${import.meta.env.BASE_URL}images/portfolio/wagner-house-3.webp`,
         categories: [
             'architecture',
             'urbanPlanning',
@@ -176,15 +183,20 @@ const ProjectsSection = () => {
                                             </div>
                                         </div>
                                     ) : (
-                                        <img
-                                            src={card.imageSrc}
-                                            alt={copy.imageAlt}
-                                            width={960}
-                                            height={600}
-                                            loading="lazy"
-                                            decoding="async"
-                                            className="portfolio-card-img"
-                                        />
+                                        <picture>
+                                            {card.imageWebp && (
+                                                <source srcSet={card.imageWebp} type="image/webp" />
+                                            )}
+                                            <img
+                                                src={card.imageSrc}
+                                                alt={copy.imageAlt}
+                                                width={960}
+                                                height={600}
+                                                loading="lazy"
+                                                decoding="async"
+                                                className="portfolio-card-img"
+                                            />
+                                        </picture>
                                     )}
                                 </div>
 

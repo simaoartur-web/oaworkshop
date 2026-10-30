@@ -1,22 +1,27 @@
 import { useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { ALL_PROJECTS, localizeProject } from '../data/projects';
+import { getLocalizedInternalLink, getHomePrefix } from '../seo/routes';
 
 const ProjectDetail = () => {
     const { t } = useTranslation();
+    const location = useLocation();
     const { id } = useParams<{ id: string }>();
     const project = useMemo(() => {
         const source = ALL_PROJECTS.find((item) => item.id === id);
         return source ? localizeProject(source, t) : null;
     }, [id, t]);
 
+    const backLink = getLocalizedInternalLink('/projects', location.pathname);
+    const contactLink = `${getHomePrefix(location.pathname)}#contact`;
+
     if (!project) {
         return (
             <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-black-900 text-white">
                 <p>{t('common.notFoundProject')}</p>
-                <Link to="/projects" className="text-xs uppercase tracking-widest text-gray-400 hover:text-white">{t('projectDetail.back')}</Link>
+                <Link to={backLink} className="text-xs uppercase tracking-widest text-gray-400 hover:text-white">{t('projectDetail.back')}</Link>
             </div>
         );
     }
@@ -59,10 +64,10 @@ const ProjectDetail = () => {
                         {project.scope.map((item) => <span key={item} className="border border-white/10 px-3 py-1 text-xs text-white/60">{item}</span>)}
                     </div>
                     <div className="mt-32 flex flex-col items-start justify-between gap-8 border-t border-white/10 pt-12 sm:flex-row sm:items-center">
-                        <Link to="/projects" className="flex items-center gap-4 text-xs uppercase tracking-widest text-gray-400 transition-colors hover:text-white">
+                        <Link to={backLink} className="flex items-center gap-4 text-xs uppercase tracking-widest text-gray-400 transition-colors hover:text-white">
                             <span className="inline-block h-px w-12 bg-gray-400" /> {t('projectDetail.back')}
                         </Link>
-                        <Link to="/#contact" className="w-full bg-white px-8 py-4 text-center text-xs font-medium uppercase tracking-widest text-black-900 transition-colors hover:bg-gray-200 sm:w-auto">
+                        <Link to={contactLink} className="w-full bg-white px-8 py-4 text-center text-xs font-medium uppercase tracking-widest text-black-900 transition-colors hover:bg-gray-200 sm:w-auto">
                             {t('projectDetail.requestProposal')}
                         </Link>
                     </div>

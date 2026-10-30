@@ -20,7 +20,7 @@ const TeamSection = () => {
 
     const selectedMember = TEAM_MEMBERS.find((member) => member.id === selectedMemberId);
     const visionLines = t('team.visionLines', { returnObjects: true }) as string[];
-    const archBackdropSrc = `${import.meta.env.BASE_URL}images/architecture.png`;
+    const archBackdropSrc = `${import.meta.env.BASE_URL}images/architecture.webp`;
 
     const dismiss = useCallback(() => setSelectedMemberId(null), []);
     const openProfile = (id: string, trigger: HTMLButtonElement) => {
