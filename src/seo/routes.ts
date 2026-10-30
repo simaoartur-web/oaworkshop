@@ -1,3 +1,5 @@
+import { ALL_PROJECTS } from '../data/projects';
+
 export type SupportedLanguage = 'en' | 'pt';
 
 export const DEFAULT_LANGUAGE: SupportedLanguage = 'en';
@@ -96,4 +98,132 @@ export function getLocalizedInternalLink(
     }
 
     return strippedTarget;
+}
+
+/**
+ * Safely resolves a legacy HashRouter route (e.g. `#/pt`, `#/en`, `#/projects/milan`)
+ * into a clean, modern canonical path for full location.replace navigation.
+ *
+ * Rules:
+ * - Returns null if the hash is not a legacy HashRouter route (e.g. standard section anchors #workshop, #portfolio, #team, #contact, #top).
+ * - Validates against open redirects, protocol smuggling, and malformed characters.
+ * - Matches ONLY known valid internal application routes.
+ * - Preserves existing search queries from window.location.search or the hash itself.
+ * - Preserves in-hash section anchors (e.g. `#/pt#workshop` -> `/pt/#workshop`).
+ */
+export function resolveLegacyHashRedirect(
+    hash: string,
+    currentSearch = ''
+): string | null {
+    if (!hash || !hash.startsWith('#/')) {
+        return null;
+    }
+
+    // Strip the leading '#' to get the candidate relative path: '/pt', '/projects/milan', etc.
+    const rawCandidate = hash.slice(1).trim();
+
+    // Prevent protocol-relative URLs ('//'), backslashes ('\'), control characters, or embedded schemes
+    if (
+        !rawCandidate.startsWith('/') ||
+        rawCandidate.startsWith('//') ||
+        rawCandidate.includes('\\') ||
+        [...rawCandidate].some((c) => {
+            const code = c.charCodeAt(0);
+            return code <= 31 || code === 127;
+        }) ||
+        /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(rawCandidate.slice(1))
+    ) {
+        return null;
+    }
+
+    let parsed: URL;
+    try {
+        parsed = new URL(rawCandidate, 'http://localhost');
+        if (parsed.origin !== 'http://localhost') return null;
+    } catch {
+        return null;
+    }
+
+    let rawPath = parsed.pathname;
+    // Normalize trailing slash (except root)
+    if (rawPath.length > 1 && rawPath.endsWith('/')) {
+        rawPath = rawPath.slice(0, -1);
+    }
+
+    // Match candidate route against known valid application routes:
+    let canonicalPath: string | null = null;
+
+    if (rawPath === '' || rawPath === '/') {
+        canonicalPath = '/';
+    } else if (rawPath === '/pt') {
+        canonicalPath = '/pt/';
+    } else if (rawPath === '/en') {
+        canonicalPath = '/en/';
+    } else if (rawPath === '/projects') {
+        canonicalPath = '/projects';
+    } else if (rawPath === '/pt/projects') {
+        canonicalPath = '/pt/projects';
+    } else if (rawPath === '/en/projects') {
+        canonicalPath = '/en/projects';
+    } else if (
+        rawPath.startsWith('/projects/') ||
+        rawPath.startsWith('/pt/projects/') ||
+        rawPath.startsWith('/en/projects/')
+    ) {
+        let id = '';
+        let prefix = '';
+        if (rawPath.startsWith('/pt/projects/')) {
+            prefix = '/pt/projects/';
+            id = rawPath.slice('/pt/projects/'.length);
+        } else if (rawPath.startsWith('/en/projects/')) {
+            prefix = '/en/projects/';
+            id = rawPath.slice('/en/projects/'.length);
+        } else {
+            prefix = '/projects/';
+            id = rawPath.slice('/projects/'.length);
+        }
+
+        // Only allow valid slug characters (alphanumeric and hyphens)
+        if (!/^[a-z0-9-]+$/i.test(id)) {
+            return null;
+        }
+
+        // Verify ID exists in known projects
+        const exists = ALL_PROJECTS.some((p) => p.id === id);
+        if (!exists) {
+            return null;
+        }
+
+        canonicalPath = `${prefix}${id}`;
+    } else {
+        // Not a recognized valid application route
+        return null;
+    }
+
+    // Preserve and combine search queries:
+    // parsed.searchParams from the hash, and currentSearch from window.location.search
+    const combinedParams = new URLSearchParams();
+    if (currentSearch) {
+        const cleanSearch = currentSearch.startsWith('?') ? currentSearch.slice(1) : currentSearch;
+        const curParams = new URLSearchParams(cleanSearch);
+        for (const [k, v] of curParams.entries()) {
+            combinedParams.set(k, v);
+        }
+    }
+    for (const [k, v] of parsed.searchParams.entries()) {
+        combinedParams.set(k, v);
+    }
+
+    const searchString = combinedParams.toString() ? `?${combinedParams.toString()}` : '';
+
+    // Preserve any sub-anchor inside the hash (e.g. #/pt#workshop -> hash is '#workshop')
+    let subAnchor = '';
+    if (parsed.hash && parsed.hash !== '#') {
+        const anchorName = parsed.hash.replace(/^#+/, '');
+        if (/^[a-zA-Z0-9_-]+$/.test(anchorName)) {
+            subAnchor = `#${anchorName}`;
+        }
+    }
+
+    return `${canonicalPath}${searchString}${subAnchor}`;
 }
