@@ -270,6 +270,12 @@ As seguintes decisões têm recomendação técnica definida para não bloquear 
 
 ---
 
+- **2026-10-29 (Auditoria e Resolução de Prioridades SEO-01):**
+  - **P1 — Consistência de idioma e hidratação React:** Refatorada a função `getInitialLanguage()` em `src/i18n.ts` para determinar o idioma exclusivamente a partir do URL (`/pt/*` -> `pt`, `/en/*` -> `en`, `/#/pt` -> `pt`, e raiz/rotas sem prefixo -> `en` / x-default). Eliminado o risco de divergência de hidratação entre o HTML pré-renderizado em inglês e o estado inicial do cliente. A preferência `oa-language` permanece guardada no `localStorage` sem sobrepor o URL canónico.
+  - **P2-A — Metadados e limpeza de transições:** Removida a segunda instância concorrente de `DocumentHead` em `src/pages/ProjectDetail.tsx`, centralizando a gestão exclusivamente no `App.tsx`. Corrigido `DocumentHead.tsx` para remover metadados obsoletos nas transições (em especial `og:url`, `canonical`, `alternates` e JSON-LD em páginas 404 e detalhes de projectos inexistentes). Tratamento unificado de 404 em `metadata.ts` para rotas de projecto inválidas.
+  - **P2-B — Preservação de dados demonstrativos e prontidão futura:** Confirmada a quarentena editorial (`noindex, nofollow` e exclusão do `sitemap.xml`) para os 12 projectos fictícios e catálogo. A função `hasVerifiedProjects()` e o campo `editorialStatus` permitem a transição segura para indexação quando existirem projectos reais validados pela direcção editorial.
+  - **P2-C — Validação e suite de testes automatizada:** Implementada a suite `tests/seo-verification.test.mjs` (executável via `npm test`), com 21 asserções cobrindo integridade do HTML pré-renderizado, consistência de metadados, política de idiomas e simulação de servidor estático sem fallback SPA (códigos HTTP 200, 301 e 404 legítimos).
+
 ## 12. Resultado
 
 Implementação concluída na branch `codex/feature-seo01-indexacao`. Todos os critérios de aceitação foram cumpridos, com compilação e testes validados. Pronto para revisão e posterior integração em `main`.

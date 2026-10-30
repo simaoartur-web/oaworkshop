@@ -127,6 +127,12 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 | `public/robots.txt` | directivas de rastreio para motores de busca e endereço do sitemap |
 | `.github/workflows/deploy.yml` | instala, compila e publica `dist/` no GitHub Pages em alterações de `main` |
 
+## Testes e verificação
+
+| Caminho | Responsabilidade |
+|---|---|
+| 	ests/seo-verification.test.mjs | suite de testes automatizados de pré-renderização estática, metadados SEO, limpeza de estado, política determinística de idiomas e servidor estático sem fallback SPA |
+
 ## Caminhos deliberadamente inexistentes
 
 - `backend/` — removido; proibido durante a fase front-end primeiro.

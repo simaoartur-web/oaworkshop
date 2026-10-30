@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { ALL_PROJECTS, localizeProject } from '../data/projects';
 import { getLocalizedInternalLink, getHomePrefix } from '../seo/routes';
-import DocumentHead from '../seo/DocumentHead';
 
 const ProjectDetail = () => {
     const { t } = useTranslation();
@@ -21,7 +20,6 @@ const ProjectDetail = () => {
     if (!project) {
         return (
             <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-black-900 text-white">
-                <DocumentHead dynamicTitle={t('common.notFoundProject')} />
                 <p>{t('common.notFoundProject')}</p>
                 <Link to={backLink} className="text-xs uppercase tracking-widest text-gray-400 hover:text-white">{t('projectDetail.back')}</Link>
             </div>
