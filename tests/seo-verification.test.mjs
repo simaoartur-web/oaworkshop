@@ -138,7 +138,7 @@ test('Suite 1: Static Files and HTML Inspection', async (t) => {
 });
 
 // -------------------------------------------------------------
-// Suite 2: Metadata Logic & Transition Cleaning Verification
+// Suite 2: Metadata Generation and Transition Cleaning
 // -------------------------------------------------------------
 test('Suite 2: Metadata Generation and Transition Cleaning', async (t) => {
     const vite = await createServer({
@@ -279,7 +279,7 @@ test('Suite 3: Deterministic Language Policy', async (t) => {
             }
         });
 
-        await t.test('Legacy hash #/pt returns pt on initial load', () => {
+        await t.test('Root / initializes to en regardless of hash (deterministic pathname policy)', () => {
             const originalWindow = global.window;
             try {
                 global.window = {
@@ -289,7 +289,10 @@ test('Suite 3: Deterministic Language Policy', async (t) => {
                         setItem: () => {},
                     },
                 };
-                assert.equal(getInitialLanguage(), 'pt', 'Must support legacy hash #/pt');
+                assert.equal(getInitialLanguage(), 'en', 'Must return en on / even if hash is #/pt');
+
+                global.window.location.hash = '#workshop';
+                assert.equal(getInitialLanguage(), 'en', 'Must return en on / with section anchor #workshop');
             } finally {
                 global.window = originalWindow;
             }
@@ -416,5 +419,76 @@ test('Suite 4: Static Server without SPA Fallback (Real HTTP Responses)', async 
         assert.equal(resNonExistent.statusCode, 404, 'Must return HTTP 404 on unmapped route');
     } finally {
         await new Promise((resolve) => server.close(resolve));
+    }
+});
+
+// -------------------------------------------------------------
+// Suite 5: Legacy HashRouter Resolution and Redirection
+// -------------------------------------------------------------
+test('Suite 5: Legacy HashRouter Resolution and Redirection', async (t) => {
+    const vite = await createServer({
+        root: rootDir,
+        server: { middlewareMode: true },
+        appType: 'custom',
+        optimizeDeps: { noDiscovery: true },
+    });
+
+    try {
+        const { resolveLegacyHashRedirect } = await vite.ssrLoadModule('/src/seo/routes.ts');
+
+        await t.test('Resolves language home routes', () => {
+            assert.equal(resolveLegacyHashRedirect('#/pt'), '/pt/');
+            assert.equal(resolveLegacyHashRedirect('#/en'), '/en/');
+            assert.equal(resolveLegacyHashRedirect('#/pt/'), '/pt/');
+            assert.equal(resolveLegacyHashRedirect('#/en/'), '/en/');
+            assert.equal(resolveLegacyHashRedirect('#/'), '/');
+        });
+
+        await t.test('Resolves project catalog routes', () => {
+            assert.equal(resolveLegacyHashRedirect('#/projects'), '/projects');
+            assert.equal(resolveLegacyHashRedirect('#/projects/'), '/projects');
+            assert.equal(resolveLegacyHashRedirect('#/pt/projects'), '/pt/projects');
+            assert.equal(resolveLegacyHashRedirect('#/en/projects'), '/en/projects');
+        });
+
+        await t.test('Resolves valid project detail routes', () => {
+            assert.equal(resolveLegacyHashRedirect('#/projects/milan'), '/projects/milan');
+            assert.equal(resolveLegacyHashRedirect('#/pt/projects/milan'), '/pt/projects/milan');
+            assert.equal(resolveLegacyHashRedirect('#/en/projects/milan'), '/en/projects/milan');
+            assert.equal(resolveLegacyHashRedirect('#/projects/karlatornet'), '/projects/karlatornet');
+        });
+
+        await t.test('Preserves search parameters from hash and window.location.search', () => {
+            assert.equal(resolveLegacyHashRedirect('#/projects?cat=arch'), '/projects?cat=arch');
+            assert.equal(resolveLegacyHashRedirect('#/pt', '?ref=campaign'), '/pt/?ref=campaign');
+            assert.equal(resolveLegacyHashRedirect('#/projects?cat=arch', '?ref=campaign'), '/projects?ref=campaign&cat=arch');
+        });
+
+        await t.test('Preserves sub-anchors inside legacy hash', () => {
+            assert.equal(resolveLegacyHashRedirect('#/pt#workshop'), '/pt/#workshop');
+            assert.equal(resolveLegacyHashRedirect('#/en#contact'), '/en/#contact');
+        });
+
+        await t.test('Rejects legitimate website section anchors (returns null)', () => {
+            assert.equal(resolveLegacyHashRedirect('#workshop'), null);
+            assert.equal(resolveLegacyHashRedirect('#portfolio'), null);
+            assert.equal(resolveLegacyHashRedirect('#team'), null);
+            assert.equal(resolveLegacyHashRedirect('#contact'), null);
+            assert.equal(resolveLegacyHashRedirect('#top'), null);
+        });
+
+        await t.test('Rejects malformed, protocol smuggling, or unknown routes (returns null)', () => {
+            assert.equal(resolveLegacyHashRedirect(''), null);
+            assert.equal(resolveLegacyHashRedirect('#'), null);
+            assert.equal(resolveLegacyHashRedirect('#pt'), null);
+            assert.equal(resolveLegacyHashRedirect('#/unknown-route-xyz'), null);
+            assert.equal(resolveLegacyHashRedirect('#/projects/non-existent-id'), null);
+            assert.equal(resolveLegacyHashRedirect('#//evil.com'), null);
+            assert.equal(resolveLegacyHashRedirect('#/https://evil.com'), null);
+            assert.equal(resolveLegacyHashRedirect('#/\\evil.com'), null);
+            assert.equal(resolveLegacyHashRedirect('#/javascript:alert(1)'), null);
+        });
+    } finally {
+        await vite.close();
     }
 });

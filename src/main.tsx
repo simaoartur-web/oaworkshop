@@ -4,25 +4,33 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
 import './index.css'
 import './i18n'
+import { resolveLegacyHashRedirect } from './seo/routes'
 
-// Redirect legacy hash routes (#/projects) to clean paths (/projects)
-if (typeof window !== 'undefined' && window.location.hash.startsWith('#/')) {
-    const legacyPath = window.location.hash.slice(1);
-    window.history.replaceState(null, '', legacyPath);
-}
+// Clean up legacy HashRouter URLs before hydration:
+// If a valid legacy HashRouter route is recognized (e.g. /#/pt, /#/en, /#/projects/milan),
+// execute full navigation via window.location.replace to load the canonical SSR HTML
+// and strictly DO NOT execute hydration while redirection is pending.
+const redirectTarget =
+    typeof window !== 'undefined'
+        ? resolveLegacyHashRedirect(window.location.hash, window.location.search)
+        : null;
 
-const rootElement = document.getElementById('root')!;
-
-const app = (
-    <StrictMode>
-        <BrowserRouter>
-            <App />
-        </BrowserRouter>
-    </StrictMode>
-);
-
-if (rootElement.hasChildNodes()) {
-    hydrateRoot(rootElement, app);
+if (redirectTarget && typeof window !== 'undefined') {
+    window.location.replace(redirectTarget);
 } else {
-    createRoot(rootElement).render(app);
+    const rootElement = document.getElementById('root')!;
+
+    const app = (
+        <StrictMode>
+            <BrowserRouter>
+                <App />
+            </BrowserRouter>
+        </StrictMode>
+    );
+
+    if (rootElement.hasChildNodes()) {
+        hydrateRoot(rootElement, app);
+    } else {
+        createRoot(rootElement).render(app);
+    }
 }

@@ -276,6 +276,13 @@ As seguintes decisões têm recomendação técnica definida para não bloquear 
   - **P2-B — Preservação de dados demonstrativos e prontidão futura:** Confirmada a quarentena editorial (`noindex, nofollow` e exclusão do `sitemap.xml`) para os 12 projectos fictícios e catálogo. A função `hasVerifiedProjects()` e o campo `editorialStatus` permitem a transição segura para indexação quando existirem projectos reais validados pela direcção editorial.
   - **P2-C — Validação e suite de testes automatizada:** Implementada a suite `tests/seo-verification.test.mjs` (executável via `npm test`), com 21 asserções cobrindo integridade do HTML pré-renderizado, consistência de metadados, política de idiomas e simulação de servidor estático sem fallback SPA (códigos HTTP 200, 301 e 404 legítimos).
 
+- **2026-10-30 (SEO-01 / P1: Correção definitiva de hidratação e limpeza de URLs HashRouter):**
+  - **Idioma determinístico (`src/i18n.ts`):** `getInitialLanguage()` depende estritamente do `window.location.pathname` (`/pt*` -> `pt`, `/en*` -> `en`, e raiz/rotas sem prefixo -> `en`). Eliminadas quaisquer consultas ao fragmento hash (`#`) ou `localStorage` para definir o idioma inicial, garantindo alinhamento a 100% com o HTML SSR pré-renderizado.
+  - **Substituição de `history.replaceState` por navegação completa (`src/main.tsx` e `src/seo/routes.ts`):** Criada a função pura e testada `resolveLegacyHashRedirect(hash, search)` que reconhece e valida exclusivamente rotas legadas do HashRouter (`#/pt`, `#/en`, `#/projects`, `#/projects/:id`).
+  - **Proteção estrita de hidratação:** Se um redirecionamento for detetado em `main.tsx`, é executado `window.location.replace(redirectTarget)` e a hidratação React é **completamente abortada** (`return;`), garantindo que o browser carrega o documento HTML pré-renderizado correspondente antes de qualquer montagem.
+  - **Preservação de âncoras e segurança:** Âncoras legítimas do website (`#workshop`, `#portfolio`, `#team`, `#contact`, `#top`) são expressamente rejeitadas pela função de redirecionamento (`null`) e continuam a fluir para o `ScrollToTop` sem desvios. Tentativas de open-redirect (`//evil.com`, esquemas `javascript:`, etc.) e rotas desconhecidas são bloqueadas.
+  - **Testes automatizados (`tests/seo-verification.test.mjs`):** A suite de testes foi expandida para 29 testes (incluindo 8 testes dedicados na Suite 5), cobrindo todos os cenários de migração, preservação de parâmetros de pesquisa, rejeição de âncoras normais e hidratação determinística.
+
 ## 12. Resultado
 
 Implementação concluída na branch `codex/feature-seo01-indexacao`. Todos os critérios de aceitação foram cumpridos, com compilação e testes validados. Pronto para revisão e posterior integração em `main`.
