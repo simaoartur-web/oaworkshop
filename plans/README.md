@@ -71,6 +71,7 @@ Uma alteração material ao âmbito, riscos ou decisões invalida a aprovação 
 | 000 | CANÓNICO | `000-plano-mestre-governacao-e-front-end.md` |
 | 010 | CANÓNICO | `010-limpeza-publica-e-bilingue.md` |
 | 080 | CANÓNICO | `080-seo-infraestrutura-indexacao.md` |
+| 081 | CONCLUÍDO | `081-registo-relatorio-seo02.md` |
 | 120 | CANÓNICO | `120-organograma-da-equipa.md` |
 | 121 | CANÓNICO | `121-equipa-perfis-interactivos.md` |
 | 122 | CANÓNICO | `122-equipa-refinamento-editorial.md` |

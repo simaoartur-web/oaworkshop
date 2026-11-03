@@ -111,9 +111,11 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 | `docs/DESIGN_STUDY.md` | estudo aplicado à O+A, fontes, limitações e método de auto-estudo |
 | `docs/CONTENT_GUIDE.md` | voz, idiomas, conteúdo e imagens |
 | `docs/QUALITY.md` | verificações técnicas, visuais e de acessibilidade |
+| `docs/SEO_02_GOOGLE_SEARCH_APPEARANCE_AUDIT.md` | auditoria SEO-02 de aparência no Google, evidências públicas, histórico e proposta correctiva pendente de aprovação |
 | `docs/decisions/` | decisões arquitecturais duradouras |
 | `plans/` | planos numerados, aprovação e estado |
 | `plans/080-seo-infraestrutura-indexacao.md` | plano de infraestrutura SEO, indexação orgânica e pré-renderização |
+| `plans/081-registo-relatorio-seo02.md` | registo documental autorizado do relatório SEO-02 e envio para uma branch própria |
 | `plans/124-design-mastery-playbook.md` | integração das referências de design nas instruções dos agentes |
 | `plans/134-performance-imagens-autoplay-fades.md` | plano R06: pipeline de optimização Sharp, autoplay robusto e crossfades |
 | `prompts/` | normas e modelos de prompts |
