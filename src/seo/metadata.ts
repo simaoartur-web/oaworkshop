@@ -46,6 +46,8 @@ export interface PageMetadata {
 }
 
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/images/og-oa-workshop.jpg`;
+const DEFAULT_OG_IMAGE_WIDTH = 1376;
+const DEFAULT_OG_IMAGE_HEIGHT = 768;
 export const DEFAULT_OG_IMAGE_ALT_EN = 'O+A Architects and Planners — Milan and Maputo';
 export const DEFAULT_OG_IMAGE_ALT_PT = 'O+A Arquitectos e Planeadores — Milão e Maputo';
 
@@ -65,8 +67,8 @@ export function buildOrganizationJsonLd(lang: SupportedLanguage): Record<string,
         logo: {
             '@type': 'ImageObject',
             url: `${SITE_URL}/logo.png`,
-            width: 512,
-            height: 512,
+            width: 692,
+            height: 511,
             caption: 'O+A',
         },
         image: DEFAULT_OG_IMAGE,
@@ -154,8 +156,8 @@ export function getNotFoundMetadata(lang: SupportedLanguage): PageMetadata {
             url: '', // Cleaned on 404 to avoid inheriting previous og:url
             type: 'website',
             image: DEFAULT_OG_IMAGE,
-            imageWidth: 1200,
-            imageHeight: 630,
+            imageWidth: DEFAULT_OG_IMAGE_WIDTH,
+            imageHeight: DEFAULT_OG_IMAGE_HEIGHT,
             imageAlt,
             locale,
             localeAlternate,
@@ -224,8 +226,8 @@ export function getPageMetadata(
                 url: canonical,
                 type: 'website',
                 image: DEFAULT_OG_IMAGE,
-                imageWidth: 1200,
-                imageHeight: 630,
+                imageWidth: DEFAULT_OG_IMAGE_WIDTH,
+                imageHeight: DEFAULT_OG_IMAGE_HEIGHT,
                 imageAlt,
                 locale,
                 localeAlternate,
@@ -268,8 +270,8 @@ export function getPageMetadata(
                 url: canonical,
                 type: 'website',
                 image: DEFAULT_OG_IMAGE,
-                imageWidth: 1200,
-                imageHeight: 630,
+                imageWidth: DEFAULT_OG_IMAGE_WIDTH,
+                imageHeight: DEFAULT_OG_IMAGE_HEIGHT,
                 imageAlt,
                 locale,
                 localeAlternate,
@@ -308,6 +310,10 @@ export function getPageMetadata(
             : 'Project details and spatial intervention by O+A Architects and Planners.');
         const canonical = `${SITE_URL}${buildLocalizedPath(`/projects/${projectId}`, lang)}`;
         const isVerified = found.editorialStatus === 'verified';
+        const projectImage = found.mainImage
+            ? new URL(found.mainImage, SITE_URL).href
+            : DEFAULT_OG_IMAGE;
+        const projectImageAlt = found.imageIsPlaceholder ? '' : resolvedTitle;
 
         return {
             title,
@@ -321,10 +327,10 @@ export function getPageMetadata(
                 description,
                 url: canonical,
                 type: 'article',
-                image: found.mainImage || DEFAULT_OG_IMAGE,
-                imageWidth: 1200,
-                imageHeight: 630,
-                imageAlt: resolvedTitle,
+                image: projectImage,
+                imageWidth: found.mainImage ? 1200 : DEFAULT_OG_IMAGE_WIDTH,
+                imageHeight: found.mainImage ? 630 : DEFAULT_OG_IMAGE_HEIGHT,
+                imageAlt: projectImageAlt,
                 locale,
                 localeAlternate,
                 siteName,
@@ -333,8 +339,8 @@ export function getPageMetadata(
                 card: 'summary_large_image',
                 title,
                 description,
-                image: found.mainImage || DEFAULT_OG_IMAGE,
-                imageAlt: resolvedTitle,
+                image: projectImage,
+                imageAlt: projectImageAlt,
             },
             alternates: [
                 { hrefLang: 'en', href: `${SITE_URL}/en/projects/${projectId}` },

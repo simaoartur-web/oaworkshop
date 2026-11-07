@@ -48,7 +48,7 @@ const Projects = () => {
                         <motion.article layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} key={item.id} className="group">
                             <Link to={getLocalizedInternalLink(`/projects/${item.id}`, location.pathname)}>
                                 <div className="relative mb-6 aspect-[4/3] overflow-hidden bg-gray-200">
-                                    <img src={item.thumbnail} alt={item.title} className="h-full w-full object-cover transition-transform duration-[2s] group-hover:scale-105" />
+                                    <img src={item.thumbnail} alt={item.imageIsPlaceholder ? '' : item.title} className="h-full w-full object-cover transition-transform duration-[2s] group-hover:scale-105" />
                                     <div className="absolute inset-0 bg-black-900/0 transition-colors duration-500 group-hover:bg-black-900/10" />
                                 </div>
                                 <div className="flex items-start justify-between gap-8">

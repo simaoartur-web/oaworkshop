@@ -93,7 +93,7 @@ const en = {
         photoLabel: "About",
         officeImageAlt: "O+A studio workspace with worktable, computers, and project wallboard",
         foundersImageAlt: "Black and white portrait of founders Osvaldo Luís and Artur Simão",
-        quote: "“We are a African studio for sustainable architecture, urbanism, research and design, founded by the Architects Osvaldo Luís and Artur Simão in 2025”",
+        quote: "“We are an African studio for sustainable architecture, urbanism, research and design, founded by the Architects Osvaldo Luís and Artur Simão in 2025”",
         signature: "O+A",
     },
     portfolio: {

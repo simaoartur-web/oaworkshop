@@ -96,10 +96,12 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 
 | Caminho | Responsabilidade | Regra de alteração |
 |---|---|---|
-| `src/data/projects.ts` | fonte local tipada de identificadores, recursos e localização de projectos | manter identificadores únicos; conteúdo público traduzível pertence a `src/locales/` |
+| `src/data/projects.ts` | fonte local tipada de identificadores, recursos, marcador de imagem e localização de projectos | manter identificadores únicos; conteúdo público traduzível pertence a `src/locales/` |
 | `src/locales/en.ts` | textos da interface em inglês | manter as mesmas chaves de `pt.ts` |
 | `src/locales/pt.ts` | textos da interface em português | seguir `docs/CONTENT_GUIDE.md` |
 | `public/logo.png` | logótipo público | não substituir sem validação visual |
+| `public/favicon.png` | favicon quadrado de 192 × 192 px derivado do logótipo original | regenerar com `scripts/generate-seo-assets.mjs`; preservar a marca |
+| `public/images/project-placeholder.png`, `public/images/project-placeholder.webp` | marcador neutro de imagem indisponível para o projecto demonstrativo Vancouver | sem fotografia atribuída a uma obra; fonte PNG gerada e WebP derivado pelo pipeline existente |
 | `public/images/` | imagens locais por tema e equipa | optimizar e fornecer texto alternativo no consumidor |
 
 ## Documentação e processo
@@ -124,6 +126,7 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 | Caminho | Responsabilidade |
 |---|---|
 | `scripts/optimize-images.mjs` | pipeline Sharp de conversão para WebP e geração de variantes responsivas |
+| `scripts/generate-seo-assets.mjs` | comando de manutenção Sharp para reproduzir favicon e marcador neutro aprovados no Plano 082, sem alterar os recursos originais |
 | `scripts/prerender.mjs` | pré-renderização estática multi-rota e geração de sitemap.xml |
 | `public/robots.txt` | directivas de rastreio para motores de busca e endereço do sitemap |
 | `.github/workflows/deploy.yml` | instala, compila e publica `dist/` no GitHub Pages em alterações de `main` |
@@ -132,7 +135,7 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 
 | Caminho | Responsabilidade |
 |---|---|
-| 	ests/seo-verification.test.mjs | suite de testes automatizados de pré-renderização estática, metadados SEO, limpeza de estado, política determinística de idiomas e servidor estático sem fallback SPA |
+| `tests/seo-verification.test.mjs` | testes de pré-renderização, metadados, idiomas, servidor estático, rotas legadas e regressões SEO-02 de recursos e quarentena editorial |
 
 ## Caminhos deliberadamente inexistentes
 

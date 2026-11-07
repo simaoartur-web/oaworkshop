@@ -1,6 +1,6 @@
 # Plano 082 — SEO-02 EN-first: correcção da apresentação inglesa
 
-> **Estado:** EM EXECUÇÃO
+> **Estado:** EM VALIDAÇÃO — implementação e verificações automáticas/HTTP concluídas; validação final no navegador pendente.
 > **Data:** 2026-11-05
 > **Base de aplicação confirmada:** `main` @ `7c5a708d44598ac0d9448a6b2b3513d72eeb74c8`
 > **Branch de execução:** `codex/fix-seo02-en-search-appearance`, criada a partir de `main` @ `7c5a708` em 2026-11-07.
@@ -185,13 +185,14 @@ Documentação oficial consultada novamente em 05/11/2026:
 - [x] Número 082 confirmado livre; alternativa editorial D1 e âmbito partilhado explícitos.
 - [x] Plano e seis ligações locais verificados; `git diff --check` sem erros. Preparação limitada a este plano e aos dois índices, sem alterações de código ou recursos.
 - [x] Aprovação expressa do plano e de D1 em 2026-11-07.
-- [ ] Implementação, testes de aplicação, browser e commits da Entrega B.
+- [x] Implementação e testes automáticos/HTTP da Entrega B.
+- [ ] Comparação final de DOM hidratado e verificação visual responsiva da Entrega B: impedidas pela interrupção da ferramenta de controlo do navegador.
 
 **2026-11-05:** o utilizador confirmou as duas entregas. Preparada a Entrega A, preservando a instrução de apresentar o plano concreto antes de implementar. Não foram executados testes de implementação, gerados recursos, alterado código ou efectuadas acções de publicação/indexação nesta preparação.
 
 ## 11. Porta de aprovação e resultado
 
-Entrega A concluída. Entrega B aprovada em 2026-11-07 e em execução, incluindo a alternativa editorial para Vancouver.
+Entrega A concluída. Entrega B aprovada em 2026-11-07, incluindo D1, com implementação e verificações automáticas/HTTP concluídas. A validação final no navegador permanece pendente e não é apresentada como executada. A branch ainda não foi declarada canónica.
 
 Forma de aprovação sugerida:
 
@@ -204,3 +205,11 @@ Esta aprovação autoriza exclusivamente as correcções e verificações locais
 ## 12. Registo da execução
 
 - **2026-11-07:** `main` remoto reconfirmado em `7c5a708`. Criada a branch aprovada a partir dessa base; o relatório histórico permanece na sua branch documental. Transportados apenas o Plano 082 e os seus índices. Preservadas as branches anteriores e os originais de imagem.
+- **2026-11-07 — Implementação:** corrigido apenas o artigo inglês; Vancouver passou a usar o marcador neutro PNG 1200 × 630, com identificação tipada e sem alternativa que o apresente como fotografia. Actualizados os consumidores activos e legados desse dado. A imagem local recebe URL absoluto nos metadados. Corrigidas as dimensões OG para 1376 × 768 e do logótipo no JSON-LD para 692 × 511. Criado favicon 192 × 192 sem deformar o símbolo; o gerador Sharp e a proveniência dos dois recursos estão versionados. O WebP do marcador é gerado pelo pipeline existente.
+- **2026-11-07 — Originais e âmbito:** verificados por SHA-256 os dois originais de imagem, a tradução PT, `main.tsx`, `i18n.ts`, rotas e cabeçalho/rodapé: os oito ficheiros permanecem intactos. Sem dependências novas ou alteração de package/lockfile. O pipeline de imagens regenerou apenas o novo marcador.
+- **2026-11-07 — HTML e HTTP:** o corpo HTML de `/pt/` é idêntico byte a byte ao build de referência. Os corpos de `/` e `/en/` diferem apenas no artigo corrigido. `robots.txt` e `sitemap.xml` são idênticos aos da referência. Verificados HTTP 200 e conteúdo correspondente aos ficheiros em todas as 43 páginas físicas; os três novos recursos respondem 200 com MIME correcto. Uma rota inexistente responde 404 com o documento dedicado, `noindex` e sem canonical.
+- **2026-11-07 — Testes:** `npm run lint` sem erros; `npm run build` concluído, com 43 rotas e três URLs no sitemap; `npm test`: 36 testes passaram, zero falhas; `git diff --check` sem erros. A suite SEO-02 cobre a frase inglesa, dimensões medidas, favicon, ausência do identificador inadequado no HTML/JavaScript publicado, semântica do marcador e manutenção de `noindex` nos 12 projectos em todas as variantes e nos catálogos.
+- **2026-11-07 — Avisos da base:** build antes e depois da alteração apresenta os mesmos avisos: Browserslist/caniuse-lite desactualizado; regra CSS gerada `padding-left: var(--tracking-*)` inválida; bundle superior a 500 kB. O bundle passou de 509,69 kB para 509,72 kB. Não foram suprimidos avisos nem alteradas dependências/CSS fora do lote.
+- **2026-11-07 — Verificação visual:** favicon inspeccionado a 16, 32, 48 e 192 px; marcador inspeccionado directamente. Foi capturada referência no navegador antes da alteração do build, incluindo EN, PT, catálogo e Vancouver. A emulação revelou zoom de 80% e a largura CSS 375 foi confirmada; as capturas iniciais das outras larguras não equivalem a 768/1440 CSS px e não são contabilizadas como verificações nessas larguras. Durante a tentativa de calibração, a ferramenta interrompeu o controlo por não conseguir confirmar o URL da janela Windows. Respeitada a interrupção, sem novas acções de UI. Não foi executada a comparação final do DOM hidratado, alternância PT/EN, foco nem a revisão final em 375/768/1440 px. Essas verificações permanecem pendentes; os testes de HTML/HTTP não as substituem.
+- **2026-11-07 — Limites externos:** nenhuma integração em `main`, publicação ou escrita no Search Console. Os resultados HTTP referem-se ao servidor estático local do build. Não se afirma actualização do índice, título ou miniatura públicos.
+- **2026-11-07 — Revisão React:** as alterações TSX limitam-se ao texto alternativo decorativo do marcador identificado nos dados. Não foram acrescentados hooks, efeitos, eventos, estilos ou dependências. A localização preserva o novo atributo tipado; o título continua adjacente nos consumidores. O URL local é convertido para absoluto apenas nos metadados. A revisão do diff confirmou o âmbito aprovado.
