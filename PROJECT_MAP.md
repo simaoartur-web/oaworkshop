@@ -114,6 +114,7 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 | `docs/decisions/` | decisões arquitecturais duradouras |
 | `plans/` | planos numerados, aprovação e estado |
 | `plans/080-seo-infraestrutura-indexacao.md` | plano de infraestrutura SEO, indexação orgânica e pré-renderização |
+| `plans/082-seo02-en-first-correcao.md` | execução aprovada SEO-02 EN-first: inglês, marcador neutro de Vancouver, metadados de imagens e favicon |
 | `plans/124-design-mastery-playbook.md` | integração das referências de design nas instruções dos agentes |
 | `plans/134-performance-imagens-autoplay-fades.md` | plano R06: pipeline de optimização Sharp, autoplay robusto e crossfades |
 | `prompts/` | normas e modelos de prompts |
