@@ -174,7 +174,7 @@ const CategoryMapSection = ({ id, accentTitle, projects, dummyMarkers = [] }: Ca
                                     exit={{ opacity: 0, scale: 0.98 }}
                                     transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
                                     className="w-full h-full object-cover absolute inset-0 transition-transform duration-700 group-hover:scale-105"
-                                    alt={activeProject.title}
+                                    alt={activeProject.imageIsPlaceholder ? '' : activeProject.title}
                                     loading="lazy"
                                 />
                             </AnimatePresence>
@@ -242,7 +242,7 @@ const CategoryMapSection = ({ id, accentTitle, projects, dummyMarkers = [] }: Ca
                                             src={proj.thumbnail} 
                                             className={`w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 
                                                 ${activeProject.id === proj.id ? 'grayscale-0 scale-105' : 'grayscale group-hover:grayscale-0'}`}
-                                            alt={proj.title}
+                                            alt={proj.imageIsPlaceholder ? '' : proj.title}
                                             loading="lazy"
                                         />
                                         {activeProject.id === proj.id && (
@@ -302,7 +302,7 @@ const CategoryMapSection = ({ id, accentTitle, projects, dummyMarkers = [] }: Ca
                                 <img 
                                     src={activeProject.mainImage} 
                                     className="w-full h-full object-cover" 
-                                    alt={activeProject.title} 
+                                    alt={activeProject.imageIsPlaceholder ? '' : activeProject.title}
                                     loading="lazy"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent pointer-events-none"></div>

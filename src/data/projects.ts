@@ -16,6 +16,7 @@ export interface Project {
     mapPosition: MapMarker;
     mainImage: string;
     thumbnail: string;
+    imageIsPlaceholder?: boolean;
     editorialStatus?: EditorialStatus;
 }
 
@@ -70,8 +71,9 @@ export const URBANISM_PROJECTS: Project[] = [
     }),
     project('urbanism', 2, {
         id: 'vancouver-waterfront', year: '2025', mapPosition: { lat: 49.2827, lng: -123.1207 },
-        mainImage: 'https://images.unsplash.com/photo-1545127398-14699f92334b?auto=format&fit=crop&q=80&w=2000',
-        thumbnail: 'https://images.unsplash.com/photo-1545127398-14699f92334b?auto=format&fit=crop&q=80&w=600',
+        mainImage: '/images/project-placeholder.png',
+        thumbnail: '/images/project-placeholder.png',
+        imageIsPlaceholder: true,
     }),
     project('urbanism', 3, {
         id: 'london-smart', year: '2023', mapPosition: { lat: 51.5074, lng: -0.1278 },

@@ -5,6 +5,7 @@ import path from 'node:path';
 import http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'vite';
+import sharp from 'sharp';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -491,4 +492,118 @@ test('Suite 5: Legacy HashRouter Resolution and Redirection', async (t) => {
     } finally {
         await vite.close();
     }
+});
+
+// -------------------------------------------------------------
+// Suite 6: SEO-02 content, image resources and editorial quarantine
+// -------------------------------------------------------------
+test('Suite 6: SEO-02 English content and image resources', async (t) => {
+    const readHtml = (relativePath) => fs.readFileSync(path.join(distDir, relativePath), 'utf8');
+    const metaContent = (html, property) =>
+        html.match(new RegExp(`<meta (?:property|name)="${property}" content="([^"]*)"`))?.[1];
+    const htmlFiles = [];
+    const applicationFiles = [];
+    const collect = (directory) => {
+        for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+            const file = path.join(directory, entry.name);
+            if (entry.isDirectory()) collect(file);
+            else if (/\.(html|js)$/.test(entry.name)) {
+                applicationFiles.push(file);
+                if (entry.name.endsWith('.html')) htmlFiles.push(file);
+            }
+        }
+    };
+    collect(distDir);
+
+    await t.test('English pages contain the corrected institutional sentence', () => {
+        for (const file of ['index.html', 'en/index.html']) {
+            const html = readHtml(file);
+            assert.ok(html.includes('We are an African studio'), file);
+            assert.ok(!html.includes('We are a African studio'), file);
+            assert.match(html, /<html\s+lang="en"/);
+        }
+        const portuguese = readHtml('pt/index.html');
+        assert.ok(portuguese.includes('Somos um estúdio africano'));
+        assert.match(portuguese, /<html\s+lang="pt"/);
+    });
+
+    await t.test('Institutional OG and Organization dimensions match the actual image files', async () => {
+        const image = await sharp(path.join(distDir, 'images/og-oa-workshop.jpg')).metadata();
+        const logo = await sharp(path.join(distDir, 'logo.png')).metadata();
+        let checkedImages = 0;
+        let checkedOrganizations = 0;
+        for (const file of htmlFiles) {
+            const html = fs.readFileSync(file, 'utf8');
+            if (metaContent(html, 'og:image') === 'https://www.oa-workshop.com/images/og-oa-workshop.jpg') {
+                assert.equal(Number(metaContent(html, 'og:image:width')), image.width, file);
+                assert.equal(Number(metaContent(html, 'og:image:height')), image.height, file);
+                checkedImages++;
+            }
+            const jsonLd = html.match(/<script type="application\/ld\+json" data-seo="json-ld">([\s\S]*?)<\/script>/);
+            if (jsonLd) {
+                const organization = JSON.parse(jsonLd[1]);
+                assert.equal(organization.logo.width, logo.width, file);
+                assert.equal(organization.logo.height, logo.height, file);
+                checkedOrganizations++;
+            }
+        }
+        assert.equal(checkedImages, 7, 'Three homepages, three catalogs and the 404 use the institutional OG image');
+        assert.equal(checkedOrganizations, 3);
+    });
+
+    await t.test('The favicon is a correctly declared square PNG on every static page', async () => {
+        const icon = await sharp(path.join(distDir, 'favicon.png')).metadata();
+        assert.equal(icon.format, 'png');
+        assert.equal(icon.width, 192);
+        assert.equal(icon.height, icon.width);
+        for (const file of htmlFiles) {
+            const html = fs.readFileSync(file, 'utf8');
+            assert.match(html, /<link rel="icon" type="image\/png" sizes="192x192" href="\/favicon.png"\s*\/?>/, file);
+        }
+    });
+
+    await t.test('The incompatible image cannot leak into published HTML or JavaScript', () => {
+        const forbidden = 'photo-1545127398-14699f92334b';
+        assert.ok(!fs.readFileSync(path.join(rootDir, 'src/data/projects.ts'), 'utf8').includes(forbidden));
+        for (const file of applicationFiles) {
+            assert.ok(!fs.readFileSync(file, 'utf8').includes(forbidden), file);
+        }
+    });
+
+    await t.test('Vancouver uses the neutral local image with honest alternative text and absolute metadata URLs', async () => {
+        const placeholder = await sharp(path.join(distDir, 'images/project-placeholder.png')).metadata();
+        assert.equal(placeholder.format, 'png');
+        assert.equal(placeholder.width, 1200);
+        assert.equal(placeholder.height, 630);
+        for (const prefix of ['', 'en/', 'pt/']) {
+            const html = readHtml(`${prefix}projects/vancouver-waterfront/index.html`);
+            assert.equal(metaContent(html, 'og:image'), 'https://www.oa-workshop.com/images/project-placeholder.png');
+            assert.equal(metaContent(html, 'twitter:image'), metaContent(html, 'og:image'));
+            assert.equal(Number(metaContent(html, 'og:image:width')), placeholder.width);
+            assert.equal(Number(metaContent(html, 'og:image:height')), placeholder.height);
+            assert.equal(metaContent(html, 'og:image:alt'), '');
+            for (const page of [html, readHtml(`${prefix}projects/index.html`)]) {
+                const imageTags = page.match(/<img[^>]+src="\/images\/project-placeholder.png"[^>]*>/g);
+                assert.equal(imageTags?.length, 1);
+                assert.match(imageTags[0], /\balt=""/);
+            }
+        }
+    });
+
+    await t.test('All twelve demo projects and catalogs stay noindex in every language and outside the sitemap', () => {
+        const ids = fs.readdirSync(path.join(distDir, 'projects'), { withFileTypes: true })
+            .filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort();
+        assert.deepEqual(ids, [
+            'carmichael', 'drr-resilience', 'karlatornet', 'london-smart', 'milan', 'milan-urban',
+            'modular-sanitation', 'resilient-housing', 'rivage', 'singapore-green', 'urban-heat-lab', 'vancouver-waterfront',
+        ]);
+        const sitemap = readHtml('sitemap.xml');
+        assert.equal((sitemap.match(/<loc>/g) || []).length, 3);
+        assert.ok(!sitemap.includes('/projects'));
+        for (const prefix of ['', 'en/', 'pt/']) {
+            for (const file of [`${prefix}projects/index.html`, ...ids.map((id) => `${prefix}projects/${id}/index.html`)]) {
+                assert.equal(metaContent(readHtml(file), 'robots'), 'noindex, nofollow', file);
+            }
+        }
+    });
 });

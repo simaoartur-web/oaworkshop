@@ -36,7 +36,7 @@ const ProjectDetail = () => {
     return (
         <motion.div className="relative min-h-screen bg-black-900 pb-32 text-white" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
             <div className="relative h-[80vh] w-full overflow-hidden">
-                <img src={project.mainImage} alt={project.title} className="h-full w-full object-cover opacity-80" />
+                <img src={project.mainImage} alt={project.imageIsPlaceholder ? '' : project.title} className="h-full w-full object-cover opacity-80" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black-900 via-transparent to-black-900/60" />
                 <div className="absolute bottom-0 left-0 w-full p-8 md:p-16 lg:px-24">
                     <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
