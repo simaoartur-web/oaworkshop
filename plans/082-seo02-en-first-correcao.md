@@ -1,6 +1,6 @@
 # Plano 082 — SEO-02 EN-first: correcção da apresentação inglesa
 
-> **Estado:** EM VALIDAÇÃO — implementação e verificações automáticas/HTTP concluídas; validação final no navegador pendente.
+> **Estado:** CANÓNICO — integração e publicação autorizadas pelo utilizador; limitação anterior da validação no navegador registada abaixo.
 > **Data:** 2026-11-05
 > **Base de aplicação confirmada:** `main` @ `7c5a708d44598ac0d9448a6b2b3513d72eeb74c8`
 > **Branch de execução:** `codex/fix-seo02-en-search-appearance`, criada a partir de `main` @ `7c5a708` em 2026-11-07.
@@ -192,7 +192,7 @@ Documentação oficial consultada novamente em 05/11/2026:
 
 ## 11. Porta de aprovação e resultado
 
-Entrega A concluída. Entrega B aprovada em 2026-11-07, incluindo D1, com implementação e verificações automáticas/HTTP concluídas. A validação final no navegador permanece pendente e não é apresentada como executada. A branch ainda não foi declarada canónica.
+Entrega A concluída. Entrega B aprovada em 2026-11-07, incluindo D1, com implementação e verificações automáticas/HTTP concluídas. Após conhecer a limitação da validação no navegador, o utilizador pediu expressamente «Faz o merge e publica diretamente na main.». Esse pedido aceita a branch candidata para integração e autoriza a publicação. A verificação posterior do domínio público será comunicada na entrega da publicação; a validação visual anteriormente impedida não é apresentada como executada.
 
 Forma de aprovação sugerida:
 
@@ -200,7 +200,7 @@ Forma de aprovação sugerida:
 APROVADO: plans/082-seo02-en-first-correcao.md, incluindo D1 (marcador neutro local para Vancouver).
 ```
 
-Esta aprovação autoriza exclusivamente as correcções e verificações locais previstas na Entrega B, numa branch própria. Não autoriza integração em `main`, deploy ou escrita/reindexação no Search Console.
+A aprovação inicial autorizou exclusivamente as correcções e verificações locais previstas na Entrega B, numa branch própria. A autorização posterior expressa de 2026-11-07 abrange integração em `main` e deploy no GitHub Pages. Escrita/reindexação no Search Console continua fora dessa autorização.
 
 ## 12. Registo da execução
 
@@ -213,3 +213,4 @@ Esta aprovação autoriza exclusivamente as correcções e verificações locais
 - **2026-11-07 — Verificação visual:** favicon inspeccionado a 16, 32, 48 e 192 px; marcador inspeccionado directamente. Foi capturada referência no navegador antes da alteração do build, incluindo EN, PT, catálogo e Vancouver. A emulação revelou zoom de 80% e a largura CSS 375 foi confirmada; as capturas iniciais das outras larguras não equivalem a 768/1440 CSS px e não são contabilizadas como verificações nessas larguras. Durante a tentativa de calibração, a ferramenta interrompeu o controlo por não conseguir confirmar o URL da janela Windows. Respeitada a interrupção, sem novas acções de UI. Não foi executada a comparação final do DOM hidratado, alternância PT/EN, foco nem a revisão final em 375/768/1440 px. Essas verificações permanecem pendentes; os testes de HTML/HTTP não as substituem.
 - **2026-11-07 — Limites externos:** nenhuma integração em `main`, publicação ou escrita no Search Console. Os resultados HTTP referem-se ao servidor estático local do build. Não se afirma actualização do índice, título ou miniatura públicos.
 - **2026-11-07 — Revisão React:** as alterações TSX limitam-se ao texto alternativo decorativo do marcador identificado nos dados. Não foram acrescentados hooks, efeitos, eventos, estilos ou dependências. A localização preserva o novo atributo tipado; o título continua adjacente nos consumidores. O URL local é convertido para absoluto apenas nos metadados. A revisão do diff confirmou o âmbito aprovado.
+- **2026-11-07 — Integração e publicação autorizadas:** após a entrega dos commits `6082cb6` e `faac0e8`, o utilizador ordenou o merge e publicação directa em `main`. Registada a aceitação da branch `codex/fix-seo02-en-search-appearance`, mantendo a ressalva de validação no navegador anteriormente comunicada. Integrar o lote validado sem desenvolvimento de código em `main`, preservar a branch e acompanhar o workflow de Pages e o conteúdo HTTP público. O resultado efectivo da publicação será confirmado na entrega, sem o confundir com actualização do índice Google.
