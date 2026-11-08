@@ -6,6 +6,7 @@ import { AppRoutes } from '../app/App';
 import { WorkspaceSessionProvider } from '../app/WorkspaceSessionContext';
 import { DEMO_USERS } from '../data/fixtures';
 import { loadDemoSession, STORAGE_KEYS } from '../data/sessionRepository';
+import { STUDIO_DESK_STORAGE_KEY } from '../data/studioDeskFixtures';
 import { SHELL_STORAGE_KEYS } from '../features/workspace-shell/shellDemoState';
 import { en } from '../locales/en';
 import { pt } from '../locales/pt';
@@ -89,7 +90,7 @@ describe('O+A Workspace — Phase 01 Entry & Access Verification Suite', () => {
     renderWorkspaceApp('/login');
     expect(
       await screen.findByRole('heading', {
-        name: /Sessão demonstrativa iniciada no O\+A Workspace/i,
+        name: /Bom dia, Helena Mondlane|Boa tarde, Helena Mondlane|Boa noite, Helena Mondlane/i,
       }),
     ).toBeInTheDocument();
   });
@@ -214,10 +215,11 @@ describe('O+A Workspace — Phase 01 Entry & Access Verification Suite', () => {
 
     expect(
       await screen.findByRole('heading', {
-        name: /Sessão demonstrativa iniciada no O\+A Workspace/i,
+        name: /Bom dia, Mateo Conti|Boa tarde, Mateo Conti|Boa noite, Mateo Conti/i,
       }),
     ).toBeInTheDocument();
 
+    // Terminar sessão demo directly from ContextualHeader
     await user.click(
       screen.getByRole('button', { name: /Terminar sessão demo/i }),
     );
@@ -228,17 +230,32 @@ describe('O+A Workspace — Phase 01 Entry & Access Verification Suite', () => {
     ).toBeInTheDocument();
     expect(window.localStorage.getItem(STORAGE_KEYS.SESSION)).toBeNull();
 
-    // Sign in again -> goes straight to /workspace inside Shell
+    // Sign in again as Mateo Conti -> goes straight to /workspace inside Shell (skipWelcomeOnLogin is active)
     await user.click(
-      screen.getByRole('button', { name: /Entrar no Atelier/i }),
+      screen.getByRole('button', {
+        name: /Entrar como Mateo Conti \(Demo\)/i,
+      }),
     );
     expect(
       await screen.findByRole('heading', {
-        name: /Sessão demonstrativa iniciada no O\+A Workspace/i,
+        name: /Bom dia, Mateo Conti|Boa tarde, Mateo Conti|Boa noite, Mateo Conti/i,
       }),
     ).toBeInTheDocument();
 
-    // Full demo reset cleans session, preferences, and shell localStorage keys
+    // Open user context menu -> navigate to settings
+    await user.click(
+      screen.getByRole('button', { name: /Menu do utilizador demo/i }),
+    );
+    await user.click(
+      screen.getByRole('menuitem', { name: /Preferências/i }),
+    );
+    expect(
+      await screen.findByRole('heading', {
+        name: /Configuração local do ambiente demonstrativo/i,
+      }),
+    ).toBeInTheDocument();
+
+    // Full demo reset cleans session, preferences, notifications, rail, and studio desk localStorage keys
     await user.click(
       screen.getByRole('button', { name: /Repor dados demo/i }),
     );
@@ -254,5 +271,6 @@ describe('O+A Workspace — Phase 01 Entry & Access Verification Suite', () => {
     expect(prefsAfterReset.skipWelcomeOnLogin).toBe(false);
     expect(window.localStorage.getItem(SHELL_STORAGE_KEYS.NOTIFICATIONS)).toBeNull();
     expect(window.localStorage.getItem(SHELL_STORAGE_KEYS.RAIL_COMPACT)).toBeNull();
+    expect(window.localStorage.getItem(STUDIO_DESK_STORAGE_KEY)).toBeNull();
   });
 });

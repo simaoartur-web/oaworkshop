@@ -37,15 +37,17 @@ describe('Phase 02A — Workspace Shell Architecture, Search, Notifications & Na
     window.localStorage.clear();
   });
 
-  it('renders WorkspaceShell around Argon A /workspace slot placeholder with active collaborator context', async () => {
+  it('renders WorkspaceShell around integrated StudioDeskPage with active collaborator context', async () => {
     seedDemoSession(0);
     renderWorkspaceShellApp('/workspace');
 
     expect(
-      await screen.findByText(/SLOT RESERVADO PARA STUDIO DESK/i),
+      await screen.findByRole('heading', {
+        name: /Bom dia, Helena Mondlane|Boa tarde, Helena Mondlane|Boa noite, Helena Mondlane/i,
+      }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/src\/features\/studio-desk\/StudioDeskPage\.tsx/i),
+      screen.getByText(/FOLHA 02 · MESA DE TRABALHO · MODO DEMO/i),
     ).toBeInTheDocument();
 
     // Desktop rail navigation items are present & Studio Desk is active
@@ -81,7 +83,9 @@ describe('Phase 02A — Workspace Shell Architecture, Search, Notifications & Na
     seedDemoSession(0);
     renderWorkspaceShellApp('/workspace');
 
-    await screen.findByText(/SLOT RESERVADO PARA STUDIO DESK/i);
+    await screen.findByRole('heading', {
+      name: /Bom dia, Helena Mondlane|Boa tarde, Helena Mondlane|Boa noite, Helena Mondlane/i,
+    });
 
     await user.click(
       screen.getByRole('button', { name: /Abrir pesquisa demonstrativa local/i }),
@@ -104,7 +108,8 @@ describe('Phase 02A — Workspace Shell Architecture, Search, Notifications & Na
     // Accent-insensitive search for "Milao" -> matches Mateo Conti (Milão)
     await user.clear(input);
     await user.type(input, 'Mateo');
-    expect(await within(dialog).findByText(/Mateo Conti/i)).toBeInTheDocument();
+    const mateoMatches = await within(dialog).findAllByText(/Mateo Conti/i);
+    expect(mateoMatches.length).toBeGreaterThan(0);
 
     // Activate via Enter on first highlighted result -> switches active collaborator to Mateo Conti!
     await user.keyboard('{Enter}');
@@ -113,8 +118,9 @@ describe('Phase 02A — Workspace Shell Architecture, Search, Notifications & Na
     });
 
     expect(
-      await screen.findByText(/ARQ-02 · Mateo Conti \(Demo\)/i),
+      await screen.findByRole('heading', { name: /Mateo Conti/i }),
     ).toBeInTheDocument();
+    expect(screen.getAllByText(/ARQ-02/i).length).toBeGreaterThan(0);
   });
 
   it('supports accessible Notifications Demo center with unread indicator and local mark-as-read persistence', async () => {
@@ -170,6 +176,10 @@ describe('Phase 02A — Workspace Shell Architecture, Search, Notifications & Na
     const user = userEvent.setup();
     seedDemoSession(0);
     renderWorkspaceShellApp('/workspace');
+
+    await screen.findByRole('heading', {
+      name: /Bom dia, Helena Mondlane|Boa tarde, Helena Mondlane|Boa noite, Helena Mondlane/i,
+    });
 
     await user.click(
       (await screen.findAllByRole('link', { name: /Departamentos/i }))[0],
