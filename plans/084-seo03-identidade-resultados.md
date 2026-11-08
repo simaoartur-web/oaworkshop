@@ -1,12 +1,12 @@
 # Plano 084 — SEO-03: identidade do website nos resultados Google
 
-> **Estado:** PROPOSTO — preparação documental concluída; implementação por aprovar.
+> **Estado:** EM EXECUÇÃO — implementação aprovada em 2026-11-08.
 > **Data:** 2026-11-08
 > **Base confirmada:** `main` e `origin/main` @ `9b43da8a5af5ee90a0034df207b7779822c35787`.
 > **Branch de preparação:** `codex/docs-seo03-site-name-plan`.
-> **Branch prevista para implementação:** `codex/feat-seo03-site-name-refinement`, a partir da `main` reconfirmada após aprovação.
+> **Branch de implementação:** `codex/feat-seo03-site-name-refinement`, criada a partir de `origin/main` @ `9b43da8` após reconfirmação remota.
 > **Autorização de preparação:** pedido do utilizador em 2026-11-08: «Sim, faça isso. Depod me apresente o plano de implementação».
-> **Aprovação da implementação:** pendente; a autorização acima abrange a revisão e preparação deste plano.
+> **Aprovação da implementação:** concedida pelo utilizador em 2026-11-08: `APROVADO: plans/084-seo03-identidade-resultados.md`, incluindo D1–D4.
 
 ## 1. Objectivo
 
@@ -148,13 +148,18 @@ Após aprovação:
 
 ## 9. Aprovação e resultado esperado
 
-Plano pronto para revisão. Para autorizar a implementação descrita, incluindo D1–D4:
+Implementação aprovada expressamente pelo utilizador em 2026-11-08, incluindo D1–D4, com a seguinte declaração:
 
 ```text
 APROVADO: plans/084-seo03-identidade-resultados.md
 ```
 
 Essa aprovação autoriza implementação e verificações na branch própria. Merge, publicação e Search Console permanecem sujeitos às autorizações expressas descritas acima.
+
+## 10. Registo da execução
+
+- **2026-11-08 — Início:** estado Git limpo e `origin/main` reconfirmado em `9b43da8`. Criada a branch aprovada sem tracking de `main`; transportado apenas o commit documental do Plano 084 e respectivos índices. Preservadas as branches anteriores. Segue-se a captura da referência local antes de alterar código.
+- **2026-11-08 — Referência:** build da base concluído com 43 páginas e três URLs no sitemap; nenhuma imagem regenerada. Guardada referência externa ao repositório com metadados, JSON-LD e hash do corpo das 43 páginas, sete recursos do build e 52 ficheiros protegidos de conteúdo/configuração/recursos. Mantêm-se os avisos anteriores de Browserslist desactualizado, `padding-left: var(--tracking-*)` inválido e bundle de 509,72 kB acima de 500 kB.
 
 ## Fontes oficiais consultadas em 2026-11-08
 
