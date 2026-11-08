@@ -9,6 +9,7 @@
 |---|---|---|
 | Alterar rotas ou estrutura global | `src/App.tsx` | `src/main.tsx`, páginas afectadas |
 | Alterar a página inicial | `src/pages/Home.tsx` | `src/components/home/`, `src/data/projects.ts` |
+| Diagnosticar autoplay ou controlos do slideshow | `src/components/home/WorkshopSection.tsx` | `HeroSection.tsx`, `WorkshopTabs.tsx`, `workshop.css`, Plano 135 |
 | Alterar listagem de projectos | `src/pages/Projects.tsx` | `src/data/projects.ts`, `src/pages/ProjectDetail.tsx` |
 | Alterar cabeçalho ou navegação | `src/components/layout/Header.tsx` | `src/App.tsx`, `src/locales/` |
 | Alterar rodapé | `src/components/layout/Footer.tsx` | `src/locales/` |
@@ -122,6 +123,7 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 | `plans/084-seo03-identidade-resultados.md` | SEO-03 canónico, integrado e publicado: identidade WebSite exclusiva da raiz; Organization, idiomas e indexação preservados e verificados em produção |
 | `plans/124-design-mastery-playbook.md` | integração das referências de design nas instruções dos agentes |
 | `plans/134-performance-imagens-autoplay-fades.md` | plano R06: pipeline de optimização Sharp, autoplay robusto e crossfades |
+| `plans/135-slideshow-autoplay-sem-playback.md` | diagnóstico do bloqueio por foco da entrada; proposta de correcção do autoplay e retirada integral de Play/Pause conforme decisão do utilizador |
 | `prompts/` | normas e modelos de prompts |
 
 ## Publicação
