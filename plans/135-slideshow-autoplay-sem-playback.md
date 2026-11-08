@@ -1,13 +1,13 @@
 # Plano 135 — Autoplay do Workshop e retirada dos controlos de reprodução
 
-> **Estado:** PROPOSTO — diagnóstico concluído; implementação por aprovar.
+> **Estado:** EM EXECUÇÃO — implementação aprovada em 2026-11-08.
 > **Data:** 2026-11-08
 > **Base confirmada:** `main` e `origin/main` @ `e468fe7cb043844855c529477616f6e873c45190`.
 > **Branch de preparação:** `codex/docs-slideshow-autoplay-plan`.
-> **Branch prevista para implementação:** `codex/fix-slideshow-autoplay`.
+> **Branch de implementação:** `codex/fix-slideshow-autoplay`, criada de `origin/main` @ `e468fe7` após reconfirmação remota.
 > **Pedido:** investigar o slideshow estático e retirar o controlo Play/Pause.
 > **Decisão editorial confirmada:** o utilizador escolheu «Retirar qualquer controlo de reprodução», incluindo a alternativa de pausa apresentada apenas pelo teclado.
-> **Aprovação da implementação:** pendente; a preferência acima define a retirada do controlo, sem substituir a aprovação deste plano concreto.
+> **Aprovação da implementação:** concedida em 2026-11-08: `APROVADO: plans/135-slideshow-autoplay-sem-playback.md`, incluindo D1–D4.
 
 ## 1. Objectivo e âmbito
 
@@ -131,11 +131,16 @@ Ficam fora do âmbito: carrossel legado de notícias, novas funcionalidades, ima
 - **2026-11-08:** preparação apenas documental; código, traduções e site publicado continuam intactos. Build, lint e testes de implementação não foram executados nesta fase.
 - **2026-11-08 — Verificação documental:** oito ligações locais válidas, UTF-8 legível, sem espaços finais e `git diff --cached --check` sem erros. Diff limitado aos três documentos previstos; apenas aviso de normalização futura LF/CRLF no novo Markdown.
 
-Para autorizar a execução do plano concreto:
+O utilizador autorizou a execução deste plano concreto, incluindo D1–D4:
 
 ```text
 APROVADO: plans/135-slideshow-autoplay-sem-playback.md
 ```
+
+## 8. Registo da execução
+
+- **2026-11-08 — Início:** workspace limpo e `main` remota reconfirmada em `e468fe7`. Criada a branch de implementação sem tracking de `main`; transportados apenas o plano e os seus índices. Preservadas as branches anteriores. Aprovação de implementação não autoriza merge ou publicação.
+- **2026-11-08 — Referência:** build da base concluído com 43 páginas e três URLs no sitemap, sem imagens regeneradas. Guardados metadados/JSON-LD das 43 páginas, corpos HTML iniciais, traduções e hashes de sete recursos e 55 ficheiros protegidos; referências visuais EN/PT disponíveis nos artefactos locais. Os avisos anteriores mantêm-se: Browserslist desactualizado, `padding-left: var(--tracking-*)` inválido e bundle de 510,31 kB acima de 500 kB.
 
 ## Fontes externas
 

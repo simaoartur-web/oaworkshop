@@ -88,7 +88,7 @@ Uma alteração material ao âmbito, riscos ou decisões invalida a aprovação 
 | 132 | CANÓNICO | `132-refinamento-ux-ui-mobile-hero-continuidade.md` |
 | 133 | CANÓNICO | `133-redesign-seccao-our-team.md` |
 | 134 | CANÓNICO | `134-performance-imagens-autoplay-fades.md` |
-| 135 | PROPOSTO | `135-slideshow-autoplay-sem-playback.md` |
+| 135 | EM EXECUÇÃO | `135-slideshow-autoplay-sem-playback.md` |
 
 ## Roteiro proposto
 

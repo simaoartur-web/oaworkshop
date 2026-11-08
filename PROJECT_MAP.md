@@ -123,7 +123,7 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 | `plans/084-seo03-identidade-resultados.md` | SEO-03 canónico, integrado e publicado: identidade WebSite exclusiva da raiz; Organization, idiomas e indexação preservados e verificados em produção |
 | `plans/124-design-mastery-playbook.md` | integração das referências de design nas instruções dos agentes |
 | `plans/134-performance-imagens-autoplay-fades.md` | plano R06: pipeline de optimização Sharp, autoplay robusto e crossfades |
-| `plans/135-slideshow-autoplay-sem-playback.md` | diagnóstico do bloqueio por foco da entrada; proposta de correcção do autoplay e retirada integral de Play/Pause conforme decisão do utilizador |
+| `plans/135-slideshow-autoplay-sem-playback.md` | execução aprovada da correcção do autoplay e retirada integral de Play/Pause conforme decisão do utilizador |
 | `prompts/` | normas e modelos de prompts |
 
 ## Publicação
