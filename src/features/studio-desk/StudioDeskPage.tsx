@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import {
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -15,6 +16,7 @@ import {
   saveStudioDeskLocalState,
   STUDIO_DESK_ACTIVITIES,
   STUDIO_DESK_PROJECTS,
+  STUDIO_DESK_STORAGE_KEY,
   STUDIO_DESK_TASKS,
 } from '../../data/studioDeskFixtures';
 import type {
@@ -28,10 +30,10 @@ import type {
   StudioDeskLocalState,
   StudioDeskProject,
 } from '../../data/studioDeskTypes';
-import type { ProjectStatus } from '../../data/types';
-import { pickLocalized } from '../../locales';
+import type { AppLanguage, DemoUser, ProjectStatus, Role } from '../../data/types';
+import { pickLocalized, type TranslationDictionary } from '../../locales';
 import { FeaturedProjectPlate } from './FeaturedProjectPlate';
-import { STUDIO_DESK_I18N } from './i18n';
+import { STUDIO_DESK_I18N, type StudioDeskDictionary } from './i18n';
 import { PrioritiesPanel, type DerivedPriorityCounts } from './PrioritiesPanel';
 import {
   ProjectDossierDialog,
@@ -97,6 +99,65 @@ export function StudioDeskPage() {
   const shouldReduceMotion = Boolean(
     prefersReducedMotion || preferences.reduceMotionOverride === 'reduce',
   );
+  const deskDict = STUDIO_DESK_I18N[language];
+
+  // Update document.title immediately upon entering /workspace and track PT/EN toggles.
+  useEffect(() => {
+    document.title = deskDict.opening.pageTitle;
+  }, [deskDict.opening.pageTitle]);
+
+  if (!session || !currentUser) {
+    return (
+      <section
+        aria-labelledby="studio-no-session-heading"
+        className="w-full max-w-3xl mx-auto px-4 sm:px-8 py-10 text-white"
+      >
+        <div className="border border-white/16 bg-[#0D0D0D] p-6 sm:p-8 space-y-3">
+          <p className="text-[11px] font-medium uppercase tracking-[0.20em] text-[#BDBDBD]">
+            {deskDict.opening.sheetCode}
+          </p>
+          <h1
+            id="studio-no-session-heading"
+            className="text-xl sm:text-2xl font-light text-white"
+          >
+            {deskDict.opening.noSessionTitle}
+          </h1>
+          <p className="text-sm text-[#BDBDBD]">
+            {deskDict.opening.noSessionBody}
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <AuthenticatedStudioDesk
+      currentUser={currentUser}
+      language={language}
+      globalDict={t}
+      deskDict={deskDict}
+      shouldReduceMotion={shouldReduceMotion}
+    />
+  );
+}
+
+interface AuthenticatedStudioDeskProps {
+  currentUser: DemoUser;
+  language: AppLanguage;
+  globalDict: TranslationDictionary;
+  deskDict: StudioDeskDictionary;
+  shouldReduceMotion: boolean;
+}
+
+function AuthenticatedStudioDesk({
+  currentUser,
+  language,
+  globalDict,
+  deskDict,
+  shouldReduceMotion,
+}: AuthenticatedStudioDeskProps) {
+  const activeRole = currentUser.role;
+  const roleConfig = ROLE_DESK_CONFIGS[activeRole];
 
   const [localState, setLocalState] = useState<StudioDeskLocalState>(() =>
     loadStudioDeskLocalState(),
@@ -113,13 +174,39 @@ export function StudioDeskPage() {
   >('all');
   const [projectSortBy, setProjectSortBy] = useState<DeskSortBy>('priority');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Clear role-contextual modal state and live announcements permanently whenever activeRole changes
+  // so returning to a previously visited role never re-opens a closed or dismissed dialog.
+  const [trackedRole, setTrackedRole] = useState<Role>(activeRole);
   const [dialogState, setDialogState] = useState<StudioDeskDialogState>({
     type: 'closed',
   });
   const [liveAnnouncement, setLiveAnnouncement] = useState<string>('');
 
+  if (trackedRole !== activeRole) {
+    setTrackedRole(activeRole);
+    if (dialogState.type !== 'closed') {
+      setDialogState({ type: 'closed' });
+    }
+    if (liveAnnouncement !== '') {
+      setLiveAnnouncement('');
+    }
+  }
+
   const prioritiesSectionRef = useRef<HTMLElement | null>(null);
-  const deskDict = STUDIO_DESK_I18N[language];
+
+  // Sync Studio Desk local state if localStorage is reset externally or in another tab.
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === null || event.key === STUDIO_DESK_STORAGE_KEY) {
+        setLocalState(loadStudioDeskLocalState());
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   const updateLocalState = useCallback(
     (updater: (prev: StudioDeskLocalState) => StudioDeskLocalState) => {
@@ -137,18 +224,20 @@ export function StudioDeskPage() {
     const taskStatusChanged = STUDIO_DESK_TASKS.some(
       (task) => localState.taskStatuses[task.id] !== defaults[task.id],
     );
+    const hasPresentationOverride = Boolean(
+      localState.presentationModeByRole &&
+        Object.keys(localState.presentationModeByRole).length > 0,
+    );
     return (
       taskStatusChanged ||
-      localState.presentationMode !== undefined ||
+      hasPresentationOverride ||
       localState.showDatumOverlay === false
     );
   }, [localState]);
 
-  const activeRole = currentUser?.role ?? 'director';
-  const roleConfig = ROLE_DESK_CONFIGS[activeRole];
-
   const effectivePresentationMode: DeskPresentationMode =
-    localState.presentationMode ?? roleConfig.defaultPresentationMode;
+    localState.presentationModeByRole?.[activeRole] ??
+    roleConfig.defaultPresentationMode;
 
   const featuredProject = useMemo<StudioDeskProject>(() => {
     return (
@@ -363,12 +452,25 @@ export function StudioDeskPage() {
 
   const handlePresentationModeChange = useCallback(
     (mode: DeskPresentationMode) => {
-      updateLocalState((prev) => ({
-        ...prev,
-        presentationMode: mode,
-      }));
+      const defaultModeForRole =
+        ROLE_DESK_CONFIGS[activeRole].defaultPresentationMode;
+      updateLocalState((prev) => {
+        const nextByRole: Partial<Record<Role, DeskPresentationMode>> = {
+          ...prev.presentationModeByRole,
+        };
+        if (mode === defaultModeForRole) {
+          delete nextByRole[activeRole];
+        } else {
+          nextByRole[activeRole] = mode;
+        }
+        const hasOverrides = Object.keys(nextByRole).length > 0;
+        return {
+          ...prev,
+          presentationModeByRole: hasOverrides ? nextByRole : undefined,
+        };
+      });
     },
-    [updateLocalState],
+    [activeRole, updateLocalState],
   );
 
   const handleToggleDatumOverlay = useCallback(() => {
@@ -395,6 +497,7 @@ export function StudioDeskPage() {
     setProjectStatusFilter('all');
     setProjectSortBy('priority');
     setSearchQuery('');
+    setDialogState({ type: 'closed' });
     setLiveAnnouncement(deskDict.quickActions.feedbackResetDone);
   }, [deskDict.quickActions.feedbackResetDone]);
 
@@ -412,29 +515,9 @@ export function StudioDeskPage() {
     target.focus({ preventScroll: true });
   }, [shouldReduceMotion]);
 
-  if (!session || !currentUser) {
-    return (
-      <section
-        aria-labelledby="studio-no-session-heading"
-        className="w-full max-w-3xl mx-auto px-4 sm:px-8 py-10 text-white"
-      >
-        <div className="border border-white/16 bg-[#0D0D0D] p-6 sm:p-8 space-y-3">
-          <p className="text-[11px] font-medium uppercase tracking-[0.20em] text-[#BDBDBD]">
-            {deskDict.opening.sheetCode}
-          </p>
-          <h1
-            id="studio-no-session-heading"
-            className="text-xl sm:text-2xl font-light text-white"
-          >
-            {deskDict.opening.noSessionTitle}
-          </h1>
-          <p className="text-sm text-[#BDBDBD]">
-            {deskDict.opening.noSessionBody}
-          </p>
-        </div>
-      </section>
-    );
-  }
+  const handleCloseDialog = useCallback(() => {
+    setDialogState({ type: 'closed' });
+  }, []);
 
   const adaptiveBands = buildAdaptiveBands(roleConfig.sectionOrder);
 
@@ -547,7 +630,7 @@ export function StudioDeskPage() {
         currentUser={currentUser}
         roleConfig={roleConfig}
         language={language}
-        globalDict={t}
+        globalDict={globalDict}
         deskDict={deskDict}
         hasLocalChanges={hasLocalChanges}
         shouldReduceMotion={shouldReduceMotion}
@@ -626,7 +709,7 @@ export function StudioDeskPage() {
       {/* Accessible Project Dossier & Honest Future-Phase Modal */}
       <ProjectDossierDialog
         state={dialogState}
-        onClose={() => setDialogState({ type: 'closed' })}
+        onClose={handleCloseDialog}
         language={language}
         deskDict={deskDict}
       />
