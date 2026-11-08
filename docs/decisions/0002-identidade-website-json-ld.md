@@ -1,6 +1,6 @@
 # ADR 0002 — Identidade do website em JSON-LD
 
-> **Estado:** ACEITE — decisão aprovada no Plano 084; integração da branch sujeita a aceitação própria.
+> **Estado:** ACEITE — decisão e branch do Plano 084 aceites pelo utilizador; integração/publicação autorizadas em 2026-11-08.
 > **Data:** 2026-11-08
 
 ## Contexto

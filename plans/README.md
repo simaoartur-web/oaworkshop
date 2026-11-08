@@ -72,7 +72,7 @@ Uma alteração material ao âmbito, riscos ou decisões invalida a aprovação 
 | 010 | CANÓNICO | `010-limpeza-publica-e-bilingue.md` |
 | 080 | CANÓNICO | `080-seo-infraestrutura-indexacao.md` |
 | 082 | CANÓNICO | `082-seo02-en-first-correcao.md` |
-| 084 | CONCLUÍDO | `084-seo03-identidade-resultados.md` |
+| 084 | CANÓNICO | `084-seo03-identidade-resultados.md` |
 | 120 | CANÓNICO | `120-organograma-da-equipa.md` |
 | 121 | CANÓNICO | `121-equipa-perfis-interactivos.md` |
 | 122 | CANÓNICO | `122-equipa-refinamento-editorial.md` |

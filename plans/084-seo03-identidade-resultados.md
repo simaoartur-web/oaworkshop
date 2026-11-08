@@ -1,12 +1,13 @@
 # Plano 084 — SEO-03: identidade do website nos resultados Google
 
-> **Estado:** CONCLUÍDO — implementação e verificações terminadas na branch; integração/publicação por autorizar.
+> **Estado:** CANÓNICO — branch aceite e integração/publicação autorizadas; confirmação da publicação em curso.
 > **Data:** 2026-11-08
 > **Base confirmada:** `main` e `origin/main` @ `9b43da8a5af5ee90a0034df207b7779822c35787`.
 > **Branch de preparação:** `codex/docs-seo03-site-name-plan`.
 > **Branch de implementação:** `codex/feat-seo03-site-name-refinement`, criada a partir de `origin/main` @ `9b43da8` após reconfirmação remota.
 > **Autorização de preparação:** pedido do utilizador em 2026-11-08: «Sim, faça isso. Depod me apresente o plano de implementação».
 > **Aprovação da implementação:** concedida pelo utilizador em 2026-11-08: `APROVADO: plans/084-seo03-identidade-resultados.md`, incluindo D1–D4.
+> **Aceitação canónica e publicação:** autorizadas expressamente pelo utilizador em 2026-11-08 para a branch `codex/feat-seo03-site-name-refinement` e commit validado `681e08fc65c845ed6832159726d534f6996bcb17`.
 
 ## 1. Objectivo
 
@@ -93,7 +94,7 @@ Após aprovação:
 - Alterar `src/main.tsx`, `src/i18n.ts`, o router ou o renderer. `src/entry-server.tsx` foi consultado apenas para confirmar a propagação do contrato de metadados.
 - Back-end, API própria, SaaS, autenticação, novas dependências ou alterações de package/lockfile e workflow.
 - Criar ou executar o Plano 083; aceder/escrever no Search Console, pedir indexação ou prometer mudanças na pesquisa.
-- Merge ou deploy. A autorização anterior para publicar SEO-02 não aprova a futura branch SEO-03.
+- Merge e deploy estavam fora da aprovação inicial de implementação. A autorização posterior expressa de 2026-11-08 abrange a integração da branch SEO-03 aceite e a publicação pelo GitHub Pages; Search Console continua excluído.
 
 ## 5. Etapas da implementação
 
@@ -156,6 +157,8 @@ APROVADO: plans/084-seo03-identidade-resultados.md
 
 Essa aprovação autoriza implementação e verificações na branch própria. Merge, publicação e Search Console permanecem sujeitos às autorizações expressas descritas acima.
 
+**Autorização posterior de integração e publicação, em 2026-11-08:** o utilizador declarou a branch canónica e aprovou a integração do Plano 084 na `main` e publicação em produção, identificando o commit validado `681e08fc65c845ed6832159726d534f6996bcb17`. Autorizados merge normal, acompanhamento do GitHub Pages, verificação em produção e actualização do estado documental. Preservar todas as branches e interromper perante conflitos materiais ou falhas de publicação; não executar alterações no Search Console.
+
 ## 10. Registo da execução
 
 - **2026-11-08 — Início:** estado Git limpo e `origin/main` reconfirmado em `9b43da8`. Criada a branch aprovada sem tracking de `main`; transportado apenas o commit documental do Plano 084 e respectivos índices. Preservadas as branches anteriores. Segue-se a captura da referência local antes de alterar código.
@@ -168,6 +171,11 @@ Essa aprovação autoriza implementação e verificações na branch própria. M
 - **2026-11-08 — Validador externo:** submetido ao Schema Markup Validator o fragmento efectivamente gerado no HTML da raiz: **um WebSite, zero erros e zero avisos**, com os nomes e identificador aprovados. Guardada captura do resultado, juntamente com as evidências de comparação/HTTP/DOM, fora dos ficheiros versionados. Não foi usado o Rich Results Test como prova deste tipo de resultado.
 - **2026-11-08 — Avisos e impacto:** mantêm-se os três avisos anteriores: Browserslist/caniuse-lite desactualizado, regra CSS gerada `padding-left: var(--tracking-*)` inválida e bundle acima de 500 kB. O JavaScript passou de 509,72 para 510,31 kB (gzip: 160,08 para 160,18 kB), aumento correspondente à identidade e reconciliação aprovadas. Não foram suprimidos avisos nem executadas optimizações alheias ao lote.
 - **2026-11-08 — Fecho e limites:** diff revisto e limitado aos nove ficheiros previstos; servidor de verificação local encerrado. Sem desvio material de âmbito, novas dependências ou alteração de configuração, conteúdo visível, idiomas, imagens, rotas ou indexação. `origin/main` foi reconfirmado em `9b43da8`; sem merge, deploy ou Search Console. A branch é candidata a revisão; o estado CONCLUÍDO não a declara canónica nem comprova alteração dos resultados Google.
+
+## 11. Integração e publicação
+
+- **2026-11-08 — Reconfirmação:** workspace limpo, `main` local/remota em `9b43da8a5af5ee90a0034df207b7779822c35787` e branch local/remota no commit aprovado `681e08fc65c845ed6832159726d534f6996bcb17`. Sem divergência entre referências; `main` é antepassada da branch, com os três commits SEO-03 previstos. Nenhuma alteração concorrente ou conflito identificado.
+- **2026-11-08 — Aceitação:** actualizados apenas os registos documentais de estado e autorização antes da integração. A aplicação é a versão já validada por lint, build, 41 testes, comparação estática, HTTP, navegador e Schema.org. A confirmação efectiva do deploy e as verificações públicas serão acrescentadas após observação dos resultados.
 
 ## Fontes oficiais consultadas em 2026-11-08
 
