@@ -15,6 +15,8 @@ export const en: TranslationDictionary = {
     resetDemoData: 'Reset demo data',
     resetConfirmed: 'Preferences and demonstrative session have been reset.',
     skipToMain: 'Skip to main content',
+    reduceMotionOn: 'Reduced motion active',
+    reduceMotionSystem: 'Follow system preference',
   },
   login: {
     pageTitle: 'O+A Workspace — Internal Access (Demo)',
@@ -44,11 +46,14 @@ export const en: TranslationDictionary = {
     activeSelectedTag: 'Selected',
     demoKeyBadge: 'Demo code: oa-demo',
     errors: {
-      emailRequired: 'Enter a demonstrative email address (e.g. direccao.demo@oa-workspace.local).',
-      emailInvalidFormat: 'Invalid email format. Choose one of the studio profiles listed below.',
+      emailRequired:
+        'Enter a demonstrative email address (e.g. direccao.demo@oa-workspace.local).',
+      emailInvalidFormat:
+        'Invalid email format. Choose one of the studio profiles listed below.',
       unknownDemoAccount:
         'Unrecognized profile in this demo set. Choose one of the 6 fictive studio profiles.',
-      passwordRequired: 'Enter the demo access code (oa-demo) or use direct entry on a profile.',
+      passwordRequired:
+        'Enter the demo access code (oa-demo) or use direct entry on a profile.',
       invalidDemoKey: 'Incorrect code for demo mode. Use "oa-demo".',
     },
     forgotDialog: {
@@ -92,11 +97,11 @@ export const en: TranslationDictionary = {
     switchProfileLabel: 'Switch demo role before continuing',
   },
   workspaceGate: {
-    pageTitle: 'O+A Workspace — Studio Desk (Phase 01 Checkpoint)',
-    phaseBadge: 'PHASE 01 CHECKPOINT · ENTRY JOURNEY VERIFIED',
+    pageTitle: 'O+A Workspace — Studio Desk (Phase 02A Shell Slot)',
+    phaseBadge: 'PHASE 02A · RESERVED STUDIO DESK SLOT (ARGON B)',
     heading: 'Demonstrative session active in O+A Workspace.',
     description:
-      'The required /login → /welcome → /workspace journey is active and persisted locally in this browser with zero stored passwords. Full construction of the Studio Desk, Collapsible Rail, and Operational Modules belongs to Phase 02, awaiting your evaluation of the entry experience.',
+      'The architectural shell, lateral sheet navigation rail, local demonstrative search, and notifications center are active in this browser. This container at /workspace hosts StudioDeskPage (Agent B) upon integration.',
     sessionCardTitle: 'Current local session state',
     activeCollaborator: 'Active fictive profile',
     activeRole: 'Demonstrative role',
@@ -109,5 +114,122 @@ export const en: TranslationDictionary = {
     switchRoleHeading: 'Test immediate demonstrative role switching',
     securityReminder:
       'Transparent note: roles and preferences are stored locally in localStorage strictly for UX simulation.',
+  },
+  shell: {
+    navAriaLabel: 'O+A Workspace primary navigation',
+    railHeaderTitle: 'Atelier Sheets',
+    mobileDrawerTitle: 'Sheet Index',
+    openNavMenu: 'Open navigation menu',
+    closeNavMenu: 'Close navigation menu',
+    collapseRail: 'Collapse rail',
+    expandRail: 'Expand rail',
+    activePlatePrefix: 'Sheet',
+    groups: {
+      atelier: 'Group I · Atelier',
+      structure: 'Group II · Organization',
+      control: 'Group III · Editorial & Session',
+    },
+    breadcrumbsRoot: 'Studio',
+    header: {
+      activeDepartmentLabel: 'Department',
+      studioClockLabel: 'Studio time',
+      userMenuAria: 'Open demo user and session menu',
+      preferencesAction: 'Preferences & Session',
+      welcomeAction: 'Review /welcome',
+      sessionFooterBadge: 'Local Demo Mode · No Backend',
+    },
+    search: {
+      triggerLabel: 'Search',
+      triggerShortcut: 'Ctrl+K',
+      triggerAria: 'Open local demonstrative search',
+      dialogCode: 'LOCAL INDEX · DEMO SEARCH',
+      dialogTitle: 'Studio Search (Demo)',
+      inputLabel: 'Search sections, demo profiles, departments, or featured study',
+      inputPlaceholder:
+        'Search sections, profiles (ARQ-02), departments, or OA-26-014…',
+      clearAction: 'Clear search text',
+      honestNotice:
+        'In-memory local search over demo fixtures loaded in this phase. Sends zero server queries.',
+      suggestedHeading: 'Available records in current state',
+      resultsHeading: 'Matching local records',
+      keyboardHint: '↑ ↓ navigate · Enter open · Esc close',
+      emptyTitle: 'No matches found in current demo data.',
+      emptyBody:
+        'This index strictly covers Workspace routes, 6 demo profiles, 9 departments, and study OA-26-014.',
+      categories: {
+        route: 'Section',
+        profile: 'Demo Profile',
+        department: 'Department',
+        study: 'Demo Study',
+      },
+      actions: {
+        openRoute: 'Open section',
+        activateProfile: 'Activate profile',
+        viewStudy: 'Open in Studio',
+      },
+      roleSwitchedAnnouncement: 'Demonstrative profile switched via local search.',
+    },
+    notifications: {
+      triggerAria: 'Demonstrative studio notifications',
+      unreadSrSuffix: 'unread',
+      heading: 'Notifications Center',
+      subheading: 'Local demonstrative log (fictive)',
+      markAllRead: 'Mark all as read',
+      markOneRead: 'Mark as read',
+      readLabel: 'Read',
+      unreadLabel: 'Unread',
+      openRelated: 'Open section',
+      empty: 'All demonstrative notifications have been read.',
+      honestFooter:
+        'Fictive content persisted locally in localStorage in this browser only. No push or server.',
+      closeLabel: 'Close notifications panel',
+      markedReadAnnouncement: 'Notification marked as read.',
+      markedAllReadAnnouncement: 'All notifications marked as read.',
+    },
+    slotPlaceholder: {
+      contractLabel: 'Argon B integration contract',
+      contractExport: 'StudioDeskPage (named export)',
+      contractPath: 'src/features/studio-desk/StudioDeskPage.tsx',
+      greetingCheckLabel: 'Studio-base calculated greeting',
+      studioTimeNowLabel: 'Active base local time',
+      openSettingsCta: 'Open Settings',
+    },
+    settings: {
+      pageTitle: 'O+A Workspace — Settings & Preferences (Demo)',
+      eyebrow: 'SHEET 11 · DEMO SESSION PREFERENCES',
+      heading: 'Local configuration for the demonstrative environment.',
+      description:
+        'Changes take effect immediately in this browser. No real admin permissions or remote persistence exist.',
+      interfaceSection: 'Interface Behavior',
+      languageTitle: 'Editorial language',
+      languageDesc:
+        'Switches copy, technical labels, and date formats between Portuguese and English.',
+      welcomeToggleTitle: 'Skip /welcome notebook after sign-in',
+      welcomeToggleDesc: 'Opens /workspace directly on subsequent logins.',
+      motionTitle: 'Reduced motion',
+      motionDesc:
+        'Replaces spatial transitions with immediate state changes, complementing OS preferences.',
+      motionSystemBtn: 'Follow System',
+      motionReduceBtn: 'Reduce Motion',
+      railTitle: 'Desktop navigation rail',
+      railDesc: 'Sets the default width of the lateral navigation index on wide screens.',
+      railExpandedBtn: 'Expanded (264px)',
+      railCompactBtn: 'Compact (72px)',
+      storageAuditTitle: 'Local Storage Audit',
+      storageZeroPassword:
+        'Active invariant: zero passwords stored anywhere in localStorage.',
+      activeStorageKeysLabel: 'Browser storage keys in use',
+    },
+    planned: {
+      pageTitleSuffix: 'O+A Workspace — Planned Sheet',
+      badgePrefix: 'PLANNED MODULE',
+      honestNoticeTitle: 'Structural sheet framed inside Workspace Shell',
+      honestNoticeBody:
+        'This route is wired to lateral navigation and local search, while its full operational module belongs to a later phase and is not artificially faked here.',
+      targetPhaseLabel: 'Target phase',
+      referenceDataLabel: 'Demonstrative reference currently available',
+      backToDesk: 'Back to Studio Desk',
+      routeNotFoundTitle: 'Section outside current workspace map',
+    },
   },
 };

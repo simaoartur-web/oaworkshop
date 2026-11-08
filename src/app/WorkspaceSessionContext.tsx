@@ -26,6 +26,7 @@ import type {
   Role,
   UserPreferences,
 } from '../data/types';
+import { resetShellLocalState } from '../features/workspace-shell/shellDemoState';
 import { DICTIONARIES, type TranslationDictionary } from '../locales';
 
 interface WorkspaceSessionContextValue {
@@ -40,15 +41,21 @@ interface WorkspaceSessionContextValue {
   signOut: () => void;
   setLanguage: (language: AppLanguage) => void;
   setSkipWelcomeOnLogin: (skip: boolean) => void;
+  setReduceMotionOverride: (mode: 'system' | 'reduce') => void;
   resetAllDemoData: () => void;
 }
 
-const WorkspaceSessionContext = createContext<WorkspaceSessionContextValue | null>(
-  null,
-);
+const WorkspaceSessionContext =
+  createContext<WorkspaceSessionContextValue | null>(null);
 
-export function WorkspaceSessionProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<DemoSession | null>(() => loadDemoSession());
+export function WorkspaceSessionProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const [session, setSession] = useState<DemoSession | null>(() =>
+    loadDemoSession(),
+  );
   const [preferences, setPreferences] = useState<UserPreferences>(() =>
     loadUserPreferences(),
   );
@@ -109,8 +116,14 @@ export function WorkspaceSessionProvider({ children }: { children: ReactNode }) 
     setPreferences(updated);
   }, []);
 
+  const setReduceMotionOverride = useCallback((mode: 'system' | 'reduce') => {
+    const updated = saveUserPreferences({ reduceMotionOverride: mode });
+    setPreferences(updated);
+  }, []);
+
   const resetAllDemoData = useCallback(() => {
     const freshPrefs = resetDemoWorkspaceState();
+    resetShellLocalState();
     setSession(null);
     setPreferences(freshPrefs);
   }, []);
@@ -128,6 +141,7 @@ export function WorkspaceSessionProvider({ children }: { children: ReactNode }) 
       signOut,
       setLanguage,
       setSkipWelcomeOnLogin,
+      setReduceMotionOverride,
       resetAllDemoData,
     }),
     [
@@ -142,6 +156,7 @@ export function WorkspaceSessionProvider({ children }: { children: ReactNode }) 
       signOut,
       setLanguage,
       setSkipWelcomeOnLogin,
+      setReduceMotionOverride,
       resetAllDemoData,
     ],
   );
