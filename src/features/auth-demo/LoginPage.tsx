@@ -8,7 +8,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { useEffect, useId, useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useWorkspaceSession } from '../../app/WorkspaceSessionContext';
 import {
   DEMO_ACCESS_KEY_HINT,
@@ -36,7 +36,6 @@ export function LoginPage() {
     signInAsDemoUser,
     setLanguage,
   } = useWorkspaceSession();
-  const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
   const shouldReduceMotion =
     prefersReducedMotion || preferences.reduceMotionOverride === 'reduce';
@@ -65,21 +64,19 @@ export function LoginPage() {
   const clocks = formatStudioClocks();
 
   useEffect(() => {
-    document.title = t.login.pageTitle;
-  }, [t.login.pageTitle]);
-
-  // If a demo session is already active on mount/navigation, advance coherently
-  useEffect(() => {
-    if (session) {
-      navigate(preferences.skipWelcomeOnLogin ? '/workspace' : '/welcome', {
-        replace: true,
-      });
+    if (!session) {
+      document.title = t.login.pageTitle;
     }
-  }, [session, preferences.skipWelcomeOnLogin, navigate]);
+  }, [session, t.login.pageTitle]);
 
-  const navigateAfterLogin = () => {
-    navigate(preferences.skipWelcomeOnLogin ? '/workspace' : '/welcome');
-  };
+  if (session) {
+    return (
+      <Navigate
+        to={preferences.skipWelcomeOnLogin ? '/workspace' : '/welcome'}
+        replace
+      />
+    );
+  }
 
   const handleSelectProfileToFill = (profile: DemoUser) => {
     setSelectedProfileId(profile.id);
@@ -91,7 +88,6 @@ export function LoginPage() {
 
   const handleDirectProfileEnter = (profile: DemoUser) => {
     signInAsDemoUser(profile);
-    navigateAfterLogin();
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -104,7 +100,6 @@ export function LoginPage() {
     }
     setEmailErrorKey(null);
     setPasswordErrorKey(null);
-    navigateAfterLogin();
   };
 
   const resolveEmailErrorText = (): string | null => {

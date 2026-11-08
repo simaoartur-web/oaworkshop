@@ -13,6 +13,8 @@ export const pt = {
     resetDemoData: 'Repor dados demo',
     resetConfirmed: 'Preferências e sessão demonstrativa repostas.',
     skipToMain: 'Saltar para o conteúdo principal',
+    reduceMotionOn: 'Movimento reduzido activo',
+    reduceMotionSystem: 'Seguir preferência do sistema',
   },
   login: {
     pageTitle: 'O+A Workspace — Acesso Interno (Demo)',
@@ -42,12 +44,16 @@ export const pt = {
     activeSelectedTag: 'Seleccionado',
     demoKeyBadge: 'Código demo: oa-demo',
     errors: {
-      emailRequired: 'Indique um endereço de correio demonstrativo (ex.: direccao.demo@oa-workspace.local).',
-      emailInvalidFormat: 'Formato de correio inválido. Utilize um perfil listado abaixo.',
+      emailRequired:
+        'Indique um endereço de correio demonstrativo (ex.: direccao.demo@oa-workspace.local).',
+      emailInvalidFormat:
+        'Formato de correio inválido. Utilize um perfil listado abaixo.',
       unknownDemoAccount:
         'Perfil não reconhecido neste conjunto demo. Escolha um dos 6 perfis fictícios do atelier.',
-      passwordRequired: 'Indique o código demonstrativo (oa-demo) ou utilize a entrada directa num perfil.',
-      invalidDemoKey: 'Código incorrecto para o modo demonstrativo. Utilize «oa-demo».',
+      passwordRequired:
+        'Indique o código demonstrativo (oa-demo) ou utilize a entrada directa num perfil.',
+      invalidDemoKey:
+        'Código incorrecto para o modo demonstrativo. Utilize «oa-demo».',
     },
     forgotDialog: {
       code: 'NOTA OPERACIONAL · MODO DEMO',
@@ -90,11 +96,11 @@ export const pt = {
     switchProfileLabel: 'Trocar papel demo antes de avançar',
   },
   workspaceGate: {
-    pageTitle: 'O+A Workspace — Mesa de Trabalho (Checkpoint Fase 01)',
-    phaseBadge: 'CHECKPOINT FASE 01 · PERCURSO DE ENTRADA VALIDADO',
+    pageTitle: 'O+A Workspace — Mesa de Trabalho (Slot Shell Fase 02A)',
+    phaseBadge: 'FASE 02A · SLOT RESERVADO PARA STUDIO DESK (ARGON B)',
     heading: 'Sessão demonstrativa iniciada no O+A Workspace.',
     description:
-      'O percurso obrigatório /login → /welcome → /workspace está activo e persistido localmente neste navegador sem palavras-passe armazenadas. A construção completa da Mesa de Trabalho, Rail Lateral e Módulos Operacionais corresponde à Fase 02, aguardando validação da experiência de entrada.',
+      'O Shell arquitectónico, prancha lateral de navegação, pesquisa demonstrativa local e central de notificações estão operacionais neste navegador. Este contentor em /workspace recebe o módulo StudioDeskPage (Agente B) na etapa de integração.',
     sessionCardTitle: 'Estado actual da sessão local',
     activeCollaborator: 'Perfil fictício activo',
     activeRole: 'Papel demonstrativo',
@@ -107,6 +113,124 @@ export const pt = {
     switchRoleHeading: 'Testar alternância imediata de papel demonstrativo',
     securityReminder:
       'Nota transparente: papéis e preferências são guardados localmente em localStorage apenas para simulação de UX.',
+  },
+  shell: {
+    navAriaLabel: 'Navegação principal do O+A Workspace',
+    railHeaderTitle: 'Pranchas do Atelier',
+    mobileDrawerTitle: 'Índice de Pranchas',
+    openNavMenu: 'Abrir menu de navegação',
+    closeNavMenu: 'Fechar menu de navegação',
+    collapseRail: 'Recolher prancha',
+    expandRail: 'Expandir prancha',
+    activePlatePrefix: 'Prancha',
+    groups: {
+      atelier: 'Grupo I · Atelier',
+      structure: 'Grupo II · Estrutura',
+      control: 'Grupo III · Editorial & Sessão',
+    },
+    breadcrumbsRoot: 'Atelier',
+    header: {
+      activeDepartmentLabel: 'Departamento',
+      studioClockLabel: 'Fuso do estúdio',
+      userMenuAria: 'Abrir menu do utilizador demonstrativo e sessão',
+      preferencesAction: 'Preferências & Sessão',
+      welcomeAction: 'Rever /welcome',
+      sessionFooterBadge: 'Modo Demonstração Local · Sem backend',
+    },
+    search: {
+      triggerLabel: 'Pesquisar',
+      triggerShortcut: 'Ctrl+K',
+      triggerAria: 'Abrir pesquisa demonstrativa local',
+      dialogCode: 'ÍNDICE LOCAL · PESQUISA DEMO',
+      dialogTitle: 'Pesquisa do Atelier (Demo)',
+      inputLabel: 'Pesquisar secções, perfis demo, departamentos ou estudo em foco',
+      inputPlaceholder:
+        'Pesquisar secções, perfis (ARQ-02), departamentos ou OA-26-014…',
+      clearAction: 'Limpar texto de pesquisa',
+      honestNotice:
+        'Pesquisa local em memória sobre os dados demonstrativos carregados nesta fase. Não envia consultas a servidor.',
+      suggestedHeading: 'Registos disponíveis no estado actual',
+      resultsHeading: 'Correspondências locais encontradas',
+      keyboardHint: '↑ ↓ navegar · Enter abrir · Esc fechar',
+      emptyTitle: 'Nenhuma correspondência encontrada nos dados demo actuais.',
+      emptyBody:
+        'A pesquisa abrange exclusivamente as secções do Workspace, os 6 perfis demo, os 9 departamentos e o estudo OA-26-014.',
+      categories: {
+        route: 'Secção',
+        profile: 'Perfil Demo',
+        department: 'Departamento',
+        study: 'Estudo Demo',
+      },
+      actions: {
+        openRoute: 'Abrir secção',
+        activateProfile: 'Activar perfil',
+        viewStudy: 'Ver no Atelier',
+      },
+      roleSwitchedAnnouncement: 'Perfil demonstrativo actualizado via pesquisa local.',
+    },
+    notifications: {
+      triggerAria: 'Notificações demonstrativas do atelier',
+      unreadSrSuffix: 'por ler',
+      heading: 'Central de Notificações',
+      subheading: 'Registo demonstrativo local (fictício)',
+      markAllRead: 'Marcar todas como lidas',
+      markOneRead: 'Marcar como lida',
+      readLabel: 'Lida',
+      unreadLabel: 'Por ler',
+      openRelated: 'Abrir secção',
+      empty: 'Todas as notificações demonstrativas foram lidas.',
+      honestFooter:
+        'Conteúdo fictício persistido apenas em localStorage neste navegador. Sem push ou servidor.',
+      closeLabel: 'Fechar painel de notificações',
+      markedReadAnnouncement: 'Notificação marcada como lida.',
+      markedAllReadAnnouncement: 'Todas as notificações foram marcadas como lidas.',
+    },
+    slotPlaceholder: {
+      contractLabel: 'Contrato de integração Argon B',
+      contractExport: 'StudioDeskPage (exportação nomeada)',
+      contractPath: 'src/features/studio-desk/StudioDeskPage.tsx',
+      greetingCheckLabel: 'Saudação calculada pela base do estúdio',
+      studioTimeNowLabel: 'Hora da base activa',
+      openSettingsCta: 'Abrir Definições',
+    },
+    settings: {
+      pageTitle: 'O+A Workspace — Definições e Preferências (Demo)',
+      eyebrow: 'PRANCHA 11 · PREFERÊNCIAS DA SESSÃO DEMO',
+      heading: 'Configuração local do ambiente demonstrativo.',
+      description:
+        'Alterações aplicadas de imediato neste navegador. Não existem permissões reais de administrador nem persistência remota.',
+      interfaceSection: 'Comportamento da Interface',
+      languageTitle: 'Idioma editorial',
+      languageDesc:
+        'Alterna textos, etiquetas técnicas e formatos de data entre Português e Inglês.',
+      welcomeToggleTitle: 'Saltar caderno /welcome após entrar',
+      welcomeToggleDesc:
+        'Abre directamente /workspace em autenticações subsequentes.',
+      motionTitle: 'Movimento reduzido',
+      motionDesc:
+        'Substitui transições espaciais por feedback imediato, complementando a preferência do sistema.',
+      motionSystemBtn: 'Seguir Sistema',
+      motionReduceBtn: 'Reduzir Movimento',
+      railTitle: 'Prancha lateral em desktop',
+      railDesc: 'Define a largura inicial da barra lateral de navegação em écrans largos.',
+      railExpandedBtn: 'Expandida (264px)',
+      railCompactBtn: 'Compacta (72px)',
+      storageAuditTitle: 'Diagnóstico de Armazenamento Local',
+      storageZeroPassword:
+        'Invariante activa: zero palavras-passe armazenadas em localStorage.',
+      activeStorageKeysLabel: 'Chaves locais em utilização',
+    },
+    planned: {
+      pageTitleSuffix: 'O+A Workspace — Prancha Planeada',
+      badgePrefix: 'MÓDULO PLANEADO',
+      honestNoticeTitle: 'Prancha estrutural preparada no Workspace Shell',
+      honestNoticeBody:
+        'Esta rota já está ligada à navegação lateral e à pesquisa local, mas o seu módulo operacional completo pertence a uma fase posterior do plano e não é simulado artificialmente aqui.',
+      targetPhaseLabel: 'Fase alvo',
+      referenceDataLabel: 'Referência demonstrativa actualmente disponível',
+      backToDesk: 'Voltar ao Studio Desk',
+      routeNotFoundTitle: 'Secção não prevista na estrutura actual',
+    },
   },
 };
 

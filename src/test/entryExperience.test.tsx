@@ -4,7 +4,9 @@ import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { AppRoutes } from '../app/App';
 import { WorkspaceSessionProvider } from '../app/WorkspaceSessionContext';
-import { STORAGE_KEYS } from '../data/sessionRepository';
+import { DEMO_USERS } from '../data/fixtures';
+import { loadDemoSession, STORAGE_KEYS } from '../data/sessionRepository';
+import { SHELL_STORAGE_KEYS } from '../features/workspace-shell/shellDemoState';
 import { en } from '../locales/en';
 import { pt } from '../locales/pt';
 import { resolveDayPeriod } from '../utils/timeGreeting';
@@ -19,7 +21,7 @@ function renderWorkspaceApp(initialPath = '/login') {
   );
 }
 
-describe('O+A Workspace — Phase 00 & Phase 01 Acceptance Suite', () => {
+describe('O+A Workspace — Phase 01 Entry & Access Verification Suite', () => {
   beforeEach(() => {
     window.localStorage.clear();
   });
@@ -37,19 +39,72 @@ describe('O+A Workspace — Phase 00 & Phase 01 Acceptance Suite', () => {
     expect(collectKeys(en)).toEqual(collectKeys(pt));
   });
 
-  it('computes respectful time-of-day periods accurately', () => {
-    expect(resolveDayPeriod(new Date('2026-11-07T08:30:00'))).toBe('morning');
-    expect(resolveDayPeriod(new Date('2026-11-07T14:15:00'))).toBe('afternoon');
-    expect(resolveDayPeriod(new Date('2026-11-07T21:00:00'))).toBe('evening');
+  it('computes studio-base time-of-day periods deterministically from UTC timestamps', () => {
+    // 06:30Z -> 08:30 CAT (Maputo morning) / 07:30 CET winter (Milão morning)
+    expect(resolveDayPeriod(new Date('2026-01-15T06:30:00Z'), 'Maputo')).toBe('morning');
+    // 12:15Z -> 14:15 CAT (Maputo afternoon)
+    expect(resolveDayPeriod(new Date('2026-01-15T12:15:00Z'), 'Maputo')).toBe('afternoon');
+    // 19:00Z -> 21:00 CAT (Maputo evening)
+    expect(resolveDayPeriod(new Date('2026-01-15T19:00:00Z'), 'Maputo')).toBe('evening');
   });
 
-  it('guards /welcome and /workspace when unauthenticated and redirects to /login', async () => {
-    renderWorkspaceApp('/welcome');
+  it('guards /welcome, /workspace, and /workspace/* when unauthenticated and redirects to /login', async () => {
+    for (const protectedPath of ['/welcome', '/workspace', '/workspace/projects', '/workspace/settings']) {
+      const { unmount } = renderWorkspaceApp(protectedPath);
+      expect(
+        await screen.findByRole('heading', {
+          name: /Espaço operativo de arquitectura e planeamento/i,
+        }),
+      ).toBeInTheDocument();
+      unmount();
+    }
+  });
+
+  it('redirects authenticated visitors away from /login coherently according to skipWelcomeOnLogin', async () => {
+    window.localStorage.setItem(
+      STORAGE_KEYS.SESSION,
+      JSON.stringify({
+        userId: DEMO_USERS[0].id,
+        role: DEMO_USERS[0].role,
+        authenticatedAt: '2026-11-08T10:00:00.000Z',
+        mode: 'local-demo',
+      }),
+    );
+
+    const { unmount } = renderWorkspaceApp('/login');
+    expect(
+      await screen.findByText(/Pavilhão Cívico e Arquivo da Baía/i),
+    ).toBeInTheDocument();
+    unmount();
+
+    window.localStorage.setItem(
+      STORAGE_KEYS.PREFERENCES,
+      JSON.stringify({
+        language: 'pt',
+        skipWelcomeOnLogin: true,
+        reduceMotionOverride: 'system',
+        updatedAt: '2026-11-08T10:00:00.000Z',
+      }),
+    );
+    renderWorkspaceApp('/login');
     expect(
       await screen.findByRole('heading', {
-        name: /Espaço operativo de arquitectura e planeamento/i,
+        name: /Sessão demonstrativa iniciada no O\+A Workspace/i,
       }),
     ).toBeInTheDocument();
+  });
+
+  it('safely discards corrupted or invalid localStorage sessions without crashing', () => {
+    window.localStorage.setItem(STORAGE_KEYS.SESSION, '{not valid json');
+    expect(loadDemoSession()).toBeNull();
+    expect(window.localStorage.getItem(STORAGE_KEYS.SESSION)).toBeNull();
+
+    window.localStorage.setItem(
+      STORAGE_KEYS.SESSION,
+      JSON.stringify({ userId: 'usr-dir-01', role: 'director', mode: 'tampered' }),
+    );
+    expect(loadDemoSession()).toBeNull();
+    expect(window.localStorage.getItem(STORAGE_KEYS.SESSION)).toBeNull();
   });
 
   it('validates login fields non-destructively and never stores passwords in localStorage', async () => {
@@ -66,7 +121,6 @@ describe('O+A Workspace — Phase 00 & Phase 01 Acceptance Suite', () => {
     expect(await screen.findAllByRole('alert')).toHaveLength(2);
     expect(window.localStorage.getItem(STORAGE_KEYS.SESSION)).toBeNull();
 
-    // Test invalid password with valid demo email
     await user.type(emailInput, 'direccao.demo@oa-workspace.local');
     await user.type(passwordInput, 'wrong-key');
     await user.click(screen.getByRole('button', { name: /Entrar no Atelier/i }));
@@ -75,7 +129,6 @@ describe('O+A Workspace — Phase 00 & Phase 01 Acceptance Suite', () => {
       await screen.findByText(/Código incorrecto para o modo demonstrativo/i),
     ).toBeInTheDocument();
 
-    // Test valid login and verify zero-password invariant in localStorage
     await user.clear(passwordInput);
     await user.type(passwordInput, 'oa-demo{Enter}');
 
@@ -94,9 +147,10 @@ describe('O+A Workspace — Phase 00 & Phase 01 Acceptance Suite', () => {
     const user = userEvent.setup();
     renderWorkspaceApp('/login');
 
-    await user.click(
-      screen.getByRole('button', { name: /Esqueceu-se da palavra-passe/i }),
-    );
+    const trigger = screen.getByRole('button', {
+      name: /Esqueceu-se da palavra-passe/i,
+    });
+    await user.click(trigger);
 
     const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
@@ -108,6 +162,7 @@ describe('O+A Workspace — Phase 00 & Phase 01 Acceptance Suite', () => {
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
+    expect(trigger).toHaveFocus();
   });
 
   it('switches PT/EN seamlessly and toggles between Spatial Study and 1:100 Section on /login', async () => {
@@ -123,7 +178,6 @@ describe('O+A Workspace — Phase 00 & Phase 01 Acceptance Suite', () => {
       }),
     ).toBeInTheDocument();
 
-    // Toggle architectural 1:100 section SVG
     await user.click(
       screen.getByRole('button', { name: /1:100 Orthogonal Section/i }),
     );
@@ -134,33 +188,26 @@ describe('O+A Workspace — Phase 00 & Phase 01 Acceptance Suite', () => {
     ).toBeInTheDocument();
   });
 
-  it('completes /login -> /welcome -> /workspace -> logout -> /login and respects skipWelcomeOnLogin', async () => {
+  it('completes /login -> /welcome -> /workspace -> logout -> /login and respects skipWelcomeOnLogin & full demo reset', async () => {
     const user = userEvent.setup();
     renderWorkspaceApp('/login');
 
-    // Quick-enter as Senior Architect (Mateo Conti)
     await user.click(
       screen.getByRole('button', {
         name: /Entrar como Mateo Conti \(Demo\)/i,
       }),
     );
 
-    // Arrives at /welcome with Architect priorities
     expect(
-      await screen.findByText(/Mateo Conti \(Demo\)/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Actualizar exportação \.glb leve/i),
+      await screen.findByText(/Actualizar exportação \.glb leve/i),
     ).toBeInTheDocument();
 
-    // Enable "Abrir directamente o workspace nas próximas entradas"
     const skipCheckbox = screen.getByRole('checkbox', {
       name: /Abrir directamente o workspace nas próximas entradas/i,
     });
     await user.click(skipCheckbox);
     expect(skipCheckbox).toBeChecked();
 
-    // Continue to /workspace
     await user.click(
       screen.getByRole('button', { name: /^Entrar no Workspace$/i }),
     );
@@ -171,7 +218,6 @@ describe('O+A Workspace — Phase 00 & Phase 01 Acceptance Suite', () => {
       }),
     ).toBeInTheDocument();
 
-    // Logout -> returns to /login
     await user.click(
       screen.getByRole('button', { name: /Terminar sessão demo/i }),
     );
@@ -180,8 +226,9 @@ describe('O+A Workspace — Phase 00 & Phase 01 Acceptance Suite', () => {
         name: /Espaço operativo de arquitectura e planeamento/i,
       }),
     ).toBeInTheDocument();
+    expect(window.localStorage.getItem(STORAGE_KEYS.SESSION)).toBeNull();
 
-    // Sign in again -> because skipWelcomeOnLogin is true, goes directly to /workspace!
+    // Sign in again -> goes straight to /workspace inside Shell
     await user.click(
       screen.getByRole('button', { name: /Entrar no Atelier/i }),
     );
@@ -191,7 +238,7 @@ describe('O+A Workspace — Phase 00 & Phase 01 Acceptance Suite', () => {
       }),
     ).toBeInTheDocument();
 
-    // Reset demo data -> clears session and preferences cleanly
+    // Full demo reset cleans session, preferences, and shell localStorage keys
     await user.click(
       screen.getByRole('button', { name: /Repor dados demo/i }),
     );
@@ -205,5 +252,7 @@ describe('O+A Workspace — Phase 00 & Phase 01 Acceptance Suite', () => {
       window.localStorage.getItem(STORAGE_KEYS.PREFERENCES) ?? '{}',
     );
     expect(prefsAfterReset.skipWelcomeOnLogin).toBe(false);
+    expect(window.localStorage.getItem(SHELL_STORAGE_KEYS.NOTIFICATIONS)).toBeNull();
+    expect(window.localStorage.getItem(SHELL_STORAGE_KEYS.RAIL_COMPACT)).toBeNull();
   });
 });

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, type ReactNode } from 'react';
 import {
   BrowserRouter,
   Navigate,
@@ -6,8 +6,12 @@ import {
   Routes,
   useLocation,
 } from 'react-router-dom';
-import { WorkspaceSessionProvider, useWorkspaceSession } from './WorkspaceSessionContext';
 import { LoginPage } from '../features/auth-demo/LoginPage';
+import { WorkspaceShell } from '../features/workspace-shell/WorkspaceShell';
+import {
+  WorkspaceSessionProvider,
+  useWorkspaceSession,
+} from './WorkspaceSessionContext';
 
 const WelcomePage = lazy(() =>
   import('../features/welcome/WelcomePage').then((mod) => ({
@@ -18,6 +22,18 @@ const WelcomePage = lazy(() =>
 const WorkspaceEntryGatePage = lazy(() =>
   import('../features/workspace/WorkspaceEntryGatePage').then((mod) => ({
     default: mod.WorkspaceEntryGatePage,
+  })),
+);
+
+const WorkspaceSettingsPage = lazy(() =>
+  import('../features/workspace/WorkspaceSettingsPage').then((mod) => ({
+    default: mod.WorkspaceSettingsPage,
+  })),
+);
+
+const PlannedModuleView = lazy(() =>
+  import('../features/workspace/PlannedModuleView').then((mod) => ({
+    default: mod.PlannedModuleView,
   })),
 );
 
@@ -42,6 +58,14 @@ function RootRedirect() {
   );
 }
 
+function RequireDemoSession({ children }: { children: ReactNode }) {
+  const { session, currentUser } = useWorkspaceSession();
+  if (!session || !currentUser) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
+}
+
 export function AppRoutes() {
   return (
     <>
@@ -57,7 +81,31 @@ export function AppRoutes() {
           <Route path="/" element={<RootRedirect />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/welcome" element={<WelcomePage />} />
-          <Route path="/workspace/*" element={<WorkspaceEntryGatePage />} />
+
+          {/* Authenticated Workspace framed by WorkspaceShell (Argon A) */}
+          <Route
+            path="/workspace"
+            element={
+              <RequireDemoSession>
+                <WorkspaceShell />
+              </RequireDemoSession>
+            }
+          >
+            {/* Integration slot: replace WorkspaceEntryGatePage with StudioDeskPage on integration */}
+            <Route index element={<WorkspaceEntryGatePage />} />
+            <Route path="settings" element={<WorkspaceSettingsPage />} />
+            <Route path="projects/*" element={<PlannedModuleView />} />
+            <Route path="tasks" element={<PlannedModuleView />} />
+            <Route path="calendar" element={<PlannedModuleView />} />
+            <Route path="departments" element={<PlannedModuleView />} />
+            <Route path="team" element={<PlannedModuleView />} />
+            <Route path="library" element={<PlannedModuleView />} />
+            <Route path="publications" element={<PlannedModuleView />} />
+            <Route path="activity" element={<PlannedModuleView />} />
+            <Route path="reports" element={<PlannedModuleView />} />
+            <Route path="*" element={<PlannedModuleView />} />
+          </Route>
+
           <Route path="*" element={<RootRedirect />} />
         </Routes>
       </Suspense>
