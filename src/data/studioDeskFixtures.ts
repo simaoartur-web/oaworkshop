@@ -7,7 +7,24 @@ import type {
   StudioDeskTask,
 } from './studioDeskTypes';
 
+/**
+ * Isolated Studio Desk local state key (`localStorage`).
+ * Contains only non-sensitive fictive task statuses, per-role presentation preference,
+ * and datum grid toggle — zero credentials or personal data.
+ *
+ * Integration note for Argon A: remove `STUDIO_DESK_STORAGE_KEY` (or call
+ * `clearStudioDeskLocalState()`) inside global `resetDemoWorkspaceState()`.
+ */
 export const STUDIO_DESK_STORAGE_KEY = 'oa_workspace_studio_desk_v1';
+
+const VALID_DESK_ROLES: ReadonlySet<Role> = new Set([
+  'director',
+  'architect',
+  'project_manager',
+  'department_lead',
+  'communications',
+  'staff',
+]);
 
 export const STUDIO_DESK_PROJECTS: StudioDeskProject[] = [
   {
@@ -974,13 +991,23 @@ export function loadStudioDeskLocalState(): StudioDeskLocalState {
         }
       }
     }
+    const sanitizedModes: StudioDeskLocalState['presentationModeByRole'] = {};
+    if (
+      parsed.presentationModeByRole &&
+      typeof parsed.presentationModeByRole === 'object'
+    ) {
+      for (const roleKey of VALID_DESK_ROLES) {
+        const candidateMode = parsed.presentationModeByRole[roleKey];
+        if (candidateMode === 'editorial' || candidateMode === 'technical') {
+          sanitizedModes[roleKey] = candidateMode;
+        }
+      }
+    }
+
     return {
       taskStatuses: sanitizedStatuses,
-      presentationMode:
-        parsed.presentationMode === 'editorial' ||
-        parsed.presentationMode === 'technical'
-          ? parsed.presentationMode
-          : undefined,
+      presentationModeByRole:
+        Object.keys(sanitizedModes).length > 0 ? sanitizedModes : undefined,
       showDatumOverlay:
         typeof parsed.showDatumOverlay === 'boolean'
           ? parsed.showDatumOverlay

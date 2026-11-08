@@ -13,6 +13,7 @@ import type {
 
 export const pt = {
   opening: {
+    pageTitle: 'O+A Workspace — Mesa de Trabalho (Demo)',
     sheetCode: 'FOLHA 02 · MESA DE TRABALHO · MODO DEMO',
     studioBasePrefix: 'Base operacional',
     localModeBadge: 'Modo Demo Local · Dados Fictícios',
@@ -199,6 +200,7 @@ export type StudioDeskDictionary = typeof pt;
 
 export const en: StudioDeskDictionary = {
   opening: {
+    pageTitle: 'O+A Workspace — Studio Desk (Demo)',
     sheetCode: 'SHEET 02 · STUDIO DESK · DEMO MODE',
     studioBasePrefix: 'Operational base',
     localModeBadge: 'Local Demo Mode · Fictive Data',

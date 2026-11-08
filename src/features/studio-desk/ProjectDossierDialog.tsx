@@ -1,9 +1,11 @@
 import { Check, Clock, X } from 'lucide-react';
-import { useEffect, useId, useRef } from 'react';
+import { useId, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { pickLocalized } from '../../locales';
 import type { StudioDeskProject } from '../../data/studioDeskTypes';
 import type { AppLanguage } from '../../data/types';
 import type { StudioDeskDictionary } from './i18n';
+import { useStudioDeskDialogFocusTrap } from './useStudioDeskDialogFocusTrap';
 
 export type StudioDeskDialogState =
   | { type: 'closed' }
@@ -25,51 +27,41 @@ export function ProjectDossierDialog({
 }: ProjectDossierDialogProps) {
   const titleId = useId();
   const descId = useId();
-  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const portalRootRef = useRef<HTMLDivElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const closeIconButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const isOpen = state.type !== 'closed';
 
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-    previousFocusRef.current = document.activeElement as HTMLElement | null;
-    const focusTimer = window.setTimeout(() => {
-      closeButtonRef.current?.focus();
-    }, 0);
+  // Isolated focus trap + body scroll lock; ready to swap for Argon A's shared `useDialogFocusTrap`.
+  useStudioDeskDialogFocusTrap({
+    isOpen,
+    dialogRef,
+    initialFocusRef: closeIconButtonRef,
+    portalRootRef,
+    onClose,
+  });
 
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.clearTimeout(focusTimer);
-      document.removeEventListener('keydown', handleKeyDown);
-      previousFocusRef.current?.focus?.();
-    };
-  }, [isOpen, onClose]);
-
-  if (state.type === 'closed') {
+  if (state.type === 'closed' || typeof document === 'undefined') {
     return null;
   }
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/82 px-4 py-6 overflow-y-auto"
+      ref={portalRootRef}
+      data-studio-desk-dialog-portal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/82 px-4 py-6 overflow-y-auto overscroll-contain"
       onClick={onClose}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descId}
+        tabIndex={-1}
         onClick={(event) => event.stopPropagation()}
-        className="w-full max-w-2xl border border-white/18 bg-[#111111] p-5 sm:p-8 text-white max-h-[90dvh] overflow-y-auto"
+        className="w-full max-w-2xl border border-white/18 bg-[#111111] p-5 sm:p-8 text-white max-h-[90dvh] overflow-y-auto overscroll-contain focus:outline-none"
       >
         {state.type === 'dossier' ? (
           <>
@@ -91,6 +83,7 @@ export function ProjectDossierDialog({
               </div>
 
               <button
+                ref={closeIconButtonRef}
                 type="button"
                 onClick={onClose}
                 aria-label={deskDict.dialog.closeAria}
@@ -213,6 +206,7 @@ export function ProjectDossierDialog({
               </div>
 
               <button
+                ref={closeIconButtonRef}
                 type="button"
                 onClick={onClose}
                 aria-label={deskDict.dialog.closeAria}
@@ -242,7 +236,6 @@ export function ProjectDossierDialog({
 
         <div className="mt-7 flex justify-end">
           <button
-            ref={closeButtonRef}
             type="button"
             onClick={onClose}
             className="min-h-[44px] px-5 py-2.5 bg-[#A65D4A] hover:bg-[#B86B57] text-xs font-medium uppercase tracking-[0.18em] text-white transition-colors cursor-pointer"
@@ -251,6 +244,7 @@ export function ProjectDossierDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

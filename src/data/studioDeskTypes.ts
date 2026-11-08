@@ -124,6 +124,6 @@ export interface RoleDeskConfig {
 
 export interface StudioDeskLocalState {
   taskStatuses: Record<string, DeskTaskStatus>;
-  presentationMode?: DeskPresentationMode;
+  presentationModeByRole?: Partial<Record<Role, DeskPresentationMode>>;
   showDatumOverlay: boolean;
 }
