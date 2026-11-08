@@ -119,7 +119,7 @@ export function NotificationsPopover({
           id={panelId}
           role="dialog"
           aria-label={t.shell.notifications.heading}
-          className="fixed inset-x-3 top-[68px] sm:inset-x-auto sm:absolute sm:right-0 sm:top-full sm:mt-2 sm:w-[390px] z-40 border border-white/20 bg-[#111111] text-white shadow-2xl"
+          className="fixed inset-x-3 top-[68px] sm:inset-x-auto sm:absolute sm:right-0 sm:top-full sm:mt-2 sm:w-[410px] z-40 border border-white/20 bg-[#111111] text-white shadow-2xl"
         >
           {/* Header */}
           <div className="flex items-start justify-between gap-3 px-4 py-3.5 bg-[#0A0A0A] oa-hairline-b">
@@ -164,81 +164,91 @@ export function NotificationsPopover({
 
           {/* Notifications List */}
           <ul className="max-h-[55dvh] overflow-y-auto divide-y divide-white/10">
-            {items.map((item) => (
-              <li
-                key={item.id}
-                className={`relative px-4 py-3.5 transition-colors ${
-                  item.read ? 'bg-[#111111]' : 'bg-[#161616]'
-                }`}
-              >
-                {!item.read && (
-                  <span
-                    aria-hidden="true"
-                    className="absolute inset-y-0 left-0 w-0.5 bg-[#A65D4A]"
-                  />
-                )}
+            {items.map((item) => {
+              const actionText = item.isFutureModuleDemo
+                ? t.shell.notifications.openFuturePreview
+                : t.shell.notifications.openRelated;
 
-                <div className="flex items-center justify-between gap-2 text-[10px] uppercase tracking-[0.16em]">
-                  <span
-                    className={
-                      item.read
-                        ? 'font-mono text-[#9E9E9E]'
-                        : 'font-mono font-semibold text-[#A65D4A]'
-                    }
-                  >
-                    {item.code} · {pickLocalized(item.category, language)}
-                  </span>
-                  <span className="text-[#9E9E9E]">
-                    {pickLocalized(item.timestampLabel, language)}
-                  </span>
-                </div>
+              return (
+                <li
+                  key={item.id}
+                  className={`relative px-4 py-3.5 transition-colors ${
+                    item.read ? 'bg-[#111111]' : 'bg-[#161616]'
+                  }`}
+                >
+                  {!item.read && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-y-0 left-0 w-0.5 bg-[#A65D4A]"
+                    />
+                  )}
 
-                <p className="mt-1.5 text-sm font-medium text-white leading-snug">
-                  {pickLocalized(item.title, language)}
-                </p>
-                <p className="mt-1 text-xs leading-relaxed text-[#BDBDBD]">
-                  {pickLocalized(item.detail, language)}
-                </p>
+                  <div className="flex items-center justify-between gap-2 text-[10px] uppercase tracking-[0.16em]">
+                    <span
+                      className={
+                        item.read
+                          ? 'font-mono text-[#9E9E9E]'
+                          : 'font-mono font-semibold text-[#A65D4A]'
+                      }
+                    >
+                      {item.code} · {pickLocalized(item.category, language)}
+                    </span>
+                    <span className="text-[#9E9E9E]">
+                      {pickLocalized(item.timestampLabel, language)}
+                    </span>
+                  </div>
 
-                <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-[10px] uppercase tracking-[0.14em] text-[#9E9E9E]">
-                    {item.studioTag}
-                  </span>
+                  <p className="mt-1.5 text-sm font-medium text-white leading-snug">
+                    {pickLocalized(item.title, language)}
+                  </p>
+                  <p className="mt-1 text-xs leading-relaxed text-[#BDBDBD]">
+                    {pickLocalized(item.detail, language)}
+                  </p>
 
-                  <div className="flex items-center gap-2">
-                    {!item.read ? (
+                  <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-[10px] uppercase tracking-[0.14em] text-[#9E9E9E]">
+                      {item.studioTag}
+                    </span>
+
+                    <div className="flex items-center gap-2">
+                      {!item.read ? (
+                        <button
+                          type="button"
+                          onClick={() => handleMarkSingle(item.id)}
+                          className="min-h-[36px] px-2.5 border border-white/16 bg-[#111111] hover:border-[#A65D4A] text-[11px] uppercase tracking-[0.12em] text-[#E0E0E0] hover:text-white inline-flex items-center gap-1 transition-colors cursor-pointer"
+                        >
+                          <Check size={12} strokeWidth={1.6} aria-hidden="true" />
+                          <span>{t.shell.notifications.markOneRead}</span>
+                        </button>
+                      ) : (
+                        <span className="text-[10px] uppercase tracking-[0.14em] text-[#9E9E9E]">
+                          {t.shell.notifications.readLabel}
+                        </span>
+                      )}
+
                       <button
                         type="button"
-                        onClick={() => handleMarkSingle(item.id)}
-                        className="min-h-[36px] px-2.5 border border-white/16 bg-[#111111] hover:border-[#A65D4A] text-[11px] uppercase tracking-[0.12em] text-[#E0E0E0] hover:text-white inline-flex items-center gap-1 transition-colors cursor-pointer"
+                        onClick={() =>
+                          handleNavigate(item.targetPath, item.id, item.read)
+                        }
+                        aria-label={`${actionText}: ${pickLocalized(
+                          item.title,
+                          language,
+                        )}`}
+                        className={`min-h-[36px] px-2.5 border text-[11px] uppercase tracking-[0.12em] inline-flex items-center gap-1 transition-colors cursor-pointer ${
+                          item.isFutureModuleDemo
+                            ? 'border-dashed border-white/20 bg-[#161616] text-[#BDBDBD] hover:text-white hover:border-white/40'
+                            : 'border-white/14 bg-transparent hover:border-white/35 text-[#BDBDBD] hover:text-white'
+                        }`}
                       >
-                        <Check size={12} strokeWidth={1.6} aria-hidden="true" />
-                        <span>{t.shell.notifications.markOneRead}</span>
+                        <span>{actionText}</span>
+                        <ArrowUpRight size={12} strokeWidth={1.5} aria-hidden="true" />
                       </button>
-                    ) : (
-                      <span className="text-[10px] uppercase tracking-[0.14em] text-[#9E9E9E]">
-                        {t.shell.notifications.readLabel}
-                      </span>
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleNavigate(item.targetPath, item.id, item.read)
-                      }
-                      aria-label={`${t.shell.notifications.openRelated}: ${pickLocalized(
-                        item.title,
-                        language,
-                      )}`}
-                      className="min-h-[36px] px-2.5 border border-white/14 bg-transparent hover:border-white/35 text-[11px] uppercase tracking-[0.12em] text-[#BDBDBD] hover:text-white inline-flex items-center gap-1 transition-colors cursor-pointer"
-                    >
-                      <span>{t.shell.notifications.openRelated}</span>
-                      <ArrowUpRight size={12} strokeWidth={1.5} aria-hidden="true" />
-                    </button>
+                    </div>
                   </div>
-                </div>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
 
           {/* Honest Demo Footer */}

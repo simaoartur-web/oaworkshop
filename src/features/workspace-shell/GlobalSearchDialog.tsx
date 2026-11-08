@@ -216,9 +216,11 @@ function GlobalSearchModalContent({
                   const actionLabel =
                     entry.category === 'profile'
                       ? t.shell.search.actions.activateProfile
-                      : entry.category === 'study'
-                        ? t.shell.search.actions.viewStudy
-                        : t.shell.search.actions.openRoute;
+                      : entry.category === 'project'
+                        ? t.shell.search.actions.viewProject
+                        : entry.category === 'study'
+                          ? t.shell.search.actions.viewStudy
+                          : t.shell.search.actions.openRoute;
 
                   return (
                     <li
@@ -251,6 +253,11 @@ function GlobalSearchModalContent({
                             <span className="text-[#9E9E9E]">
                               {categoryLabel}
                             </span>
+                            {entry.isPlannedRoute && (
+                              <span className="border border-white/16 bg-[#181818] px-1.5 py-0.5 text-[9px] font-mono text-[#BDBDBD]">
+                                {t.shell.search.plannedTag}
+                              </span>
+                            )}
                           </div>
                           <p className="mt-1 text-sm font-medium text-white truncate">
                             {entry.title}

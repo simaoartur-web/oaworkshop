@@ -97,11 +97,11 @@ export const en: TranslationDictionary = {
     switchProfileLabel: 'Switch demo role before continuing',
   },
   workspaceGate: {
-    pageTitle: 'O+A Workspace — Studio Desk (Phase 02A Shell Slot)',
-    phaseBadge: 'PHASE 02A · RESERVED STUDIO DESK SLOT (ARGON B)',
+    pageTitle: 'O+A Workspace — Studio Desk',
+    phaseBadge: 'PHASE 02 · INTEGRATED STUDIO DESK',
     heading: 'Demonstrative session active in O+A Workspace.',
     description:
-      'The architectural shell, lateral sheet navigation rail, local demonstrative search, and notifications center are active in this browser. This container at /workspace hosts StudioDeskPage (Agent B) upon integration.',
+      'The architectural shell, lateral sheet navigation rail, integrated Studio Desk, local search, and notifications center are active in this browser.',
     sessionCardTitle: 'Current local session state',
     activeCollaborator: 'Active fictive profile',
     activeRole: 'Demonstrative role',
@@ -144,9 +144,9 @@ export const en: TranslationDictionary = {
       triggerAria: 'Open local demonstrative search',
       dialogCode: 'LOCAL INDEX · DEMO SEARCH',
       dialogTitle: 'Studio Search (Demo)',
-      inputLabel: 'Search sections, demo profiles, departments, or featured study',
+      inputLabel: 'Search sections, projects, demo profiles, or departments',
       inputPlaceholder:
-        'Search sections, profiles (ARQ-02), departments, or OA-26-014…',
+        'Search sections, projects (OA-26-101), profiles, or departments…',
       clearAction: 'Clear search text',
       honestNotice:
         'In-memory local search over demo fixtures loaded in this phase. Sends zero server queries.',
@@ -155,15 +155,18 @@ export const en: TranslationDictionary = {
       keyboardHint: '↑ ↓ navigate · Enter open · Esc close',
       emptyTitle: 'No matches found in current demo data.',
       emptyBody:
-        'This index strictly covers Workspace routes, 6 demo profiles, 9 departments, and study OA-26-014.',
+        'This index covers Workspace sections, the 5 Studio Desk projects, 6 demo profiles, 9 departments, and featured study OA-26-014.',
+      plannedTag: 'PLANNED',
       categories: {
         route: 'Section',
+        project: 'Demo Project',
         profile: 'Demo Profile',
         department: 'Department',
         study: 'Demo Study',
       },
       actions: {
         openRoute: 'Open section',
+        viewProject: 'Open at Studio Desk',
         activateProfile: 'Activate profile',
         viewStudy: 'Open in Studio',
       },
@@ -179,6 +182,7 @@ export const en: TranslationDictionary = {
       readLabel: 'Read',
       unreadLabel: 'Unread',
       openRelated: 'Open section',
+      openFuturePreview: 'View Planned Sheet',
       empty: 'All demonstrative notifications have been read.',
       honestFooter:
         'Fictive content persisted locally in localStorage in this browser only. No push or server.',
@@ -218,6 +222,8 @@ export const en: TranslationDictionary = {
       storageAuditTitle: 'Local Storage Audit',
       storageZeroPassword:
         'Active invariant: zero passwords stored anywhere in localStorage.',
+      storageResetScopeNote:
+        'Global reset clears session, interface preferences, notifications, navigation rail, and local Studio Desk states.',
       activeStorageKeysLabel: 'Browser storage keys in use',
     },
     planned: {
@@ -228,6 +234,11 @@ export const en: TranslationDictionary = {
         'This route is wired to lateral navigation and local search, while its full operational module belongs to a later phase and is not artificially faked here.',
       targetPhaseLabel: 'Target phase',
       referenceDataLabel: 'Demonstrative reference currently available',
+      studioProjectsCatalogHeading: 'Active Studio Desk Projects',
+      studioProjectsCatalogDesc:
+        'Demonstrative dossiers currently available. Full project creation and editing belongs to Phase 03.',
+      openDeskViewCta: 'Open Studio Desk',
+      openProjectInDeskAction: 'Open at Studio Desk',
       backToDesk: 'Back to Studio Desk',
       routeNotFoundTitle: 'Section outside current workspace map',
     },

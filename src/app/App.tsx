@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, type ReactNode } from 'react';
+import { Suspense, useEffect, type ReactNode } from 'react';
 import {
   BrowserRouter,
   Navigate,
@@ -7,35 +7,15 @@ import {
   useLocation,
 } from 'react-router-dom';
 import { LoginPage } from '../features/auth-demo/LoginPage';
+import { StudioDeskPage } from '../features/studio-desk/StudioDeskPage';
+import { PlannedModuleView } from '../features/workspace/PlannedModuleView';
+import { WorkspaceSettingsPage } from '../features/workspace/WorkspaceSettingsPage';
 import { WorkspaceShell } from '../features/workspace-shell/WorkspaceShell';
+import { WelcomePage } from '../features/welcome/WelcomePage';
 import {
   WorkspaceSessionProvider,
   useWorkspaceSession,
 } from './WorkspaceSessionContext';
-
-const WelcomePage = lazy(() =>
-  import('../features/welcome/WelcomePage').then((mod) => ({
-    default: mod.WelcomePage,
-  })),
-);
-
-const WorkspaceEntryGatePage = lazy(() =>
-  import('../features/workspace/WorkspaceEntryGatePage').then((mod) => ({
-    default: mod.WorkspaceEntryGatePage,
-  })),
-);
-
-const WorkspaceSettingsPage = lazy(() =>
-  import('../features/workspace/WorkspaceSettingsPage').then((mod) => ({
-    default: mod.WorkspaceSettingsPage,
-  })),
-);
-
-const PlannedModuleView = lazy(() =>
-  import('../features/workspace/PlannedModuleView').then((mod) => ({
-    default: mod.PlannedModuleView,
-  })),
-);
 
 function ScrollResetOnRouteChange() {
   const { pathname } = useLocation();
@@ -82,7 +62,7 @@ export function AppRoutes() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/welcome" element={<WelcomePage />} />
 
-          {/* Authenticated Workspace framed by WorkspaceShell (Argon A) */}
+          {/* Authenticated Workspace framed by WorkspaceShell with integrated StudioDeskPage */}
           <Route
             path="/workspace"
             element={
@@ -91,8 +71,7 @@ export function AppRoutes() {
               </RequireDemoSession>
             }
           >
-            {/* Integration slot: replace WorkspaceEntryGatePage with StudioDeskPage on integration */}
-            <Route index element={<WorkspaceEntryGatePage />} />
+            <Route index element={<StudioDeskPage />} />
             <Route path="settings" element={<WorkspaceSettingsPage />} />
             <Route path="projects/*" element={<PlannedModuleView />} />
             <Route path="tasks" element={<PlannedModuleView />} />

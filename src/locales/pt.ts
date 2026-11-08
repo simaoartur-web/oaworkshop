@@ -96,11 +96,11 @@ export const pt = {
     switchProfileLabel: 'Trocar papel demo antes de avançar',
   },
   workspaceGate: {
-    pageTitle: 'O+A Workspace — Mesa de Trabalho (Slot Shell Fase 02A)',
-    phaseBadge: 'FASE 02A · SLOT RESERVADO PARA STUDIO DESK (ARGON B)',
+    pageTitle: 'O+A Workspace — Mesa de Trabalho (Studio Desk)',
+    phaseBadge: 'FASE 02 · MESA DE TRABALHO INTEGRADA',
     heading: 'Sessão demonstrativa iniciada no O+A Workspace.',
     description:
-      'O Shell arquitectónico, prancha lateral de navegação, pesquisa demonstrativa local e central de notificações estão operacionais neste navegador. Este contentor em /workspace recebe o módulo StudioDeskPage (Agente B) na etapa de integração.',
+      'O Shell arquitectónico, prancha lateral de navegação, Studio Desk integrado, pesquisa local e central de notificações estão operacionais neste navegador.',
     sessionCardTitle: 'Estado actual da sessão local',
     activeCollaborator: 'Perfil fictício activo',
     activeRole: 'Papel demonstrativo',
@@ -143,9 +143,9 @@ export const pt = {
       triggerAria: 'Abrir pesquisa demonstrativa local',
       dialogCode: 'ÍNDICE LOCAL · PESQUISA DEMO',
       dialogTitle: 'Pesquisa do Atelier (Demo)',
-      inputLabel: 'Pesquisar secções, perfis demo, departamentos ou estudo em foco',
+      inputLabel: 'Pesquisar secções, projectos, perfis demo ou departamentos',
       inputPlaceholder:
-        'Pesquisar secções, perfis (ARQ-02), departamentos ou OA-26-014…',
+        'Pesquisar secções, projectos (OA-26-101), perfis ou departamentos…',
       clearAction: 'Limpar texto de pesquisa',
       honestNotice:
         'Pesquisa local em memória sobre os dados demonstrativos carregados nesta fase. Não envia consultas a servidor.',
@@ -154,15 +154,18 @@ export const pt = {
       keyboardHint: '↑ ↓ navegar · Enter abrir · Esc fechar',
       emptyTitle: 'Nenhuma correspondência encontrada nos dados demo actuais.',
       emptyBody:
-        'A pesquisa abrange exclusivamente as secções do Workspace, os 6 perfis demo, os 9 departamentos e o estudo OA-26-014.',
+        'A pesquisa abrange secções do Workspace, os 5 projectos do Studio Desk, os 6 perfis demo, os 9 departamentos e o estudo em foco OA-26-014.',
+      plannedTag: 'PLANEADO',
       categories: {
         route: 'Secção',
+        project: 'Projecto Demo',
         profile: 'Perfil Demo',
         department: 'Departamento',
         study: 'Estudo Demo',
       },
       actions: {
         openRoute: 'Abrir secção',
+        viewProject: 'Abrir no Studio Desk',
         activateProfile: 'Activar perfil',
         viewStudy: 'Ver no Atelier',
       },
@@ -178,6 +181,7 @@ export const pt = {
       readLabel: 'Lida',
       unreadLabel: 'Por ler',
       openRelated: 'Abrir secção',
+      openFuturePreview: 'Ver Prancha Planeada',
       empty: 'Todas as notificações demonstrativas foram lidas.',
       honestFooter:
         'Conteúdo fictício persistido apenas em localStorage neste navegador. Sem push ou servidor.',
@@ -218,6 +222,8 @@ export const pt = {
       storageAuditTitle: 'Diagnóstico de Armazenamento Local',
       storageZeroPassword:
         'Invariante activa: zero palavras-passe armazenadas em localStorage.',
+      storageResetScopeNote:
+        'A reposição global limpa a sessão, preferências de interface, notificações, prancha lateral e estados locais do Studio Desk.',
       activeStorageKeysLabel: 'Chaves locais em utilização',
     },
     planned: {
@@ -228,6 +234,11 @@ export const pt = {
         'Esta rota já está ligada à navegação lateral e à pesquisa local, mas o seu módulo operacional completo pertence a uma fase posterior do plano e não é simulado artificialmente aqui.',
       targetPhaseLabel: 'Fase alvo',
       referenceDataLabel: 'Referência demonstrativa actualmente disponível',
+      studioProjectsCatalogHeading: 'Projectos activos do Studio Desk',
+      studioProjectsCatalogDesc:
+        'Dossiers demonstrativos actualmente disponíveis. A criação e edição completa de projectos pertence à Fase 03.',
+      openDeskViewCta: 'Abrir Mesa de Trabalho',
+      openProjectInDeskAction: 'Abrir no Studio Desk',
       backToDesk: 'Voltar ao Studio Desk',
       routeNotFoundTitle: 'Secção não prevista na estrutura actual',
     },

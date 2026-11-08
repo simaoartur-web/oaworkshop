@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useWorkspaceSession } from '../../app/WorkspaceSessionContext';
 import { DEMO_USERS } from '../../data/fixtures';
 import { STORAGE_KEYS } from '../../data/sessionRepository';
+import { STUDIO_DESK_STORAGE_KEY } from '../../data/studioDeskFixtures';
 import { LanguageToggle } from '../../design-system/LanguageToggle';
 import { pickLocalized } from '../../locales';
 import { SHELL_STORAGE_KEYS } from '../workspace-shell/shellDemoState';
@@ -258,12 +259,15 @@ export function WorkspaceSettingsPage() {
         <p className="text-xs text-[#E0E0E0]">
           {t.shell.settings.storageZeroPassword}
         </p>
+        <p className="text-xs text-[#9E9E9E]">
+          {t.shell.settings.storageResetScopeNote}
+        </p>
 
         <div>
           <p className="text-[11px] uppercase tracking-[0.16em] text-[#9E9E9E]">
             {t.shell.settings.activeStorageKeysLabel}
           </p>
-          <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono text-[#BDBDBD]">
+          <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-xs font-mono text-[#BDBDBD]">
             <li className="border border-white/10 bg-[#141414] px-3 py-2">
               {STORAGE_KEYS.SESSION}
             </li>
@@ -275,6 +279,9 @@ export function WorkspaceSettingsPage() {
             </li>
             <li className="border border-white/10 bg-[#141414] px-3 py-2">
               {SHELL_STORAGE_KEYS.RAIL_COMPACT}
+            </li>
+            <li className="border border-white/10 bg-[#141414] px-3 py-2">
+              {STUDIO_DESK_STORAGE_KEY}
             </li>
           </ul>
         </div>

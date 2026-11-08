@@ -57,13 +57,13 @@ export const WORKSPACE_NAV_ITEMS: WorkspaceNavItem[] = [
     path: '/workspace',
     group: 'atelier',
     status: 'active-slot',
-    targetPhase: { pt: 'Fase 02 (Argon B)', en: 'Phase 02 (Argon B)' },
+    targetPhase: { pt: 'Fase 02 · Activa', en: 'Phase 02 · Active' },
     shortTag: 'DESK',
     icon: Compass,
     label: { pt: 'Studio Desk', en: 'Studio Desk' },
     description: {
-      pt: 'Mesa principal de trabalho do colaborador e síntese diária.',
-      en: 'Primary studio desk and daily collaborator overview.',
+      pt: 'Mesa principal de trabalho do colaborador e síntese operacional diária.',
+      en: 'Primary studio desk and daily collaborator operational overview.',
     },
   },
   {
@@ -72,7 +72,7 @@ export const WORKSPACE_NAV_ITEMS: WorkspaceNavItem[] = [
     path: '/workspace/projects',
     group: 'atelier',
     status: 'planned',
-    targetPhase: { pt: 'Fases 03–04', en: 'Phases 03–04' },
+    targetPhase: { pt: 'Fases 03–04 (Demo)', en: 'Phases 03–04 (Demo)' },
     shortTag: 'F03',
     icon: FolderKanban,
     label: { pt: 'Projectos', en: 'Projects' },
@@ -87,7 +87,7 @@ export const WORKSPACE_NAV_ITEMS: WorkspaceNavItem[] = [
     path: '/workspace/tasks',
     group: 'atelier',
     status: 'planned',
-    targetPhase: { pt: 'Fase 05', en: 'Phase 05' },
+    targetPhase: { pt: 'Fase 05 (Demo)', en: 'Phase 05 (Demo)' },
     shortTag: 'F05',
     icon: CheckSquare,
     label: { pt: 'Tarefas', en: 'Tasks' },
@@ -102,7 +102,7 @@ export const WORKSPACE_NAV_ITEMS: WorkspaceNavItem[] = [
     path: '/workspace/calendar',
     group: 'atelier',
     status: 'planned',
-    targetPhase: { pt: 'Fase 05', en: 'Phase 05' },
+    targetPhase: { pt: 'Fase 05 (Demo)', en: 'Phase 05 (Demo)' },
     shortTag: 'F05',
     icon: Calendar,
     label: { pt: 'Calendário', en: 'Calendar' },
@@ -117,12 +117,12 @@ export const WORKSPACE_NAV_ITEMS: WorkspaceNavItem[] = [
     path: '/workspace/departments',
     group: 'structure',
     status: 'planned',
-    targetPhase: { pt: 'Fase 05', en: 'Phase 05' },
+    targetPhase: { pt: 'Fase 05 (Demo)', en: 'Phase 05 (Demo)' },
     shortTag: 'F05',
     icon: Building2,
     label: { pt: 'Departamentos', en: 'Departments' },
     description: {
-      pt: 'Disciplinas internas, frentes técnicas e frentes de investigação.',
+      pt: 'Disciplinas internas, frentes técnicas e unidades de investigação.',
       en: 'Internal disciplines, technical tracks, and research units.',
     },
   },
@@ -132,7 +132,7 @@ export const WORKSPACE_NAV_ITEMS: WorkspaceNavItem[] = [
     path: '/workspace/team',
     group: 'structure',
     status: 'planned',
-    targetPhase: { pt: 'Fase 05', en: 'Phase 05' },
+    targetPhase: { pt: 'Fase 05 (Demo)', en: 'Phase 05 (Demo)' },
     shortTag: 'F05',
     icon: Users,
     label: { pt: 'Equipa', en: 'Team' },
@@ -147,7 +147,7 @@ export const WORKSPACE_NAV_ITEMS: WorkspaceNavItem[] = [
     path: '/workspace/library',
     group: 'structure',
     status: 'planned',
-    targetPhase: { pt: 'Fase 05', en: 'Phase 05' },
+    targetPhase: { pt: 'Fase 05 (Demo)', en: 'Phase 05 (Demo)' },
     shortTag: 'F05',
     icon: BookOpen,
     label: { pt: 'Biblioteca', en: 'Library' },
@@ -162,7 +162,7 @@ export const WORKSPACE_NAV_ITEMS: WorkspaceNavItem[] = [
     path: '/workspace/publications',
     group: 'control',
     status: 'planned',
-    targetPhase: { pt: 'Fase 06', en: 'Phase 06' },
+    targetPhase: { pt: 'Fase 06 (Demo)', en: 'Phase 06 (Demo)' },
     shortTag: 'F06',
     icon: FileText,
     label: { pt: 'Publicações', en: 'Publications' },
@@ -177,7 +177,7 @@ export const WORKSPACE_NAV_ITEMS: WorkspaceNavItem[] = [
     path: '/workspace/activity',
     group: 'control',
     status: 'planned',
-    targetPhase: { pt: 'Fases 05–06', en: 'Phases 05–06' },
+    targetPhase: { pt: 'Fases 05–06 (Demo)', en: 'Phases 05–06 (Demo)' },
     shortTag: 'F05',
     icon: Activity,
     label: { pt: 'Actividade', en: 'Activity' },
@@ -192,7 +192,7 @@ export const WORKSPACE_NAV_ITEMS: WorkspaceNavItem[] = [
     path: '/workspace/reports',
     group: 'control',
     status: 'planned',
-    targetPhase: { pt: 'Fase 06', en: 'Phase 06' },
+    targetPhase: { pt: 'Fase 06 (Demo)', en: 'Phase 06 (Demo)' },
     shortTag: 'F06',
     icon: BarChart3,
     label: { pt: 'Relatórios', en: 'Reports' },
@@ -207,7 +207,7 @@ export const WORKSPACE_NAV_ITEMS: WorkspaceNavItem[] = [
     path: '/workspace/settings',
     group: 'control',
     status: 'active-shell',
-    targetPhase: { pt: 'Fase 02A', en: 'Phase 02A' },
+    targetPhase: { pt: 'Fase 02 · Activa', en: 'Phase 02 · Active' },
     shortTag: 'CFG',
     icon: SlidersHorizontal,
     label: { pt: 'Definições', en: 'Settings' },
@@ -219,13 +219,14 @@ export const WORKSPACE_NAV_ITEMS: WorkspaceNavItem[] = [
 ];
 
 export function isNavItemActive(pathname: string, item: WorkspaceNavItem): boolean {
-  const normalized = pathname.replace(/\/+$/, '') || '/';
+  const cleanPath = pathname.split('?')[0].replace(/\/+$/, '') || '/';
   if (item.path === '/workspace') {
-    return normalized === '/workspace';
+    return cleanPath === '/workspace';
   }
-  return normalized === item.path || normalized.startsWith(`${item.path}/`);
+  return cleanPath === item.path || cleanPath.startsWith(`${item.path}/`);
 }
 
 export function resolveActiveNavItem(pathname: string): WorkspaceNavItem | undefined {
-  return WORKSPACE_NAV_ITEMS.find((item) => isNavItemActive(pathname, item));
+  const cleanPath = pathname.split('?')[0];
+  return WORKSPACE_NAV_ITEMS.find((item) => isNavItemActive(cleanPath, item));
 }

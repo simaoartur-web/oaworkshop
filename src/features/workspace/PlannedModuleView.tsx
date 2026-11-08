@@ -1,4 +1,4 @@
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, FolderKanban } from 'lucide-react';
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useWorkspaceSession } from '../../app/WorkspaceSessionContext';
@@ -7,6 +7,7 @@ import {
   DEPARTMENTS,
   FEATURED_STUDY_PROJECT,
 } from '../../data/fixtures';
+import { STUDIO_DESK_PROJECTS } from '../../data/studioDeskFixtures';
 import { pickLocalized } from '../../locales';
 import { resolveActiveNavItem } from '../workspace-shell/shellNavigation';
 
@@ -47,7 +48,7 @@ export function PlannedModuleView() {
   const targetPhase = pickLocalized(activeItem.targetPhase, language);
 
   return (
-    <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-10 space-y-8">
+    <div className="w-full max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-10 space-y-8">
       <header className="pb-6 oa-hairline-b space-y-3">
         <div className="flex flex-wrap items-center gap-2.5 text-[11px] font-mono uppercase tracking-[0.22em] text-[#A65D4A]">
           <span>
@@ -101,12 +102,100 @@ export function PlannedModuleView() {
         </div>
       </section>
 
-      {/* Contextual Local Reference Already Available in Phase 00–02A */}
+      {/* Contextual Demonstration Catalog for /workspace/projects */}
+      {activeItem.id === 'projects' && (
+        <section aria-labelledby="planned-projects-heading" className="space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2
+                id="planned-projects-heading"
+                className="text-xs font-medium uppercase tracking-[0.20em] text-[#BDBDBD]"
+              >
+                {t.shell.planned.studioProjectsCatalogHeading}
+              </h2>
+              <p className="text-xs text-[#9E9E9E] mt-1">
+                {t.shell.planned.studioProjectsCatalogDesc}
+              </p>
+            </div>
+            <Link
+              to="/workspace"
+              className="min-h-[40px] px-3.5 py-2 border border-white/14 bg-[#141414] hover:border-[#A65D4A] text-xs uppercase tracking-[0.14em] text-white inline-flex items-center gap-2 transition-colors"
+            >
+              <FolderKanban size={13} strokeWidth={1.5} aria-hidden="true" />
+              <span>{t.shell.planned.openDeskViewCta}</span>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {STUDIO_DESK_PROJECTS.map((proj) => (
+              <div
+                key={proj.id}
+                className="border border-white/12 bg-[#101010] p-4 flex flex-col justify-between gap-4"
+              >
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] uppercase tracking-[0.16em]">
+                    <span className="font-mono font-semibold text-[#A65D4A]">
+                      {proj.code}
+                    </span>
+                    <span className="text-[#9E9E9E]">
+                      {proj.studioBase} · {proj.scale}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="text-base font-light text-white leading-snug">
+                      {pickLocalized(proj.title, language)}
+                    </h3>
+                    <p className="mt-1 text-xs text-[#BDBDBD] line-clamp-2">
+                      {pickLocalized(proj.subtitle, language)}
+                    </p>
+                  </div>
+
+                  <p className="text-[11px] font-mono text-[#9E9E9E]">
+                    {pickLocalized(proj.phase, language)} · {pickLocalized(proj.discipline, language)}
+                  </p>
+                </div>
+
+                <div className="pt-3 oa-hairline-t flex items-center justify-between gap-2">
+                  <span className="text-[11px] text-[#9E9E9E]">
+                    {proj.leadAuthorName}
+                  </span>
+                  <Link
+                    to={`/workspace?project=${proj.id}`}
+                    className="min-h-[36px] px-3 py-1.5 border border-white/14 bg-[#161616] hover:border-[#A65D4A] text-[11px] uppercase tracking-[0.12em] text-white inline-flex items-center gap-1.5 transition-colors"
+                  >
+                    <span>{t.shell.planned.openProjectInDeskAction}</span>
+                    <ArrowUpRight size={12} strokeWidth={1.5} aria-hidden="true" />
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Reference to Archive Study OA-26-014 */}
+          <div className="border border-white/10 bg-[#0C0C0C] p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4">
+            <img
+              src={FEATURED_STUDY_PROJECT.maquetteImageSrc}
+              alt={pickLocalized(FEATURED_STUDY_PROJECT.maquetteImageAlt, language)}
+              className="w-full sm:w-48 aspect-[16/10] object-cover bg-[#050505] shrink-0"
+            />
+            <div className="space-y-1 text-xs">
+              <p className="font-mono uppercase tracking-[0.16em] text-[#A65D4A]">
+                {FEATURED_STUDY_PROJECT.code} · {t.welcome.sheetCode}
+              </p>
+              <h4 className="text-sm font-medium text-white">
+                {pickLocalized(FEATURED_STUDY_PROJECT.title, language)}
+              </h4>
+              <p className="text-[#BDBDBD]">
+                {pickLocalized(FEATURED_STUDY_PROJECT.subtitle, language)}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
       {activeItem.id === 'departments' && (
-        <section
-          aria-labelledby="planned-ref-heading"
-          className="space-y-4"
-        >
+        <section aria-labelledby="planned-ref-heading" className="space-y-4">
           <h2
             id="planned-ref-heading"
             className="text-xs font-medium uppercase tracking-[0.20em] text-[#BDBDBD]"
@@ -157,39 +246,6 @@ export function PlannedModuleView() {
                 </p>
               </div>
             ))}
-          </div>
-        </section>
-      )}
-
-      {activeItem.id === 'projects' && (
-        <section aria-labelledby="planned-ref-heading" className="space-y-4">
-          <h2
-            id="planned-ref-heading"
-            className="text-xs font-medium uppercase tracking-[0.20em] text-[#BDBDBD]"
-          >
-            {t.shell.planned.referenceDataLabel}
-          </h2>
-          <div className="border border-white/12 bg-[#121212] p-5 sm:p-6 grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
-            <img
-              src={FEATURED_STUDY_PROJECT.maquetteImageSrc}
-              alt={pickLocalized(FEATURED_STUDY_PROJECT.maquetteImageAlt, language)}
-              className="md:col-span-5 w-full aspect-[16/10] object-cover bg-[#050505]"
-            />
-            <div className="md:col-span-7 space-y-2">
-              <p className="text-[11px] font-mono uppercase tracking-[0.18em] text-[#A65D4A]">
-                {FEATURED_STUDY_PROJECT.code} · {FEATURED_STUDY_PROJECT.scale}
-              </p>
-              <h3 className="text-xl font-light text-white">
-                {pickLocalized(FEATURED_STUDY_PROJECT.title, language)}
-              </h3>
-              <p className="text-sm text-[#BDBDBD]">
-                {pickLocalized(FEATURED_STUDY_PROJECT.subtitle, language)}
-              </p>
-              <p className="text-xs text-[#9E9E9E]">
-                {pickLocalized(FEATURED_STUDY_PROJECT.location, language)} ·{' '}
-                {FEATURED_STUDY_PROJECT.areaSqm}
-              </p>
-            </div>
           </div>
         </section>
       )}

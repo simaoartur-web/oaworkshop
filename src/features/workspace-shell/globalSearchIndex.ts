@@ -3,11 +3,17 @@ import {
   DEPARTMENTS,
   FEATURED_STUDY_PROJECT,
 } from '../../data/fixtures';
+import { STUDIO_DESK_PROJECTS } from '../../data/studioDeskFixtures';
 import type { AppLanguage, Role } from '../../data/types';
 import { pickLocalized } from '../../locales';
 import { WORKSPACE_NAV_ITEMS } from './shellNavigation';
 
-export type SearchResultCategory = 'route' | 'profile' | 'department' | 'study';
+export type SearchResultCategory =
+  | 'route'
+  | 'profile'
+  | 'department'
+  | 'study'
+  | 'project';
 
 export interface WorkspaceSearchEntry {
   id: string;
@@ -18,6 +24,7 @@ export interface WorkspaceSearchEntry {
   targetPath: string;
   switchToRole?: Role;
   searchText: string;
+  isPlannedRoute?: boolean;
 }
 
 function normalizeForSearch(value: string): string {
@@ -42,6 +49,7 @@ export function buildWorkspaceSearchEntries(
         language,
       )})`,
       targetPath: item.path,
+      isPlannedRoute: item.status === 'planned',
       searchText: normalizeForSearch(
         [
           item.plateNumber,
@@ -53,6 +61,39 @@ export function buildWorkspaceSearchEntries(
           item.description.en,
           item.targetPhase.pt,
           item.targetPhase.en,
+        ].join(' '),
+      ),
+    }),
+  );
+
+  const projectEntries: WorkspaceSearchEntry[] = STUDIO_DESK_PROJECTS.map(
+    (project) => ({
+      id: `project-${project.id}`,
+      category: 'project',
+      code: `${project.code} · ${project.studioBase}`,
+      title: pickLocalized(project.title, language),
+      subtitle: `${pickLocalized(project.discipline, language)} · ${project.scale} · ${project.leadAuthorName}`,
+      targetPath: `/workspace?project=${project.id}`,
+      isPlannedRoute: false,
+      searchText: normalizeForSearch(
+        [
+          project.code,
+          project.id,
+          project.studioBase,
+          project.leadAuthorName,
+          project.leadAuthorCode,
+          project.scale,
+          project.areaSqm,
+          project.elevationDatum,
+          project.title.pt,
+          project.title.en,
+          project.subtitle.pt,
+          project.subtitle.en,
+          project.discipline.pt,
+          project.discipline.en,
+          project.phase.pt,
+          project.phase.en,
+          ...project.deliverables.flatMap((d) => [d.code, d.label.pt, d.label.en]),
         ].join(' '),
       ),
     }),
@@ -71,6 +112,7 @@ export function buildWorkspaceSearchEntries(
       )}`,
       targetPath: '/workspace',
       switchToRole: user.role,
+      isPlannedRoute: false,
       searchText: normalizeForSearch(
         [
           user.code,
@@ -96,6 +138,7 @@ export function buildWorkspaceSearchEntries(
     title: pickLocalized(dept.name, language),
     subtitle: pickLocalized(dept.focus, language),
     targetPath: '/workspace/departments',
+    isPlannedRoute: true,
     searchText: normalizeForSearch(
       [
         dept.code,
@@ -111,13 +154,14 @@ export function buildWorkspaceSearchEntries(
   const studyEntry: WorkspaceSearchEntry = {
     id: `study-${FEATURED_STUDY_PROJECT.id}`,
     category: 'study',
-    code: FEATURED_STUDY_PROJECT.code,
+    code: `${FEATURED_STUDY_PROJECT.code} · Welcome`,
     title: pickLocalized(FEATURED_STUDY_PROJECT.title, language),
     subtitle: `${pickLocalized(
       FEATURED_STUDY_PROJECT.discipline,
       language,
-    )} · ${FEATURED_STUDY_PROJECT.scale}`,
+    )} · ${FEATURED_STUDY_PROJECT.scale} · (Fases 03–04)`,
     targetPath: '/workspace/projects',
+    isPlannedRoute: true,
     searchText: normalizeForSearch(
       [
         FEATURED_STUDY_PROJECT.code,
@@ -133,7 +177,13 @@ export function buildWorkspaceSearchEntries(
     ),
   };
 
-  return [studyEntry, ...routeEntries, ...profileEntries, ...departmentEntries];
+  return [
+    ...routeEntries,
+    ...profileEntries,
+    ...projectEntries,
+    studyEntry,
+    ...departmentEntries,
+  ];
 }
 
 export function searchWorkspaceDemo(
@@ -144,13 +194,14 @@ export function searchWorkspaceDemo(
   const normalizedQuery = normalizeForSearch(query);
 
   if (!normalizedQuery) {
-    // Curated immediate entries when query is empty (Study + Primary Routes + first 2 profiles)
+    // Curated immediate entries when query is empty:
+    // Featured Projects + Primary Routes + Key profiles
     return entries.filter((entry) =>
       [
-        'study-proj-oa-26-014',
+        'project-sd-proj-oa-26-101',
+        'project-sd-proj-oa-26-108',
         'route-desk',
         'route-projects',
-        'route-departments',
         'route-settings',
         'profile-usr-dir-01',
         'profile-usr-arq-02',
@@ -178,6 +229,6 @@ export function searchWorkspaceDemo(
     })
     .filter((item): item is { entry: WorkspaceSearchEntry; score: number } => Boolean(item))
     .sort((a, b) => b.score - a.score)
-    .slice(0, 12)
+    .slice(0, 14)
     .map((item) => item.entry);
 }

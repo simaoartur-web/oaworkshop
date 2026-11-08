@@ -26,12 +26,7 @@ interface WorkspaceShellProps {
   children?: ReactNode;
 }
 
-/**
- * Reusable architectural container for all authenticated O+A Workspace views.
- * Owns chrome only: navigation rail, contextual header, global demo search,
- * demo notifications, and accessible skip/main framing around operational slots.
- */
-export function WorkspaceShell({ children }: WorkspaceShellProps) {
+function WorkspaceShellFrame({ children }: WorkspaceShellProps) {
   const { currentUser, t } = useWorkspaceSession();
   const location = useLocation();
 
@@ -160,5 +155,18 @@ export function WorkspaceShell({ children }: WorkspaceShellProps) {
         />
       </div>
     </WorkspaceShellUiContext.Provider>
+  );
+}
+
+/**
+ * Reusable architectural container for all authenticated O+A Workspace views.
+ * Owns chrome only: navigation rail, contextual header, global demo search,
+ * demo notifications, and accessible skip/main framing around operational slots.
+ * Re-keys on demoResetEpoch so global resets restore fresh notifications and rail preferences immediately.
+ */
+export function WorkspaceShell({ children }: WorkspaceShellProps) {
+  const { demoResetEpoch } = useWorkspaceSession();
+  return (
+    <WorkspaceShellFrame key={demoResetEpoch}>{children}</WorkspaceShellFrame>
   );
 }

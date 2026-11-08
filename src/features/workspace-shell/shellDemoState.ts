@@ -14,6 +14,7 @@ export interface DemoNotificationItem {
   studioTag: string;
   timestampLabel: LocalizedText;
   targetPath: string;
+  isFutureModuleDemo: boolean;
   read: boolean;
 }
 
@@ -23,33 +24,35 @@ export const INITIAL_DEMO_NOTIFICATIONS: DemoNotificationItem[] = [
     code: 'REV · 01',
     category: { pt: 'Revisão de Corte', en: 'Section Review' },
     title: {
-      pt: 'Pavilhão Cívico da Baía (OA-26-014)',
-      en: 'Bay Civic Pavilion (OA-26-014)',
+      pt: 'Galeria Cívica & Pátio da Ponta Vermelha (OA-26-101 · DEMO)',
+      en: 'Ponta Vermelha Civic Gallery & Courtyard (OA-26-101 · DEMO)',
     },
     detail: {
-      pt: 'Cota da galeria nascente marcada para leitura conjunta no Studio Desk.',
-      en: 'East gallery datum flagged for joint reading at the Studio Desk.',
+      pt: 'Corte longitudinal AA (PR-101-AA · v04) sinalizado para leitura conjunta no Studio Desk.',
+      en: 'Longitudinal section AA (PR-101-AA · v04) flagged for joint critique at the Studio Desk.',
     },
-    studioTag: 'Maputo · Demo',
+    studioTag: 'Maputo · Studio Desk',
     timestampLabel: { pt: 'Hoje · 09:40 CAT', en: 'Today · 09:40 CAT' },
-    targetPath: '/workspace/projects',
+    targetPath: '/workspace?project=sd-proj-oa-26-101',
+    isFutureModuleDemo: false,
     read: false,
   },
   {
     id: 'notif-02',
-    code: 'MOD · 02',
-    category: { pt: 'Maquete & GLB', en: 'Maquette & GLB' },
+    code: 'MRC · 03',
+    category: { pt: 'Coordenação & Fases', en: 'Schedule & Phases' },
     title: {
-      pt: 'Exportação v04 da cobertura laminada',
-      en: 'Laminated timber roof export v04',
+      pt: 'Corredor Pedonal & Terrários da Costa (OA-26-108 · DEMO)',
+      en: 'Coastal Pedestrian Promenade & Terraces (OA-26-108 · DEMO)',
     },
     detail: {
-      pt: 'Verificação preliminar de polígonos agendada para integração na Fase 04.',
-      en: 'Preliminary mesh check queued for Phase 04 Web 3D integration.',
+      pt: 'Matriz de dependências hidráulicas referenciada para o futuro arquivo Projectos (Fases 03–04).',
+      en: 'Hydraulic dependency matrix cross-referenced for the upcoming Projects archive (Phases 03–04).',
     },
-    studioTag: 'Milão · Demo',
-    timestampLabel: { pt: 'Hoje · 08:15 CEST', en: 'Today · 08:15 CEST' },
+    studioTag: 'Urbanismo · Fases 03–04 (Demo)',
+    timestampLabel: { pt: 'Hoje · 08:50 CAT', en: 'Today · 08:50 CAT' },
     targetPath: '/workspace/projects',
+    isFutureModuleDemo: true,
     read: false,
   },
   {
@@ -57,33 +60,35 @@ export const INITIAL_DEMO_NOTIFICATIONS: DemoNotificationItem[] = [
     code: 'PUB · 03',
     category: { pt: 'Fila Editorial', en: 'Editorial Queue' },
     title: {
-      pt: '2 cadernos mantidos em estado privado',
-      en: '2 monographs held in private status',
+      pt: 'Arquivo de Matéria & Inércia Climática (OA-26-112 · DEMO)',
+      en: 'Materiality & Thermal Inertia Archive (OA-26-112 · DEMO)',
     },
     detail: {
-      pt: 'Paridade bilingue PT/EN preparada antes de revisão pela Direcção.',
-      en: 'PT/EN bilingual copy staged ahead of Direction editorial critique.',
+      pt: 'Pedido bilingue PT/EN mantido privado até activação da fila editorial (Fase 06).',
+      en: 'Bilingual PT/EN request held private until editorial queue activation (Phase 06).',
     },
-    studioTag: 'Comunicação · Demo',
+    studioTag: 'Milão · Fase 06 (Demo)',
     timestampLabel: { pt: 'Ontem · 17:30', en: 'Yesterday · 17:30' },
     targetPath: '/workspace/publications',
+    isFutureModuleDemo: true,
     read: false,
   },
   {
     id: 'notif-04',
     code: 'MAT · 04',
-    category: { pt: 'Investigação', en: 'Applied Research' },
+    category: { pt: 'Biblioteca Técnica', en: 'Technical Library' },
     title: {
-      pt: 'Ficha de blocos de terra comprimida registada',
-      en: 'Compressed earth block thermal record logged',
+      pt: 'Oficina de Leitura em Terra Compactada (OA-26-119 · DEMO)',
+      en: 'Rammed-Earth Reading Workshop (OA-26-119 · DEMO)',
     },
     detail: {
-      pt: 'Referência de amostra catalogada para consulta departamental em Fase 05.',
-      en: 'Sample reference indexed for department library consultation in Phase 05.',
+      pt: 'Caderno de implantação e ventilação cruzada catalogado para consulta na Fase 05.',
+      en: 'Site orientation and cross-ventilation brief indexed for Phase 05 library consultation.',
     },
-    studioTag: 'Investigação · Demo',
+    studioTag: 'Maputo · Fase 05 (Demo)',
     timestampLabel: { pt: 'Há 2 dias', en: '2 days ago' },
     targetPath: '/workspace/library',
+    isFutureModuleDemo: true,
     read: true,
   },
   {
@@ -91,16 +96,17 @@ export const INITIAL_DEMO_NOTIFICATIONS: DemoNotificationItem[] = [
     code: 'SYS · 05',
     category: { pt: 'Sessão Local', en: 'Local Session' },
     title: {
-      pt: 'Modo demonstrativo sem servidor activo',
+      pt: 'Modo demonstrativo local sem servidor',
       en: 'Serverless local demo mode active',
     },
     detail: {
-      pt: 'Preferências guardadas exclusivamente em localStorage sem palavras-passe.',
-      en: 'Preferences stored strictly in localStorage with zero stored passwords.',
+      pt: 'Sessão, preferências, notificações e Studio Desk guardados exclusivamente neste navegador.',
+      en: 'Session, preferences, notifications, and Studio Desk stored locally in this browser only.',
     },
-    studioTag: 'Shell · Fase 02A',
+    studioTag: 'Shell · Fase 02',
     timestampLabel: { pt: 'Sessão actual', en: 'Current session' },
     targetPath: '/workspace/settings',
+    isFutureModuleDemo: false,
     read: true,
   },
 ];

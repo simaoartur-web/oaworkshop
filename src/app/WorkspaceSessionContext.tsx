@@ -19,6 +19,7 @@ import {
   switchDemoRole,
   type AuthAttemptResult,
 } from '../data/sessionRepository';
+import { clearStudioDeskLocalState } from '../data/studioDeskFixtures';
 import type {
   AppLanguage,
   DemoSession,
@@ -35,6 +36,7 @@ interface WorkspaceSessionContextValue {
   preferences: UserPreferences;
   language: AppLanguage;
   t: TranslationDictionary;
+  demoResetEpoch: number;
   signInWithCredentials: (email: string, password: string) => AuthAttemptResult;
   signInAsDemoUser: (user: DemoUser) => DemoSession;
   switchRole: (role: Role) => void;
@@ -59,6 +61,7 @@ export function WorkspaceSessionProvider({
   const [preferences, setPreferences] = useState<UserPreferences>(() =>
     loadUserPreferences(),
   );
+  const [demoResetEpoch, setDemoResetEpoch] = useState(0);
 
   const currentUser = useMemo<DemoUser | null>(() => {
     if (!session) {
@@ -124,8 +127,10 @@ export function WorkspaceSessionProvider({
   const resetAllDemoData = useCallback(() => {
     const freshPrefs = resetDemoWorkspaceState();
     resetShellLocalState();
+    clearStudioDeskLocalState();
     setSession(null);
     setPreferences(freshPrefs);
+    setDemoResetEpoch((prev) => prev + 1);
   }, []);
 
   const value = useMemo<WorkspaceSessionContextValue>(
@@ -135,6 +140,7 @@ export function WorkspaceSessionProvider({
       preferences,
       language,
       t,
+      demoResetEpoch,
       signInWithCredentials,
       signInAsDemoUser,
       switchRole,
@@ -150,6 +156,7 @@ export function WorkspaceSessionProvider({
       preferences,
       language,
       t,
+      demoResetEpoch,
       signInWithCredentials,
       signInAsDemoUser,
       switchRole,
