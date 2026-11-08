@@ -1,6 +1,6 @@
 # Plano 084 — SEO-03: identidade do website nos resultados Google
 
-> **Estado:** EM EXECUÇÃO — implementação aprovada em 2026-11-08.
+> **Estado:** CONCLUÍDO — implementação e verificações terminadas na branch; integração/publicação por autorizar.
 > **Data:** 2026-11-08
 > **Base confirmada:** `main` e `origin/main` @ `9b43da8a5af5ee90a0034df207b7779822c35787`.
 > **Branch de preparação:** `codex/docs-seo03-site-name-plan`.
@@ -32,7 +32,7 @@ Em 2026-11-08:
 
 Documentação oficial Google reconfirmada em 2026-11-08: o nome do website aplica-se ao domínio/subdomínio, não a pastas de idioma; o bloco deve estar na homepage raiz. `name` e `url` são propriedades obrigatórias; `alternateName` admite alternativas ordenadas. O Rich Results Test não valida nomes de websites; o Google recomenda um validador de Schema.org.
 
-## 3. Decisões propostas para aprovação
+## 3. Decisões aprovadas
 
 ### D1 — Identidade única do website
 
@@ -160,6 +160,14 @@ Essa aprovação autoriza implementação e verificações na branch própria. M
 
 - **2026-11-08 — Início:** estado Git limpo e `origin/main` reconfirmado em `9b43da8`. Criada a branch aprovada sem tracking de `main`; transportado apenas o commit documental do Plano 084 e respectivos índices. Preservadas as branches anteriores. Segue-se a captura da referência local antes de alterar código.
 - **2026-11-08 — Referência:** build da base concluído com 43 páginas e três URLs no sitemap; nenhuma imagem regenerada. Guardada referência externa ao repositório com metadados, JSON-LD e hash do corpo das 43 páginas, sete recursos do build e 52 ficheiros protegidos de conteúdo/configuração/recursos. Mantêm-se os avisos anteriores de Browserslist desactualizado, `padding-left: var(--tracking-*)` inválido e bundle de 509,72 kB acima de 500 kB.
+- **2026-11-08 — Implementação:** adicionado o tipo `WebSiteJsonLd`, o construtor único e `PageMetadata.websiteJsonLd`, preenchido exclusivamente na raiz. O prerender emite `data-seo="website-json-ld"` apenas nessa página. O efeito existente do cliente actualiza/cria o script, remove duplicados e elimina-o fora da raiz. Mantidos o selector, contrato e conteúdo `Organization`. Registada a decisão aprovada no ADR 0002 e actualizadas as responsabilidades no mapa.
+- **2026-11-08 — Verificação automática:** `npm run lint` sem erros; `npm run build` concluído com 43 páginas e três URLs no sitemap; `npm test`: **41 testes passaram, zero falhas**, incluindo as quatro novas verificações SEO-03. A suite anterior foi preservada. O build não regenerou imagens nem alterou dependências.
+- **2026-11-08 — Comparação com a base:** nas 43 páginas, os corpos HTML e os metadados anteriores permanecem iguais; o JSON-LD `Organization` permanece igual onde existia. A raiz tem exactamente o `WebSite` aprovado, uma vez, ao lado de `Organization`; as restantes 42 páginas não têm essa entidade ou selector. Os sete recursos do build, incluindo sitemap e robots, e os 52 ficheiros protegidos coincidem por SHA-256 com a referência. A folha de estilos gerada mantém o mesmo hash.
+- **2026-11-08 — HTTP local:** servidor estático sem fallback SPA: as 43 páginas responderam 200 e coincidem com os ficheiros compilados; favicon 200 `image/png`, com os bytes e dimensões 192 × 192 preservados. A rota inexistente respondeu HTTP 404 com o documento dedicado, `noindex, nofollow`, sem canonical nem JSON-LD. O acesso directo a `404.html` respondeu 200, distinguindo o recurso estático do erro HTTP real.
+- **2026-11-08 — DOM e navegação:** **21 estados verificados** no navegador interno, com raiz, EN, PT, catálogo, detalhe de Vancouver, documento 404 e rota inexistente. HTML e DOM coincidem em título, idioma, metadados, links e JSON-LD no mesmo caminho; tags alternativas vazias são comparadas pela equivalência semântica já existente no cliente. Confirmados refresh, alternância PT/EN, remoção do bloco ao sair da raiz, reposição única em ciclos de Voltar/Avançar e regresso da página 404 pela ligação institucional. Consultas finais de consola sem avisos/erros, incluindo ausência de erros de hidratação. Não houve alterações de interface que exigissem repetir a matriz responsiva SEO-02.
+- **2026-11-08 — Validador externo:** submetido ao Schema Markup Validator o fragmento efectivamente gerado no HTML da raiz: **um WebSite, zero erros e zero avisos**, com os nomes e identificador aprovados. Guardada captura do resultado, juntamente com as evidências de comparação/HTTP/DOM, fora dos ficheiros versionados. Não foi usado o Rich Results Test como prova deste tipo de resultado.
+- **2026-11-08 — Avisos e impacto:** mantêm-se os três avisos anteriores: Browserslist/caniuse-lite desactualizado, regra CSS gerada `padding-left: var(--tracking-*)` inválida e bundle acima de 500 kB. O JavaScript passou de 509,72 para 510,31 kB (gzip: 160,08 para 160,18 kB), aumento correspondente à identidade e reconciliação aprovadas. Não foram suprimidos avisos nem executadas optimizações alheias ao lote.
+- **2026-11-08 — Fecho e limites:** diff revisto e limitado aos nove ficheiros previstos; servidor de verificação local encerrado. Sem desvio material de âmbito, novas dependências ou alteração de configuração, conteúdo visível, idiomas, imagens, rotas ou indexação. `origin/main` foi reconfirmado em `9b43da8`; sem merge, deploy ou Search Console. A branch é candidata a revisão; o estado CONCLUÍDO não a declara canónica nem comprova alteração dos resultados Google.
 
 ## Fontes oficiais consultadas em 2026-11-08
 

@@ -104,6 +104,24 @@ export default function DocumentHead({ dynamicTitle }: DocumentHeadProps) {
         } else if (existingJsonLd) {
             existingJsonLd.remove();
         }
+
+        // 8. Domain-level WebSite identity, present only at the root homepage.
+        const websiteScripts = Array.from(
+            document.head.querySelectorAll<HTMLScriptElement>('script[data-seo="website-json-ld"]')
+        );
+        if (metadata.websiteJsonLd) {
+            let websiteScript: HTMLScriptElement | undefined = websiteScripts[0];
+            if (!websiteScript) {
+                websiteScript = document.createElement('script');
+                websiteScript.type = 'application/ld+json';
+                websiteScript.setAttribute('data-seo', 'website-json-ld');
+                document.head.appendChild(websiteScript);
+            }
+            websiteScript.textContent = JSON.stringify(metadata.websiteJsonLd);
+            websiteScripts.slice(1).forEach((script) => script.remove());
+        } else {
+            websiteScripts.forEach((script) => script.remove());
+        }
     }, [location.pathname, activeLang, dynamicTitle]);
 
     return null;

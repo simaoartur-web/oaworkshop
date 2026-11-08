@@ -22,3 +22,4 @@ Estados: `PROPOSTA`, `ACEITE`, `SUBSTITUÍDA` ou `REVOGADA`.
 | ADR | Estado | Assunto |
 |---|---|---|
 | `0001-front-end-primeiro.md` | ACEITE | Manter o projecto exclusivamente front-end |
+| `0002-identidade-website-json-ld.md` | ACEITE | Identidade WebSite única na raiz e contrato separado de Organization |

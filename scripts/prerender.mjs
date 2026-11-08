@@ -125,6 +125,11 @@ async function main() {
                     `<script type="application/ld+json" data-seo="json-ld">${JSON.stringify(metadata.jsonLd)}</script>`
                 );
             }
+            if (metadata.websiteJsonLd) {
+                seoTags.push(
+                    `<script type="application/ld+json" data-seo="website-json-ld">${JSON.stringify(metadata.websiteJsonLd)}</script>`
+                );
+            }
 
             // Inject after <head>
             page = page.replace(

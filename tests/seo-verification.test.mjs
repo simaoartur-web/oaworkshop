@@ -607,3 +607,92 @@ test('Suite 6: SEO-02 English content and image resources', async (t) => {
         }
     });
 });
+
+// -------------------------------------------------------------
+// Suite 7: SEO-03 domain-level website identity
+// -------------------------------------------------------------
+test('Suite 7: SEO-03 website identity', async (t) => {
+    const expectedWebsite = {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        '@id': 'https://www.oa-workshop.com/#website',
+        name: 'O+A Architects and Planners',
+        alternateName: ['O+A Workshop', 'O+A'],
+        url: 'https://www.oa-workshop.com/',
+    };
+    const structuredData = (relativePath) => {
+        const html = fs.readFileSync(path.join(distDir, relativePath), 'utf8');
+        return Array.from(html.matchAll(/<script\b([^>]*type="application\/ld\+json"[^>]*)>([\s\S]*?)<\/script>/g), (match) => ({
+            selector: match[1].match(/data-seo="([^"]+)"/)?.[1],
+            value: JSON.parse(match[2]),
+        }));
+    };
+
+    await t.test('Root HTML adds exactly one WebSite beside the existing Organization', () => {
+        const scripts = structuredData('index.html');
+        assert.equal(scripts.length, 2);
+        const websites = scripts.filter((script) => script.value['@type'] === 'WebSite');
+        assert.deepEqual(websites, [{ selector: 'website-json-ld', value: expectedWebsite }]);
+        const organizations = scripts.filter((script) => script.value['@type'] === 'Organization');
+        assert.equal(organizations.length, 1);
+        assert.equal(organizations[0].selector, 'json-ld');
+        assert.equal(organizations[0].value['@id'], 'https://www.oa-workshop.com/#organization');
+        assert.equal(organizations[0].value.name, expectedWebsite.name);
+        assert.notEqual(organizations[0].value['@id'], websites[0].value['@id']);
+    });
+
+    await t.test('Every non-root static page excludes the website script and entity', () => {
+        const collectHtml = (directory) => fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+            const file = path.join(directory, entry.name);
+            return entry.isDirectory() ? collectHtml(file) : entry.name.endsWith('.html') ? [file] : [];
+        });
+        const files = collectHtml(distDir).filter((file) => file !== path.join(distDir, 'index.html'));
+        assert.equal(files.length, 42);
+        for (const file of files) {
+            const scripts = structuredData(path.relative(distDir, file));
+            assert.ok(!scripts.some((script) => script.selector === 'website-json-ld'), file);
+            assert.ok(!scripts.some((script) => script.value['@type'] === 'WebSite'), file);
+        }
+    });
+
+    const vite = await createServer({
+        root: rootDir,
+        server: { middlewareMode: true },
+        appType: 'custom',
+        optimizeDeps: { noDiscovery: true },
+    });
+    try {
+        const { getPageMetadata, getNotFoundMetadata } = await vite.ssrLoadModule('/src/seo/metadata.ts');
+
+        await t.test('Root metadata has one stable website identity regardless of active language', () => {
+            for (const lang of ['en', 'pt']) {
+                const metadata = getPageMetadata('/', lang);
+                assert.deepEqual(metadata.websiteJsonLd, expectedWebsite);
+                assert.equal(metadata.jsonLd['@type'], 'Organization');
+                assert.equal(metadata.jsonLd['@id'], 'https://www.oa-workshop.com/#organization');
+            }
+        });
+
+        await t.test('Language homes, catalogs, projects and unknown paths have no WebSite metadata', () => {
+            const paths = [
+                '/en', '/en/', '/pt', '/pt/',
+                ...['', '/en', '/pt'].flatMap((prefix) => [
+                    `${prefix}/projects`, `${prefix}/projects/`,
+                    `${prefix}/projects/vancouver-waterfront`, `${prefix}/projects/vancouver-waterfront/`,
+                    `${prefix}/projects/non-existent-project`, `${prefix}/non-existent-page`,
+                ]),
+                '/404', '/404.html',
+            ];
+            for (const pathname of paths) {
+                for (const lang of ['en', 'pt']) {
+                    assert.equal(getPageMetadata(pathname, lang).websiteJsonLd, undefined, `${pathname} (${lang})`);
+                }
+            }
+            for (const lang of ['en', 'pt']) {
+                assert.equal(getNotFoundMetadata(lang).websiteJsonLd, undefined, lang);
+            }
+        });
+    } finally {
+        await vite.close();
+    }
+});

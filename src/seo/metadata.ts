@@ -14,6 +14,15 @@ export interface AlternateLink {
     href: string;
 }
 
+export interface WebSiteJsonLd {
+    '@context': 'https://schema.org';
+    '@type': 'WebSite';
+    '@id': string;
+    name: string;
+    alternateName: string[];
+    url: string;
+}
+
 export interface PageMetadata {
     title: string;
     description: string;
@@ -43,6 +52,7 @@ export interface PageMetadata {
     };
     alternates: AlternateLink[];
     jsonLd?: Record<string, unknown>;
+    websiteJsonLd?: WebSiteJsonLd;
 }
 
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/images/og-oa-workshop.jpg`;
@@ -50,6 +60,17 @@ const DEFAULT_OG_IMAGE_WIDTH = 1376;
 const DEFAULT_OG_IMAGE_HEIGHT = 768;
 export const DEFAULT_OG_IMAGE_ALT_EN = 'O+A Architects and Planners — Milan and Maputo';
 export const DEFAULT_OG_IMAGE_ALT_PT = 'O+A Arquitectos e Planeadores — Milão e Maputo';
+
+function buildWebSiteJsonLd(): WebSiteJsonLd {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        '@id': `${SITE_URL}/#website`,
+        name: 'O+A Architects and Planners',
+        alternateName: ['O+A Workshop', 'O+A'],
+        url: `${SITE_URL}/`,
+    };
+}
 
 /**
  * Verified Organization JSON-LD structure (Schema.org)
@@ -242,6 +263,7 @@ export function getPageMetadata(
             },
             alternates,
             jsonLd: buildOrganizationJsonLd(lang),
+            websiteJsonLd: pathname === '/' ? buildWebSiteJsonLd() : undefined,
         };
     }
 
