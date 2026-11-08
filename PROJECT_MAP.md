@@ -19,6 +19,7 @@
 | Alterar equipa e perfis | `src/components/home/TeamSection.tsx`, `src/data/team.ts` | `TeamMember.tsx`, `TeamAvatar.tsx`, `TeamProfilePanel.tsx`, `team.css`, `src/locales/` |
 | Alterar imagens públicas | `public/` | componente consumidor, `docs/CONTENT_GUIDE.md` |
 | Alterar publicação | `.github/workflows/deploy.yml` | `vite.config.ts`, `CNAME`, `public/CNAME` |
+| Alterar metadados e dados estruturados SEO | `src/seo/metadata.ts` | `src/seo/DocumentHead.tsx`, `scripts/prerender.mjs`, `tests/seo-verification.test.mjs`, plano SEO aplicável |
 | Preparar trabalho novo | `plans/README.md` | `AGENTS.md`, modelo de plano |
 | Criar um prompt | `prompts/README.md` | modelo em `prompts/templates/` |
 
@@ -51,8 +52,8 @@
 | `src/index.css` | tokens Tailwind, estilos base e utilitários globais | `src/main.tsx` |
 | `src/i18n.ts` | inicialização e selecção de idioma (com suporte a rotas URL) | aplicação inteira |
 | `src/seo/routes.ts` | resolução de rotas bilingues e links canónicos | `Header.tsx`, `Footer.tsx`, SEO |
-| `src/seo/metadata.ts` | metadados tipados, Open Graph, Twitter e JSON-LD Organization | `DocumentHead.tsx`, prerender |
-| `src/seo/DocumentHead.tsx` | actualização dinâmica de títulos e metadados no cliente | `src/App.tsx` |
+| `src/seo/metadata.ts` | metadados tipados, Open Graph, Twitter, Organization e identidade WebSite exclusiva da raiz | `DocumentHead.tsx`, prerender |
+| `src/seo/DocumentHead.tsx` | actualização dinâmica de títulos/metadados e reconciliação dos scripts Organization/WebSite por rota | `src/App.tsx` |
 | `src/vite-env.d.ts` | tipos de ambiente do Vite | TypeScript |
 
 ## Páginas
@@ -114,9 +115,11 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 | `docs/CONTENT_GUIDE.md` | voz, idiomas, conteúdo e imagens |
 | `docs/QUALITY.md` | verificações técnicas, visuais e de acessibilidade |
 | `docs/decisions/` | decisões arquitecturais duradouras |
+| `docs/decisions/0002-identidade-website-json-ld.md` | identidade WebSite estável na raiz, separada de Organization e invariável por idioma |
 | `plans/` | planos numerados, aprovação e estado |
 | `plans/080-seo-infraestrutura-indexacao.md` | plano de infraestrutura SEO, indexação orgânica e pré-renderização |
 | `plans/082-seo02-en-first-correcao.md` | execução aprovada SEO-02 EN-first: inglês, marcador neutro de Vancouver, metadados de imagens e favicon |
+| `plans/084-seo03-identidade-resultados.md` | SEO-03 canónico: identidade WebSite exclusiva da raiz, preservando Organization, idiomas e indexação; integração/publicação autorizadas |
 | `plans/124-design-mastery-playbook.md` | integração das referências de design nas instruções dos agentes |
 | `plans/134-performance-imagens-autoplay-fades.md` | plano R06: pipeline de optimização Sharp, autoplay robusto e crossfades |
 | `prompts/` | normas e modelos de prompts |
@@ -127,7 +130,7 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 |---|---|
 | `scripts/optimize-images.mjs` | pipeline Sharp de conversão para WebP e geração de variantes responsivas |
 | `scripts/generate-seo-assets.mjs` | comando de manutenção Sharp para reproduzir favicon e marcador neutro aprovados no Plano 082, sem alterar os recursos originais |
-| `scripts/prerender.mjs` | pré-renderização estática multi-rota e geração de sitemap.xml |
+| `scripts/prerender.mjs` | pré-renderização estática multi-rota, emissão condicional de Organization/WebSite e geração de sitemap.xml |
 | `public/robots.txt` | directivas de rastreio para motores de busca e endereço do sitemap |
 | `.github/workflows/deploy.yml` | instala, compila e publica `dist/` no GitHub Pages em alterações de `main` |
 
@@ -135,7 +138,7 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 
 | Caminho | Responsabilidade |
 |---|---|
-| `tests/seo-verification.test.mjs` | testes de pré-renderização, metadados, idiomas, servidor estático, rotas legadas e regressões SEO-02 de recursos e quarentena editorial |
+| `tests/seo-verification.test.mjs` | testes de pré-renderização, metadados, idiomas, servidor estático, rotas legadas, regressões SEO-02 e identidade WebSite SEO-03 |
 
 ## Caminhos deliberadamente inexistentes
 
