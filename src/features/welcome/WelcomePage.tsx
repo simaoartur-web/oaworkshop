@@ -52,9 +52,10 @@ export function WelcomePage() {
   }
 
   const department = DEPARTMENTS[currentUser.departmentId];
-  const greeting = formatGreetingForTime(t);
-  const formattedDate = formatEditorialDate(language);
-  const clocks = formatStudioClocks();
+  const now = new Date();
+  const greeting = formatGreetingForTime(t, now, currentUser.studioBase);
+  const formattedDate = formatEditorialDate(language, now, currentUser.studioBase);
+  const clocks = formatStudioClocks(now);
 
   const handleEnterWorkspace = () => {
     navigate('/workspace');

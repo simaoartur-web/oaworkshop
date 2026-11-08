@@ -80,10 +80,12 @@ export function loadDemoSession(): DemoSession | null {
       !VALID_ROLES.has(parsed.role as Role) ||
       parsed.mode !== 'local-demo'
     ) {
+      window.localStorage.removeItem(STORAGE_KEYS.SESSION);
       return null;
     }
     const user = findDemoUserById(parsed.userId);
     if (!user) {
+      window.localStorage.removeItem(STORAGE_KEYS.SESSION);
       return null;
     }
     // Enforce zero-password invariant even if external storage was tampered with
@@ -98,6 +100,11 @@ export function loadDemoSession(): DemoSession | null {
     };
     return sanitized;
   } catch {
+    try {
+      window.localStorage.removeItem(STORAGE_KEYS.SESSION);
+    } catch {
+      // Ignore storage cleanup error
+    }
     return null;
   }
 }

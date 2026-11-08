@@ -1,5 +1,7 @@
 import { X } from 'lucide-react';
-import { useEffect, useId, useRef } from 'react';
+import { useId, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { useDialogFocusTrap } from './useDialogFocusTrap';
 
 interface DemoNoticeDialogProps {
   open: boolean;
@@ -24,49 +26,38 @@ export function DemoNoticeDialog({
 }: DemoNoticeDialogProps) {
   const titleId = useId();
   const descId = useId();
+  const portalRef = useRef<HTMLDivElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
   const confirmButtonRef = useRef<HTMLButtonElement | null>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
 
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-    previousFocusRef.current = document.activeElement as HTMLElement | null;
-    const focusTimer = window.setTimeout(() => {
-      confirmButtonRef.current?.focus();
-    }, 0);
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.clearTimeout(focusTimer);
-      document.removeEventListener('keydown', handleKeyDown);
-      previousFocusRef.current?.focus?.();
-    };
-  }, [open, onClose]);
+  useDialogFocusTrap({
+    open,
+    containerRef: dialogRef,
+    portalRef,
+    initialFocusRef: confirmButtonRef,
+    onClose,
+  });
 
   if (!open) {
     return null;
   }
 
-  return (
+  return createPortal(
     <div
+      ref={portalRef}
+      data-oa-dialog-portal="true"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-6"
       onClick={onClose}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descId}
+        tabIndex={-1}
         onClick={(event) => event.stopPropagation()}
-        className="w-full max-w-lg border border-white/18 bg-[#111111] p-6 sm:p-8 text-white shadow-2xl"
+        className="w-full max-w-lg border border-white/18 bg-[#111111] p-6 sm:p-8 text-white shadow-2xl focus:outline-none"
       >
         <div className="flex items-start justify-between gap-4 pb-4 oa-hairline-b">
           <div>
@@ -86,7 +77,7 @@ export function DemoNoticeDialog({
             aria-label={closeAriaLabel}
             className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center border border-white/12 text-[#BDBDBD] hover:text-white hover:border-white/30 transition-colors cursor-pointer"
           >
-            <X size={18} strokeWidth={1.25} />
+            <X size={18} strokeWidth={1.25} aria-hidden="true" />
           </button>
         </div>
 
@@ -108,6 +99,7 @@ export function DemoNoticeDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
