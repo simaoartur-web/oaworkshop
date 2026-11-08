@@ -19,6 +19,7 @@
 | Alterar equipa e perfis | `src/components/home/TeamSection.tsx`, `src/data/team.ts` | `TeamMember.tsx`, `TeamAvatar.tsx`, `TeamProfilePanel.tsx`, `team.css`, `src/locales/` |
 | Alterar imagens públicas | `public/` | componente consumidor, `docs/CONTENT_GUIDE.md` |
 | Alterar publicação | `.github/workflows/deploy.yml` | `vite.config.ts`, `CNAME`, `public/CNAME` |
+| Alterar metadados e dados estruturados SEO | `src/seo/metadata.ts` | `src/seo/DocumentHead.tsx`, `scripts/prerender.mjs`, `tests/seo-verification.test.mjs`, plano SEO aplicável |
 | Preparar trabalho novo | `plans/README.md` | `AGENTS.md`, modelo de plano |
 | Criar um prompt | `prompts/README.md` | modelo em `prompts/templates/` |
 
@@ -117,6 +118,7 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 | `plans/` | planos numerados, aprovação e estado |
 | `plans/080-seo-infraestrutura-indexacao.md` | plano de infraestrutura SEO, indexação orgânica e pré-renderização |
 | `plans/082-seo02-en-first-correcao.md` | execução aprovada SEO-02 EN-first: inglês, marcador neutro de Vancouver, metadados de imagens e favicon |
+| `plans/084-seo03-identidade-resultados.md` | proposta SEO-03: identidade WebSite exclusiva da raiz, preservando Organization, idiomas e indexação; implementação por aprovar |
 | `plans/124-design-mastery-playbook.md` | integração das referências de design nas instruções dos agentes |
 | `plans/134-performance-imagens-autoplay-fades.md` | plano R06: pipeline de optimização Sharp, autoplay robusto e crossfades |
 | `prompts/` | normas e modelos de prompts |
