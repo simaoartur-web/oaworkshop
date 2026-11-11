@@ -1,4 +1,4 @@
-import { Check, CircleDot, RotateCw } from 'lucide-react';
+import { ArrowUpRight, Check, CircleDot, RotateCw } from 'lucide-react';
 import { pickLocalized } from '../../locales';
 import type {
   DeskTaskStatus,
@@ -19,9 +19,12 @@ interface PrioritiesPanelProps {
   counts: DerivedPriorityCounts;
   statusFilter: 'all' | DeskTaskStatus;
   onStatusFilterChange: (next: 'all' | DeskTaskStatus) => void;
+  onInspectTask: (task: StudioDeskTask) => void;
   onToggleTaskComplete: (taskId: string) => void;
   onCycleTaskStatus: (taskId: string) => void;
   onResetFilters: () => void;
+  highlightedTaskId: string | null;
+  currentUserId: string;
   activeRole: Role;
   leadNote: string;
   language: AppLanguage;
@@ -36,9 +39,12 @@ export function PrioritiesPanel({
   counts,
   statusFilter,
   onStatusFilterChange,
+  onInspectTask,
   onToggleTaskComplete,
   onCycleTaskStatus,
   onResetFilters,
+  highlightedTaskId,
+  currentUserId,
   activeRole,
   leadNote,
   language,
@@ -172,18 +178,24 @@ export function PrioritiesPanel({
             {tasks.map((task) => {
               const currentStatus = taskStatuses[task.id] ?? task.status;
               const isCompleted = currentStatus === 'completed';
+              const isDirectAssignment = task.assigneeUserId === currentUserId;
               const isRoleMatch = task.primaryRoles.includes(activeRole);
+              const isHighlighted = highlightedTaskId === task.id;
               const taskTitle = pickLocalized(task.title, language);
 
               return (
                 <li
                   key={task.id}
+                  id={`desk-task-${task.id}`}
+                  data-task-highlighted={isHighlighted ? 'true' : undefined}
                   className={`border p-4 transition-colors flex flex-col justify-between gap-3 ${
-                    isCompleted
-                      ? 'border-white/10 bg-[#0C0C0C] opacity-85'
-                      : isRoleMatch
-                        ? 'border-white/20 border-l-2 border-l-[#A65D4A] bg-[#161616]'
-                        : 'border-white/12 bg-[#131313]'
+                    isHighlighted
+                      ? 'border-[#A65D4A] ring-1 ring-[#A65D4A] bg-[#1C1412]'
+                      : isCompleted
+                        ? 'border-white/10 bg-[#0C0C0C] opacity-85'
+                        : isDirectAssignment
+                          ? 'border-white/22 border-l-2 border-l-[#A65D4A] bg-[#161616]'
+                          : 'border-white/12 bg-[#131313]'
                   }`}
                 >
                   <div className="space-y-2">
@@ -202,12 +214,21 @@ export function PrioritiesPanel({
                       </div>
 
                       <div className="flex flex-wrap items-center gap-1.5">
-                        {isRoleMatch && (
-                          <span className="border border-[#A65D4A]/70 bg-[#181818] px-2 py-0.5 text-[10px] font-medium tracking-[0.12em] text-[#F5F5F5]">
-                            {deskDict.priorities.roleMatchTag}
+                        {isHighlighted && (
+                          <span className="bg-[#A65D4A] px-2 py-0.5 text-[11px] font-medium tracking-[0.12em] text-white">
+                            {deskDict.priorities.inFocusBadge}
                           </span>
                         )}
-                        <span className="border border-white/14 bg-[#141414] px-2 py-0.5 text-[10px] tracking-[0.12em] text-[#E0E0E0]">
+                        {isDirectAssignment ? (
+                          <span className="border border-[#A65D4A]/80 bg-[#A65D4A]/18 px-2 py-0.5 text-[11px] font-medium tracking-[0.10em] text-white">
+                            {deskDict.priorities.directAssignmentTag}
+                          </span>
+                        ) : isRoleMatch ? (
+                          <span className="border border-white/20 bg-[#181818] px-2 py-0.5 text-[11px] font-medium tracking-[0.10em] text-[#E0E0E0]">
+                            {deskDict.priorities.roleMatchTag}
+                          </span>
+                        ) : null}
+                        <span className="border border-white/14 bg-[#141414] px-2 py-0.5 text-[11px] tracking-[0.10em] text-[#E0E0E0]">
                           {deskDict.priorities.priorityLabels[task.priority]}
                         </span>
                       </div>
@@ -248,6 +269,16 @@ export function PrioritiesPanel({
                     </div>
 
                     <div className="flex flex-wrap items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => onInspectTask(task)}
+                        aria-label={`${deskDict.priorities.inspectTaskAction}: ${taskTitle}`}
+                        className="min-h-[44px] px-3 py-1.5 border border-white/18 bg-[#181818] hover:border-[#A65D4A] text-[11px] font-medium uppercase tracking-[0.12em] text-white inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <span>{deskDict.priorities.inspectTaskAction}</span>
+                        <ArrowUpRight size={13} strokeWidth={1.6} aria-hidden="true" />
+                      </button>
+
                       <button
                         type="button"
                         onClick={() => onCycleTaskStatus(task.id)}
