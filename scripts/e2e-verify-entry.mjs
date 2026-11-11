@@ -381,7 +381,11 @@ async function main() {
       });
 
       // Verify modal opens cleanly over scrolled Studio Desk & header, then Escape closes it
-      const dossierBtn = page.getByRole('button', { name: /Abrir dossier demonstrativo/i }).first();
+      const dossierBtn = page
+        .getByRole('button', {
+          name: /Abrir dossier do projecto|Abrir dossier demonstrativo/i,
+        })
+        .first();
       await dossierBtn.scrollIntoViewIfNeeded();
       await dossierBtn.click();
       const dossierDialog = page.getByRole('dialog');
