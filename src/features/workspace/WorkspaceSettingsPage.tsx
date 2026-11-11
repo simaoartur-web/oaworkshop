@@ -1,6 +1,6 @@
-import { RotateCcw, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, RotateCcw, ShieldCheck } from 'lucide-react';
 import { useEffect, useId } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useWorkspaceSession } from '../../app/WorkspaceSessionContext';
 import { DEMO_USERS } from '../../data/fixtures';
 import { STORAGE_KEYS } from '../../data/sessionRepository';
@@ -41,14 +41,23 @@ export function WorkspaceSettingsPage() {
 
   return (
     <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-10 space-y-8">
-      <header className="pb-6 oa-hairline-b space-y-2.5">
-        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#A65D4A]">
-          {t.shell.settings.eyebrow}
-        </p>
+      <header className="pb-6 oa-hairline-b space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-[11px] font-medium uppercase tracking-[0.20em] text-[#CE826D]">
+            {t.shell.settings.eyebrow}
+          </p>
+          <Link
+            to="/workspace"
+            className="min-h-[40px] px-3.5 py-1.5 border border-white/16 bg-[#141414] hover:border-[#A65D4A] text-xs font-medium uppercase tracking-[0.14em] text-white inline-flex items-center gap-2 transition-colors"
+          >
+            <ArrowLeft size={14} strokeWidth={1.5} aria-hidden="true" />
+            <span>{t.shell.availability.returnToDeskAction}</span>
+          </Link>
+        </div>
         <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-white">
           {t.shell.settings.heading}
         </h1>
-        <p className="text-sm text-[#BDBDBD] max-w-2xl">
+        <p className="text-sm text-[#CCCCCC] max-w-2xl">
           {t.shell.settings.description}
         </p>
       </header>
@@ -224,7 +233,7 @@ export function WorkspaceSettingsPage() {
                     : 'border-white/12 bg-[#101010] text-[#BDBDBD] hover:text-white hover:border-white/30'
                 }`}
               >
-                <span className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-[#A65D4A]">
+                <span className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-[#CE826D]">
                   {item.code} · {item.studioBase}
                 </span>
                 <span className="mt-0.5 block text-xs font-medium text-white truncate">
@@ -256,15 +265,15 @@ export function WorkspaceSettingsPage() {
           </h2>
         </div>
 
-        <p className="text-xs text-[#E0E0E0]">
+        <p className="text-xs text-[#E6E6E6]">
           {t.shell.settings.storageZeroPassword}
         </p>
-        <p className="text-xs text-[#9E9E9E]">
+        <p className="text-xs text-[#B8B8B8]">
           {t.shell.settings.storageResetScopeNote}
         </p>
 
         <div>
-          <p className="text-[11px] uppercase tracking-[0.16em] text-[#9E9E9E]">
+          <p className="text-[11px] uppercase tracking-[0.16em] text-[#B8B8B8]">
             {t.shell.settings.activeStorageKeysLabel}
           </p>
           <ul className="mt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-xs font-mono text-[#BDBDBD]">

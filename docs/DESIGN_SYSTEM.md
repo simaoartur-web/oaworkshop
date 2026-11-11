@@ -12,8 +12,9 @@
 | `--oa-bg-primary` | `#111111` | Superfície principal de trabalho e leitura |
 | `--oa-bg-secondary` | `#181818` | Superfície elevada discreta / linhas alternadas |
 | `--oa-surface-panel` | `#222222` | Painéis secundários, cabeçalhos técnicos e controlos |
-| `--oa-accent` | `#A65D4A` | Terracota O+A — único acento de marca, estados activos e foco |
+| `--oa-accent` | `#A65D4A` | Terracota O+A — único acento de marca, estados activos, botões com texto branco e foco |
 | `--oa-accent-hover` | `#B86B57` | Realce de interacção sobre terracota |
+| `--oa-accent-text` | `#CE826D` | Variante terracota legível para micro-texto em fundos escuros (≥ 5,9:1 em `#090909`–`#181818`) |
 | `--oa-text-primary` | `#FFFFFF` | Texto principal e títulos |
 | `--oa-text-secondary` | `#E0E0E0` | Corpo de leitura e dados primários |
 | `--oa-text-muted` | `#BDBDBD` | Metadados, etiquetas e descrições secundárias (≥ 4,5:1 em `#111111`) |

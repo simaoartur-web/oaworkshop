@@ -27,6 +27,7 @@
   --oa-surface-panel: #222222;
   --oa-accent: #A65D4A;
   --oa-accent-hover: #B86B57;
+  --oa-accent-text: #CE826D;
   --oa-text-primary: #FFFFFF;
   --oa-text-secondary: #E0E0E0;
   --oa-text-muted: #BDBDBD;
@@ -44,7 +45,8 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
+    overflow-x: clip;
+    scroll-padding-top: 72px;
   }
 
   body {
@@ -52,7 +54,7 @@
     min-height: 100dvh;
     background-color: var(--oa-bg-primary);
     color: var(--oa-text-primary);
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   /* Accessible architectural focus ring — distinct from hover */

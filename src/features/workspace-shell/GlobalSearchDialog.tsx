@@ -116,7 +116,7 @@ function GlobalSearchModalContent({
         {/* Header Bar */}
         <div className="flex items-start justify-between gap-3 px-4 sm:px-6 py-4 bg-[#0A0A0A] oa-hairline-b">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#A65D4A]">
+            <p className="text-[11px] font-medium uppercase tracking-[0.20em] text-[#CE826D]">
               {t.shell.search.dialogCode}
             </p>
             <h2
@@ -184,7 +184,7 @@ function GlobalSearchModalContent({
             )}
           </div>
 
-          <p className="mt-2 text-[11px] text-[#9E9E9E]">
+          <p className="mt-2 text-[11px] text-[#B8B8B8]">
             {t.shell.search.honestNotice}
           </p>
         </div>
@@ -194,12 +194,12 @@ function GlobalSearchModalContent({
           {results.length > 0 ? (
             <>
               <div className="flex items-center justify-between gap-2 mb-2.5">
-                <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[#BDBDBD]">
+                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[#CCCCCC]">
                   {query.trim()
                     ? `${t.shell.search.resultsHeading} (${results.length})`
                     : t.shell.search.suggestedHeading}
                 </p>
-                <span className="hidden sm:inline text-[11px] font-mono text-[#9E9E9E]">
+                <span className="hidden sm:inline text-[11px] font-mono text-[#B0B0B0]">
                   {t.shell.search.keyboardHint}
                 </span>
               </div>
@@ -243,18 +243,18 @@ function GlobalSearchModalContent({
                         }`}
                       >
                         <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.16em]">
-                            <span className="font-mono font-semibold text-[#A65D4A]">
+                          <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.14em]">
+                            <span className="font-mono font-semibold text-[#CE826D]">
                               {entry.code}
                             </span>
-                            <span aria-hidden="true" className="text-white/25">
+                            <span aria-hidden="true" className="text-white/30">
                               ·
                             </span>
-                            <span className="text-[#9E9E9E]">
+                            <span className="text-[#B8B8B8]">
                               {categoryLabel}
                             </span>
                             {entry.isPlannedRoute && (
-                              <span className="border border-white/16 bg-[#181818] px-1.5 py-0.5 text-[9px] font-mono text-[#BDBDBD]">
+                              <span className="border border-dashed border-white/25 bg-[#181818] px-1.5 py-0.5 text-[11px] leading-none font-mono text-[#CCCCCC]">
                                 {t.shell.search.plannedTag}
                               </span>
                             )}

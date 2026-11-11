@@ -50,22 +50,22 @@ export function PlannedModuleView() {
   return (
     <div className="w-full max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-10 space-y-8">
       <header className="pb-6 oa-hairline-b space-y-3">
-        <div className="flex flex-wrap items-center gap-2.5 text-[11px] font-mono uppercase tracking-[0.22em] text-[#A65D4A]">
-          <span>
+        <div className="flex flex-wrap items-center gap-2.5 text-[11px] font-mono uppercase tracking-[0.18em]">
+          <span className="text-[#CE826D]">
             {t.shell.activePlatePrefix} {activeItem.plateNumber}
           </span>
-          <span aria-hidden="true" className="text-white/25">
+          <span aria-hidden="true" className="text-white/30">
             ·
           </span>
-          <span>
-            {t.shell.planned.badgePrefix} ({targetPhase})
+          <span className="border border-dashed border-white/25 bg-[#181818] px-2 py-0.5 text-[#D4D4D4]">
+            {t.shell.planned.badgePrefix}
           </span>
         </div>
 
         <h1 className="text-2xl sm:text-4xl font-light tracking-tight text-white">
           {label}
         </h1>
-        <p className="text-sm sm:text-base text-[#BDBDBD] max-w-2xl">
+        <p className="text-sm sm:text-base text-[#CCCCCC] max-w-2xl">
           {description}
         </p>
       </header>
@@ -73,31 +73,38 @@ export function PlannedModuleView() {
       {/* Honest Roadmap Status Sheet */}
       <section
         aria-labelledby="planned-status-heading"
-        className="border border-white/14 bg-[#141414] p-5 sm:p-8 space-y-4"
+        className="border border-white/16 bg-[#141414] p-5 sm:p-8 space-y-4"
       >
         <div className="flex flex-wrap items-center justify-between gap-3 pb-4 oa-hairline-b">
           <h2
             id="planned-status-heading"
-            className="text-xs font-medium uppercase tracking-[0.20em] text-white"
+            className="text-xs font-medium uppercase tracking-[0.18em] text-white"
           >
             {t.shell.planned.honestNoticeTitle}
           </h2>
-          <span className="border border-[#A65D4A]/60 bg-[#A65D4A]/14 px-2.5 py-1 text-[11px] font-mono uppercase tracking-[0.16em] text-white">
+          <span className="border border-white/22 bg-[#1A1A1A] px-2.5 py-1 text-[11px] font-mono uppercase tracking-[0.14em] text-[#E0E0E0]">
             {t.shell.planned.targetPhaseLabel}: {targetPhase}
           </span>
         </div>
 
-        <p className="text-sm leading-relaxed text-[#E0E0E0]">
+        <p className="text-sm leading-relaxed text-[#E6E6E6]">
           {t.shell.planned.honestNoticeBody}
         </p>
 
-        <div className="pt-2">
+        <div className="pt-2 flex flex-wrap items-center gap-3">
           <Link
             to="/workspace"
-            className="min-h-[44px] px-4 py-2.5 border border-white/18 bg-[#111111] hover:border-[#A65D4A] text-xs font-medium uppercase tracking-[0.16em] text-white inline-flex items-center gap-2 transition-colors"
+            className="min-h-[44px] px-5 py-2.5 bg-[#A65D4A] hover:bg-[#B86B57] text-xs font-medium uppercase tracking-[0.16em] text-white inline-flex items-center gap-2 transition-colors"
           >
-            <ArrowLeft size={14} strokeWidth={1.5} aria-hidden="true" />
+            <ArrowLeft size={14} strokeWidth={1.6} aria-hidden="true" />
             <span>{t.shell.planned.backToDesk}</span>
+          </Link>
+
+          <Link
+            to="/workspace/settings"
+            className="min-h-[44px] px-4 py-2.5 border border-white/18 bg-[#111111] hover:border-white/40 text-xs font-medium uppercase tracking-[0.14em] text-[#E0E0E0] hover:text-white inline-flex items-center gap-2 transition-colors"
+          >
+            <span>{t.shell.planned.openSettingsAction}</span>
           </Link>
         </div>
       </section>
@@ -109,17 +116,17 @@ export function PlannedModuleView() {
             <div>
               <h2
                 id="planned-projects-heading"
-                className="text-xs font-medium uppercase tracking-[0.20em] text-[#BDBDBD]"
+                className="text-xs font-medium uppercase tracking-[0.20em] text-[#D4D4D4]"
               >
                 {t.shell.planned.studioProjectsCatalogHeading}
               </h2>
-              <p className="text-xs text-[#9E9E9E] mt-1">
+              <p className="text-xs text-[#B8B8B8] mt-1">
                 {t.shell.planned.studioProjectsCatalogDesc}
               </p>
             </div>
             <Link
               to="/workspace"
-              className="min-h-[40px] px-3.5 py-2 border border-white/14 bg-[#141414] hover:border-[#A65D4A] text-xs uppercase tracking-[0.14em] text-white inline-flex items-center gap-2 transition-colors"
+              className="min-h-[44px] px-3.5 py-2 border border-white/16 bg-[#141414] hover:border-[#A65D4A] text-xs uppercase tracking-[0.14em] text-white inline-flex items-center gap-2 transition-colors"
             >
               <FolderKanban size={13} strokeWidth={1.5} aria-hidden="true" />
               <span>{t.shell.planned.openDeskViewCta}</span>
@@ -130,14 +137,14 @@ export function PlannedModuleView() {
             {STUDIO_DESK_PROJECTS.map((proj) => (
               <div
                 key={proj.id}
-                className="border border-white/12 bg-[#101010] p-4 flex flex-col justify-between gap-4"
+                className="border border-white/14 bg-[#101010] p-4 flex flex-col justify-between gap-4"
               >
                 <div className="space-y-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] uppercase tracking-[0.16em]">
-                    <span className="font-mono font-semibold text-[#A65D4A]">
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] uppercase tracking-[0.14em]">
+                    <span className="font-mono font-semibold text-[#CE826D]">
                       {proj.code}
                     </span>
-                    <span className="text-[#9E9E9E]">
+                    <span className="text-[#B8B8B8]">
                       {proj.studioBase} · {proj.scale}
                     </span>
                   </div>
@@ -146,23 +153,23 @@ export function PlannedModuleView() {
                     <h3 className="text-base font-light text-white leading-snug">
                       {pickLocalized(proj.title, language)}
                     </h3>
-                    <p className="mt-1 text-xs text-[#BDBDBD] line-clamp-2">
+                    <p className="mt-1 text-xs text-[#CCCCCC] line-clamp-2">
                       {pickLocalized(proj.subtitle, language)}
                     </p>
                   </div>
 
-                  <p className="text-[11px] font-mono text-[#9E9E9E]">
+                  <p className="text-[11px] font-mono text-[#B8B8B8]">
                     {pickLocalized(proj.phase, language)} · {pickLocalized(proj.discipline, language)}
                   </p>
                 </div>
 
                 <div className="pt-3 oa-hairline-t flex items-center justify-between gap-2">
-                  <span className="text-[11px] text-[#9E9E9E]">
+                  <span className="text-[11px] text-[#B8B8B8]">
                     {proj.leadAuthorName}
                   </span>
                   <Link
                     to={`/workspace?project=${proj.id}`}
-                    className="min-h-[36px] px-3 py-1.5 border border-white/14 bg-[#161616] hover:border-[#A65D4A] text-[11px] uppercase tracking-[0.12em] text-white inline-flex items-center gap-1.5 transition-colors"
+                    className="min-h-[36px] px-3 py-1.5 border border-white/16 bg-[#161616] hover:border-[#A65D4A] text-[11px] uppercase tracking-[0.12em] text-white inline-flex items-center gap-1.5 transition-colors"
                   >
                     <span>{t.shell.planned.openProjectInDeskAction}</span>
                     <ArrowUpRight size={12} strokeWidth={1.5} aria-hidden="true" />
@@ -173,20 +180,20 @@ export function PlannedModuleView() {
           </div>
 
           {/* Reference to Archive Study OA-26-014 */}
-          <div className="border border-white/10 bg-[#0C0C0C] p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4">
+          <div className="border border-white/12 bg-[#0C0C0C] p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4">
             <img
               src={FEATURED_STUDY_PROJECT.maquetteImageSrc}
               alt={pickLocalized(FEATURED_STUDY_PROJECT.maquetteImageAlt, language)}
               className="w-full sm:w-48 aspect-[16/10] object-cover bg-[#050505] shrink-0"
             />
             <div className="space-y-1 text-xs">
-              <p className="font-mono uppercase tracking-[0.16em] text-[#A65D4A]">
+              <p className="font-mono uppercase tracking-[0.16em] text-[#CE826D]">
                 {FEATURED_STUDY_PROJECT.code} · {t.welcome.sheetCode}
               </p>
               <h4 className="text-sm font-medium text-white">
                 {pickLocalized(FEATURED_STUDY_PROJECT.title, language)}
               </h4>
-              <p className="text-[#BDBDBD]">
+              <p className="text-[#CCCCCC]">
                 {pickLocalized(FEATURED_STUDY_PROJECT.subtitle, language)}
               </p>
             </div>
@@ -198,7 +205,7 @@ export function PlannedModuleView() {
         <section aria-labelledby="planned-ref-heading" className="space-y-4">
           <h2
             id="planned-ref-heading"
-            className="text-xs font-medium uppercase tracking-[0.20em] text-[#BDBDBD]"
+            className="text-xs font-medium uppercase tracking-[0.20em] text-[#D4D4D4]"
           >
             {t.shell.planned.referenceDataLabel}
           </h2>
@@ -206,15 +213,15 @@ export function PlannedModuleView() {
             {Object.values(DEPARTMENTS).map((dept) => (
               <div
                 key={dept.id}
-                className="border border-white/12 bg-[#121212] p-4 space-y-1.5"
+                className="border border-white/14 bg-[#121212] p-4 space-y-1.5"
               >
-                <p className="text-[11px] font-mono uppercase tracking-[0.18em] text-[#A65D4A]">
+                <p className="text-[11px] font-mono uppercase tracking-[0.18em] text-[#CE826D]">
                   {dept.code}
                 </p>
                 <p className="text-sm font-medium text-white">
                   {pickLocalized(dept.name, language)}
                 </p>
-                <p className="text-xs leading-relaxed text-[#BDBDBD]">
+                <p className="text-xs leading-relaxed text-[#CCCCCC]">
                   {pickLocalized(dept.focus, language)}
                 </p>
               </div>
@@ -227,7 +234,7 @@ export function PlannedModuleView() {
         <section aria-labelledby="planned-ref-heading" className="space-y-4">
           <h2
             id="planned-ref-heading"
-            className="text-xs font-medium uppercase tracking-[0.20em] text-[#BDBDBD]"
+            className="text-xs font-medium uppercase tracking-[0.20em] text-[#D4D4D4]"
           >
             {t.shell.planned.referenceDataLabel}
           </h2>
@@ -235,13 +242,13 @@ export function PlannedModuleView() {
             {DEMO_USERS.map((member) => (
               <div
                 key={member.id}
-                className="border border-white/12 bg-[#121212] p-4 space-y-1.5"
+                className="border border-white/14 bg-[#121212] p-4 space-y-1.5"
               >
-                <p className="text-[11px] font-mono uppercase tracking-[0.18em] text-[#A65D4A]">
+                <p className="text-[11px] font-mono uppercase tracking-[0.18em] text-[#CE826D]">
                   {member.code} · {member.studioBase}
                 </p>
                 <p className="text-sm font-medium text-white">{member.name}</p>
-                <p className="text-xs text-[#BDBDBD]">
+                <p className="text-xs text-[#CCCCCC]">
                   {pickLocalized(member.roleLabel, language)}
                 </p>
               </div>

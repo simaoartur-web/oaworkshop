@@ -99,4 +99,5 @@
 | `plans/001-phase-00-01-foundation-and-entry.md` | plano da Fase 00 e Fase 01 |
 | `plans/002-phase-02a-shell-hardening.md` | plano da Fase 02A (`codex/f02-shell-hardening`) |
 | `plans/003-phase-02-integration.md` | plano de integração técnica e Quality Gate da Fase 02 |
-| `scripts/e2e-verify-entry.mjs` | verificação E2E portátil em Chromium/Edge nas larguras 1440px, 768px e 375px |
+| `plans/004-phase-021a-shell-ux.md` | plano da Fase 02.1A (`codex/f021-shell-ux`) — scroll, navegação e legibilidade do Shell |
+| `scripts/e2e-verify-entry.mjs` | verificação E2E portátil em Chromium/Edge nas larguras 1440px, 680px altura, 768px, 720px (zoom) e 375px |
