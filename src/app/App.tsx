@@ -5,6 +5,7 @@ import {
   Route,
   Routes,
   useLocation,
+  useNavigationType,
 } from 'react-router-dom';
 import { LoginPage } from '../features/auth-demo/LoginPage';
 import { StudioDeskPage } from '../features/studio-desk/StudioDeskPage';
@@ -19,9 +20,17 @@ import {
 
 function ScrollResetOnRouteChange() {
   const { pathname } = useLocation();
+  const navigationType = useNavigationType();
+
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+    if (navigationType === 'POP') {
+      return;
+    }
+    if (typeof window.scrollTo === 'function') {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname, navigationType]);
+
   return null;
 }
 

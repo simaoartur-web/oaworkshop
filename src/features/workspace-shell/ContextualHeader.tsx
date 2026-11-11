@@ -16,7 +16,7 @@ import { pickLocalized } from '../../locales';
 import { formatStudioClocks } from '../../utils/timeGreeting';
 import { NotificationsPopover } from './NotificationsPopover';
 import type { DemoNotificationItem } from './shellDemoState';
-import type { WorkspaceNavItem } from './shellNavigation';
+import { isNavItemAvailable, type WorkspaceNavItem } from './shellNavigation';
 
 interface ContextualHeaderProps {
   activeItem?: WorkspaceNavItem;
@@ -88,6 +88,8 @@ export function ContextualHeader({
   const activeRouteLabel = activeItem
     ? pickLocalized(activeItem.label, language)
     : t.shell.breadcrumbsRoot;
+  const isDeskActive = activeItem?.id === 'desk';
+  const isRouteAvailable = !activeItem || isNavItemAvailable(activeItem);
 
   const handleLogout = () => {
     setUserMenuOpen(false);
@@ -96,7 +98,7 @@ export function ContextualHeader({
   };
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-[#0A0A0A] oa-hairline-b px-3 sm:px-5 lg:px-7 h-16 flex items-center justify-between gap-3">
+    <header className="sticky top-0 z-30 shrink-0 w-full bg-[#0A0A0A] oa-hairline-b px-3 sm:px-5 lg:px-7 h-16 flex items-center justify-between gap-3">
       {/* Left Cluster: Mobile Menu + O+A Brand + Contextual Breadcrumb */}
       <div className="flex items-center gap-2.5 sm:gap-4 min-w-0 flex-1">
         <button
@@ -104,7 +106,7 @@ export function ContextualHeader({
           type="button"
           onClick={onOpenMobileMenu}
           aria-label={t.shell.openNavMenu}
-          className="lg:hidden min-h-[44px] min-w-[44px] inline-flex items-center justify-center border border-white/14 bg-[#141414] hover:border-[#A65D4A] text-[#E0E0E0] hover:text-white transition-colors cursor-pointer shrink-0"
+          className="lg:hidden min-h-[44px] min-w-[44px] inline-flex items-center justify-center border border-white/16 bg-[#141414] hover:border-[#A65D4A] text-[#E6E6E6] hover:text-white transition-colors cursor-pointer shrink-0"
         >
           <Menu size={18} strokeWidth={1.35} aria-hidden="true" />
         </button>
@@ -121,20 +123,41 @@ export function ContextualHeader({
           />
         </Link>
 
-        {/* Contextual Navigation Breadcrumb (>= 1280px) */}
+        {/* Contextual Navigation Breadcrumb (>= 1280px) with direct Desk return */}
         <nav
           aria-label={t.shell.breadcrumbsRoot}
-          className="hidden xl:flex items-center gap-2 min-w-0 pl-3 border-l border-white/14 overflow-hidden"
+          className="hidden xl:flex items-center gap-2 min-w-0 pl-3 border-l border-white/16 overflow-hidden"
         >
-          <span className="text-[11px] font-mono uppercase tracking-[0.14em] text-[#A65D4A] whitespace-nowrap shrink-0">
+          <span className="text-[11px] font-mono uppercase tracking-[0.14em] text-[#CE826D] whitespace-nowrap shrink-0">
             {department.code}
           </span>
-          <span aria-hidden="true" className="text-white/25 shrink-0">
+          <span aria-hidden="true" className="text-white/30 shrink-0">
             /
           </span>
+
+          {!isDeskActive && (
+            <>
+              <Link
+                to="/workspace"
+                className="text-xs font-normal uppercase tracking-[0.12em] text-[#BDBDBD] hover:text-white transition-colors whitespace-nowrap shrink-0"
+              >
+                {t.shell.breadcrumbsRoot}
+              </Link>
+              <span aria-hidden="true" className="text-white/30 shrink-0">
+                /
+              </span>
+            </>
+          )}
+
           <span className="text-xs font-medium uppercase tracking-[0.12em] text-white truncate">
             {activeRouteLabel}
           </span>
+
+          {!isRouteAvailable && (
+            <span className="border border-dashed border-white/25 bg-[#161616] px-1.5 py-0.5 text-[11px] leading-none text-[#BDBDBD] whitespace-nowrap shrink-0">
+              {t.shell.header.unavailableBadge}
+            </span>
+          )}
         </nav>
       </div>
 
@@ -143,25 +166,25 @@ export function ContextualHeader({
         {/* Dual Studio Axis Clocks on wide viewports (>= 1536px) */}
         <div
           aria-label={t.shell.header.studioClockLabel}
-          className="hidden 2xl:flex items-center gap-2 px-2.5 py-1.5 border border-white/10 bg-[#111111] text-[11px] font-mono tracking-[0.10em] whitespace-nowrap"
+          className="hidden 2xl:flex items-center gap-2 px-2.5 py-1.5 border border-white/12 bg-[#111111] text-[11px] font-mono tracking-[0.10em] whitespace-nowrap"
         >
           <span
             className={
               currentUser.studioBase === 'Maputo'
                 ? 'text-white font-medium'
-                : 'text-[#9E9E9E]'
+                : 'text-[#B8B8B8]'
             }
           >
             MAP {clocks.maputo}
           </span>
-          <span aria-hidden="true" className="text-white/20">
+          <span aria-hidden="true" className="text-white/25">
             ·
           </span>
           <span
             className={
               currentUser.studioBase === 'Milão'
                 ? 'text-white font-medium'
-                : 'text-[#9E9E9E]'
+                : 'text-[#B8B8B8]'
             }
           >
             MIL {clocks.milan}
@@ -173,11 +196,11 @@ export function ContextualHeader({
           type="button"
           onClick={onOpenSearch}
           aria-label={t.shell.search.triggerAria}
-          className="min-h-[44px] min-w-[44px] xl:px-3 border border-white/14 bg-[#141414] hover:border-[#A65D4A] text-xs uppercase tracking-[0.12em] text-[#E0E0E0] hover:text-white inline-flex items-center justify-center gap-2 transition-colors cursor-pointer"
+          className="min-h-[44px] min-w-[44px] xl:px-3 border border-white/16 bg-[#141414] hover:border-[#A65D4A] text-xs uppercase tracking-[0.12em] text-[#E6E6E6] hover:text-white inline-flex items-center justify-center gap-2 transition-colors cursor-pointer"
         >
           <Search size={15} strokeWidth={1.35} aria-hidden="true" />
           <span className="hidden xl:inline">{t.shell.search.triggerLabel}</span>
-          <kbd className="hidden 2xl:inline-block border border-white/14 bg-[#0B0B0B] px-1.5 py-0.5 text-[10px] font-mono text-[#9E9E9E]">
+          <kbd className="hidden 2xl:inline-block border border-white/16 bg-[#0B0B0B] px-1.5 py-0.5 text-[11px] font-mono text-[#BDBDBD]">
             {t.shell.search.triggerShortcut}
           </kbd>
         </button>
@@ -223,14 +246,14 @@ export function ContextualHeader({
               <span className="text-xs font-medium text-white truncate max-w-full">
                 {currentUser.name.replace(' (Demo)', '')}
               </span>
-              <span className="text-[10px] uppercase tracking-[0.12em] text-[#BDBDBD] truncate max-w-full">
+              <span className="text-[11px] uppercase tracking-[0.10em] text-[#BDBDBD] truncate max-w-full">
                 {currentUser.code} · {currentUser.studioBase}
               </span>
             </span>
             <ChevronDown
               size={14}
               strokeWidth={1.4}
-              className="hidden sm:inline text-[#9E9E9E]"
+              className="hidden sm:inline text-[#BDBDBD]"
               aria-hidden="true"
             />
           </button>
@@ -240,19 +263,19 @@ export function ContextualHeader({
               id={userMenuId}
               role="menu"
               aria-label={t.shell.header.userMenuAria}
-              className="fixed inset-x-3 top-[68px] sm:inset-x-auto sm:absolute sm:right-0 sm:top-full sm:mt-2 sm:w-80 z-40 border border-white/20 bg-[#111111] text-white shadow-2xl"
+              className="fixed inset-x-3 top-[68px] sm:inset-x-auto sm:absolute sm:right-0 sm:top-full sm:mt-2 sm:w-80 z-40 border border-white/22 bg-[#111111] text-white shadow-2xl"
             >
               <div className="px-4 py-3.5 bg-[#0A0A0A] oa-hairline-b space-y-1">
-                <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-[#A65D4A]">
+                <p className="text-[11px] font-mono uppercase tracking-[0.16em] text-[#CE826D]">
                   {currentUser.code} · {t.common.demoBadge}
                 </p>
                 <p className="text-sm font-medium text-white">
                   {currentUser.name}
                 </p>
-                <p className="text-xs text-[#BDBDBD]">
+                <p className="text-xs text-[#E0E0E0]">
                   {pickLocalized(currentUser.roleLabel, language)}
                 </p>
-                <p className="text-[11px] text-[#9E9E9E]">
+                <p className="text-[11px] text-[#BDBDBD]">
                   {t.shell.header.activeDepartmentLabel}:{' '}
                   {pickLocalized(department.name, language)} ({currentUser.studioBase})
                 </p>

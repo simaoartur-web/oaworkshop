@@ -127,7 +127,7 @@ export function NotificationsPopover({
               <h2 className="text-xs font-medium uppercase tracking-[0.20em] text-white">
                 {t.shell.notifications.heading}
               </h2>
-              <p className="mt-1 text-[11px] text-[#9E9E9E]">
+              <p className="mt-1 text-[11px] text-[#B8B8B8]">
                 {t.shell.notifications.subheading}
               </p>
             </div>
@@ -144,7 +144,7 @@ export function NotificationsPopover({
 
           {/* Action Toolbar */}
           <div className="flex items-center justify-between gap-2 px-4 py-2 bg-[#141414] oa-hairline-b">
-            <span className="text-[11px] font-mono uppercase tracking-[0.14em] text-[#A65D4A]">
+            <span className="text-[11px] font-mono uppercase tracking-[0.14em] text-[#CE826D]">
               {unreadCount > 0
                 ? `${unreadCount} ${t.shell.notifications.unreadSrSuffix}`
                 : t.shell.notifications.empty}
@@ -183,17 +183,17 @@ export function NotificationsPopover({
                     />
                   )}
 
-                  <div className="flex items-center justify-between gap-2 text-[10px] uppercase tracking-[0.16em]">
+                  <div className="flex items-center justify-between gap-2 text-[11px] uppercase tracking-[0.14em]">
                     <span
                       className={
                         item.read
-                          ? 'font-mono text-[#9E9E9E]'
-                          : 'font-mono font-semibold text-[#A65D4A]'
+                          ? 'font-mono text-[#B0B0B0]'
+                          : 'font-mono font-semibold text-[#CE826D]'
                       }
                     >
                       {item.code} · {pickLocalized(item.category, language)}
                     </span>
-                    <span className="text-[#9E9E9E]">
+                    <span className="text-[#B0B0B0]">
                       {pickLocalized(item.timestampLabel, language)}
                     </span>
                   </div>
@@ -201,12 +201,12 @@ export function NotificationsPopover({
                   <p className="mt-1.5 text-sm font-medium text-white leading-snug">
                     {pickLocalized(item.title, language)}
                   </p>
-                  <p className="mt-1 text-xs leading-relaxed text-[#BDBDBD]">
+                  <p className="mt-1 text-xs leading-relaxed text-[#CCCCCC]">
                     {pickLocalized(item.detail, language)}
                   </p>
 
                   <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-[10px] uppercase tracking-[0.14em] text-[#9E9E9E]">
+                    <span className="text-[11px] uppercase tracking-[0.12em] text-[#B0B0B0]">
                       {item.studioTag}
                     </span>
 
@@ -215,13 +215,13 @@ export function NotificationsPopover({
                         <button
                           type="button"
                           onClick={() => handleMarkSingle(item.id)}
-                          className="min-h-[36px] px-2.5 border border-white/16 bg-[#111111] hover:border-[#A65D4A] text-[11px] uppercase tracking-[0.12em] text-[#E0E0E0] hover:text-white inline-flex items-center gap-1 transition-colors cursor-pointer"
+                          className="min-h-[36px] px-2.5 border border-white/16 bg-[#111111] hover:border-[#A65D4A] text-[11px] uppercase tracking-[0.12em] text-[#E6E6E6] hover:text-white inline-flex items-center gap-1 transition-colors cursor-pointer"
                         >
                           <Check size={12} strokeWidth={1.6} aria-hidden="true" />
                           <span>{t.shell.notifications.markOneRead}</span>
                         </button>
                       ) : (
-                        <span className="text-[10px] uppercase tracking-[0.14em] text-[#9E9E9E]">
+                        <span className="text-[11px] uppercase tracking-[0.12em] text-[#B0B0B0]">
                           {t.shell.notifications.readLabel}
                         </span>
                       )}
@@ -237,8 +237,8 @@ export function NotificationsPopover({
                         )}`}
                         className={`min-h-[36px] px-2.5 border text-[11px] uppercase tracking-[0.12em] inline-flex items-center gap-1 transition-colors cursor-pointer ${
                           item.isFutureModuleDemo
-                            ? 'border-dashed border-white/20 bg-[#161616] text-[#BDBDBD] hover:text-white hover:border-white/40'
-                            : 'border-white/14 bg-transparent hover:border-white/35 text-[#BDBDBD] hover:text-white'
+                            ? 'border-dashed border-white/24 bg-[#161616] text-[#D0D0D0] hover:text-white hover:border-white/45'
+                            : 'border-white/16 bg-transparent hover:border-white/40 text-[#D0D0D0] hover:text-white'
                         }`}
                       >
                         <span>{actionText}</span>
@@ -253,7 +253,7 @@ export function NotificationsPopover({
 
           {/* Honest Demo Footer */}
           <div className="px-4 py-2.5 bg-[#0A0A0A] oa-hairline-t">
-            <p className="text-[11px] leading-relaxed text-[#9E9E9E]">
+            <p className="text-[11px] leading-relaxed text-[#B8B8B8]">
               {t.shell.notifications.honestFooter}
             </p>
           </div>

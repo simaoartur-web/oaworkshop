@@ -276,6 +276,15 @@ async function main() {
       await page.waitForTimeout(300);
       await checkNoHorizontalOverflow(page, 'Workspace Shell Expanded 1440px');
       await checkHeaderNoClusterOverlap(page, 'Workspace Shell Expanded 1440px');
+      const truncatedRailLabels = await page.evaluate(() =>
+        Array.from(document.querySelectorAll('aside nav a span.truncate'))
+          .filter((el) => el.scrollWidth > el.clientWidth + 1)
+          .map((el) => `${el.textContent?.trim() ?? ''}(${el.scrollWidth}>${el.clientWidth})`),
+      );
+      assertCondition(
+        truncatedRailLabels.length === 0,
+        `Expanded rail labels must not truncate at 264px: ${truncatedRailLabels.join(', ')}`,
+      );
       await page.screenshot({
         path: path.join(ARTIFACT_DIR, 'oa_shell_desktop_expanded_1440.png'),
         fullPage: false,
@@ -290,9 +299,153 @@ async function main() {
         path: path.join(ARTIFACT_DIR, 'oa_shell_desktop_compact_1440.png'),
         fullPage: false,
       });
-      // Re-expand rail before subsequent captures
+
+      // Scroll Studio Desk with compact rail & trigger floating non-clipped tooltip on focus
+      await page.evaluate(() => {
+        const scroller = document.getElementById('workspace-main-scroll');
+        if (scroller) scroller.scrollTop = 750;
+      });
+      await page.getByRole('link', { name: /Projectos/i }).first().focus();
+      await page.waitForTimeout(150);
+      const compactScrollDiag = await page.evaluate(() => {
+        const aside = document.querySelector('aside');
+        const header = document.querySelector('header');
+        const scroller = document.getElementById('workspace-main-scroll');
+        const tooltip = Array.from(document.querySelectorAll('div'))
+          .find((d) => d.getAttribute('aria-hidden') === 'true' && d.textContent?.includes('Projectos'));
+        return {
+          windowScrollY: window.scrollY,
+          scrollerTop: scroller ? scroller.scrollTop : 0,
+          asideTop: aside ? Math.round(aside.getBoundingClientRect().top) : -1,
+          asideHeight: aside ? Math.round(aside.getBoundingClientRect().height) : -1,
+          headerTop: header ? Math.round(header.getBoundingClientRect().top) : -1,
+          tooltipVisible: Boolean(tooltip && tooltip.getBoundingClientRect().left >= 72),
+        };
+      });
+      assertCondition(compactScrollDiag.scrollerTop >= 700, 'Compact desktop scroller must scroll independently');
+      assertCondition(compactScrollDiag.windowScrollY === 0, 'Compact desktop outer window must stay pinned');
+      assertCondition(compactScrollDiag.asideTop === 0 && compactScrollDiag.asideHeight === 900, 'Compact sidebar must fill 100% height at top=0');
+      assertCondition(compactScrollDiag.headerTop === 0, 'Compact contextual header must stay at top=0');
+      assertCondition(compactScrollDiag.tooltipVisible, 'Compact sidebar tooltip must appear outside nav without clipping');
+      await page.screenshot({
+        path: path.join(ARTIFACT_DIR, 'oa_shell_compact_scrolled_1440.png'),
+        fullPage: false,
+      });
+
+      // Re-expand rail and verify full-scroll stability in Expanded mode (Before vs After proof)
       await page.getByRole('button', { name: /Expandir prancha/i }).click();
-      await page.waitForTimeout(200);
+      await page.waitForTimeout(250);
+      await checkNoHorizontalOverflow(page, 'Workspace Shell Re-expanded 1440px');
+
+      await page.evaluate(() => {
+        const scroller = document.getElementById('workspace-main-scroll');
+        if (scroller) scroller.scrollTop = 750;
+      });
+      await page.waitForTimeout(150);
+      await page.screenshot({
+        path: path.join(ARTIFACT_DIR, 'oa_shell_scroll_mid_1440.png'),
+        fullPage: false,
+      });
+
+      await page.evaluate(() => {
+        const scroller = document.getElementById('workspace-main-scroll');
+        if (scroller) scroller.scrollTop = scroller.scrollHeight;
+      });
+      await page.waitForTimeout(150);
+      const bottomScrollDiag = await page.evaluate(() => {
+        const aside = document.querySelector('aside');
+        const header = document.querySelector('header');
+        const scroller = document.getElementById('workspace-main-scroll');
+        const collapseBtn = aside?.querySelector('button');
+        return {
+          windowScrollY: window.scrollY,
+          scrollerTop: scroller ? scroller.scrollTop : 0,
+          scrollerMax: scroller ? scroller.scrollHeight - scroller.clientHeight : 0,
+          asideTop: aside ? Math.round(aside.getBoundingClientRect().top) : -1,
+          asideBottom: aside ? Math.round(aside.getBoundingClientRect().bottom) : -1,
+          headerTop: header ? Math.round(header.getBoundingClientRect().top) : -1,
+          collapseBottom: collapseBtn ? Math.round(collapseBtn.getBoundingClientRect().bottom) : -1,
+        };
+      });
+      assertCondition(bottomScrollDiag.scrollerTop >= 1000, 'Studio Desk must scroll deep inside #workspace-main-scroll');
+      assertCondition(bottomScrollDiag.windowScrollY === 0, 'Outer window scrollY must stay 0 on desktop');
+      assertCondition(
+        bottomScrollDiag.asideTop === 0 && bottomScrollDiag.asideBottom === 900,
+        `Expanded sidebar must span full 0..900px height at scroll bottom (got ${bottomScrollDiag.asideTop}..${bottomScrollDiag.asideBottom})`,
+      );
+      assertCondition(bottomScrollDiag.headerTop === 0, 'Contextual header must stay at top=0 at scroll bottom');
+      assertCondition(bottomScrollDiag.collapseBottom <= 900, 'Rail collapse footer must stay inside viewport');
+      await page.screenshot({
+        path: path.join(ARTIFACT_DIR, 'oa_shell_scroll_bottom_1440.png'),
+        fullPage: false,
+      });
+
+      // Verify modal opens cleanly over scrolled Studio Desk & header, then Escape closes it
+      const dossierBtn = page.getByRole('button', { name: /Abrir dossier demonstrativo/i }).first();
+      await dossierBtn.scrollIntoViewIfNeeded();
+      await dossierBtn.click();
+      const dossierDialog = page.getByRole('dialog');
+      await dossierDialog.waitFor({ state: 'visible' });
+      await page.keyboard.press('Escape');
+      await dossierDialog.waitFor({ state: 'hidden' });
+
+      // Navigate forward from deep scroll -> /workspace/settings resets scrollTop=0, then Back restores position
+      await page.evaluate(() => {
+        const scroller = document.getElementById('workspace-main-scroll');
+        if (scroller) scroller.scrollTop = 900;
+      });
+      await page.waitForTimeout(80);
+      await page.getByRole('link', { name: /Definições/i }).first().click();
+      await page.waitForURL(`${BASE_URL}/workspace/settings`);
+      const afterRouteScroll = await page.evaluate(
+        () => document.getElementById('workspace-main-scroll')?.scrollTop ?? -1,
+      );
+      assertCondition(afterRouteScroll === 0, `Route switch must reset main scroll to 0 (got ${afterRouteScroll})`);
+      await page.goBack();
+      await page.waitForURL(`${BASE_URL}/workspace`);
+      await page.waitForTimeout(100);
+      const backScroll = await page.evaluate(
+        () => document.getElementById('workspace-main-scroll')?.scrollTop ?? 0,
+      );
+      assertCondition(backScroll >= 800, `Browser Back must restore Studio Desk scroll position (got ${backScroll})`);
+
+      // Verify Short Desktop Viewport (1440x680 -> simulated 125%+ vertical constraint & independent rail scroll)
+      await page.setViewportSize({ width: 1440, height: 680 });
+      await page.waitForTimeout(150);
+      const shortDesktopDiag = await page.evaluate(() => {
+        const aside = document.querySelector('aside');
+        const railNav = aside?.querySelector('nav');
+        const collapseBtn = aside?.querySelector('button');
+        const canScrollNav = railNav ? railNav.scrollHeight > railNav.clientHeight : false;
+        if (railNav) railNav.scrollTop = 80;
+        return {
+          asideHeight: aside ? Math.round(aside.getBoundingClientRect().height) : -1,
+          collapseBottom: collapseBtn ? Math.round(collapseBtn.getBoundingClientRect().bottom) : -1,
+          canScrollNav,
+          railScrollTop: railNav ? railNav.scrollTop : 0,
+        };
+      });
+      assertCondition(shortDesktopDiag.asideHeight === 680, 'Sidebar must match 680px short desktop height');
+      assertCondition(
+        shortDesktopDiag.collapseBottom <= 680,
+        `Collapse control must stay visible on 680px short height (bottom=${shortDesktopDiag.collapseBottom})`,
+      );
+      assertCondition(
+        !shortDesktopDiag.canScrollNav || shortDesktopDiag.railScrollTop > 0,
+        'Sidebar nav must scroll independently when viewport height is tight',
+      );
+      await page.screenshot({
+        path: path.join(ARTIFACT_DIR, 'oa_shell_short_desktop_680.png'),
+        fullPage: false,
+      });
+
+      // Reset rail nav scroll & restore 1440x900 for remaining checks
+      await page.evaluate(() => {
+        const nav = document.querySelector('aside nav');
+        if (nav) nav.scrollTop = 0;
+      });
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.waitForTimeout(150);
 
       // Open Global Search via keyboard Ctrl+K, verify keyboard navigation & capture
       await page.keyboard.press('Control+k');
@@ -326,7 +479,7 @@ async function main() {
       await page.keyboard.press('Escape');
 
       // Navigate via rail to Definições (/workspace/settings) & verify reload persistence
-      await page.getByRole('link', { name: /Definições/i }).click();
+      await page.locator('aside').getByRole('link', { name: /Definições/i }).click();
       await page.waitForURL(`${BASE_URL}/workspace/settings`);
       await page.waitForTimeout(200);
       await checkNoHorizontalOverflow(page, 'Workspace Settings 1440px');
@@ -466,6 +619,26 @@ async function main() {
         .click();
       await checkNoHorizontalOverflow(mobilePage, 'Notifications Mobile 375px');
       await mobilePage.keyboard.press('Escape');
+
+      // Also verify 200%-zoom desktop CSS equivalent (720px viewport width): document scroll unobstructed & zero overflow
+      await mobilePage.setViewportSize({ width: 720, height: 450 });
+      await mobilePage.waitForTimeout(150);
+      await checkNoHorizontalOverflow(mobilePage, 'Workspace 200% Zoom Reflow 720px');
+      await mobilePage.evaluate(() => window.scrollTo(0, 420));
+      await mobilePage.waitForTimeout(150);
+      const zoomDiag = await mobilePage.evaluate(() => {
+        const header = document.querySelector('header');
+        return {
+          scrollY: window.scrollY,
+          headerTop: header ? Math.round(header.getBoundingClientRect().top) : -1,
+        };
+      });
+      assertCondition(zoomDiag.scrollY >= 350, 'Reflow 200% zoom width (720px) must allow unrestricted document scrolling');
+      assertCondition(zoomDiag.headerTop === 0, 'Sticky header must stay accessible when scrolling at 720px zoom reflow');
+      await mobilePage.screenshot({
+        path: path.join(ARTIFACT_DIR, 'oa_shell_zoom_200_720.png'),
+        fullPage: false,
+      });
       await mobileContext.close();
 
       assertCondition(
