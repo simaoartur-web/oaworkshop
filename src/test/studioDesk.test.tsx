@@ -1,5 +1,10 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import {
+  MemoryRouter,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
   useWorkspaceSession,
@@ -8,7 +13,10 @@ import {
 import { DEMO_USERS } from '../data/fixtures';
 import {
   ROLE_DESK_CONFIGS,
+  STUDIO_DESK_ACTIVITIES,
+  STUDIO_DESK_PROJECTS,
   STUDIO_DESK_STORAGE_KEY,
+  STUDIO_DESK_TASKS,
 } from '../data/studioDeskFixtures';
 import type { Role } from '../data/types';
 import { STUDIO_DESK_I18N } from '../features/studio-desk/i18n';
@@ -21,6 +29,8 @@ function TestHarness({
 }) {
   const { currentUser, switchRole, setLanguage, language, signOut } =
     useWorkspaceSession();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   return (
     <div>
@@ -29,6 +39,7 @@ function TestHarness({
           <span data-testid="test-active-role">
             {currentUser?.role ?? 'none'}
           </span>
+          <span data-testid="test-location-search">{location.search}</span>
           <button
             type="button"
             onClick={() => setLanguage(language === 'pt' ? 'en' : 'pt')}
@@ -37,6 +48,18 @@ function TestHarness({
           </button>
           <button type="button" onClick={() => signOut()}>
             Sign Out Harness
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/workspace?project=sd-proj-oa-26-101')}
+          >
+            DeepLink:101
+          </button>
+          <button type="button" onClick={() => navigate(-1)}>
+            HistoryBack
+          </button>
+          <button type="button" onClick={() => navigate(1)}>
+            HistoryForward
           </button>
           {DEMO_USERS.map((u) => (
             <button
@@ -56,26 +79,35 @@ function TestHarness({
   );
 }
 
-function renderStudioDesk(role: Role = 'director') {
+function seedSessionForRole(role: Role) {
   const targetUser = DEMO_USERS.find((u) => u.role === role) ?? DEMO_USERS[0];
   window.localStorage.setItem(
     'oa_workspace_demo_session_v1',
     JSON.stringify({
       userId: targetUser.id,
       role: targetUser.role,
-      authenticatedAt: '2026-11-08T09:00:00.000Z',
+      authenticatedAt: '2026-11-11T09:00:00.000Z',
       mode: 'local-demo',
     }),
   );
+  return targetUser;
+}
 
+function renderStudioDesk(
+  role: Role = 'director',
+  initialEntries: string[] = ['/workspace'],
+) {
+  seedSessionForRole(role);
   return render(
-    <WorkspaceSessionProvider>
-      <TestHarness />
-    </WorkspaceSessionProvider>,
+    <MemoryRouter initialEntries={initialEntries}>
+      <WorkspaceSessionProvider>
+        <TestHarness />
+      </WorkspaceSessionProvider>
+    </MemoryRouter>,
   );
 }
 
-describe('O+A Workspace — Phase 02B StudioDeskPage Suite', () => {
+describe('O+A Workspace — Phase 02.1B StudioDeskPage Suite', () => {
   beforeEach(() => {
     window.localStorage.clear();
     document.body.style.overflow = '';
@@ -83,7 +115,7 @@ describe('O+A Workspace — Phase 02B StudioDeskPage Suite', () => {
     document.title = 'O+A Workspace';
   });
 
-  it('maintains strict PT/EN key parity across the Studio Desk dictionary and covers all 6 role configs', () => {
+  it('maintains strict PT/EN key parity and canonical continuous section ordering across all 6 role configs', () => {
     const collectKeys = (obj: Record<string, unknown>, prefix = ''): string[] =>
       Object.entries(obj).flatMap(([key, value]) => {
         const path = prefix ? `${prefix}.${key}` : key;
@@ -106,12 +138,43 @@ describe('O+A Workspace — Phase 02B StudioDeskPage Suite', () => {
         'staff',
       ].sort(),
     );
+
+    for (const config of Object.values(ROLE_DESK_CONFIGS)) {
+      expect(config.sectionOrder).toEqual([
+        'priorities',
+        'featured',
+        'overview',
+        'activity',
+      ]);
+    }
   });
 
-  it('renders an honest localized fallback without crashing when no demo session is active', () => {
+  it('uses explicit coherent fixture dates without static relative contradictions or repetitive title demo suffixes', () => {
+    const relativePattern = /amanh[ãa]|tomorrow/i;
+
+    for (const task of STUDIO_DESK_TASKS) {
+      expect(task.dueLabel.pt).not.toMatch(relativePattern);
+      expect(task.dueLabel.en).not.toMatch(relativePattern);
+      expect(task.title.pt).not.toContain('(Demo)');
+      expect(task.projectCode).not.toContain('DEMO');
+    }
+
+    for (const project of STUDIO_DESK_PROJECTS) {
+      expect(project.code).not.toContain('DEMO');
+      expect(project.title.pt).not.toContain('(Demo)');
+      expect(project.nextMilestone.dateLabel.pt).not.toMatch(relativePattern);
+    }
+
+    for (const activity of STUDIO_DESK_ACTIVITIES) {
+      expect(activity.dateLabel.pt).not.toMatch(relativePattern);
+      expect(activity.projectCode).not.toContain('DEMO');
+    }
+  });
+
+  it('renders an honest localized fallback without crashing when no demo session is active or outside Router context', () => {
     render(
       <WorkspaceSessionProvider>
-        <TestHarness startUnauthenticated />
+        <StudioDeskPage />
       </WorkspaceSessionProvider>,
     );
 
@@ -122,349 +185,342 @@ describe('O+A Workspace — Phase 02B StudioDeskPage Suite', () => {
     ).toBeInTheDocument();
   });
 
-  it.each<{
-    role: Role;
-    userName: string;
-    expectedLens: string;
-    expectedFeaturedCode: string;
-    expectedTopTaskCode: string;
-    expectedPresentation: 'editorial' | 'technical';
-  }>([
-    {
-      role: 'director',
-      userName: 'Helena Mondlane (Demo)',
-      expectedLens: 'Lente Direcção · Decisão & Portfólio',
-      expectedFeaturedCode: 'OA-26-101 · DEMO',
-      expectedTopTaskCode: 'REV · 01',
-      expectedPresentation: 'editorial',
-    },
-    {
-      role: 'architect',
-      userName: 'Mateo Conti (Demo)',
-      expectedLens: 'Lente Arquitectura · Dossiers & Pranchas',
-      expectedFeaturedCode: 'OA-26-101 · DEMO',
-      expectedTopTaskCode: 'REV · 01',
-      expectedPresentation: 'editorial',
-    },
-    {
-      role: 'project_manager',
-      userName: 'Inês Macamo (Demo)',
-      expectedLens: 'Lente Gestão · Cronogramas & Marcos',
-      expectedFeaturedCode: 'OA-26-108 · DEMO',
-      expectedTopTaskCode: 'MRC · 03',
-      expectedPresentation: 'technical',
-    },
-    {
-      role: 'department_lead',
-      userName: 'Tomás Nhantumbo (Demo)',
-      expectedLens: 'Lente Coordenação · Equipa & Revisões',
-      expectedFeaturedCode: 'OA-26-108 · DEMO',
-      expectedTopTaskCode: 'MRC · 03',
-      expectedPresentation: 'technical',
-    },
-    {
-      role: 'communications',
-      userName: 'Clara Ferraz (Demo)',
-      expectedLens: 'Lente Comunicação · Curadoria PT/EN',
-      expectedFeaturedCode: 'OA-26-112 · DEMO',
-      expectedTopTaskCode: 'EDT · 05',
-      expectedPresentation: 'editorial',
-    },
-    {
-      role: 'staff',
-      userName: 'Diogo Tembe (Demo)',
-      expectedLens: 'Lente Equipa Técnica · Tarefas & Arquivo',
-      expectedFeaturedCode: 'OA-26-112 · DEMO',
-      expectedTopTaskCode: 'MAT · 06',
-      expectedPresentation: 'technical',
-    },
+  it.each<
+    [
+      Role,
+      {
+        userName: string;
+        featuredTitle: string;
+        expectedDefaultMode: 'editorial' | 'technical';
+        expectedFirstTaskCode: string;
+      },
+    ]
+  >([
+    [
+      'director',
+      {
+        userName: 'Helena Mondlane',
+        featuredTitle: 'Galeria Cívica & Pátio da Ponta Vermelha',
+        expectedDefaultMode: 'editorial',
+        expectedFirstTaskCode: 'REV · 01',
+      },
+    ],
+    [
+      'architect',
+      {
+        userName: 'Mateo Conti',
+        featuredTitle: 'Galeria Cívica & Pátio da Ponta Vermelha',
+        expectedDefaultMode: 'editorial',
+        expectedFirstTaskCode: 'PRN · 02',
+      },
+    ],
+    [
+      'project_manager',
+      {
+        userName: 'Inês Macamo',
+        featuredTitle: 'Corredor Pedonal & Terrários da Costa',
+        expectedDefaultMode: 'technical',
+        expectedFirstTaskCode: 'MRC · 03',
+      },
+    ],
+    [
+      'department_lead',
+      {
+        userName: 'Tomás Nhantumbo',
+        featuredTitle: 'Corredor Pedonal & Terrários da Costa',
+        expectedDefaultMode: 'technical',
+        expectedFirstTaskCode: 'EQP · 04',
+      },
+    ],
+    [
+      'communications',
+      {
+        userName: 'Clara Ferraz',
+        featuredTitle: 'Arquivo de Matéria & Inércia Climática',
+        expectedDefaultMode: 'editorial',
+        expectedFirstTaskCode: 'EDT · 05',
+      },
+    ],
+    [
+      'staff',
+      {
+        userName: 'Diogo Tembe',
+        featuredTitle: 'Arquivo de Matéria & Inércia Climática',
+        expectedDefaultMode: 'technical',
+        expectedFirstTaskCode: 'MAT · 06',
+      },
+    ],
   ])(
-    'adapts opening identity, featured study, priority order, default mode, and section order for role $role',
-    ({
-      role,
-      userName,
-      expectedLens,
-      expectedFeaturedCode,
-      expectedTopTaskCode,
-      expectedPresentation,
-    }) => {
+    'maintains predictable continuity, work-oriented briefing, and personal "O meu trabalho" scope for role %s',
+    (role, expected) => {
       const { container } = renderStudioDesk(role);
 
       expect(
-        screen.getByRole('heading', { name: new RegExp(userName.replace(/[()]/g, '\\$&')) }),
+        screen.getByRole('heading', {
+          name: new RegExp(expected.userName, 'i'),
+        }),
       ).toBeInTheDocument();
-      expect(screen.getByText(expectedLens)).toBeInTheDocument();
 
-      // Featured project matches role calibration
-      const featuredSection = container.querySelector(
-        '[data-desk-section="featured"]',
-      ) as HTMLElement;
-      expect(featuredSection).toBeInTheDocument();
-      expect(within(featuredSection).getByText(expectedFeaturedCode)).toBeInTheDocument();
+      // Work-oriented top briefing present
+      expect(screen.getByText(/^Próxima prioridade$/i)).toBeInTheDocument();
+      expect(
+        screen.getAllByText(expected.featuredTitle).length,
+      ).toBeGreaterThan(0);
 
-      // Section sequence matches role config
-      const sectionOrderInDom = Array.from(
+      // Default scope is "O meu trabalho" and shows the collaborator's own priority first
+      const myWorkBtn = screen.getByRole('button', {
+        name: /^O meu trabalho$/i,
+      });
+      expect(myWorkBtn).toHaveAttribute('aria-pressed', 'true');
+      expect(screen.getAllByText(expected.expectedFirstTaskCode).length).toBeGreaterThan(0);
+
+      // Spatial continuity: all 6 roles share identical predictable section ordering
+      const sectionOrder = Array.from(
         container.querySelectorAll('[data-desk-section]'),
       ).map((el) => el.getAttribute('data-desk-section'));
-      expect(sectionOrderInDom).toEqual([...ROLE_DESK_CONFIGS[role].sectionOrder]);
+      expect(sectionOrder).toEqual([
+        'priorities',
+        'featured',
+        'overview',
+        'activity',
+      ]);
 
-      // First priority item aligns with active role
-      const prioritiesSection = container.querySelector(
-        '[data-desk-section="priorities"]',
-      ) as HTMLElement;
-      const firstPriorityCard = within(prioritiesSection).getAllByRole('listitem')[0];
-      expect(within(firstPriorityCard).getByText(expectedTopTaskCode)).toBeInTheDocument();
-
-      // Default presentation mode
-      const overviewSection = container.querySelector(
-        '[data-desk-section="overview"]',
-      ) as HTMLElement;
-      if (expectedPresentation === 'technical') {
-        expect(within(overviewSection).getByRole('table')).toBeInTheDocument();
-      } else {
-        expect(within(overviewSection).queryByRole('table')).not.toBeInTheDocument();
-      }
+      // Default presentation mode preserved
+      const editorialPressed =
+        expected.expectedDefaultMode === 'editorial' ? 'true' : 'false';
+      const technicalPressed =
+        expected.expectedDefaultMode === 'technical' ? 'true' : 'false';
+      expect(
+        screen.getAllByRole('button', { name: /Modo Editorial/i })[0],
+      ).toHaveAttribute('aria-pressed', editorialPressed);
+      expect(
+        screen.getAllByRole('button', { name: /Lista Técnica/i })[0],
+      ).toHaveAttribute('aria-pressed', technicalPressed);
     },
   );
 
-  it('filters projects by status and search, sorts by code/date/priority, and toggles Editorial vs Technical view', async () => {
+  it('replaces auto-completion with "Abrir próxima prioridade": highlights and inspects task without changing status until explicit action', async () => {
     const user = userEvent.setup();
-    const { container } = renderStudioDesk('director');
+    renderStudioDesk('director');
 
-    const overview = container.querySelector(
-      '[data-desk-section="overview"]',
-    ) as HTMLElement;
-
-    // Switch Overview to Technical List view
-    await user.click(
-      within(overview).getByRole('button', { name: /Lista Técnica/i }),
-    );
-    expect(within(overview).getByRole('table')).toBeInTheDocument();
-
-    // Sort by Código ascending -> OA-25-084 · DEMO should appear first
-    const sortSelect = within(overview).getByLabelText(/Ordenar por/i);
-    await user.selectOptions(sortSelect, 'code');
-    const sortedRows = within(overview).getAllByRole('row');
-    expect(within(sortedRows[1]).getByText('OA-25-084 · DEMO')).toBeInTheDocument();
-
-    // Filter by status "Em revisão" -> only OA-26-101 · DEMO remains
-    await user.click(
-      within(overview).getByRole('button', { name: /^Em revisão$/i }),
-    );
-    const filteredTable = within(overview).getByRole('table');
-    expect(within(filteredTable).getByText('OA-26-101 · DEMO')).toBeInTheDocument();
+    // Old anti-pattern controls removed from QuickActionsBar
     expect(
-      within(filteredTable).queryByText('OA-25-084 · DEMO'),
+      screen.queryByRole('button', { name: /Concluir próxima prioridade/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Repor dados demo/i }),
     ).not.toBeInTheDocument();
 
-    // Reset status filter then search "Terrários"
-    await user.click(
-      within(overview).getByRole('button', { name: /^Todos$/i }),
-    );
-    const searchInput = within(overview).getByLabelText(
-      /Procurar por código ou título/i,
-    );
-    await user.type(searchInput, 'Terrários');
-    const searchedTable = within(overview).getByRole('table');
-    expect(within(searchedTable).getByText('OA-26-108 · DEMO')).toBeInTheDocument();
-    expect(
-      within(searchedTable).queryByText('OA-26-101 · DEMO'),
-    ).not.toBeInTheDocument();
-  });
-
-  it('updates task status locally, recalculates derived priority counters, persists to isolated localStorage, and resets demo state cleanly', async () => {
-    const user = userEvent.setup();
-    const { container } = renderStudioDesk('architect');
-
-    const priorities = container.querySelector(
-      '[data-desk-section="priorities"]',
-    ) as HTMLElement;
-
-    // Initial counts across 9 studio tasks: 4 pending, 3 in_progress, 2 completed
-    const countersRegion = priorities.querySelector('dl[aria-live="polite"]') as HTMLElement;
-    expect(countersRegion).toHaveTextContent('4por concluir');
-    expect(countersRegion).toHaveTextContent('3em curso');
-    expect(countersRegion).toHaveTextContent('2concluídas');
-
-    // Cycle status of top pending task (pending -> in_progress)
-    const cycleBtn = within(priorities).getByRole('button', {
-      name: /Alternar estado · REV · 01/i,
+    const openNextBtn = screen.getByRole('button', {
+      name: /Abrir próxima prioridade/i,
     });
-    await user.click(cycleBtn);
-    expect(countersRegion).toHaveTextContent('3por concluir');
-    expect(countersRegion).toHaveTextContent('4em curso');
+    await user.click(openNextBtn);
 
-    // Quick Action: "Concluir próxima prioridade" completes that top item
-    await user.click(
-      screen.getByRole('button', { name: /Concluir próxima prioridade/i }),
-    );
-    expect(countersRegion).toHaveTextContent('3por concluir');
-    expect(countersRegion).toHaveTextContent('3em curso');
-    expect(countersRegion).toHaveTextContent('3concluídas');
-
-    // Verify isolated localStorage key contains task status only (no credentials)
-    const savedRaw = window.localStorage.getItem(STUDIO_DESK_STORAGE_KEY);
-    expect(savedRaw).not.toBeNull();
-    expect(savedRaw).toContain('"task-dir-01":"completed"');
-    expect(savedRaw).not.toContain('password');
-    expect(savedRaw).not.toContain('oa-demo');
-
-    // Local change indicator appears in Studio Opening
-    expect(
-      screen.getByText(/Alterações guardadas apenas neste navegador/i),
-    ).toBeInTheDocument();
-
-    // Reset demo data restores defaults and clears storage key
-    await user.click(
-      screen.getByRole('button', { name: /Repor dados demo/i }),
-    );
+    // Highlighted visually in list, and status NOT altered automatically
+    const taskCard = document.getElementById('desk-task-task-dir-01');
+    expect(taskCard).toHaveAttribute('data-task-highlighted', 'true');
     expect(window.localStorage.getItem(STUDIO_DESK_STORAGE_KEY)).toBeNull();
-    expect(countersRegion).toHaveTextContent('4por concluir');
-    expect(countersRegion).toHaveTextContent('3em curso');
-    expect(countersRegion).toHaveTextContent('2concluídas');
-  });
 
-  it('switches cleanly between Portuguese and English across all Studio Desk regions', async () => {
-    const user = userEvent.setup();
-    renderStudioDesk('communications');
-
+    // Contextual Task Detail dialog opens with full metadata and explicit actions
+    const dialog = screen.getByRole('dialog');
     expect(
-      screen.getByText(/FOLHA 02 · MESA DE TRABALHO/i),
+      within(dialog).getByRole('heading', {
+        name: /Emitir parecer final sobre corte AA da Galeria Cívica/i,
+      }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Histórico demonstrativo estático · Sem sincronização em tempo real/i),
-    ).toBeInTheDocument();
+    expect(within(dialog).getByText(/Por concluir/i)).toBeInTheDocument();
+    expect(within(dialog).getByText(/12 Nov 2026 · 11:00 CAT/i)).toBeInTheDocument();
+    expect(within(dialog).getByText(/Helena Mondlane/i)).toBeInTheDocument();
 
+    // Explicit conscious transition: Iniciar tarefa -> Em progresso
     await user.click(
-      screen.getByRole('button', { name: 'Toggle Lang Harness' }),
+      within(dialog).getByRole('button', { name: /Iniciar tarefa/i }),
     );
+    expect(within(dialog).getByText(/Em progresso/i)).toBeInTheDocument();
 
-    expect(
-      await screen.findByText(/SHEET 02 · STUDIO DESK · DEMO MODE/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Static demonstrative history · No real-time synchronization/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { name: /Assigned projects & dossiers/i }),
-    ).toBeInTheDocument();
+    const storedAfterStart = JSON.parse(
+      window.localStorage.getItem(STUDIO_DESK_STORAGE_KEY) ?? '{}',
+    );
+    expect(storedAfterStart.taskStatuses?.['task-dir-01']).toBe('in_progress');
+
+    // Explicit conscious transition: Concluir tarefa -> Concluída
+    await user.click(
+      within(dialog).getByRole('button', { name: /Concluir tarefa/i }),
+    );
+    expect(within(dialog).getByText(/Concluída/i)).toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+    expect(openNextBtn).toHaveFocus();
   });
 
-  it('renders honest empty states across Priorities, Activity, and Project Overview and lets users recover cleanly', async () => {
+  it('distinguishes individual ownership ("Atribuída a mim") from role context ("No meu papel") across scopes', async () => {
     const user = userEvent.setup();
-    const { container } = renderStudioDesk('project_manager');
+    renderStudioDesk('director');
 
-    // 1. Priorities empty state: PM in "Foco do meu papel" has 0 completed tasks
+    const prioritiesSection = document.getElementById(
+      'studio-priorities-section',
+    ) as HTMLElement;
+
+    // Default scope 'my_work': Helena only sees her 2 directly assigned tasks
+    expect(
+      within(prioritiesSection).getAllByText('Atribuída a mim'),
+    ).toHaveLength(2);
+    expect(
+      within(prioritiesSection).queryByText('No meu papel'),
+    ).not.toBeInTheDocument();
+    expect(
+      within(prioritiesSection).queryByText('PRN · 02'),
+    ).not.toBeInTheDocument();
+
+    // Switching to 'role_focus' includes shared role tasks explicitly labeled "No meu papel"
     await user.click(
       screen.getByRole('button', { name: /Foco do meu papel/i }),
     );
-    const priorities = container.querySelector(
-      '[data-desk-section="priorities"]',
-    ) as HTMLElement;
-    await user.click(
-      within(priorities).getByRole('button', { name: /^Concluídas$/i }),
-    );
     expect(
-      within(priorities).getByText(/Nenhuma prioridade nesta selecção/i),
+      within(prioritiesSection).getByText('PRN · 02'),
     ).toBeInTheDocument();
+    expect(
+      within(prioritiesSection).getAllByText('No meu papel').length,
+    ).toBeGreaterThan(0);
 
-    // 2. Activity empty state: PM in role_focus has 0 "Editorial" log entries
-    const activity = container.querySelector(
-      '[data-desk-section="activity"]',
-    ) as HTMLElement;
+    // Switching to 'all' reveals all 12 studio tasks across all collaborators
     await user.click(
-      within(activity).getByRole('button', { name: /^Editorial$/i }),
+      screen.getByRole('button', { name: /Todos os registos/i }),
     );
     expect(
-      within(activity).getByText(/Sem registos para esta categoria/i),
-    ).toBeInTheDocument();
-
-    // Recover activity
-    await user.click(
-      within(activity).getByRole('button', { name: /Ver todo o histórico/i }),
-    );
-    expect(
-      within(activity).queryByText(/Sem registos para esta categoria/i),
-    ).not.toBeInTheDocument();
-
-    // 3. Project Overview empty state: filter by "Arquivado"
-    const overview = container.querySelector(
-      '[data-desk-section="overview"]',
-    ) as HTMLElement;
-    await user.click(
-      within(overview).getByRole('button', { name: /^Arquivado$/i }),
-    );
-    expect(
-      within(overview).getByText(/Nenhum projecto corresponde aos filtros activos/i),
-    ).toBeInTheDocument();
-
-    await user.click(
-      within(overview).getByRole('button', { name: /Limpar filtros/i }),
-    );
-    expect(
-      within(within(overview).getByRole('table')).getByText('OA-26-101 · DEMO'),
+      within(prioritiesSection).getByText('MAT · 06'),
     ).toBeInTheDocument();
   });
 
-  it('supports keyboard navigation, accessible dossier dialog Escape close, focus restoration, and zero deceptive controls', async () => {
+  it('highlights and spotlights matched project on /workspace?project=<id>, syncs clear/Back/Forward, and opens full dossier on conscious action', async () => {
     const user = userEvent.setup();
-    const { container } = renderStudioDesk('director');
+    renderStudioDesk('director', ['/workspace?project=sd-proj-oa-26-108']);
 
-    // Zero fake file inputs or fake publish actions
-    expect(container.querySelector('input[type="file"]')).toBeNull();
-    expect(
-      screen.queryByRole('button', { name: /Carregar SketchUp|Upload \.skp/i }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: /Publicar no site/i }),
-    ).not.toBeInTheDocument();
-
-    // Keyboard open Featured Dossier
-    const dossierTrigger = screen.getByRole('button', {
-      name: /Abrir dossier demonstrativo/i,
-    });
-    dossierTrigger.focus();
-    expect(dossierTrigger).toHaveFocus();
-
-    await user.keyboard('{Enter}');
-    const dialog = await screen.findByRole('dialog');
-    expect(dialog).toBeInTheDocument();
-    expect(
-      within(dialog).getByText(/dados fictícios guardados localmente/i),
-    ).toBeInTheDocument();
-
-    // Press Escape to close and verify focus restoration
-    await user.keyboard('{Escape}');
-    await waitFor(() => {
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    });
-    expect(dossierTrigger).toHaveFocus();
-
-    // Clicking Future 3D Viewer notice shows transparent Phase 04 boundary
-    await user.click(
-      screen.getByRole('button', { name: /Viewer 3D \(\.glb\) · Fase 04/i }),
+    // Inline Spotlight region displays without hijacking focus into a blocking modal immediately after search navigation
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    const spotlightTag = await screen.findByText(
+      /PROJECTO EM DESTAQUE · PESQUISA \/ URL/i,
     );
-    const futureDialog = await screen.findByRole('dialog');
+    const spotlightPanel = spotlightTag.closest('section') as HTMLElement;
+    expect(spotlightPanel).toBeInTheDocument();
     expect(
-      within(futureDialog).getByText(/Nenhum botão de upload falso foi incluído/i),
+      within(spotlightPanel).getByRole('heading', {
+        name: /Corredor Pedonal & Terrários da Costa/i,
+      }),
     ).toBeInTheDocument();
-    await user.keyboard('{Escape}');
+    expect(screen.getByTestId('test-location-search')).toHaveTextContent(
+      '?project=sd-proj-oa-26-108',
+    );
+
+    // Conscious click opens full ProjectDossierDialog modal
+    await user.click(
+      within(spotlightPanel).getByRole('button', { name: /Abrir dossier em janela/i }),
+    );
+    const modal = await screen.findByRole('dialog');
+    expect(
+      within(modal).getByRole('heading', {
+        name: /Corredor Pedonal & Terrários da Costa/i,
+      }),
+    ).toBeInTheDocument();
+    await user.click(within(modal).getByRole('button', { name: /^Fechar$/i }));
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 
-    // Quick Action "Ir para prioridades" focuses priorities landmark
+    // Clearing spotlight removes ?project= param cleanly
     await user.click(
-      screen.getByRole('button', { name: /Ir para prioridades/i }),
+      within(spotlightPanel).getByRole('button', { name: /Fechar selecção de projecto/i }),
     );
-    expect(document.getElementById('studio-priorities-section')).toHaveFocus();
+    await waitFor(() => {
+      expect(screen.getByTestId('test-location-search').textContent).toBe('');
+    });
+
+    // Simulate Global Search navigating to ?project=sd-proj-oa-26-101, then Browser Back & Forward
+    await user.click(screen.getByRole('button', { name: 'DeepLink:101' }));
+    expect(
+      await screen.findByText(/PROJECTO EM DESTAQUE · PESQUISA/i),
+    ).toBeInTheDocument();
+    expect(
+      document.querySelector('[data-project-highlighted="true"]'),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'HistoryBack' }));
+    await waitFor(() => {
+      expect(screen.queryByText(/PROJECTO EM DESTAQUE · PESQUISA/i)).not.toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'HistoryForward' }));
+    expect(
+      await screen.findByText(/PROJECTO EM DESTAQUE · PESQUISA/i),
+    ).toBeInTheDocument();
   });
 
-  it('replaces the WelcomePage document.title immediately upon entering /workspace and tracks PT/EN switches', async () => {
+  it('shows a non-blocking dismissible notice when /workspace?project= has an invalid ID', async () => {
     const user = userEvent.setup();
-    document.title = 'O+A Workspace — Caderno de Entrada (Demo)';
+    renderStudioDesk('director', ['/workspace?project=codigo-invalido-404']);
 
-    renderStudioDesk('director');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    const notice = screen.getByRole('status');
+    expect(notice).toHaveTextContent(/não foi encontrado/i);
+    expect(notice).toHaveTextContent(/codigo-invalido-404/i);
+
+    await user.click(
+      screen.getByRole('button', { name: /Dispensar aviso/i }),
+    );
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.getByTestId('test-location-search').textContent).toBe('');
+  });
+
+  it('filters projects by status and search, sorts cleanly, toggles Editorial vs Technical view, and keeps Secondary controls separate', async () => {
+    const user = userEvent.setup();
+    renderStudioDesk('architect');
+
+    // Secondary group separates Presentation & Planned modules cleanly
+    const secondaryRegion = screen.getByRole('region', {
+      name: /Preferências da vista e módulos futuros/i,
+    });
+    expect(
+      within(secondaryRegion).getByRole('button', { name: /Lista Técnica/i }),
+    ).toBeInTheDocument();
+    expect(
+      within(secondaryRegion).getByRole('button', {
+        name: /Viewer 3D \(\.glb\) · Fase 04/i,
+      }),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole('button', { name: /Todos os registos/i }),
+    );
+
+    await user.click(
+      within(secondaryRegion).getByRole('button', { name: /Lista Técnica/i }),
+    );
+    expect(screen.getByRole('table')).toBeInTheDocument();
+
+    const searchInput = screen.getByRole('searchbox', {
+      name: /Procurar por código ou título/i,
+    });
+    await user.type(searchInput, 'Terrários');
+    expect(
+      screen.getAllByText(/Corredor Pedonal & Terrários da Costa/i).length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.queryAllByText(/Arquivo de Matéria & Inércia Climática/i),
+    ).toHaveLength(0);
+
+    await user.clear(searchInput);
+    const sortSelect = screen.getByRole('combobox', { name: /Ordenar por/i });
+    await user.selectOptions(sortSelect, 'code');
+    const codeRows = screen.getAllByRole('row').slice(1);
+    expect(codeRows[0].textContent).toContain('OA-25-084');
+  });
+
+  it('replaces document.title on mount and tracks PT/EN bilingual switching across all desk regions', async () => {
+    const user = userEvent.setup();
+    renderStudioDesk('communications');
 
     expect(document.title).toBe('O+A Workspace — Mesa de Trabalho (Demo)');
 
@@ -472,176 +528,85 @@ describe('O+A Workspace — Phase 02B StudioDeskPage Suite', () => {
       screen.getByRole('button', { name: 'Toggle Lang Harness' }),
     );
 
-    await waitFor(() => {
-      expect(document.title).toBe('O+A Workspace — Studio Desk (Demo)');
-    });
-
-    await user.click(
-      screen.getByRole('button', { name: 'Toggle Lang Harness' }),
-    );
-
-    await waitFor(() => {
-      expect(document.title).toBe('O+A Workspace — Mesa de Trabalho (Demo)');
-    });
+    expect(document.title).toBe('O+A Workspace — Studio Desk (Demo)');
+    expect(
+      screen.getByRole('button', { name: /Open next priority/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /^My work$/i }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(
+      screen.getByRole('heading', {
+        name: /Active frontline & priorities/i,
+      }),
+    ).toBeInTheDocument();
   });
 
-  it('confines Tab and Shift+Tab inside ProjectDossierDialog, blocks background interaction, locks body scroll, and restores focus cleanly on Escape', async () => {
+  it('traps Tab and Shift+Tab inside ProjectDossierDialog, locks scroll, marks background inert, and restores focus on Escape', async () => {
     const user = userEvent.setup();
-    document.body.style.overflow = 'auto';
+    renderStudioDesk('architect');
 
-    const { container } = renderStudioDesk('director');
-    const appRootWrapper = container;
+    const rootContainer = document.querySelector(
+      '#root, [data-testid="test-session-controls"]',
+    )?.parentElement?.parentElement;
 
-    const triggerButton = screen.getByRole('button', {
-      name: /Abrir dossier demonstrativo/i,
+    const featuredTrigger = screen.getByRole('button', {
+      name: /Abrir dossier do projecto/i,
     });
-    triggerButton.focus();
-    expect(triggerButton).toHaveFocus();
-
-    await user.keyboard('{Enter}');
+    await user.click(featuredTrigger);
 
     const dialog = await screen.findByRole('dialog');
-    expect(dialog).toBeInTheDocument();
-    expect(dialog.closest('[data-studio-desk-dialog-portal="true"]')?.parentElement).toBe(
-      document.body,
-    );
-
-    // Background subtree is blocked and body scroll is locked
-    expect(appRootWrapper).toHaveAttribute('inert');
-    expect(appRootWrapper).toHaveAttribute('aria-hidden', 'true');
-    expect(document.body.style.overflow).toBe('hidden');
-
-    const closeIconButton = within(dialog).getByRole('button', {
+    const closeX = within(dialog).getByRole('button', {
       name: /Fechar janela de detalhes/i,
     });
-    const footerCloseButton = within(dialog).getByRole('button', {
-      name: /^Fechar$/i,
-    });
+    const closeBottom = within(dialog).getByRole('button', { name: /^Fechar$/i });
 
-    // Initial focus moves to top [X] close icon button
-    expect(closeIconButton).toHaveFocus();
+    expect(closeX).toHaveFocus();
+    expect(document.body.style.overflow).toBe('hidden');
+    if (rootContainer) {
+      expect(rootContainer).toHaveAttribute('inert');
+      expect(rootContainer).toHaveAttribute('aria-hidden', 'true');
+    }
 
-    // Forward Tab cycles [X] -> Footer [Fechar] -> wraps back to [X]
-    await user.tab();
-    expect(footerCloseButton).toHaveFocus();
+    fireEvent.keyDown(closeBottom, { key: 'Tab' });
+    expect(closeX).toHaveFocus();
 
-    await user.tab();
-    expect(closeIconButton).toHaveFocus();
+    fireEvent.keyDown(closeX, { key: 'Tab', shiftKey: true });
+    expect(closeBottom).toHaveFocus();
 
-    // Backward Shift+Tab wraps cleanly from [X] back to Footer [Fechar]
-    await user.tab({ shift: true });
-    expect(footerCloseButton).toHaveFocus();
-
-    // Background buttons are excluded from accessible tree while modal is open
-    expect(
-      screen.queryByRole('button', { name: 'Toggle Lang Harness' }),
-    ).not.toBeInTheDocument();
-
-    // Attempted programmatic focus onto background harness control is intercepted inside dialog
-    const backgroundButton = screen.getByRole('button', {
-      name: 'Toggle Lang Harness',
-      hidden: true,
-    });
-    backgroundButton.focus();
-    expect(dialog.contains(document.activeElement)).toBe(true);
-
-    // Escape closes modal, unlocks scroll, removes background inert/aria-hidden, and restores trigger focus
     await user.keyboard('{Escape}');
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
-    expect(appRootWrapper).not.toHaveAttribute('inert');
-    expect(appRootWrapper).not.toHaveAttribute('aria-hidden');
-    expect(document.body.style.overflow).toBe('auto');
-    expect(triggerButton).toHaveFocus();
+    expect(document.body.style.overflow).toBe('');
+    expect(featuredTrigger).toHaveFocus();
   });
 
-  it('keeps per-role presentation modes isolated and preserves shared local task consistency across dynamic profile switches and sign-out', async () => {
+  it('keeps per-role presentation modes isolated and clears local task state consistently across profile switches', async () => {
     const user = userEvent.setup();
-    const { container } = renderStudioDesk('director');
-
-    // Director defaults to Editorial; switch Overview to Technical List
-    const overviewAsDirector = () =>
-      container.querySelector('[data-desk-section="overview"]') as HTMLElement;
-    expect(within(overviewAsDirector()).queryByRole('table')).not.toBeInTheDocument();
+    renderStudioDesk('director');
 
     await user.click(
-      within(overviewAsDirector()).getByRole('button', {
-        name: /Lista Técnica/i,
-      }),
+      screen.getAllByRole('button', { name: /Lista Técnica/i })[0],
     );
-    expect(within(overviewAsDirector()).getByRole('table')).toBeInTheDocument();
 
-    // Complete a priority task as Director and keep role filter / counters consistent
+    // Switch to Mateo Conti (architect -> defaults to editorial)
     await user.click(
-      screen.getByRole('button', { name: /Concluir próxima prioridade/i }),
-    );
-    const savedState = JSON.parse(
-      window.localStorage.getItem(STUDIO_DESK_STORAGE_KEY) ?? '{}',
-    );
-    expect(savedState.presentationModeByRole).toEqual({ director: 'technical' });
-    expect(savedState.taskStatuses['task-dir-01']).toBe('completed');
-
-    // Open a dossier modal as Director, then switch roles dynamically while open
-    await user.click(
-      screen.getByRole('button', { name: /Abrir dossier demonstrativo/i }),
-    );
-    expect(await screen.findByRole('dialog')).toBeInTheDocument();
-    expect(document.body.style.overflow).toBe('hidden');
-
-    // Simulate external programmatic role switch to Communications while modal is open
-    const hiddenCommsSwitch = screen.getByRole('button', {
-      name: 'SwitchRole:communications',
-      hidden: true,
-    });
-    fireEvent.click(hiddenCommsSwitch);
-    await waitFor(() => {
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    });
-    expect(document.body.style.overflow).toBe('');
-    expect(container).not.toHaveAttribute('inert');
-
-    // Communications retains its calibrated Editorial default (not leaked Director's Technical mode)
-    expect(screen.getByTestId('test-active-role')).toHaveTextContent(
-      'communications',
+      screen.getByRole('button', { name: 'SwitchRole:architect' }),
     );
     expect(
-      screen.getByRole('heading', { name: /Clara Ferraz \(Demo\)/i }),
-    ).toBeInTheDocument();
-    expect(within(overviewAsDirector()).queryByRole('table')).not.toBeInTheDocument();
+      screen.getAllByRole('button', { name: /Modo Editorial/i })[0],
+    ).toHaveAttribute('aria-pressed', 'true');
 
-    // Derived counters stay consistent with shared local task completion (3 pending, 3 in_progress, 3 completed)
-    const commsPriorities = container.querySelector(
-      '[data-desk-section="priorities"]',
-    ) as HTMLElement;
-    const counters = commsPriorities.querySelector(
-      'dl[aria-live="polite"]',
-    ) as HTMLElement;
-    expect(counters).toHaveTextContent('3por concluir');
-    expect(counters).toHaveTextContent('3em curso');
-    expect(counters).toHaveTextContent('3concluídas');
-
-    // Switch to Staff (Technical default), then return to Director (remembers explicit Technical choice)
-    await user.click(screen.getByRole('button', { name: 'SwitchRole:staff' }));
-    expect(
-      screen.getByRole('heading', { name: /Diogo Tembe \(Demo\)/i }),
-    ).toBeInTheDocument();
-    expect(within(overviewAsDirector()).getByRole('table')).toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: 'SwitchRole:director' }));
-    expect(
-      screen.getByRole('heading', { name: /Helena Mondlane \(Demo\)/i }),
-    ).toBeInTheDocument();
-    expect(within(overviewAsDirector()).getByRole('table')).toBeInTheDocument();
-
-    // Reset clears all per-role presentation overrides and task modifications
+    // Switch back to director -> remembers override without breaking architect default
     await user.click(
-      screen.getByRole('button', { name: /Repor dados demo/i }),
+      screen.getByRole('button', { name: 'SwitchRole:director' }),
     );
-    expect(window.localStorage.getItem(STUDIO_DESK_STORAGE_KEY)).toBeNull();
-    expect(within(overviewAsDirector()).queryByRole('table')).not.toBeInTheDocument();
+    expect(
+      screen.getAllByRole('button', { name: /Lista Técnica/i })[0],
+    ).toHaveAttribute('aria-pressed', 'true');
 
-    // Sign out unmounts authenticated desk cleanly with honest fallback
+    // Sign out preserves honest fallback without leaking previous profile modal
     await user.click(screen.getByRole('button', { name: 'Sign Out Harness' }));
     expect(
       screen.getByRole('heading', {

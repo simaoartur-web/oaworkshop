@@ -11,6 +11,8 @@ import type { StudioDeskDictionary } from './i18n';
 
 interface ProjectOverviewPanelProps {
   projects: StudioDeskProject[];
+  currentUserId: string;
+  highlightedProjectId: string | null;
   activeRole: Role;
   language: AppLanguage;
   deskDict: StudioDeskDictionary;
@@ -29,6 +31,8 @@ interface ProjectOverviewPanelProps {
 
 export function ProjectOverviewPanel({
   projects,
+  currentUserId,
+  highlightedProjectId,
   activeRole,
   language,
   deskDict,
@@ -222,14 +226,21 @@ export function ProjectOverviewPanel({
               const progressPct = Math.round(
                 (project.milestonesCompleted / project.milestonesTotal) * 100,
               );
-              const isAssigned = project.assignedRoles.includes(activeRole);
+              const isDirect =
+                project.leadUserId === currentUserId ||
+                project.contributorUserIds.includes(currentUserId);
+              const isAssigned = isDirect || project.assignedRoles.includes(activeRole);
+              const isHighlighted = highlightedProjectId === project.id;
               return (
                 <article
                   key={project.id}
+                  data-project-highlighted={isHighlighted ? 'true' : undefined}
                   className={`border flex flex-col justify-between bg-[#141414] ${
-                    isAssigned
-                      ? 'border-white/20 border-t-2 border-t-[#A65D4A]'
-                      : 'border-white/12'
+                    isHighlighted
+                      ? 'border-[#A65D4A] ring-1 ring-[#A65D4A]'
+                      : isAssigned
+                        ? 'border-white/20 border-t-2 border-t-[#A65D4A]'
+                        : 'border-white/12'
                   }`}
                 >
                   <div>
@@ -351,12 +362,22 @@ export function ProjectOverviewPanel({
                 </thead>
                 <tbody className="divide-y divide-white/10">
                   {projects.map((project) => {
-                    const isAssigned = project.assignedRoles.includes(activeRole);
+                    const isDirect =
+                      project.leadUserId === currentUserId ||
+                      project.contributorUserIds.includes(currentUserId);
+                    const isAssigned =
+                      isDirect || project.assignedRoles.includes(activeRole);
+                    const isHighlighted = highlightedProjectId === project.id;
                     return (
                       <tr
                         key={project.id}
+                        data-project-highlighted={isHighlighted ? 'true' : undefined}
                         className={`transition-colors hover:bg-white/[0.03] ${
-                          isAssigned ? 'border-l-2 border-l-[#A65D4A]' : ''
+                          isHighlighted
+                            ? 'bg-[#1C1412] border-l-2 border-l-[#A65D4A]'
+                            : isAssigned
+                              ? 'border-l-2 border-l-[#A65D4A]'
+                              : ''
                         }`}
                       >
                         <td className="py-3.5 px-3.5 align-top whitespace-nowrap tabular-nums">
@@ -439,8 +460,16 @@ export function ProjectOverviewPanel({
 
             {/* Mobile (< 768px): Stacked Architectural Index List (Zero horizontal scroll) */}
             <ul className="md:hidden divide-y divide-white/10 border border-white/12 bg-[#0D0D0D]">
-              {projects.map((project) => (
-                <li key={project.id} className="p-4 space-y-3">
+              {projects.map((project) => {
+                const isHighlighted = highlightedProjectId === project.id;
+                return (
+                <li
+                  key={project.id}
+                  data-project-highlighted={isHighlighted ? 'true' : undefined}
+                  className={`p-4 space-y-3 ${
+                    isHighlighted ? 'bg-[#1C1412] border-l-2 border-l-[#A65D4A]' : ''
+                  }`}
+                >
                   <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] uppercase tracking-[0.14em] tabular-nums">
                     <span className="font-semibold text-white">
                       {project.code}
@@ -503,7 +532,8 @@ export function ProjectOverviewPanel({
                     />
                   </button>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           </>
         )}

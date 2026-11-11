@@ -12,6 +12,7 @@ interface StudioActivityPanelProps {
   kindFilter: 'all' | DeskActivityKind;
   onKindFilterChange: (kind: 'all' | DeskActivityKind) => void;
   onResetFilters: () => void;
+  currentUserId: string;
   activeRole: Role;
   leadNote: string;
   language: AppLanguage;
@@ -24,6 +25,7 @@ export function StudioActivityPanel({
   kindFilter,
   onKindFilterChange,
   onResetFilters,
+  currentUserId,
   activeRole,
   leadNote,
   language,
@@ -121,12 +123,14 @@ export function StudioActivityPanel({
             }`}
           >
             {activities.map((entry) => {
-              const isRelevantToRole = entry.relevantRoles.includes(activeRole);
+              const isRelevantToUser =
+                entry.actorUserId === currentUserId ||
+                entry.relevantRoles.includes(activeRole);
               return (
                 <li
                   key={entry.id}
                   className={`border p-4 space-y-2 ${
-                    isRelevantToRole
+                    isRelevantToUser
                       ? 'border-white/18 border-l-2 border-l-[#A65D4A] bg-[#161616]'
                       : 'border-white/10 bg-[#121212]'
                   }`}

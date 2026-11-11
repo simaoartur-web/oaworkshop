@@ -27,7 +27,7 @@ export type DeskPresentationMode = 'editorial' | 'technical';
 
 export type DeskSectionKey = 'featured' | 'priorities' | 'overview' | 'activity';
 
-export type DeskFilterScope = 'all' | 'role_focus' | 'attention';
+export type DeskFilterScope = 'my_work' | 'role_focus' | 'all' | 'attention';
 
 export type DeskSortBy = 'priority' | 'milestone_date' | 'code';
 
@@ -65,6 +65,8 @@ export interface StudioDeskProject {
   elevationDatum: string;
   leadAuthorCode: string;
   leadAuthorName: string;
+  leadUserId: string;
+  contributorUserIds: string[];
   assignedRoles: Role[];
   imageSrc: string;
   imageAlt: LocalizedText;
@@ -86,6 +88,7 @@ export interface StudioDeskTask {
   status: DeskTaskStatus;
   dueDateIso: string;
   dueLabel: LocalizedText;
+  assigneeUserId: string;
   assigneeLabel: string;
   referenceTag: LocalizedText;
 }
@@ -93,6 +96,7 @@ export interface StudioDeskTask {
 export interface StudioDeskActivityEntry {
   id: string;
   kind: DeskActivityKind;
+  actorUserId: string;
   originLabel: string;
   departmentId: DepartmentId;
   projectId: string;
