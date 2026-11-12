@@ -19,6 +19,7 @@ import {
   switchDemoRole,
   type AuthAttemptResult,
 } from '../data/sessionRepository';
+import { clearProjectLibraryLocalState } from '../data/projectLibraryRepository';
 import { clearStudioDeskLocalState } from '../data/studioDeskFixtures';
 import type {
   AppLanguage,
@@ -128,6 +129,7 @@ export function WorkspaceSessionProvider({
     const freshPrefs = resetDemoWorkspaceState();
     resetShellLocalState();
     clearStudioDeskLocalState();
+    clearProjectLibraryLocalState();
     setSession(null);
     setPreferences(freshPrefs);
     setDemoResetEpoch((prev) => prev + 1);

@@ -50,7 +50,7 @@
 | `src/features/welcome/WelcomePage.tsx` | caderno editorial pós-login com saudação por base de estúdio, estudo em foco e prioridades |
 | `src/features/workspace-shell/shellNavigation.ts` | definição tipada dos 3 grupos e 11 pranchas de navegação do Workspace Shell |
 | `src/features/workspace-shell/shellDemoState.ts` | notificações fictícias harmonizadas com Studio Desk, preferência rail compacto/expandido e reset |
-| `src/features/workspace-shell/globalSearchIndex.ts` | motor de pesquisa local client-side sobre rotas, 6 perfis, projectos Studio Desk (`OA-26-101` a `124`) e departamentos |
+| `src/features/workspace-shell/globalSearchIndex.ts` | motor de pesquisa local client-side sobre rotas, 6 perfis, projectos canónicos (seed + criados localmente) e departamentos |
 | `src/features/workspace-shell/shellUiContext.tsx` | contexto opcional do Shell para sincronização da prancha lateral com `/workspace/settings` |
 | `src/features/workspace-shell/ArchitecturalRail.tsx` | navegação lateral desktop (expandida 264px / compacta 72px) e drawer acessível mobile/tablet |
 | `src/features/workspace-shell/ContextualHeader.tsx` | cabeçalho contextual com identidade O+A, migalha, relógios Maputo/Milão, pesquisa, notificações, `PT/EN`, menu e logout directo |
@@ -81,6 +81,7 @@
 | `src/test/hardeningAndTime.test.tsx` | testes de acessibilidade do modal (`inert`, `Tab`, `Shift+Tab`, `Escape`) e regras `CET`/`CEST` por `studioBase` |
 | `src/test/workspaceShell.test.tsx` | testes de integração do `WorkspaceShell` (rail, drawer mobile, pesquisa, notificações, definições) |
 | `src/test/studioDesk.test.tsx` | suite unitária e de integração da Mesa de Trabalho do Argon B |
+| `src/test/projectLibrary.test.tsx` | suite de domínio, repositório local, adaptação, catálogo, criação, dossier e reset da Fase 03A |
 | `src/test/integrationPreview.test.tsx` | suite do Quality Gate de integração (câmara única, 6 papéis, pesquisa integrada, reset e bilinguismo) |
 
 ## Recursos Públicos e Documentação
@@ -101,4 +102,5 @@
 | `plans/003-phase-02-integration.md` | plano de integração técnica e Quality Gate da Fase 02 |
 | `plans/004-phase-021a-shell-ux.md` | plano da Fase 02.1A (`codex/f021-shell-ux`) — scroll, navegação e legibilidade do Shell |
 | `plans/005-phase-021-integration.md` | plano e registo da integração sequencial Fase 02.1 (`codex/f02-integration-preview`) |
+| `plans/006-phase-03a-project-platform.md` | plano da Fase 03A (`codex/f03-project-platform`) — domínio canónico, catálogo e motor do dossier |
 | `scripts/e2e-verify-entry.mjs` | verificação E2E portátil em Chromium/Edge nas larguras 1440px, 680px altura, 768px, 720px (zoom) e 375px |

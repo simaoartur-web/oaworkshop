@@ -503,6 +503,63 @@ async function main() {
       await page.getByText(/PROJECTO EM DESTAQUE · PESQUISA \/ URL/i).waitFor({ state: 'visible' });
       await page.goForward();
       await page.waitForURL(`${BASE_URL}/workspace/projects`);
+      await page.waitForTimeout(200);
+      await checkNoHorizontalOverflow(page, 'Workspace Projects Catalog 1440px');
+      await page.screenshot({
+        path: path.join(ARTIFACT_DIR, 'oa_projects_catalog_1440.png'),
+        fullPage: false,
+      });
+
+      // Phase 03A E2E: Create -> Persist Reload -> Dossier -> Archive -> Filter -> Model Phase 04 -> 404
+      await page.getByRole('link', { name: /Novo Projecto/i }).click();
+      await page.waitForURL(`${BASE_URL}/workspace/projects/new`);
+      await page.waitForTimeout(150);
+      await checkNoHorizontalOverflow(page, 'Workspace Projects Create 1440px');
+      await page.screenshot({
+        path: path.join(ARTIFACT_DIR, 'oa_projects_create_1440.png'),
+        fullPage: false,
+      });
+
+      await page.getByLabel(/Título do projecto \(PT\)/i).fill('Pavilhão E2E Maputo');
+      await page.getByLabel(/Resumo técnico \(PT\)/i).fill('Estudo local persistente para validação da Fase 03A.');
+      await page.getByLabel(/Próximo marco previsto/i).fill('Entrega inicial E2E');
+      await page.getByRole('button', { name: /Criar projecto na Biblioteca/i }).click();
+      await page.waitForURL(/\/workspace\/projects\/proj-/);
+      await page.getByRole('heading', { name: 'Pavilhão E2E Maputo' }).waitFor({ state: 'visible' });
+      await checkNoHorizontalOverflow(page, 'Workspace Projects Dossier 1440px');
+
+      // Reload persistence & strict private default verification
+      await page.reload({ waitUntil: 'load' });
+      await page.getByRole('heading', { name: 'Pavilhão E2E Maputo' }).waitFor({ state: 'visible' });
+      await page.getByText(/Privado por omissão/i).first().waitFor({ state: 'visible' });
+      await page.screenshot({
+        path: path.join(ARTIFACT_DIR, 'oa_projects_dossier_1440.png'),
+        fullPage: false,
+      });
+
+      // Visit Phase 04 Web 3D placeholder & return
+      const createdUrl = page.url();
+      await page.getByRole('link', { name: /Modelo 3D · Em breve \(Fase 04\)/i }).click();
+      await page.waitForURL(`${createdUrl}/model`);
+      await page.getByText(/Visualizador Web 3D \(\.glb \/ \.skp\) previsto para a Fase 04/i).waitFor({ state: 'visible' });
+      await page.getByRole('link', { name: /Voltar ao Dossier/i }).click();
+      await page.waitForURL(createdUrl);
+
+      // Archive locally -> disappears from active filter, visible under all
+      await page.getByRole('button', { name: /Arquivar projecto/i }).click();
+      await page.getByText(/Arquivado localmente/i).waitFor({ state: 'visible' });
+      await page.getByRole('link', { name: /Voltar ao Catálogo/i }).click();
+      await page.waitForURL(`${BASE_URL}/workspace/projects`);
+      const hiddenActiveCount = await page.getByText('Pavilhão E2E Maputo').count();
+      assertCondition(hiddenActiveCount === 0, 'Archived project must be hidden under default active filter');
+      await page.getByLabel(/Estado do projecto/i).selectOption('all');
+      await page.getByText('Pavilhão E2E Maputo').first().waitFor({ state: 'visible' });
+
+      // Verify invalid ID renders honest 404 fallback cleanly
+      await page.goto(`${BASE_URL}/workspace/projects/id-invalido-404`, { waitUntil: 'load' });
+      await page.getByRole('heading', { name: /Projecto não encontrado no arquivo local/i }).waitFor({ state: 'visible' });
+      await page.getByRole('link', { name: /Voltar ao Catálogo/i }).click();
+      await page.waitForURL(`${BASE_URL}/workspace/projects`);
 
       // Open Notifications Popover, mark 1 notification read, verify unread count changes & capture
       const bellButton = page.getByRole('button', {
@@ -594,6 +651,13 @@ async function main() {
         path: path.join(ARTIFACT_DIR, 'oa_shell_tablet_768.png'),
         fullPage: false,
       });
+      await tabletPage.goto(`${BASE_URL}/workspace/projects`, { waitUntil: 'load' });
+      await tabletPage.waitForTimeout(200);
+      await checkNoHorizontalOverflow(tabletPage, 'Workspace Projects Catalog Tablet 768px');
+      await tabletPage.screenshot({
+        path: path.join(ARTIFACT_DIR, 'oa_projects_catalog_tablet_768.png'),
+        fullPage: false,
+      });
       await tabletContext.close();
 
       // 3. MOBILE 375x812 + Reduced Motion — Entry + Shell + Drawer + Popovers
@@ -679,6 +743,15 @@ async function main() {
       assertCondition(zoomDiag.headerTop === 0, 'Sticky header must stay accessible when scrolling at 720px zoom reflow');
       await mobilePage.screenshot({
         path: path.join(ARTIFACT_DIR, 'oa_shell_zoom_200_720.png'),
+        fullPage: false,
+      });
+
+      await mobilePage.setViewportSize({ width: 375, height: 812 });
+      await mobilePage.goto(`${BASE_URL}/workspace/projects`, { waitUntil: 'load' });
+      await mobilePage.waitForTimeout(200);
+      await checkNoHorizontalOverflow(mobilePage, 'Workspace Projects Catalog Mobile 375px');
+      await mobilePage.screenshot({
+        path: path.join(ARTIFACT_DIR, 'oa_projects_catalog_mobile_375.png'),
         fullPage: false,
       });
       await mobileContext.close();

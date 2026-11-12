@@ -8,6 +8,9 @@ import {
   useNavigationType,
 } from 'react-router-dom';
 import { LoginPage } from '../features/auth-demo/LoginPage';
+import { ProjectCreateEnginePage } from '../features/project-library/ProjectCreateEnginePage';
+import { ProjectDossierShellPage } from '../features/project-library/ProjectDossierShellPage';
+import { ProjectLibraryCatalogPage } from '../features/project-library/ProjectLibraryCatalogPage';
 import { StudioDeskPage } from '../features/studio-desk/StudioDeskPage';
 import { PlannedModuleView } from '../features/workspace/PlannedModuleView';
 import { WorkspaceSettingsPage } from '../features/workspace/WorkspaceSettingsPage';
@@ -82,6 +85,10 @@ export function AppRoutes() {
           >
             <Route index element={<StudioDeskPage />} />
             <Route path="settings" element={<WorkspaceSettingsPage />} />
+            <Route path="projects" element={<ProjectLibraryCatalogPage />} />
+            <Route path="projects/new" element={<ProjectCreateEnginePage />} />
+            <Route path="projects/:id" element={<ProjectDossierShellPage />} />
+            <Route path="projects/:id/model" element={<PlannedModuleView />} />
             <Route path="projects/*" element={<PlannedModuleView />} />
             <Route path="tasks" element={<PlannedModuleView />} />
             <Route path="calendar" element={<PlannedModuleView />} />

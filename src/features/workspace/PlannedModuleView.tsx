@@ -1,27 +1,146 @@
-import { ArrowLeft, ArrowUpRight, FolderKanban } from 'lucide-react';
+import { ArrowLeft, Box } from 'lucide-react';
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useWorkspaceSession } from '../../app/WorkspaceSessionContext';
-import {
-  DEMO_USERS,
-  DEPARTMENTS,
-  FEATURED_STUDY_PROJECT,
-} from '../../data/fixtures';
-import { STUDIO_DESK_PROJECTS } from '../../data/studioDeskFixtures';
+import { DEMO_USERS, DEPARTMENTS } from '../../data/fixtures';
+import { getProjectById } from '../../data/projectLibraryRepository';
 import { pickLocalized } from '../../locales';
 import { resolveActiveNavItem } from '../workspace-shell/shellNavigation';
+
+const MODEL_ROUTE_PATTERN = /^\/workspace\/projects\/([^/]+)\/model\/?$/i;
 
 export function PlannedModuleView() {
   const { language, t } = useWorkspaceSession();
   const location = useLocation();
-  const activeItem = resolveActiveNavItem(location.pathname);
+  const modelMatch = location.pathname.match(MODEL_ROUTE_PATTERN);
+  const modelProjectId = modelMatch ? decodeURIComponent(modelMatch[1]) : null;
+  const modelProject = modelProjectId ? getProjectById(modelProjectId) : null;
+  const activeItem = modelMatch ? null : resolveActiveNavItem(location.pathname);
 
   useEffect(() => {
+    if (modelMatch) {
+      const modelTitle = language === 'pt' ? 'Modelo Web 3D (Fase 04)' : 'Web 3D Model (Phase 04)';
+      document.title = modelProject
+        ? `${modelProject.identity.code} · ${modelTitle} — ${t.shell.planned.pageTitleSuffix}`
+        : `${t.shell.planned.routeNotFoundTitle} — ${t.shell.planned.pageTitleSuffix}`;
+      return;
+    }
+
     const label = activeItem
       ? pickLocalized(activeItem.label, language)
       : t.shell.planned.routeNotFoundTitle;
     document.title = `${label} — ${t.shell.planned.pageTitleSuffix}`;
-  }, [activeItem, language, t.shell.planned]);
+  }, [activeItem, language, modelMatch, modelProject, t.shell.planned]);
+
+  if (modelMatch) {
+    if (!modelProject) {
+      return (
+        <div className="w-full max-w-[1040px] mx-auto px-4 sm:px-6 lg:px-10 py-10 space-y-6">
+          <p className="text-[11px] font-mono uppercase tracking-[0.20em] text-[#A65D4A]">
+            404 · {t.common.axisLabel}
+          </p>
+          <h1 className="text-2xl sm:text-3xl font-light text-white">
+            {t.shell.planned.routeNotFoundTitle}
+          </h1>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              to="/workspace/projects"
+              className="min-h-[44px] px-4 py-2.5 border border-white/18 bg-[#141414] hover:border-[#A65D4A] text-xs font-medium uppercase tracking-[0.16em] text-white inline-flex items-center gap-2 transition-colors"
+            >
+              <ArrowLeft size={14} strokeWidth={1.5} aria-hidden="true" />
+              <span>
+                {language === 'pt' ? 'Voltar ao Catálogo' : 'Back to Catalog'}
+              </span>
+            </Link>
+            <Link
+              to="/workspace"
+              className="min-h-[44px] px-4 py-2.5 border border-white/18 bg-[#141414] hover:border-white/40 text-xs font-medium uppercase tracking-[0.16em] text-[#E0E0E0] inline-flex items-center transition-colors"
+            >
+              {t.shell.planned.backToDesk}
+            </Link>
+          </div>
+        </div>
+      );
+    }
+
+    const modelHeading =
+      language === 'pt'
+        ? 'Visualizador Web 3D (.glb / .skp) previsto para a Fase 04.'
+        : 'Web 3D Viewer (.glb / .skp) planned for Phase 04.';
+    const modelBody =
+      language === 'pt'
+        ? 'O motor de visualização espacial Web 3D em navegador ainda não foi activado nesta fase. Os metadados de referência do projecto já estão preservados no dossier técnico.'
+        : 'The in-browser Web 3D spatial viewer is not enabled yet at this phase. Project reference metadata is already preserved in the technical dossier.';
+    const modelFiles = modelProject.files.filter(
+      (file) => file.kind === 'model_3d' || file.kind === 'source_skp',
+    );
+
+    return (
+      <div className="w-full max-w-[1080px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-10 space-y-6">
+        <header className="pb-6 oa-hairline-b space-y-3">
+          <div className="flex flex-wrap items-center gap-2.5 text-[11px] font-mono uppercase tracking-[0.18em]">
+            <span className="text-[#CE826D]">{modelProject.identity.code}</span>
+            <span aria-hidden="true" className="text-white/30">
+              ·
+            </span>
+            <span className="border border-dashed border-white/25 bg-[#181818] px-2 py-0.5 text-[#D4D4D4]">
+              {language === 'pt' ? 'Fase 04 · Em breve' : 'Phase 04 · Coming soon'}
+            </span>
+          </div>
+
+          <h1 className="text-2xl sm:text-3xl font-light text-white flex items-center gap-3">
+            <Box
+              size={22}
+              strokeWidth={1.4}
+              aria-hidden="true"
+              className="text-[#CE826D] shrink-0"
+            />
+            <span>{pickLocalized(modelProject.editorial.title, language)}</span>
+          </h1>
+          <p className="text-sm text-[#CCCCCC]">{modelHeading}</p>
+        </header>
+
+        <section className="border border-white/16 bg-[#141414] p-5 sm:p-7 space-y-4">
+          <p className="text-sm text-[#E6E6E6] leading-relaxed">{modelBody}</p>
+
+          {modelFiles.length > 0 && (
+            <div className="pt-3 oa-hairline-t space-y-2">
+              <p className="text-[11px] font-mono uppercase tracking-[0.14em] text-[#B8B8B8]">
+                {language === 'pt'
+                  ? 'Referências 3D / SKP registadas (metadados):'
+                  : 'Registered 3D / SKP metadata references:'}
+              </p>
+              <ul className="space-y-1.5 text-xs font-mono text-[#E0E0E0]">
+                {modelFiles.map((file) => (
+                  <li key={file.id}>
+                    {file.fileName} · {file.formatLabel} · {file.versionLabel}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="pt-3 flex flex-wrap gap-3">
+            <Link
+              to={`/workspace/projects/${modelProject.identity.id}`}
+              className="min-h-[44px] px-4 py-2.5 bg-[#A65D4A] hover:bg-[#B86A56] text-xs font-medium uppercase tracking-[0.14em] text-[#050505] inline-flex items-center gap-2 transition-colors"
+            >
+              <ArrowLeft size={14} strokeWidth={1.6} aria-hidden="true" />
+              <span>
+                {language === 'pt' ? 'Voltar ao Dossier' : 'Back to Dossier'}
+              </span>
+            </Link>
+            <Link
+              to="/workspace/projects"
+              className="min-h-[44px] px-4 py-2.5 border border-white/18 bg-[#111111] hover:border-white/40 text-xs font-medium uppercase tracking-[0.14em] text-[#E0E0E0] inline-flex items-center transition-colors"
+            >
+              {language === 'pt' ? 'Catálogo de Projectos' : 'Project Catalog'}
+            </Link>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   if (!activeItem) {
     return (
@@ -108,98 +227,6 @@ export function PlannedModuleView() {
           </Link>
         </div>
       </section>
-
-      {/* Contextual Demonstration Catalog for /workspace/projects */}
-      {activeItem.id === 'projects' && (
-        <section aria-labelledby="planned-projects-heading" className="space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h2
-                id="planned-projects-heading"
-                className="text-xs font-medium uppercase tracking-[0.20em] text-[#D4D4D4]"
-              >
-                {t.shell.planned.studioProjectsCatalogHeading}
-              </h2>
-              <p className="text-xs text-[#B8B8B8] mt-1">
-                {t.shell.planned.studioProjectsCatalogDesc}
-              </p>
-            </div>
-            <Link
-              to="/workspace"
-              className="min-h-[44px] px-3.5 py-2 border border-white/16 bg-[#141414] hover:border-[#A65D4A] text-xs uppercase tracking-[0.14em] text-white inline-flex items-center gap-2 transition-colors"
-            >
-              <FolderKanban size={13} strokeWidth={1.5} aria-hidden="true" />
-              <span>{t.shell.planned.openDeskViewCta}</span>
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {STUDIO_DESK_PROJECTS.map((proj) => (
-              <div
-                key={proj.id}
-                className="border border-white/14 bg-[#101010] p-4 flex flex-col justify-between gap-4"
-              >
-                <div className="space-y-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] uppercase tracking-[0.14em]">
-                    <span className="font-mono font-semibold text-[#CE826D]">
-                      {proj.code}
-                    </span>
-                    <span className="text-[#B8B8B8]">
-                      {proj.studioBase} · {proj.scale}
-                    </span>
-                  </div>
-
-                  <div>
-                    <h3 className="text-base font-light text-white leading-snug">
-                      {pickLocalized(proj.title, language)}
-                    </h3>
-                    <p className="mt-1 text-xs text-[#CCCCCC] line-clamp-2">
-                      {pickLocalized(proj.subtitle, language)}
-                    </p>
-                  </div>
-
-                  <p className="text-[11px] font-mono text-[#B8B8B8]">
-                    {pickLocalized(proj.phase, language)} · {pickLocalized(proj.discipline, language)}
-                  </p>
-                </div>
-
-                <div className="pt-3 oa-hairline-t flex items-center justify-between gap-2">
-                  <span className="text-[11px] text-[#B8B8B8]">
-                    {proj.leadAuthorName}
-                  </span>
-                  <Link
-                    to={`/workspace?project=${proj.id}`}
-                    className="min-h-[36px] px-3 py-1.5 border border-white/16 bg-[#161616] hover:border-[#A65D4A] text-[11px] uppercase tracking-[0.12em] text-white inline-flex items-center gap-1.5 transition-colors"
-                  >
-                    <span>{t.shell.planned.openProjectInDeskAction}</span>
-                    <ArrowUpRight size={12} strokeWidth={1.5} aria-hidden="true" />
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Reference to Archive Study OA-26-014 */}
-          <div className="border border-white/12 bg-[#0C0C0C] p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4">
-            <img
-              src={FEATURED_STUDY_PROJECT.maquetteImageSrc}
-              alt={pickLocalized(FEATURED_STUDY_PROJECT.maquetteImageAlt, language)}
-              className="w-full sm:w-48 aspect-[16/10] object-cover bg-[#050505] shrink-0"
-            />
-            <div className="space-y-1 text-xs">
-              <p className="font-mono uppercase tracking-[0.16em] text-[#CE826D]">
-                {FEATURED_STUDY_PROJECT.code} · {t.welcome.sheetCode}
-              </p>
-              <h4 className="text-sm font-medium text-white">
-                {pickLocalized(FEATURED_STUDY_PROJECT.title, language)}
-              </h4>
-              <p className="text-[#CCCCCC]">
-                {pickLocalized(FEATURED_STUDY_PROJECT.subtitle, language)}
-              </p>
-            </div>
-          </div>
-        </section>
-      )}
 
       {activeItem.id === 'departments' && (
         <section aria-labelledby="planned-ref-heading" className="space-y-4">
