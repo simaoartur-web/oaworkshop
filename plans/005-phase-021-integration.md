@@ -26,6 +26,6 @@
 ## 2. Quality Gate Pós-Integração (`codex/f02-integration-preview`)
 
 - `npm run lint` (`eslint .`) -> aprovado sem avisos nem erros.
-- `npm run test` (`vitest run`) -> `5` ficheiros de teste (`hardeningAndTime`, `integrationPreview`, `entryExperience`, `workspaceShell`, `studioDesk`), `44/44` testes aprovados.
+- `npm run test` (`vitest run`) -> `5` ficheiros de teste (`hardeningAndTime`, `integrationPreview`, `entryExperience`, `workspaceShell`, `studioDesk`), `45/45` testes aprovados (incluindo destaque `?project=` via Pesquisa Global e fluxo não destrutivo `O meu trabalho` / `Abrir próxima prioridade`).
 - `npm run build` (`tsc -b && vite build`) -> build de produção limpo (`dist/assets/index-*.js`).
-- `npm run test:e2e` (`node scripts/e2e-verify-entry.mjs`) -> aprovado (`0` erros de consola/página, `0` pedidos de rede inesperados, validação desktop `1440×900` topo/meio/fundo, compact tooltip scrolled, `1440×680`, reflow zoom `200%` a `720×450`, tablet `768px`, mobile `375px` e drawer).
+- `npm run test:e2e` (`node scripts/e2e-verify-entry.mjs`) -> aprovado (`0` erros de consola/página, `0` pedidos de rede inesperados, validação desktop `1440×900` topo/meio/fundo, compact tooltip scrolled, `1440×680`, reflow zoom `200%` a `720×450`, tablet `768px`, mobile `375px`, pesquisa global `?project=` e `Back`/`Forward` com scroll e query params).

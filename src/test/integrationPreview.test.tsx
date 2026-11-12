@@ -132,11 +132,39 @@ describe('O+A Workspace — Phase 02 Integrated Quality Gate Suite', () => {
       await within(dialog).findByText(/Corredor Pedonal/i),
     ).toBeInTheDocument();
 
-    // Select project and press Enter -> closes dialog and navigates
+    // Select project and press Enter -> closes dialog and highlights matched project via ?project=
     await user.keyboard('{Enter}');
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
+    expect(
+      await screen.findByText(/PROJECTO EM DESTAQUE · PESQUISA \/ URL/i),
+    ).toBeInTheDocument();
+  });
+
+  it('keeps "O meu trabalho" as initial scope and ensures "Abrir próxima prioridade" inspects without auto-completing inside WorkspaceShell', async () => {
+    const user = userEvent.setup();
+    seedDemoSession(0);
+    renderIntegratedApp('/workspace');
+
+    await screen.findByRole('heading', {
+      name: /Bom dia, Helena Mondlane|Boa tarde, Helena Mondlane|Boa noite, Helena Mondlane/i,
+    });
+
+    const myWorkBtn = screen.getByRole('button', { name: /^O meu trabalho$/i });
+    expect(myWorkBtn).toHaveAttribute('aria-pressed', 'true');
+
+    const pendingBefore = screen.getAllByText(/1\s+POR CONCLUIR/i).length;
+    expect(pendingBefore).toBeGreaterThan(0);
+
+    await user.click(
+      screen.getByRole('button', { name: /Abrir próxima prioridade/i }),
+    );
+
+    expect(
+      await screen.findByText(/Prioridade aberta em detalhe/i),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(/1\s+POR CONCLUIR/i).length).toBe(pendingBefore);
   });
 
   it('harmonizes notifications popover with Studio Desk project references and planned module previews', async () => {

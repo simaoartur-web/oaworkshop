@@ -290,6 +290,23 @@ async function main() {
         fullPage: false,
       });
 
+      // Verify "O meu trabalho" is active by default and "Abrir próxima prioridade" opens task dialog without auto-completing
+      const myWorkButton = page.getByRole('button', { name: /^O meu trabalho$/i });
+      const myWorkPressed = await myWorkButton.getAttribute('aria-pressed');
+      assertCondition(myWorkPressed === 'true', '"O meu trabalho" must be active by default on Studio Desk');
+      const openPriorityBtn = page.getByRole('button', { name: /Abrir próxima prioridade/i });
+      await openPriorityBtn.click();
+      const taskDialog = page.getByRole('dialog');
+      await taskDialog.waitFor({ state: 'visible' });
+      await page.keyboard.press('Escape');
+      await taskDialog.waitFor({ state: 'hidden' });
+      const pendingText = await page.getByText(/1\s+por concluir/i).first().isVisible();
+      assertCondition(pendingText, '"Abrir próxima prioridade" must keep task pending without auto-completion');
+      await page.evaluate(() => {
+        const scroller = document.getElementById('workspace-main-scroll');
+        if (scroller) scroller.scrollTop = 0;
+      });
+
       // Toggle Architectural Rail -> Compact (72px)
       await page.getByRole('button', { name: /Recolher prancha/i }).click();
       await page.waitForTimeout(250);
@@ -412,6 +429,14 @@ async function main() {
         () => document.getElementById('workspace-main-scroll')?.scrollTop ?? 0,
       );
       assertCondition(backScroll >= 800, `Browser Back must restore Studio Desk scroll position (got ${backScroll})`);
+      await page.goForward();
+      await page.waitForURL(`${BASE_URL}/workspace/settings`);
+      const forwardScroll = await page.evaluate(
+        () => document.getElementById('workspace-main-scroll')?.scrollTop ?? -1,
+      );
+      assertCondition(forwardScroll === 0, `Browser Forward to settings must stay at scroll=0 (got ${forwardScroll})`);
+      await page.goBack();
+      await page.waitForURL(`${BASE_URL}/workspace`);
 
       // Verify Short Desktop Viewport (1440x680 -> simulated 125%+ vertical constraint & independent rail scroll)
       await page.setViewportSize({ width: 1440, height: 680 });
@@ -451,11 +476,19 @@ async function main() {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.waitForTimeout(150);
 
-      // Open Global Search via keyboard Ctrl+K, verify keyboard navigation & capture
+      // Open Global Search via keyboard Ctrl+K, verify project ?project= highlight + Back/Forward + planned route
       await page.keyboard.press('Control+k');
       const searchDialog = page.getByRole('dialog');
       await searchDialog.waitFor({ state: 'visible' });
       const searchInput = page.getByRole('combobox');
+      await searchInput.fill('OA-26-108');
+      await page.waitForTimeout(150);
+      await page.keyboard.press('Enter');
+      await page.waitForURL(/\/workspace\?project=sd-proj-oa-26-108/);
+      await page.getByText(/PROJECTO EM DESTAQUE · PESQUISA \/ URL/i).waitFor({ state: 'visible' });
+
+      await page.keyboard.press('Control+k');
+      await searchDialog.waitFor({ state: 'visible' });
       await searchInput.fill('Projectos');
       await page.waitForTimeout(150);
       await page.screenshot({
@@ -465,6 +498,11 @@ async function main() {
       await page.keyboard.press('Enter');
       await page.waitForURL(`${BASE_URL}/workspace/projects`);
       await checkNoHorizontalOverflow(page, 'Workspace Projects Planned View 1440px');
+      await page.goBack();
+      await page.waitForURL(/\/workspace\?project=sd-proj-oa-26-108/);
+      await page.getByText(/PROJECTO EM DESTAQUE · PESQUISA \/ URL/i).waitFor({ state: 'visible' });
+      await page.goForward();
+      await page.waitForURL(`${BASE_URL}/workspace/projects`);
 
       // Open Notifications Popover, mark 1 notification read, verify unread count changes & capture
       const bellButton = page.getByRole('button', {
