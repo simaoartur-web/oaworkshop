@@ -3,7 +3,7 @@ import {
   DEPARTMENTS,
   FEATURED_STUDY_PROJECT,
 } from '../../data/fixtures';
-import { STUDIO_DESK_PROJECTS } from '../../data/studioDeskFixtures';
+import { listProjects } from '../../data/projectLibraryRepository';
 import type { AppLanguage, Role } from '../../data/types';
 import { pickLocalized } from '../../locales';
 import { WORKSPACE_NAV_ITEMS } from './shellNavigation';
@@ -66,38 +66,51 @@ export function buildWorkspaceSearchEntries(
     }),
   );
 
-  const projectEntries: WorkspaceSearchEntry[] = STUDIO_DESK_PROJECTS.map(
-    (project) => ({
-      id: `project-${project.id}`,
+  const projectEntries: WorkspaceSearchEntry[] = listProjects({
+    includeArchived: true,
+  }).map((record) => {
+    const dept = DEPARTMENTS[record.classification.departmentId];
+    const targetPath =
+      record.metadata.origin === 'seed-fixture'
+        ? `/workspace?project=${record.identity.id}`
+        : `/workspace/projects/${record.identity.id}`;
+    return {
+      id: `project-${record.identity.id}`,
       category: 'project',
-      code: `${project.code} · ${project.studioBase}`,
-      title: pickLocalized(project.title, language),
-      subtitle: `${pickLocalized(project.discipline, language)} · ${project.scale} · ${project.leadAuthorName}`,
-      targetPath: `/workspace?project=${project.id}`,
+      code: `${record.identity.code} · ${record.location.studioBase}`,
+      title: pickLocalized(record.editorial.title, language),
+      subtitle: `${pickLocalized(record.classification.discipline, language)} · ${record.classification.scale} · ${record.ownership.leadAuthorName}`,
+      targetPath,
       isPlannedRoute: false,
       searchText: normalizeForSearch(
         [
-          project.code,
-          project.id,
-          project.studioBase,
-          project.leadAuthorName,
-          project.leadAuthorCode,
-          project.scale,
-          project.areaSqm,
-          project.elevationDatum,
-          project.title.pt,
-          project.title.en,
-          project.subtitle.pt,
-          project.subtitle.en,
-          project.discipline.pt,
-          project.discipline.en,
-          project.phase.pt,
-          project.phase.en,
-          ...project.deliverables.flatMap((d) => [d.code, d.label.pt, d.label.en]),
+          record.identity.code,
+          record.identity.id,
+          record.identity.slug,
+          dept.code,
+          dept.name.pt,
+          dept.name.en,
+          record.location.studioBase,
+          record.ownership.leadAuthorName,
+          record.ownership.leadAuthorCode,
+          record.classification.scale,
+          record.classification.areaSqm,
+          record.classification.elevationDatum,
+          record.editorial.title.pt,
+          record.editorial.title.en,
+          record.editorial.subtitle.pt,
+          record.editorial.subtitle.en,
+          record.classification.discipline.pt,
+          record.classification.discipline.en,
+          record.lifecycle.phase.pt,
+          record.lifecycle.phase.en,
+          record.lifecycle.projectStatus,
+          ...record.deliverables.flatMap((d) => [d.code, d.label.pt, d.label.en]),
+          ...record.files.map((f) => f.fileName),
         ].join(' '),
       ),
-    }),
-  );
+    };
+  });
 
   const profileEntries: WorkspaceSearchEntry[] = DEMO_USERS.map((user) => {
     const dept = DEPARTMENTS[user.departmentId];

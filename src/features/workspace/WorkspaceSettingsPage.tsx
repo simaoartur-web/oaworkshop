@@ -3,6 +3,7 @@ import { useEffect, useId } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useWorkspaceSession } from '../../app/WorkspaceSessionContext';
 import { DEMO_USERS } from '../../data/fixtures';
+import { PROJECT_LIBRARY_STORAGE_KEY } from '../../data/projectLibraryRepository';
 import { STORAGE_KEYS } from '../../data/sessionRepository';
 import { STUDIO_DESK_STORAGE_KEY } from '../../data/studioDeskFixtures';
 import { LanguageToggle } from '../../design-system/LanguageToggle';
@@ -291,6 +292,9 @@ export function WorkspaceSettingsPage() {
             </li>
             <li className="border border-white/10 bg-[#141414] px-3 py-2">
               {STUDIO_DESK_STORAGE_KEY}
+            </li>
+            <li className="border border-white/10 bg-[#141414] px-3 py-2">
+              {PROJECT_LIBRARY_STORAGE_KEY}
             </li>
           </ul>
         </div>

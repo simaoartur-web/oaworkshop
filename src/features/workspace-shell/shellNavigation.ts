@@ -67,6 +67,24 @@ export const WORKSPACE_NAV_ITEMS: WorkspaceNavItem[] = [
     },
   },
   {
+    id: 'projects',
+    plateNumber: '02',
+    path: '/workspace/projects',
+    group: 'atelier',
+    status: 'active-shell',
+    targetPhase: {
+      pt: 'Disponível agora (Fases 02–03)',
+      en: 'Available now (Phases 02–03)',
+    },
+    shortTag: 'PRJ',
+    icon: FolderKanban,
+    label: { pt: 'Projectos', en: 'Projects' },
+    description: {
+      pt: 'Catálogo técnico de projectos, criação local e dossiers vivos do atelier.',
+      en: 'Technical project catalog, local creation, and live studio dossiers.',
+    },
+  },
+  {
     id: 'settings',
     plateNumber: '11',
     path: '/workspace/settings',
@@ -79,21 +97,6 @@ export const WORKSPACE_NAV_ITEMS: WorkspaceNavItem[] = [
     description: {
       pt: 'Preferências locais da sessão demo, idioma, movimento reduzido e prancha lateral.',
       en: 'Local demo session preferences, language, reduced motion, and rail state.',
-    },
-  },
-  {
-    id: 'projects',
-    plateNumber: '02',
-    path: '/workspace/projects',
-    group: 'structure',
-    status: 'planned',
-    targetPhase: { pt: 'Fases 03–04 (Em breve)', en: 'Phases 03–04 (Coming soon)' },
-    shortTag: 'F03',
-    icon: FolderKanban,
-    label: { pt: 'Projectos', en: 'Projects' },
-    description: {
-      pt: 'Arquivo técnico de projectos, dossiers vivos e modelos Web 3D (.glb).',
-      en: 'Technical project archive, live dossiers, and Web 3D (.glb) models.',
     },
   },
   {
