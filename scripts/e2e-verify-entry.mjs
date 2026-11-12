@@ -202,7 +202,7 @@ async function main() {
       const page = await desktopContext.newPage();
       attachRuntimeMonitors(page, unexpectedRequests, runtimeErrors, 'Desktop-1440');
 
-      await page.goto(`${BASE_URL}/login`, { waitUntil: 'networkidle' });
+      await page.goto(`${BASE_URL}/login`, { waitUntil: 'load' });
       await page.waitForTimeout(300);
       await checkNoHorizontalOverflow(page, 'Login Desktop 1440px');
       await page.screenshot({
@@ -261,7 +261,7 @@ async function main() {
       await page.getByRole('button', { name: /Switch language to Portuguese/i }).click();
       await page.getByRole('button', { name: /Entrar no Atelier/i }).click();
       await page.waitForURL(`${BASE_URL}/welcome`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('load');
       await page.waitForTimeout(300);
       await checkNoHorizontalOverflow(page, 'Welcome Desktop 1440px');
       await page.screenshot({
@@ -272,7 +272,7 @@ async function main() {
       // Enter /workspace (WorkspaceShell + Argon A Studio Desk placeholder)
       await page.getByRole('button', { name: /^Entrar no Workspace$/i }).click();
       await page.waitForURL(`${BASE_URL}/workspace`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('load');
       await page.waitForTimeout(300);
       await checkNoHorizontalOverflow(page, 'Workspace Shell Expanded 1440px');
       await checkHeaderNoClusterOverlap(page, 'Workspace Shell Expanded 1440px');
@@ -492,7 +492,7 @@ async function main() {
         fullPage: false,
       });
 
-      await page.reload({ waitUntil: 'networkidle' });
+      await page.reload({ waitUntil: 'load' });
       assertCondition(
         page.url().endsWith('/workspace/settings'),
         'Session must persist across reload on /workspace/settings',
@@ -528,7 +528,7 @@ async function main() {
       const tabletPage = await tabletContext.newPage();
       attachRuntimeMonitors(tabletPage, unexpectedRequests, runtimeErrors, 'Tablet-768');
 
-      await tabletPage.goto(`${BASE_URL}/login`, { waitUntil: 'networkidle' });
+      await tabletPage.goto(`${BASE_URL}/login`, { waitUntil: 'load' });
       await tabletPage.waitForTimeout(250);
       await checkNoHorizontalOverflow(tabletPage, 'Login Tablet 768px');
       await tabletPage.screenshot({
@@ -538,7 +538,7 @@ async function main() {
 
       await tabletPage.getByRole('button', { name: /Entrar como Mateo Conti/i }).click();
       await tabletPage.waitForURL(`${BASE_URL}/welcome`);
-      await tabletPage.waitForLoadState('networkidle');
+      await tabletPage.waitForLoadState('load');
       await tabletPage.waitForTimeout(250);
       await checkNoHorizontalOverflow(tabletPage, 'Welcome Tablet 768px');
       await tabletPage.screenshot({
@@ -548,7 +548,7 @@ async function main() {
 
       await tabletPage.getByRole('button', { name: /^Entrar no Workspace$/i }).click();
       await tabletPage.waitForURL(`${BASE_URL}/workspace`);
-      await tabletPage.waitForLoadState('networkidle');
+      await tabletPage.waitForLoadState('load');
       await tabletPage.waitForTimeout(250);
       await checkNoHorizontalOverflow(tabletPage, 'Workspace Shell Tablet 768px');
       await checkHeaderNoClusterOverlap(tabletPage, 'Workspace Shell Tablet 768px');
@@ -567,7 +567,7 @@ async function main() {
       const mobilePage = await mobileContext.newPage();
       attachRuntimeMonitors(mobilePage, unexpectedRequests, runtimeErrors, 'Mobile-375');
 
-      await mobilePage.goto(`${BASE_URL}/login`, { waitUntil: 'networkidle' });
+      await mobilePage.goto(`${BASE_URL}/login`, { waitUntil: 'load' });
       await mobilePage.waitForTimeout(200);
       await checkNoHorizontalOverflow(mobilePage, 'Login Mobile 375px');
       await mobilePage.screenshot({
@@ -577,7 +577,7 @@ async function main() {
 
       await mobilePage.getByRole('button', { name: /Entrar no Atelier/i }).click();
       await mobilePage.waitForURL(`${BASE_URL}/welcome`);
-      await mobilePage.waitForLoadState('networkidle');
+      await mobilePage.waitForLoadState('load');
       await mobilePage.waitForTimeout(200);
       await checkNoHorizontalOverflow(mobilePage, 'Welcome Mobile 375px');
       await mobilePage.screenshot({
@@ -587,7 +587,7 @@ async function main() {
 
       await mobilePage.getByRole('button', { name: /^Entrar no Workspace$/i }).click();
       await mobilePage.waitForURL(`${BASE_URL}/workspace`);
-      await mobilePage.waitForLoadState('networkidle');
+      await mobilePage.waitForLoadState('load');
       await mobilePage.waitForTimeout(200);
       await checkNoHorizontalOverflow(mobilePage, 'Workspace Shell Mobile 375px');
       await checkHeaderNoClusterOverlap(mobilePage, 'Workspace Shell Mobile 375px');
