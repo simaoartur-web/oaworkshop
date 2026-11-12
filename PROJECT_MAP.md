@@ -68,9 +68,20 @@
 | `src/features/studio-desk/useStudioDeskDialogFocusTrap.ts` | hook de focus trap isolado para dossiers de projecto |
 | `src/features/studio-desk/i18n.ts` | dicionário bilingue PT/EN dedicado da Mesa de Trabalho |
 | `src/features/workspace/WorkspaceSettingsPage.tsx` | folha operacional `/workspace/settings` (idioma, skip-welcome, movimento reduzido, rail, papéis e diagnóstico storage) |
-| `src/features/workspace/PlannedModuleView.tsx` | prancha honesta para rotas futuras das Fases 03–06 com catálogo de projectos e atalhos para a mesa |
+| `src/features/workspace/PlannedModuleView.tsx` | prancha honesta para rotas futuras das Fases 04–06 com catálogo de projectos e atalhos para a mesa |
+| `src/features/project-library/useProjectLibrary.ts` | hook reactivo do motor canónico de projectos (`listProjects`, criação, edição, arquivo/restauro, revisões, ficheiros) |
+| `src/features/project-library/projectExperienceContract.ts` | adaptadores explícitos bidireccionais entre `CanonicalProjectRecord` e `project-experience` DTOs |
+| `src/features/project-library/ProjectLibraryCatalogPage.tsx` | rota `/workspace/projects` ligando `ProjectGalleryView` ao motor canónico e pesquisa global |
+| `src/features/project-library/ProjectCreateEnginePage.tsx` | rota `/workspace/projects/new` ligando `ProjectCreationWizard` à criação local persistente |
+| `src/features/project-library/ProjectDossierShellPage.tsx` | rota `/workspace/projects/:id` ligando `ProjectDossierView` a documentos, histórico, edição e arquivo |
+| `src/features/project-library/i18n.ts` | dicionário bilingue PT/EN dos estados de erro, not-found e títulos da biblioteca |
+| `src/features/project-experience/ProjectGalleryView.tsx` | vista editorial em Galeria & Lista Técnica com filtros por estado, âmbito individual/função e pesquisa |
+| `src/features/project-experience/ProjectDossierView.tsx` | dossier vivo em 6 secções (Identidade, Equipa, Desenvolvimento, Documentação, Histórico, Visibilidade) |
+| `src/features/project-experience/ProjectCreationWizard.tsx` | assistente guiado de 4 passos com validação de datas/códigos, tratamento de erros de gravação e continuidade |
+| `src/features/project-experience/contracts.ts`, `helpers.ts`, `i18n.ts` | contratos tipados, utilitários sincronizados e dicionário PT/EN da experiência editorial de projectos |
 | `src/data/types.ts` | tipos estritos de domínio (`Role`, `DemoUser`, `DemoSession`, `UserPreferences`, etc.) |
 | `src/data/fixtures.ts` | 6 perfis demonstrativos fictícios, 9 departamentos e projecto de estudo `OA-26-014` |
+| `src/data/projectLibraryTypes.ts`, `projectLibraryAdapter.ts`, `projectLibraryRepository.ts` | camada canónica de projectos, validações, persistência `oa_workspace_project_library_v1` e datas dinâmicas |
 | `src/data/studioDeskTypes.ts` | tipos de domínio da Mesa de Trabalho (`StudioDeskProject`, `DeskPriorityItem`, `DeskActivityItem`, etc.) |
 | `src/data/studioDeskFixtures.ts` | dados demonstrativos fictícios da Mesa de Trabalho (`STUDIO_DESK_PROJECTS`, `STUDIO_DESK_TASKS`, `ROLE_DESK_CONFIGS`) |
 | `src/data/sessionRepository.ts` | persistência local sanitizada (zero passwords em storage, limpeza automática de sessões corrompidas) |
@@ -81,7 +92,8 @@
 | `src/test/hardeningAndTime.test.tsx` | testes de acessibilidade do modal (`inert`, `Tab`, `Shift+Tab`, `Escape`) e regras `CET`/`CEST` por `studioBase` |
 | `src/test/workspaceShell.test.tsx` | testes de integração do `WorkspaceShell` (rail, drawer mobile, pesquisa, notificações, definições) |
 | `src/test/studioDesk.test.tsx` | suite unitária e de integração da Mesa de Trabalho do Argon B |
-| `src/test/projectLibrary.test.tsx` | suite de domínio, repositório local, adaptação, catálogo, criação, dossier e reset da Fase 03A |
+| `src/test/projectLibrary.test.tsx` | suite de integração Fase 03 (motor canónico, UI integrada, códigos únicos, datas, falhas storage e continuidade) |
+| `src/test/projectExperience.test.tsx` | suite unitária/acessibilidade da experiência editorial B (galeria, dossier 6 secções e assistente 4 passos) |
 | `src/test/integrationPreview.test.tsx` | suite do Quality Gate de integração (câmara única, 6 papéis, pesquisa integrada, reset e bilinguismo) |
 
 ## Recursos Públicos e Documentação
@@ -102,5 +114,6 @@
 | `plans/003-phase-02-integration.md` | plano de integração técnica e Quality Gate da Fase 02 |
 | `plans/004-phase-021a-shell-ux.md` | plano da Fase 02.1A (`codex/f021-shell-ux`) — scroll, navegação e legibilidade do Shell |
 | `plans/005-phase-021-integration.md` | plano e registo da integração sequencial Fase 02.1 (`codex/f02-integration-preview`) |
+| `plans/007-phase-03-integration.md` | plano e registo de integração Fase 03 A+B, correcções P0/P1 e Quality Gate |
 | `plans/006-phase-03a-project-platform.md` | plano da Fase 03A (`codex/f03-project-platform`) — domínio canónico, catálogo e motor do dossier |
 | `scripts/e2e-verify-entry.mjs` | verificação E2E portátil em Chromium/Edge nas larguras 1440px, 680px altura, 768px, 720px (zoom) e 375px |

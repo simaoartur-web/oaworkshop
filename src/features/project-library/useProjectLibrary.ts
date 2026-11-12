@@ -82,7 +82,7 @@ export function useProjectLibrary(): UseProjectLibraryResult {
   const updateMetadata = useCallback(
     (id: string, patch: UpdateCanonicalProjectInput) => {
       if (!currentUser) {
-        return null;
+        throw new Error('Sessão demonstrativa obrigatória para actualizar metadados.');
       }
       return updateProjectMetadata(id, patch, currentUser);
     },
@@ -92,7 +92,7 @@ export function useProjectLibrary(): UseProjectLibraryResult {
   const archive = useCallback(
     (id: string) => {
       if (!currentUser) {
-        return null;
+        throw new Error('Sessão demonstrativa obrigatória para arquivar projecto.');
       }
       return archiveProject(id, currentUser);
     },
@@ -105,7 +105,7 @@ export function useProjectLibrary(): UseProjectLibraryResult {
       nextStatus: Exclude<ProjectStatus, 'archived'> = 'in_progress',
     ) => {
       if (!currentUser) {
-        return null;
+        throw new Error('Sessão demonstrativa obrigatória para restaurar projecto.');
       }
       return restoreProjectFromArchive(id, nextStatus, currentUser);
     },
@@ -115,7 +115,7 @@ export function useProjectLibrary(): UseProjectLibraryResult {
   const addRevision = useCallback(
     (id: string, input: AddProjectRevisionInput) => {
       if (!currentUser) {
-        return null;
+        throw new Error('Sessão demonstrativa obrigatória para registar revisão.');
       }
       return addProjectRevision(id, input, currentUser);
     },
@@ -125,7 +125,7 @@ export function useProjectLibrary(): UseProjectLibraryResult {
   const addFileReference = useCallback(
     (id: string, input: AddProjectFileReferenceInput) => {
       if (!currentUser) {
-        return null;
+        throw new Error('Sessão demonstrativa obrigatória para registar ficheiro.');
       }
       return addProjectFileReference(id, input, currentUser);
     },

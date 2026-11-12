@@ -5,6 +5,10 @@ import type {
   DepartmentId,
   LocalizedText,
 } from '../../data/types';
+import {
+  getTodayIsoDate,
+  suggestNextAvailableProjectCode,
+} from '../../data/projectLibraryRepository';
 import type {
   StudioDeskActivityEntry,
   StudioDeskProject,
@@ -108,12 +112,7 @@ export function resolveCollaboratorsForProject(
  * Generates an honest next code (e.g. `OA-26-125`) avoiding existing project codes.
  */
 export function suggestNextProjectCode(existingCodes: readonly string[]): string {
-  const normalized = new Set(existingCodes.map((c) => c.trim().toUpperCase()));
-  let seq = 125;
-  while (normalized.has(`OA-26-${seq}`) && seq < 999) {
-    seq += 1;
-  }
-  return `OA-26-${seq}`;
+  return suggestNextAvailableProjectCode([...existingCodes]);
 }
 
 /**
@@ -125,7 +124,7 @@ export function deriveDefaultProjectDocuments(
   project: StudioDeskProject,
 ): ProjectDocumentReference[] {
   const slug = project.code.toLowerCase();
-  const baseDate = project.nextMilestone.dateIso || '2026-11-12';
+  const baseDate = project.nextMilestone.dateIso || getTodayIsoDate();
 
   const deliverableDocs: ProjectDocumentReference[] = project.deliverables.map(
     (item, idx) => {

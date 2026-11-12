@@ -31,6 +31,7 @@ export interface ProjectFileReference {
   addedAtIso: string;
   addedByUserId: string;
   addedByName: string;
+  reviewState?: DeskReviewState;
   /** Fictive metadata note only; no real binary payload is ever loaded or stored. */
   note: LocalizedText;
 }
@@ -183,9 +184,13 @@ export interface AddProjectRevisionInput {
 }
 
 export interface AddProjectFileReferenceInput {
+  code?: string;
   fileName: string;
   kind: ProjectFileKind;
   versionLabel: string;
+  authorName?: string;
+  reviewState?: DeskReviewState;
+  dateIso?: string;
   notePt?: string;
   noteEn?: string;
 }

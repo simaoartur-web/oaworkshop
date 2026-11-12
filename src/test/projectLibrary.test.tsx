@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppRoutes } from '../app/App';
 import { WorkspaceSessionProvider } from '../app/WorkspaceSessionContext';
 import { DEMO_USERS } from '../data/fixtures';
@@ -12,7 +12,12 @@ import {
   addProjectRevision,
   archiveProject,
   createProject,
+  getOffsetIsoDate,
   getProjectById,
+  getTodayIsoDate,
+  isUserIndividuallyAssociatedWithProject,
+  isUserMatchedOnlyByRole,
+  isValidIsoCalendarDate,
   listProjects,
   restoreProjectFromArchive,
   updateProjectMetadata,
@@ -215,103 +220,153 @@ describe('Phase 03A · Canonical Project Library Domain & Engine', () => {
     );
   });
 
-  it('renders /workspace/projects catalog with filters, search, empty state, and creates/persists/edits/archives a project in UI', async () => {
+  it('renders integrated ProjectGalleryView -> ProjectCreationWizard -> ProjectDossierView -> Phase 04 /model & archive lifecycle', async () => {
     const user = userEvent.setup();
     seedArchitectSession(1); // Sofia Mbanza
     renderWorkspaceApp('/workspace/projects');
 
     expect(
       await screen.findByRole('heading', {
-        name: /Catálogo técnico de projectos/i,
+        name: /Projectos do Atelier/i,
       }),
     ).toBeInTheDocument();
 
-    // All 5 seed projects appear initially
+    // Seed projects appear initially
     expect(screen.getAllByText('OA-26-101').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText('OA-25-084').length).toBeGreaterThanOrEqual(1);
 
-    // Filter to non-matching search query -> honest empty state + reset filters works
-    const searchInput = screen.getByRole('searchbox', {
-      name: /Pesquisar por código ou título/i,
-    });
+    // Filter to non-matching search query -> honest empty state + Limpar filtros works
+    const searchInput = screen.getByLabelText(/Procurar projecto/i);
     await user.type(searchInput, 'INEXISTENTE-XYZ');
     expect(
-      await screen.findByText(/Nenhum projecto corresponde aos filtros/i),
+      await screen.findByText(/Nenhum projecto corresponde a esta pesquisa/i),
     ).toBeInTheDocument();
 
     await user.click(
-      screen.getAllByRole('button', { name: /Repor filtros/i })[0],
+      screen.getByRole('button', { name: /Limpar filtros/i }),
     );
     expect(screen.getAllByText('OA-26-101').length).toBeGreaterThanOrEqual(1);
 
-    // Toggle "Associados ao meu papel"
+    // Scope filters: "Os meus projectos" strictly vs "Por função"
     await user.click(
-      screen.getByRole('button', { name: /Associados ao meu papel/i }),
+      screen.getByRole('button', { name: /Os meus projectos/i }),
     );
     expect(screen.getAllByText('OA-26-101').length).toBeGreaterThanOrEqual(1);
+    await user.click(
+      screen.getByRole('button', { name: /Todos os projectos/i }),
+    );
 
-    // Navigate to /workspace/projects/new and create a new local project
-    await user.click(screen.getByRole('link', { name: /Novo Projecto/i }));
+    // Navigate to /workspace/projects/new and complete 4-step wizard
+    await user.click(screen.getByRole('button', { name: /Novo projecto/i }));
     expect(
       await screen.findByRole('heading', {
-        name: /Registar novo projecto demonstrativo/i,
+        name: /Criar novo projecto do atelier/i,
       }),
     ).toBeInTheDocument();
 
     await user.type(
-      screen.getByLabelText(/Título do projecto \(PT\)/i),
+      screen.getByLabelText(/Nome em Português/i),
       'Torre Botânica de Maputo',
     );
     await user.type(
-      screen.getByLabelText(/Resumo técnico \(PT\)/i),
-      'Torre mista com varandas vegetadas e fachada ventilada.',
+      screen.getByLabelText(/Nome em Inglês/i),
+      'Maputo Botanical Tower',
     );
     await user.type(
-      screen.getByLabelText(/Próximo marco previsto/i),
+      screen.getByLabelText(/Breve descrição/i),
+      'Torre mista com varandas vegetadas e fachada ventilada em betão.',
+    );
+    await user.selectOptions(
+      screen.getByLabelText(/^Disciplina/i),
+      'Arquitectura Pública',
+    );
+    await user.click(screen.getByRole('button', { name: /Seguinte/i }));
+
+    // Step 2 -> Step 3
+    await user.click(screen.getByRole('button', { name: /Seguinte/i }));
+
+    // Step 3: verify dynamic default date (not static '2026-11-24')
+    const dateInput = screen.getByLabelText(
+      /Data prevista do marco/i,
+    ) as HTMLInputElement;
+    expect(dateInput.value).toBe(getOffsetIsoDate(14));
+    await user.type(
+      screen.getByLabelText(/Marco seguinte/i),
       'Entrega do programa térmico',
     );
+    await user.click(screen.getByRole('button', { name: /Seguinte/i }));
+
+    // Step 4 -> Save in browser
     await user.click(
-      screen.getByRole('button', { name: /Criar projecto na Biblioteca/i }),
+      screen.getByRole('button', { name: /Guardar neste navegador/i }),
     );
 
-    // Redirects to the created project's dossier with privacy badge intact
+    // Confirmation screen shows assigned unique code and "Abrir dossier do projecto"
+    expect(
+      await screen.findByRole('heading', {
+        name: /Novo dossier preparado em modo privado/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('OA-26-125')).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole('button', { name: /Abrir dossier do projecto/i }),
+    );
+
+    // Now on /workspace/projects/:id rendering integrated ProjectDossierView
     expect(
       await screen.findByRole('heading', { name: 'Torre Botânica de Maputo' }),
     ).toBeInTheDocument();
-    expect(screen.getAllByText(/Privado por omissão/i).length).toBeGreaterThanOrEqual(
-      1,
-    );
+    expect(
+      screen.getAllByText(/Privado por omissão/i).length,
+    ).toBeGreaterThanOrEqual(1);
 
     // Edit metadata inline & save
-    await user.click(screen.getByRole('button', { name: /Editar metadados/i }));
-    const phaseInput = screen.getByLabelText(/Fase \(PT\)/i);
+    await user.click(
+      screen.getByRole('button', { name: /Editar ficha técnica/i }),
+    );
+    const phaseInput = screen.getByLabelText(/Fase actual/i);
     await user.clear(phaseInput);
     await user.type(phaseInput, 'Projecto de Execução');
     await user.click(
-      screen.getByRole('button', { name: /Guardar alterações locais/i }),
+      screen.getByRole('button', { name: /Guardar alterações/i }),
     );
     expect(
-      await screen.findByText(/Metadados guardados localmente neste navegador/i),
+      await screen.findByText(/Alterações guardadas neste navegador/i),
     ).toBeInTheDocument();
 
-    // Add technical revision & fictive file metadata
+    // Add technical revision in History section
+    await user.click(screen.getByRole('tab', { name: /Histórico/i }));
+    await user.click(
+      screen.getByRole('button', { name: /Registar revisão/i }),
+    );
     await user.type(
-      screen.getByLabelText(/Síntese da revisão técnica/i),
+      screen.getByLabelText(/Resumo técnico da revisão/i),
       'Compatibilização estrutural de lajes em consola.',
     );
     await user.click(
-      screen.getByRole('button', { name: /Registar revisão/i }),
+      screen.getByRole('button', { name: /Guardar revisão neste navegador/i }),
     );
     expect(
       await screen.findByText(/Compatibilização estrutural de lajes em consola/i),
     ).toBeInTheDocument();
 
+    // Add fictive file metadata in Documentation section (single canonical source of truth)
+    await user.click(screen.getByRole('tab', { name: /Documentação/i }));
+    const docPanel = screen.getByRole('tabpanel');
+    await user.click(
+      within(docPanel).getByRole('button', { name: /Adicionar informação/i }),
+    );
     await user.type(
-      screen.getByLabelText(/Nome do ficheiro fictício/i),
+      screen.getByLabelText(/Nome do ficheiro/i),
       'botanica-modelo-v02.skp',
     );
+    await user.type(
+      screen.getByLabelText(/Relação com o projecto/i),
+      'Estudo volumétrico inicial para Fase 04.',
+    );
     await user.click(
-      screen.getByRole('button', { name: /Adicionar referência/i }),
+      screen.getByRole('button', { name: /Guardar referência neste navegador/i }),
     );
     expect(
       await screen.findByText('botanica-modelo-v02.skp'),
@@ -319,7 +374,7 @@ describe('Phase 03A · Canonical Project Library Domain & Engine', () => {
 
     // Navigate to Phase 04 future model route -> honest placeholder
     await user.click(
-      screen.getByRole('link', { name: /Modelo 3D · Em breve \(Fase 04\)/i }),
+      screen.getByRole('button', { name: /Abrir vista 3D \(Fase 04\)/i }),
     );
     expect(
       await screen.findByText(
@@ -328,30 +383,150 @@ describe('Phase 03A · Canonical Project Library Domain & Engine', () => {
     ).toBeInTheDocument();
     await user.click(screen.getByRole('link', { name: /Voltar ao Dossier/i }));
 
-    // Archive project -> stays private and hides from default active catalog filter
+    // Archive project in Identity tab -> stays private and hides from 'Todos' until 'Arquivado' clicked
+    expect(
+      await screen.findByRole('heading', { name: 'Torre Botânica de Maputo' }),
+    ).toBeInTheDocument();
     await user.click(
-      await screen.findByRole('button', { name: /Arquivar projecto/i }),
+      screen.getByRole('button', { name: /Arquivar projecto/i }),
     );
     expect(
-      await screen.findByText(/Arquivado localmente/i),
+      await screen.findByText(/Este projecto está arquivado/i),
     ).toBeInTheDocument();
-    expect(screen.getAllByText(/Privado por omissão/i).length).toBeGreaterThanOrEqual(
-      1,
-    );
 
-    // Go back to catalog: hidden under default active filter, visible when All (incl. archived) selected
-    await user.click(screen.getByRole('link', { name: /Voltar ao Catálogo/i }));
+    // Back to gallery: hidden under default 'Todos', visible under 'Arquivado' chip
+    await user.click(
+      screen.getByRole('button', { name: /Voltar aos projectos/i }),
+    );
     expect(
       screen.queryByText('Torre Botânica de Maputo'),
     ).not.toBeInTheDocument();
 
-    await user.selectOptions(
-      screen.getByLabelText(/Estado do projecto/i),
-      'all',
-    );
+    await user.click(screen.getByRole('button', { name: /^Arquivado$/i }));
     expect(
-      await screen.findAllByText('Torre Botânica de Maputo'),
-    ).not.toHaveLength(0);
+      await screen.findByText('Torre Botânica de Maputo'),
+    ).toBeInTheDocument();
+  });
+
+  it('prevents false confirmation on localStorage write failure, preserves draft, and rejects duplicate codes / invalid dates', async () => {
+    const user = userEvent.setup();
+    const actor = seedArchitectSession(1);
+
+    // Calendar date validation & duplicate code rejection at domain level
+    expect(isValidIsoCalendarDate('2026-02-30')).toBe(false);
+    expect(isValidIsoCalendarDate('2026-02-28')).toBe(true);
+
+    expect(() =>
+      createProject(
+        {
+          code: ' oa-26-101 ',
+          titlePt: 'Duplicado Teste',
+          subtitlePt: 'Não pode aceitar código existente.',
+          departmentId: 'architecture',
+          disciplinePt: 'Arquitectura',
+          studioBase: 'Maputo',
+          phasePt: 'Conceito',
+          projectStatus: 'concept',
+          leadUserId: actor.id,
+          nextMilestoneTitlePt: 'Marco teste',
+          nextMilestoneDateIso: '2026-10-10',
+        },
+        actor,
+      ),
+    ).toThrow(/já existe/i);
+
+    expect(() =>
+      createProject(
+        {
+          titlePt: 'Data Inválida Teste',
+          subtitlePt: 'Rejeita dia inexistente no calendário.',
+          departmentId: 'architecture',
+          disciplinePt: 'Arquitectura',
+          studioBase: 'Maputo',
+          phasePt: 'Conceito',
+          projectStatus: 'concept',
+          leadUserId: actor.id,
+          nextMilestoneTitlePt: 'Marco inválido',
+          nextMilestoneDateIso: '2026-02-30',
+        },
+        actor,
+      ),
+    ).toThrow(/data de calendário válida/i);
+
+    // Verify dynamic today date on new file reference while seed dates stay preserved
+    const updatedSeed = addProjectFileReference(
+      'sd-proj-oa-26-101',
+      {
+        fileName: 'planta-hoje.pdf',
+        kind: 'drawing',
+        versionLabel: 'v01',
+      },
+      actor,
+    );
+    expect(updatedSeed?.files[0].addedAtIso.slice(0, 10)).toBe(getTodayIsoDate());
+
+    // Role-only vs individual association checks on canonical record (PM role without userId in contributors)
+    const targetForRole = getProjectById('sd-proj-oa-26-101')!;
+    const pmUser = DEMO_USERS[2];
+    expect(isUserIndividuallyAssociatedWithProject(targetForRole, pmUser)).toBe(
+      false,
+    );
+    expect(isUserMatchedOnlyByRole(targetForRole, pmUser)).toBe(true);
+
+    // UI Wizard: simulate storage QuotaExceededError on submit -> error alert shown, draft NOT discarded!
+    renderWorkspaceApp('/workspace/projects/new');
+    await user.type(
+      await screen.findByLabelText(/Nome em Português/i),
+      'Arquivo Persistência Falha',
+    );
+    await user.type(
+      screen.getByLabelText(/Nome em Inglês/i),
+      'Storage Failure Archive',
+    );
+    await user.type(
+      screen.getByLabelText(/Breve descrição/i),
+      'Verifica que uma falha localStorage nunca simula sucesso nem apaga o rascunho.',
+    );
+    await user.selectOptions(
+      screen.getByLabelText(/^Disciplina/i),
+      'Arquitectura Pública',
+    );
+    await user.click(screen.getByRole('button', { name: /Seguinte/i }));
+    await user.click(screen.getByRole('button', { name: /Seguinte/i }));
+    await user.type(
+      screen.getByLabelText(/Marco seguinte/i),
+      'Validação sob erro de disco',
+    );
+    await user.click(screen.getByRole('button', { name: /Seguinte/i }));
+
+    const setItemSpy = vi
+      .spyOn(Storage.prototype, 'setItem')
+      .mockImplementation(() => {
+        throw new Error('QuotaExceededError');
+      });
+
+    try {
+      await user.click(
+        screen.getByRole('button', { name: /Guardar neste navegador/i }),
+      );
+
+      expect(
+        screen.queryByRole('heading', {
+          name: /Novo dossier preparado em modo privado/i,
+        }),
+      ).not.toBeInTheDocument();
+      const alertBox = await screen.findByRole('alert');
+      expect(alertBox).toHaveTextContent(/QuotaExceededError|armazenamento local/i);
+      // Verify draft title is still intact if user steps back to Step 1
+      await user.click(screen.getByRole('button', { name: /Anterior/i }));
+      await user.click(screen.getByRole('button', { name: /Anterior/i }));
+      await user.click(screen.getByRole('button', { name: /Anterior/i }));
+      expect(
+        (screen.getByLabelText(/Nome em Português/i) as HTMLInputElement).value,
+      ).toBe('Arquivo Persistência Falha');
+    } finally {
+      setItemSpy.mockRestore();
+    }
   });
 
   it('renders honest 404 recovery for invalid project id dossier route', async () => {

@@ -20,12 +20,20 @@ import {
   type KeyboardEvent,
 } from 'react';
 import { DEMO_USERS, DEPARTMENTS } from '../../data/fixtures';
+import {
+  getTodayIsoDate,
+  isValidIsoCalendarDate,
+} from '../../data/projectLibraryRepository';
+import type { DeskReviewState } from '../../data/studioDeskTypes';
+import type { ProjectStatus } from '../../data/types';
 import type {
   DossierSectionId,
   ProjectDocumentReference,
+  ProjectDossierMetadataPatch,
   ProjectDossierViewProps,
   ProjectFileFormat,
   ProjectFileReviewState,
+  ProjectRevisionDraftInput,
 } from './contracts';
 import {
   deriveDefaultProjectDocuments,
@@ -74,8 +82,15 @@ function ProjectDossierViewInner({
   revisions,
   activityEntries = [],
   initialSection = 'identity',
+  isArchived = project.projectStatus === 'archived',
   onBackToProjects,
   onRegisterDocumentMetadata,
+  onUpdateMetadata,
+  onArchiveProject,
+  onRestoreProject,
+  onAddRevision,
+  onOpenPhase04Model,
+  onOpenInStudioDesk,
   onOpen3DPlaceholderNote,
   className = '',
 }: ProjectDossierViewProps) {
@@ -88,6 +103,49 @@ function ProjectDossierViewInner({
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [preview3DMessage, setPreview3DMessage] = useState<string | null>(null);
   const [metadataFeedback, setMetadataFeedback] = useState<string | null>(null);
+  const [docSubmitError, setDocSubmitError] = useState<string | null>(null);
+
+  // Integrated metadata edit state (Section 1 · Identity)
+  const [isEditingMetadata, setIsEditingMetadata] = useState(false);
+  const [editPhasePt, setEditPhasePt] = useState(project.phase.pt);
+  const [editStudioBase, setEditStudioBase] = useState<'Maputo' | 'Milão'>(
+    project.studioBase,
+  );
+  const [editStatus, setEditStatus] = useState<
+    Exclude<ProjectStatus, 'archived'>
+  >(
+    project.projectStatus === 'archived'
+      ? 'in_progress'
+      : project.projectStatus,
+  );
+  const [editReviewState, setEditReviewState] = useState<DeskReviewState>(
+    project.reviewState,
+  );
+  const [editMilestoneTitlePt, setEditMilestoneTitlePt] = useState(
+    project.nextMilestone.title.pt,
+  );
+  const [editMilestoneDateIso, setEditMilestoneDateIso] = useState(
+    project.nextMilestone.dateIso,
+  );
+  const [editNotesPt, setEditNotesPt] = useState(project.dossierNotes.pt);
+  const [metadataEditStatus, setMetadataEditStatus] = useState<string | null>(
+    null,
+  );
+  const [metadataEditError, setMetadataEditError] = useState<string | null>(
+    null,
+  );
+
+  // Integrated revision form state (Section 5 · History)
+  const [isAddRevisionOpen, setIsAddRevisionOpen] = useState(false);
+  const [revVersion, setRevVersion] = useState(
+    `rev.${String((revisions?.length ?? 1) + 1).padStart(2, '0')}`,
+  );
+  const [revSummary, setRevSummary] = useState('');
+  const [revReviewState, setRevReviewState] = useState<DeskReviewState>(
+    project.reviewState,
+  );
+  const [revFeedback, setRevFeedback] = useState<string | null>(null);
+  const [revError, setRevError] = useState<string | null>(null);
 
   // Form state for adding file metadata without real upload
   const [docCode, setDocCode] = useState('');
@@ -125,10 +183,10 @@ function ProjectDossierViewInner({
   }, [departments, project.departmentId, language]);
 
   const resolvedDocuments = useMemo(() => {
-    const base =
-      documents !== undefined
-        ? [...documents]
-        : deriveDefaultProjectDocuments(project);
+    if (documents !== undefined) {
+      return [...documents];
+    }
+    const base = deriveDefaultProjectDocuments(project);
     const localAdded = localExtraDocs[project.id] ?? [];
     return [...base, ...localAdded];
   }, [documents, project, localExtraDocs]);
@@ -193,8 +251,11 @@ function ProjectDossierViewInner({
     setMetadataFeedback(null);
   };
 
-  const handleAddMetadataSubmit = (event: FormEvent) => {
+  const handleAddMetadataSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    setDocSubmitError(null);
+    setMetadataFeedback(null);
+
     const trimmedFile = docFileName.trim();
     const trimmedRelation = docRelation.trim();
     const nextErrors: { fileName?: string; relation?: string } = {};
@@ -216,7 +277,7 @@ function ProjectDossierViewInner({
       return;
     }
 
-    const todayIso = '2026-11-12';
+    const todayIso = getTodayIsoDate();
     const cleanCode =
       docCode.trim().toUpperCase() ||
       `${project.code}-DOC-${String(resolvedDocuments.length + 1).padStart(2, '0')}`;
@@ -236,30 +297,117 @@ function ProjectDossierViewInner({
       },
     };
 
-    if (onRegisterDocumentMetadata) {
-      onRegisterDocumentMetadata(project.id, entryPayload);
+    try {
+      if (onRegisterDocumentMetadata) {
+        await onRegisterDocumentMetadata(project.id, entryPayload);
+      }
+
+      if (documents === undefined) {
+        setLocalExtraDocs((prev) => ({
+          ...prev,
+          [project.id]: [
+            ...(prev[project.id] ?? []),
+            {
+              ...entryPayload,
+              id: `${project.id}-local-doc-${Date.now()}`,
+            },
+          ],
+        }));
+      }
+
+      setDocCode('');
+      setDocFileName('');
+      setDocVersion('v01');
+      setDocRelation('');
+      setDocErrors({});
+      setIsAddFormOpen(false);
+      setMetadataFeedback(dict.dossier.documentation.feedbackAdded);
+    } catch (error) {
+      setDocSubmitError(
+        error instanceof Error && error.message
+          ? error.message
+          : dict.dossier.documentation.validationErrorFallback,
+      );
+    }
+  };
+
+  const handleSaveMetadataEdit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!onUpdateMetadata) {
+      return;
+    }
+    setMetadataEditError(null);
+    setMetadataEditStatus(null);
+
+    const dateCandidate = editMilestoneDateIso.trim();
+    if (!isValidIsoCalendarDate(dateCandidate)) {
+      setMetadataEditError(dict.wizard.errors.nextMilestoneDate);
+      return;
     }
 
-    if (documents === undefined) {
-      setLocalExtraDocs((prev) => ({
-        ...prev,
-        [project.id]: [
-          ...(prev[project.id] ?? []),
-          {
-            ...entryPayload,
-            id: `${project.id}-local-doc-${Date.now()}`,
-          },
-        ],
-      }));
+    const patch: ProjectDossierMetadataPatch = {
+      phasePt: editPhasePt.trim() || project.phase.pt,
+      phaseEn: editPhasePt.trim() || project.phase.en,
+      studioBase: editStudioBase,
+      projectStatus: editStatus,
+      reviewState: editReviewState,
+      nextMilestoneTitlePt:
+        editMilestoneTitlePt.trim() || project.nextMilestone.title.pt,
+      nextMilestoneTitleEn:
+        editMilestoneTitlePt.trim() || project.nextMilestone.title.en,
+      nextMilestoneDateIso: dateCandidate,
+      dossierNotesPt: editNotesPt.trim() || project.dossierNotes.pt,
+      dossierNotesEn: editNotesPt.trim() || project.dossierNotes.en,
+    };
+
+    try {
+      await onUpdateMetadata(patch);
+      setIsEditingMetadata(false);
+      setMetadataEditStatus(dict.dossier.identity.metadataSaved);
+    } catch (error) {
+      setMetadataEditError(
+        error instanceof Error && error.message
+          ? error.message
+          : dict.wizard.errors.nextMilestoneDate,
+      );
+    }
+  };
+
+  const handleAddRevisionSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!onAddRevision) {
+      return;
+    }
+    setRevError(null);
+    setRevFeedback(null);
+
+    if (!revSummary.trim()) {
+      setRevError(dict.dossier.history.validationSummary);
+      return;
     }
 
-    setDocCode('');
-    setDocFileName('');
-    setDocVersion('v01');
-    setDocRelation('');
-    setDocErrors({});
-    setIsAddFormOpen(false);
-    setMetadataFeedback(dict.dossier.documentation.feedbackAdded);
+    const payload: ProjectRevisionDraftInput = {
+      versionLabel: revVersion.trim() || `rev.${resolvedRevisions.length + 1}`,
+      summaryPt: revSummary.trim(),
+      summaryEn: revSummary.trim(),
+      reviewState: revReviewState,
+    };
+
+    try {
+      await onAddRevision(payload);
+      setRevVersion(
+        `rev.${String(resolvedRevisions.length + 2).padStart(2, '0')}`,
+      );
+      setRevSummary('');
+      setIsAddRevisionOpen(false);
+      setRevFeedback(dict.dossier.history.revisionAdded);
+    } catch (error) {
+      setRevError(
+        error instanceof Error && error.message
+          ? error.message
+          : dict.dossier.history.validationSummary,
+      );
+    }
   };
 
   return (
@@ -325,8 +473,47 @@ function ProjectDossierViewInner({
             <Plus size={14} strokeWidth={1.6} aria-hidden="true" />
             <span>{dict.common.addInfo}</span>
           </button>
+
+          {onOpenInStudioDesk && (
+            <button
+              type="button"
+              onClick={onOpenInStudioDesk}
+              className="min-h-[44px] px-3 py-2 border border-white/16 bg-[#141414] hover:border-white/35 text-[11px] font-medium uppercase tracking-[0.12em] text-[#E0E0E0] hover:text-white inline-flex items-center gap-1.5 cursor-pointer"
+            >
+              <span>{dict.dossier.identity.openDeskCta}</span>
+            </button>
+          )}
+
+          {onOpenPhase04Model && (
+            <button
+              type="button"
+              onClick={onOpenPhase04Model}
+              className="min-h-[44px] px-3 py-2 border border-white/16 bg-[#141414] hover:border-[#A65D4A] text-[11px] font-medium uppercase tracking-[0.12em] text-[#E0E0E0] hover:text-white inline-flex items-center gap-1.5 cursor-pointer"
+            >
+              <Box size={13} strokeWidth={1.6} aria-hidden="true" />
+              <span>{dict.dossier.identity.openModelRouteCta}</span>
+            </button>
+          )}
         </div>
       </div>
+
+      {isArchived && (
+        <div
+          role="status"
+          className="border border-white/20 bg-[#181412] px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm text-[#E0E0E0]"
+        >
+          <span>{dict.dossier.identity.archivedBanner}</span>
+          {onRestoreProject && (
+            <button
+              type="button"
+              onClick={() => void onRestoreProject('in_progress')}
+              className="min-h-[40px] px-3.5 py-1.5 border border-[#A65D4A] bg-[#A65D4A]/20 hover:bg-[#A65D4A]/35 text-xs font-medium uppercase tracking-[0.13em] text-white cursor-pointer"
+            >
+              {dict.dossier.identity.restoreCta}
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Editorial Opening & "Where am I / What is Pending / What Next" Grid */}
       <header className="bg-[#141414] border border-white/12 grid grid-cols-1 lg:grid-cols-12">
@@ -463,10 +650,238 @@ function ProjectDossierViewInner({
                 <h2 className="text-lg font-normal text-white">
                   {dict.dossier.identity.title}
                 </h2>
-                <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#CE826D] tabular-nums">
-                  {project.code}
-                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#CE826D] tabular-nums">
+                    {project.code}
+                  </span>
+                  {onUpdateMetadata && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEditingMetadata((prev) => !prev);
+                        setMetadataEditError(null);
+                        setMetadataEditStatus(null);
+                      }}
+                      aria-expanded={isEditingMetadata}
+                      className="min-h-[40px] px-3 py-1.5 border border-white/18 bg-[#101010] hover:border-[#A65D4A] text-[11px] font-medium uppercase tracking-[0.13em] text-white cursor-pointer"
+                    >
+                      {isEditingMetadata
+                        ? dict.dossier.identity.cancelEditCta
+                        : dict.dossier.identity.editMetadataCta}
+                    </button>
+                  )}
+                  {!isArchived && onArchiveProject && (
+                    <button
+                      type="button"
+                      onClick={() => void onArchiveProject()}
+                      className="min-h-[40px] px-3 py-1.5 border border-white/16 bg-[#101010] hover:border-white/35 text-[11px] font-medium uppercase tracking-[0.13em] text-[#BDBDBD] hover:text-white cursor-pointer"
+                    >
+                      {dict.dossier.identity.archiveCta}
+                    </button>
+                  )}
+                </div>
               </div>
+
+              {metadataEditStatus && (
+                <div
+                  role="status"
+                  className="border border-[#A65D4A]/65 bg-[#A65D4A]/14 px-4 py-3 text-xs sm:text-sm text-white"
+                >
+                  {metadataEditStatus}
+                </div>
+              )}
+
+              {metadataEditError && (
+                <div
+                  role="alert"
+                  className="border border-[#A65D4A] bg-[#21100E] px-4 py-3 text-xs sm:text-sm text-[#F5C2B8]"
+                >
+                  <strong>{dict.dossier.identity.errorBannerTitle}</strong>{' '}
+                  {metadataEditError}
+                </div>
+              )}
+
+              {isEditingMetadata && onUpdateMetadata && (
+                <form
+                  onSubmit={handleSaveMetadataEdit}
+                  noValidate
+                  className="bg-[#101010] border border-[#A65D4A]/55 p-4 sm:p-5 space-y-4"
+                >
+                  <h3 className="text-sm font-medium text-white">
+                    {dict.dossier.identity.editHeading}
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                      <label
+                        htmlFor="dossier-edit-phase"
+                        className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD]"
+                      >
+                        {dict.dossier.identity.fieldPhase}
+                      </label>
+                      <input
+                        id="dossier-edit-phase"
+                        type="text"
+                        value={editPhasePt}
+                        onChange={(e) => setEditPhasePt(e.target.value)}
+                        className="oa-field-input"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="dossier-edit-base"
+                        className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD]"
+                      >
+                        {dict.dossier.identity.fieldStudioBase}
+                      </label>
+                      <select
+                        id="dossier-edit-base"
+                        value={editStudioBase}
+                        onChange={(e) =>
+                          setEditStudioBase(
+                            e.target.value as 'Maputo' | 'Milão',
+                          )
+                        }
+                        className="oa-field-input bg-[#101010]"
+                      >
+                        <option value="Maputo" className="bg-[#111111]">
+                          Maputo
+                        </option>
+                        <option value="Milão" className="bg-[#111111]">
+                          Milão
+                        </option>
+                      </select>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="dossier-edit-status"
+                        className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD]"
+                      >
+                        {dict.dossier.identity.fieldStatus}
+                      </label>
+                      <select
+                        id="dossier-edit-status"
+                        value={editStatus}
+                        onChange={(e) =>
+                          setEditStatus(
+                            e.target.value as Exclude<
+                              ProjectStatus,
+                              'archived'
+                            >,
+                          )
+                        }
+                        className="oa-field-input bg-[#101010]"
+                      >
+                        {(
+                          [
+                            'concept',
+                            'design',
+                            'in_progress',
+                            'review',
+                            'completed',
+                          ] as const
+                        ).map((st) => (
+                          <option key={st} value={st} className="bg-[#111111]">
+                            {dict.statuses[st]}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="dossier-edit-review"
+                        className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD]"
+                      >
+                        {dict.dossier.identity.fieldReviewState}
+                      </label>
+                      <select
+                        id="dossier-edit-review"
+                        value={editReviewState}
+                        onChange={(e) =>
+                          setEditReviewState(e.target.value as DeskReviewState)
+                        }
+                        className="oa-field-input bg-[#101010]"
+                      >
+                        {(
+                          [
+                            'awaiting_review',
+                            'in_technical_review',
+                            'revision_requested',
+                            'approved_internal',
+                          ] as const
+                        ).map((rv) => (
+                          <option key={rv} value={rv} className="bg-[#111111]">
+                            {dict.reviewStates[rv]}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="dossier-edit-milestone-title"
+                        className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD]"
+                      >
+                        {dict.dossier.identity.fieldMilestoneTitle}
+                      </label>
+                      <input
+                        id="dossier-edit-milestone-title"
+                        type="text"
+                        value={editMilestoneTitlePt}
+                        onChange={(e) =>
+                          setEditMilestoneTitlePt(e.target.value)
+                        }
+                        className="oa-field-input"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="dossier-edit-milestone-date"
+                        className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD]"
+                      >
+                        {dict.dossier.identity.fieldMilestoneDate}
+                      </label>
+                      <input
+                        id="dossier-edit-milestone-date"
+                        type="date"
+                        value={editMilestoneDateIso}
+                        onChange={(e) =>
+                          setEditMilestoneDateIso(e.target.value)
+                        }
+                        className="oa-field-input"
+                      />
+                    </div>
+                    <div className="sm:col-span-2 lg:col-span-3">
+                      <label
+                        htmlFor="dossier-edit-notes"
+                        className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD]"
+                      >
+                        {dict.dossier.identity.fieldNotes}
+                      </label>
+                      <input
+                        id="dossier-edit-notes"
+                        type="text"
+                        value={editNotesPt}
+                        onChange={(e) => setEditNotesPt(e.target.value)}
+                        className="oa-field-input"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingMetadata(false)}
+                      className="min-h-[44px] px-4 py-2 border border-white/16 text-xs uppercase tracking-[0.13em] text-[#D8D8D8] hover:text-white cursor-pointer"
+                    >
+                      {dict.common.cancel}
+                    </button>
+                    <button
+                      type="submit"
+                      className="min-h-[44px] px-5 py-2 border border-[#A65D4A] bg-[#A65D4A] hover:bg-[#914e3d] text-xs font-medium uppercase tracking-[0.14em] text-white cursor-pointer"
+                    >
+                      {dict.dossier.identity.saveMetadataCta}
+                    </button>
+                  </div>
+                </form>
+              )}
 
               <dl className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 text-sm">
                 <div className="bg-[#101010] border border-white/10 p-4">
@@ -804,6 +1219,15 @@ function ProjectDossierViewInner({
                   className="border border-[#A65D4A]/65 bg-[#A65D4A]/14 px-4 py-3 text-xs sm:text-sm text-white"
                 >
                   {metadataFeedback}
+                </div>
+              )}
+
+              {docSubmitError && (
+                <div
+                  role="alert"
+                  className="border border-[#A65D4A] bg-[#21100E] px-4 py-3 text-xs sm:text-sm text-[#F5C2B8]"
+                >
+                  {docSubmitError}
                 </div>
               )}
 
@@ -1146,14 +1570,138 @@ function ProjectDossierViewInner({
           {/* 5. HISTORY */}
           {activeSection === 'history' && (
             <div className="space-y-5">
-              <div className="pb-3 oa-hairline-b space-y-1">
-                <h2 className="text-lg font-normal text-white">
-                  {dict.dossier.history.title}
-                </h2>
-                <p className="text-xs text-[#BDBDBD]">
-                  {dict.dossier.history.subtitle}
-                </p>
+              <div className="pb-3 oa-hairline-b flex flex-wrap items-center justify-between gap-3">
+                <div className="space-y-1">
+                  <h2 className="text-lg font-normal text-white">
+                    {dict.dossier.history.title}
+                  </h2>
+                  <p className="text-xs text-[#BDBDBD]">
+                    {dict.dossier.history.subtitle}
+                  </p>
+                </div>
+                {onAddRevision && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsAddRevisionOpen((prev) => !prev);
+                      setRevFeedback(null);
+                      setRevError(null);
+                    }}
+                    aria-expanded={isAddRevisionOpen}
+                    className="min-h-[44px] px-3.5 py-2 border border-[#A65D4A] bg-[#A65D4A]/18 hover:bg-[#A65D4A]/32 text-xs font-medium uppercase tracking-[0.14em] text-white inline-flex items-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <Plus size={14} strokeWidth={1.7} aria-hidden="true" />
+                    <span>{dict.dossier.history.addRevisionCta}</span>
+                  </button>
+                )}
               </div>
+
+              {revFeedback && (
+                <div
+                  role="status"
+                  className="border border-[#A65D4A]/65 bg-[#A65D4A]/14 px-4 py-3 text-xs sm:text-sm text-white"
+                >
+                  {revFeedback}
+                </div>
+              )}
+
+              {revError && (
+                <div
+                  role="alert"
+                  className="border border-[#A65D4A] bg-[#21100E] px-4 py-3 text-xs sm:text-sm text-[#F5C2B8]"
+                >
+                  {revError}
+                </div>
+              )}
+
+              {isAddRevisionOpen && onAddRevision && (
+                <form
+                  onSubmit={handleAddRevisionSubmit}
+                  noValidate
+                  className="bg-[#101010] border border-[#A65D4A]/55 p-4 sm:p-5 space-y-4"
+                >
+                  <h3 className="text-sm font-medium text-white">
+                    {dict.dossier.history.formTitle}
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="rev-meta-version"
+                        className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD]"
+                      >
+                        {dict.dossier.history.fieldVersion}
+                      </label>
+                      <input
+                        id="rev-meta-version"
+                        type="text"
+                        value={revVersion}
+                        onChange={(e) => setRevVersion(e.target.value)}
+                        className="oa-field-input"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="rev-meta-review-state"
+                        className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD]"
+                      >
+                        {dict.dossier.history.fieldReviewState}
+                      </label>
+                      <select
+                        id="rev-meta-review-state"
+                        value={revReviewState}
+                        onChange={(e) =>
+                          setRevReviewState(e.target.value as DeskReviewState)
+                        }
+                        className="oa-field-input bg-[#101010]"
+                      >
+                        {(
+                          [
+                            'awaiting_review',
+                            'in_technical_review',
+                            'revision_requested',
+                            'approved_internal',
+                          ] as const
+                        ).map((rv) => (
+                          <option key={rv} value={rv} className="bg-[#111111]">
+                            {dict.reviewStates[rv]}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label
+                        htmlFor="rev-meta-summary"
+                        className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD]"
+                      >
+                        {dict.dossier.history.fieldSummary}{' '}
+                        <span className="text-[#CE826D]">*</span>
+                      </label>
+                      <input
+                        id="rev-meta-summary"
+                        type="text"
+                        value={revSummary}
+                        onChange={(e) => setRevSummary(e.target.value)}
+                        className="oa-field-input"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsAddRevisionOpen(false)}
+                      className="min-h-[44px] px-4 py-2 border border-white/16 text-xs uppercase tracking-[0.13em] text-[#D8D8D8] hover:text-white cursor-pointer"
+                    >
+                      {dict.common.cancel}
+                    </button>
+                    <button
+                      type="submit"
+                      className="min-h-[44px] px-5 py-2 border border-[#A65D4A] bg-[#A65D4A] hover:bg-[#914e3d] text-xs font-medium uppercase tracking-[0.14em] text-white cursor-pointer"
+                    >
+                      {dict.dossier.history.submitRevisionCta}
+                    </button>
+                  </div>
+                </form>
+              )}
 
               {resolvedRevisions.length === 0 ? (
                 <p className="text-sm text-[#BDBDBD]">

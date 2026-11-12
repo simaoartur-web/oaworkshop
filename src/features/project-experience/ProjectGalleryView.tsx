@@ -13,6 +13,7 @@ import { useMemo, useState } from 'react';
 import { DEPARTMENTS } from '../../data/fixtures';
 import type { ProjectStatus } from '../../data/types';
 import type {
+  ProjectGalleryScope,
   ProjectGalleryViewMode,
   ProjectGalleryViewProps,
 } from './contracts';
@@ -37,6 +38,10 @@ export function ProjectGalleryView({
   projects,
   language = 'pt',
   departments = DEPARTMENTS,
+  activeUser = null,
+  scopeFilter,
+  defaultScopeFilter = 'all',
+  onScopeFilterChange,
   viewMode,
   defaultViewMode = 'gallery',
   onViewModeChange,
@@ -49,10 +54,15 @@ export function ProjectGalleryView({
   const dict = getProjectExperienceDictionary(language);
   const [internalMode, setInternalMode] =
     useState<ProjectGalleryViewMode>(defaultViewMode);
+  const [internalScope, setInternalScope] =
+    useState<ProjectGalleryScope>(defaultScopeFilter);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | ProjectStatus>('all');
 
   const activeMode = viewMode ?? internalMode;
+  const activeScope: ProjectGalleryScope = activeUser
+    ? (scopeFilter ?? internalScope)
+    : 'all';
 
   const handleModeChange = (nextMode: ProjectGalleryViewMode) => {
     if (viewMode === undefined) {
@@ -60,6 +70,51 @@ export function ProjectGalleryView({
     }
     onViewModeChange?.(nextMode);
   };
+
+  const handleScopeChange = (nextScope: ProjectGalleryScope) => {
+    if (scopeFilter === undefined) {
+      setInternalScope(nextScope);
+    }
+    onScopeFilterChange?.(nextScope);
+  };
+
+  const isIndividuallyAssigned = (project: (typeof projects)[number]): boolean => {
+    if (!activeUser) {
+      return false;
+    }
+    return (
+      project.leadUserId === activeUser.id ||
+      project.contributorUserIds.includes(activeUser.id)
+    );
+  };
+
+  const isMatchedOnlyByRole = (project: (typeof projects)[number]): boolean => {
+    if (!activeUser || isIndividuallyAssigned(project)) {
+      return false;
+    }
+    return project.assignedRoles.includes(activeUser.role);
+  };
+
+  const scopeCounts = useMemo(() => {
+    const nonArchived = projects.filter((p) => p.projectStatus !== 'archived');
+    if (!activeUser) {
+      return { all: nonArchived.length, mine: 0, role_suggested: 0 };
+    }
+    return {
+      all: nonArchived.length,
+      mine: nonArchived.filter(
+        (p) =>
+          p.leadUserId === activeUser.id ||
+          p.contributorUserIds.includes(activeUser.id),
+      ).length,
+      role_suggested: nonArchived.filter(
+        (p) =>
+          p.leadUserId !== activeUser.id &&
+          !p.contributorUserIds.includes(activeUser.id) &&
+          p.assignedRoles.includes(activeUser.role),
+      ).length,
+    };
+  }, [projects, activeUser]);
 
   const activeProjectsCount = useMemo(
     () =>
@@ -72,9 +127,30 @@ export function ProjectGalleryView({
   const filteredProjects = useMemo(() => {
     const normalizedQuery = normalizeSearchQuery(searchQuery);
     return projects.filter((project) => {
-      if (statusFilter !== 'all' && project.projectStatus !== statusFilter) {
+      if (statusFilter === 'all') {
+        if (project.projectStatus === 'archived') {
+          return false;
+        }
+      } else if (project.projectStatus !== statusFilter) {
         return false;
       }
+
+      if (activeUser && activeScope === 'mine') {
+        if (
+          project.leadUserId !== activeUser.id &&
+          !project.contributorUserIds.includes(activeUser.id)
+        ) {
+          return false;
+        }
+      } else if (activeUser && activeScope === 'role_suggested') {
+        const individual =
+          project.leadUserId === activeUser.id ||
+          project.contributorUserIds.includes(activeUser.id);
+        if (individual || !project.assignedRoles.includes(activeUser.role)) {
+          return false;
+        }
+      }
+
       if (!normalizedQuery) {
         return true;
       }
@@ -94,14 +170,26 @@ export function ProjectGalleryView({
 
       return haystack.includes(normalizedQuery);
     });
-  }, [projects, searchQuery, statusFilter, departments, language]);
+  }, [
+    projects,
+    searchQuery,
+    statusFilter,
+    activeUser,
+    activeScope,
+    departments,
+    language,
+  ]);
 
   const handleResetFilters = () => {
     setSearchQuery('');
     setStatusFilter('all');
+    handleScopeChange('all');
   };
 
-  const hasActiveFilters = Boolean(searchQuery.trim()) || statusFilter !== 'all';
+  const hasActiveFilters =
+    Boolean(searchQuery.trim()) ||
+    statusFilter !== 'all' ||
+    activeScope !== 'all';
   const totalCountLabel =
     projects.length === 1
       ? dict.gallery.countSingular
@@ -240,6 +328,55 @@ export function ProjectGalleryView({
           )}
         </div>
 
+        {activeUser && (
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+            <div
+              role="group"
+              aria-label={dict.gallery.scopeGroupLabel}
+              className="flex flex-wrap items-center gap-1.5"
+            >
+              {(
+                [
+                  {
+                    key: 'all',
+                    label: `${dict.gallery.scopeAll} (${scopeCounts.all})`,
+                  },
+                  {
+                    key: 'mine',
+                    label: `${dict.gallery.scopeMine} (${scopeCounts.mine})`,
+                  },
+                  {
+                    key: 'role_suggested',
+                    label: `${dict.gallery.scopeRoleMatch} (${scopeCounts.role_suggested})`,
+                  },
+                ] as const
+              ).map((item) => {
+                const isSelected = activeScope === item.key;
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => handleScopeChange(item.key)}
+                    aria-pressed={isSelected}
+                    className={`min-h-[38px] px-3 py-1.5 text-[11px] uppercase tracking-[0.12em] border transition-colors cursor-pointer ${
+                      isSelected
+                        ? 'border-[#CE826D] bg-[#A65D4A]/22 text-white font-medium'
+                        : 'border-white/12 bg-[#101010] text-[#BDBDBD] hover:text-white hover:border-white/28'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+            {activeScope === 'role_suggested' && (
+              <p className="text-[11px] text-[#CE826D]">
+                {dict.gallery.roleMatchHint}
+              </p>
+            )}
+          </div>
+        )}
+
         <div
           role="group"
           aria-label={dict.gallery.statusFilterGroupLabel}
@@ -376,6 +513,11 @@ export function ProjectGalleryView({
                       <p className="text-xs text-[#BDBDBD] line-clamp-2 leading-relaxed">
                         {pickText(project.subtitle, language)}
                       </p>
+                      {isMatchedOnlyByRole(project) && (
+                        <span className="inline-block px-2 py-0.5 border border-white/16 bg-[#101010] text-[10px] uppercase tracking-[0.12em] text-[#BDBDBD]">
+                          {dict.gallery.roleMatchBadge}
+                        </span>
+                      )}
                     </div>
 
                     {/* Scannable Key Project Fields */}
@@ -527,6 +669,11 @@ export function ProjectGalleryView({
                           {pickText(project.discipline, language)} ·{' '}
                           {departmentName}
                         </p>
+                        {isMatchedOnlyByRole(project) && (
+                          <span className="mt-1 inline-block px-1.5 py-0.5 border border-white/16 bg-[#101010] text-[10px] uppercase tracking-[0.10em] text-[#BDBDBD]">
+                            {dict.gallery.roleMatchBadge}
+                          </span>
+                        )}
                       </td>
                       <td className="px-4 py-4 align-top text-[#E0E0E0] whitespace-nowrap">
                         <p>{project.leadAuthorName}</p>

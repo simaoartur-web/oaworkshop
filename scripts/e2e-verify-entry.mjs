@@ -510,8 +510,8 @@ async function main() {
         fullPage: false,
       });
 
-      // Phase 03A E2E: Create -> Persist Reload -> Dossier -> Archive -> Filter -> Model Phase 04 -> 404
-      await page.getByRole('link', { name: /Novo Projecto/i }).click();
+      // Phase 03 Integrated E2E: Gallery -> 4-Step Wizard -> Confirmation -> Dossier -> Reload -> Model Phase 04 -> Archive -> 404
+      await page.getByRole('button', { name: /Novo projecto/i }).click();
       await page.waitForURL(`${BASE_URL}/workspace/projects/new`);
       await page.waitForTimeout(150);
       await checkNoHorizontalOverflow(page, 'Workspace Projects Create 1440px');
@@ -520,10 +520,18 @@ async function main() {
         fullPage: false,
       });
 
-      await page.getByLabel(/Título do projecto \(PT\)/i).fill('Pavilhão E2E Maputo');
-      await page.getByLabel(/Resumo técnico \(PT\)/i).fill('Estudo local persistente para validação da Fase 03A.');
-      await page.getByLabel(/Próximo marco previsto/i).fill('Entrega inicial E2E');
-      await page.getByRole('button', { name: /Criar projecto na Biblioteca/i }).click();
+      await page.getByLabel(/Nome em Português/i).fill('Pavilhão E2E Maputo');
+      await page.getByLabel(/Nome em Inglês/i).fill('Maputo E2E Pavilion');
+      await page.getByLabel(/Breve descrição/i).fill('Estudo local persistente para validação integrada da Fase 03.');
+      await page.getByLabel(/^Disciplina/i).selectOption('Arquitectura Pública');
+      await page.getByRole('button', { name: /Seguinte/i }).click();
+      await page.getByRole('button', { name: /Seguinte/i }).click();
+      await page.getByLabel(/Marco seguinte/i).fill('Entrega inicial E2E');
+      await page.getByRole('button', { name: /Seguinte/i }).click();
+      await page.getByRole('button', { name: /Guardar neste navegador/i }).click();
+
+      await page.getByRole('heading', { name: /Novo dossier preparado em modo privado/i }).waitFor({ state: 'visible' });
+      await page.getByRole('button', { name: /Abrir dossier do projecto/i }).click();
       await page.waitForURL(/\/workspace\/projects\/proj-/);
       await page.getByRole('heading', { name: 'Pavilhão E2E Maputo' }).waitFor({ state: 'visible' });
       await checkNoHorizontalOverflow(page, 'Workspace Projects Dossier 1440px');
@@ -539,20 +547,20 @@ async function main() {
 
       // Visit Phase 04 Web 3D placeholder & return
       const createdUrl = page.url();
-      await page.getByRole('link', { name: /Modelo 3D · Em breve \(Fase 04\)/i }).click();
+      await page.getByRole('button', { name: /Abrir vista 3D \(Fase 04\)/i }).click();
       await page.waitForURL(`${createdUrl}/model`);
       await page.getByText(/Visualizador Web 3D \(\.glb \/ \.skp\) previsto para a Fase 04/i).waitFor({ state: 'visible' });
       await page.getByRole('link', { name: /Voltar ao Dossier/i }).click();
       await page.waitForURL(createdUrl);
 
-      // Archive locally -> disappears from active filter, visible under all
+      // Archive locally -> disappears from 'Todos' chip, visible under 'Arquivado'
       await page.getByRole('button', { name: /Arquivar projecto/i }).click();
-      await page.getByText(/Arquivado localmente/i).waitFor({ state: 'visible' });
-      await page.getByRole('link', { name: /Voltar ao Catálogo/i }).click();
+      await page.getByText(/Este projecto está arquivado/i).waitFor({ state: 'visible' });
+      await page.getByRole('button', { name: /Voltar aos projectos/i }).click();
       await page.waitForURL(`${BASE_URL}/workspace/projects`);
       const hiddenActiveCount = await page.getByText('Pavilhão E2E Maputo').count();
-      assertCondition(hiddenActiveCount === 0, 'Archived project must be hidden under default active filter');
-      await page.getByLabel(/Estado do projecto/i).selectOption('all');
+      assertCondition(hiddenActiveCount === 0, 'Archived project must be hidden under Todos filter');
+      await page.getByRole('button', { name: /^Arquivado$/i }).click();
       await page.getByText('Pavilhão E2E Maputo').first().waitFor({ state: 'visible' });
 
       // Verify invalid ID renders honest 404 fallback cleanly

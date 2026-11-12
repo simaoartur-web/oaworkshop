@@ -61,6 +61,12 @@ function buildInitialSeedFiles(project: StudioDeskProject): ProjectFileReference
       addedAtIso: dates.updatedAtIso,
       addedByUserId: project.leadUserId,
       addedByName: lead?.name ?? project.leadAuthorName,
+      reviewState: deliverable.ready
+        ? 'approved_internal'
+        : project.reviewState === 'in_technical_review' ||
+            project.reviewState === 'revision_requested'
+          ? project.reviewState
+          : 'awaiting_review',
       note: deliverable.label,
     }),
   );
@@ -77,6 +83,7 @@ function buildInitialSeedFiles(project: StudioDeskProject): ProjectFileReference
     addedAtIso: dates.createdAtIso,
     addedByUserId: project.leadUserId,
     addedByName: lead?.name ?? project.leadAuthorName,
+    reviewState: 'awaiting_review',
     note: {
       pt: 'Registo documental de modelo nativo .skp (visualizador Web 3D .glb reservado à Fase 04).',
       en: 'Documented native .skp reference (Web 3D .glb viewer deferred to Phase 04).',

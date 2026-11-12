@@ -122,7 +122,35 @@ export interface WizardStepErrors {
 
 export type WizardInitialPhaseChoice = 'concept' | 'design' | 'in_progress';
 
+export type ProjectGalleryScope = 'all' | 'mine' | 'role_suggested';
+
+export interface ProjectDossierMetadataPatch {
+  phasePt: string;
+  phaseEn?: string;
+  studioBase: 'Maputo' | 'Milão';
+  projectStatus: Exclude<ProjectStatus, 'archived'>;
+  reviewState: DeskReviewState;
+  nextMilestoneTitlePt: string;
+  nextMilestoneTitleEn?: string;
+  nextMilestoneDateIso: string;
+  dossierNotesPt?: string;
+  dossierNotesEn?: string;
+}
+
+export interface ProjectRevisionDraftInput {
+  versionLabel: string;
+  summaryPt: string;
+  summaryEn?: string;
+  reviewState: DeskReviewState;
+}
+
+export interface ProjectCreationResult {
+  savedCode?: string;
+  projectId?: string;
+}
+
 export interface ProjectCreationWizardDraft {
+  code?: string;
   titlePt: string;
   titleEn: string;
   summaryPt: string;
@@ -144,6 +172,10 @@ export interface ProjectGalleryViewProps {
   projects: readonly StudioDeskProject[];
   language?: AppLanguage;
   departments?: Partial<Record<DepartmentId, Department>>;
+  activeUser?: DemoUser | null;
+  scopeFilter?: ProjectGalleryScope;
+  defaultScopeFilter?: ProjectGalleryScope;
+  onScopeFilterChange?: (scope: ProjectGalleryScope) => void;
   viewMode?: ProjectGalleryViewMode;
   defaultViewMode?: ProjectGalleryViewMode;
   onViewModeChange?: (mode: ProjectGalleryViewMode) => void;
@@ -166,11 +198,20 @@ export interface ProjectDossierViewProps {
   revisions?: readonly ProjectRevisionEntry[];
   activityEntries?: readonly StudioDeskActivityEntry[];
   initialSection?: DossierSectionId;
+  isArchived?: boolean;
   onBackToProjects?: () => void;
   onRegisterDocumentMetadata?: (
     projectId: string,
     metadata: Omit<ProjectDocumentReference, 'id'>,
-  ) => void;
+  ) => void | Promise<void>;
+  onUpdateMetadata?: (patch: ProjectDossierMetadataPatch) => void | Promise<void>;
+  onArchiveProject?: () => void | Promise<void>;
+  onRestoreProject?: (
+    nextStatus: Exclude<ProjectStatus, 'archived'>,
+  ) => void | Promise<void>;
+  onAddRevision?: (input: ProjectRevisionDraftInput) => void | Promise<void>;
+  onOpenPhase04Model?: () => void;
+  onOpenInStudioDesk?: () => void;
   onOpen3DPlaceholderNote?: (project: StudioDeskProject) => void;
   className?: string;
 }
@@ -184,7 +225,10 @@ export interface ProjectCreationWizardProps {
   departments?: Partial<Record<DepartmentId, Department>>;
   existingProjectCodes?: readonly string[];
   initialDraft?: Partial<ProjectCreationWizardDraft>;
-  onSubmitProject: (payload: ProjectCreationDraftPayload) => void | Promise<void>;
+  onSubmitProject: (
+    payload: ProjectCreationDraftPayload,
+  ) => void | ProjectCreationResult | Promise<void | ProjectCreationResult>;
+  onOpenCreatedProject?: (projectId: string, code: string) => void;
   onCancel: () => void;
   onBackToCatalog?: () => void;
   onDirtyChange?: (isDirty: boolean) => void;

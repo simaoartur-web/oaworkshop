@@ -116,6 +116,42 @@ const EN_MONTH_SHORT = [
   'Dec',
 ];
 
+export function getTodayIsoDate(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+export function getOffsetIsoDate(offsetDays: number): string {
+  const target = new Date();
+  target.setDate(target.getDate() + offsetDays);
+  const year = target.getFullYear();
+  const month = String(target.getMonth() + 1).padStart(2, '0');
+  const day = String(target.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+export function isValidIsoCalendarDate(dateIso: string): boolean {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateIso.trim());
+  if (!match) {
+    return false;
+  }
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return false;
+  }
+  const candidate = new Date(Date.UTC(year, month - 1, day));
+  return (
+    candidate.getUTCFullYear() === year &&
+    candidate.getUTCMonth() === month - 1 &&
+    candidate.getUTCDate() === day
+  );
+}
+
 export function formatMilestoneDateLabel(dateIso: string): LocalizedText {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateIso.trim());
   if (!match) {
@@ -187,6 +223,9 @@ function isValidFileReference(value: unknown): value is ProjectFileReference {
     typeof value.addedAtIso === 'string' &&
     typeof value.addedByUserId === 'string' &&
     typeof value.addedByName === 'string' &&
+    (value.reviewState === undefined ||
+      (typeof value.reviewState === 'string' &&
+        VALID_REVIEW_STATES.has(value.reviewState as DeskReviewState))) &&
     isLocalizedText(value.note)
   );
 }
@@ -510,13 +549,21 @@ function saveEnvelope(envelope: StoredLibraryEnvelope): void {
   if (typeof window === 'undefined') {
     return;
   }
+  const serialized = JSON.stringify(envelope);
   try {
-    window.localStorage.setItem(
-      PROJECT_LIBRARY_STORAGE_KEY,
-      JSON.stringify(envelope),
+    window.localStorage.setItem(PROJECT_LIBRARY_STORAGE_KEY, serialized);
+    const verified = window.localStorage.getItem(PROJECT_LIBRARY_STORAGE_KEY);
+    if (verified === null) {
+      throw new Error(
+        'Não foi possível confirmar a gravação local dos dados neste navegador.',
+      );
+    }
+  } catch (error) {
+    const detail =
+      error instanceof Error && error.message ? ` (${error.message})` : '';
+    throw new Error(
+      `Falha ao guardar os dados da biblioteca no armazenamento local do navegador.${detail}`,
     );
-  } catch {
-    // Ignore storage quota errors in restricted browsing modes
   }
   emitLibraryUpdated();
 }
@@ -621,15 +668,42 @@ function deriveFileMeta(
   }
 }
 
-function generateNextProjectCode(existing: CanonicalProjectRecord[]): string {
-  const existingCodes = new Set(
-    existing.map((item) => item.identity.code.toUpperCase()),
-  );
-  let num = 124;
-  while (existingCodes.has(`OA-26-${num}`)) {
+export function normalizeProjectCode(rawCode: string): string {
+  return rawCode.trim().toUpperCase();
+}
+
+export function suggestNextAvailableProjectCode(
+  existingCodes?: string[],
+): string {
+  const sourceCodes =
+    existingCodes ??
+    listProjects({ includeArchived: true }).map((item) => item.identity.code);
+  const used = new Set(sourceCodes.map((code) => normalizeProjectCode(code)));
+  let num = 125;
+  while (used.has(`OA-26-${num}`)) {
     num += 1;
   }
   return `OA-26-${num}`;
+}
+
+export function isProjectCodeAvailable(
+  rawCode: string,
+  existing?: CanonicalProjectRecord[],
+): boolean {
+  const normalized = normalizeProjectCode(rawCode);
+  if (!normalized) {
+    return false;
+  }
+  const records = existing ?? listProjects({ includeArchived: true });
+  return !records.some(
+    (item) => normalizeProjectCode(item.identity.code) === normalized,
+  );
+}
+
+function generateNextProjectCode(existing: CanonicalProjectRecord[]): string {
+  return suggestNextAvailableProjectCode(
+    existing.map((item) => item.identity.code),
+  );
 }
 
 function pickDefaultVisualAsset(departmentId: DepartmentId): {
@@ -690,9 +764,19 @@ export function createProject(
       : 'concept';
 
   const existing = listProjects({ includeArchived: true });
-  const rawCode = input.code?.trim().toUpperCase();
-  const code =
-    rawCode && rawCode.length > 0 ? rawCode : generateNextProjectCode(existing);
+  const rawCode = input.code ? normalizeProjectCode(input.code) : '';
+  if (rawCode && !isProjectCodeAvailable(rawCode, existing)) {
+    throw new Error(
+      `O código "${rawCode}" já existe na biblioteca de projectos.`,
+    );
+  }
+  const code = rawCode || generateNextProjectCode(existing);
+  const rawMilestoneDate = input.nextMilestoneDateIso.trim();
+  if (rawMilestoneDate && !isValidIsoCalendarDate(rawMilestoneDate)) {
+    throw new Error(
+      `A data do próximo marco ("${rawMilestoneDate}") não é uma data de calendário válida (AAAA-MM-DD).`,
+    );
+  }
   const slugBase = slugifyProjectIdentifier(`${code}-${titlePt}`);
   const existingIds = new Set(existing.map((item) => item.identity.id));
   const timeStamp = Date.now().toString(36);
@@ -724,7 +808,7 @@ export function createProject(
   }
 
   const nowIso = new Date().toISOString();
-  const milestoneDateIso = input.nextMilestoneDateIso.trim() || nowIso.slice(0, 10);
+  const milestoneDateIso = input.nextMilestoneDateIso.trim() || getTodayIsoDate();
   const milestoneTitlePt =
     input.nextMilestoneTitlePt.trim() || 'Revisão preliminar de dossier';
   const milestoneTitleEn =
@@ -906,8 +990,17 @@ export function updateProjectMetadata(
     assignedRoles.unshift(leadUser.role);
   }
 
+  const rawUpdatedMilestoneDate = patch.nextMilestone?.dateIso?.trim();
+  if (
+    rawUpdatedMilestoneDate &&
+    !isValidIsoCalendarDate(rawUpdatedMilestoneDate)
+  ) {
+    throw new Error(
+      `A data do próximo marco ("${rawUpdatedMilestoneDate}") não é uma data de calendário válida (AAAA-MM-DD).`,
+    );
+  }
   const nextMilestoneDateIso =
-    patch.nextMilestone?.dateIso ?? existing.schedule.nextMilestone.dateIso;
+    rawUpdatedMilestoneDate || existing.schedule.nextMilestone.dateIso;
 
   const nextTitle = patch.title
     ? sanitizeLocalizedText(patch.title, existing.editorial.title)
@@ -1114,6 +1207,14 @@ export function addProjectFileReference(
   const nowIso = new Date().toISOString();
   const nextNumber = String(existing.files.length + 1).padStart(2, '0');
   const meta = deriveFileMeta(fileName, kind);
+  const reviewState: DeskReviewState =
+    input.reviewState && VALID_REVIEW_STATES.has(input.reviewState)
+      ? input.reviewState
+      : 'awaiting_review';
+  const addedAtIso =
+    input.dateIso && isValidIsoCalendarDate(input.dateIso)
+      ? `${input.dateIso.trim()}T12:00:00.000Z`
+      : nowIso;
   const defaultNotePt =
     kind === 'source_skp' || kind === 'model_3d'
       ? 'Referência documental de modelo prevista para visualização Web 3D na Fase 04.'
@@ -1125,15 +1226,16 @@ export function addProjectFileReference(
 
   const nextFile: ProjectFileReference = {
     id: `file-${existing.identity.id}-${nextNumber}-${Date.now().toString(36)}`,
-    code: `${existing.identity.code}-DOC-${nextNumber}`,
+    code: input.code?.trim() || `${existing.identity.code}-DOC-${nextNumber}`,
     fileName,
     kind,
     formatLabel: meta.formatLabel,
     versionLabel,
     sizeHint: meta.sizeHint,
-    addedAtIso: nowIso,
+    addedAtIso,
     addedByUserId: actorUser.id,
-    addedByName: actorUser.name,
+    addedByName: input.authorName?.trim() || actorUser.name,
+    reviewState,
     note: {
       pt: input.notePt?.trim() || defaultNotePt,
       en: input.noteEn?.trim() || input.notePt?.trim() || defaultNoteEn,
@@ -1190,15 +1292,31 @@ export function subscribeProjectLibraryChanges(
   };
 }
 
+export function isUserIndividuallyAssociatedWithProject(
+  project: CanonicalProjectRecord,
+  user: Pick<DemoUser, 'id'>,
+): boolean {
+  return (
+    project.ownership.leadUserId === user.id ||
+    project.ownership.contributorUserIds.includes(user.id)
+  );
+}
+
+export function isUserMatchedOnlyByRole(
+  project: CanonicalProjectRecord,
+  user: Pick<DemoUser, 'id' | 'role'>,
+): boolean {
+  if (isUserIndividuallyAssociatedWithProject(project, user)) {
+    return false;
+  }
+  return project.ownership.assignedRoles.includes(user.role);
+}
+
 export function isUserAssociatedWithProject(
   project: CanonicalProjectRecord,
   user: Pick<DemoUser, 'id' | 'role' | 'departmentId'>,
 ): boolean {
-  return (
-    project.ownership.leadUserId === user.id ||
-    project.ownership.contributorUserIds.includes(user.id) ||
-    project.ownership.assignedRoles.includes(user.role)
-  );
+  return isUserIndividuallyAssociatedWithProject(project, user);
 }
 
 export function listAllDemoCollaborators(): DemoUser[] {

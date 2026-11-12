@@ -15,6 +15,11 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { DEMO_USERS, DEPARTMENTS } from '../../data/fixtures';
+import {
+  getOffsetIsoDate,
+  isValidIsoCalendarDate,
+  normalizeProjectCode,
+} from '../../data/projectLibraryRepository';
 import type { DepartmentId } from '../../data/types';
 import { useDialogFocusTrap } from '../../design-system/useDialogFocusTrap';
 import type {
@@ -53,6 +58,7 @@ function buildInitialState(
 ): ProjectCreationWizardDraft {
   const defaultLead = collaborators?.[1] ?? collaborators?.[0] ?? DEMO_USERS[0];
   return {
+    code: initialDraft?.code ?? '',
     titlePt: initialDraft?.titlePt ?? '',
     titleEn: initialDraft?.titleEn ?? '',
     summaryPt: initialDraft?.summaryPt ?? '',
@@ -68,7 +74,8 @@ function buildInitialState(
       (defaultLead ? [defaultLead.id] : []),
     initialPhaseChoice: initialDraft?.initialPhaseChoice ?? 'concept',
     nextMilestoneTitle: initialDraft?.nextMilestoneTitle ?? '',
-    nextMilestoneDateIso: initialDraft?.nextMilestoneDateIso ?? '2026-11-24',
+    nextMilestoneDateIso:
+      initialDraft?.nextMilestoneDateIso ?? getOffsetIsoDate(14),
   };
 }
 
@@ -79,6 +86,7 @@ export function ProjectCreationWizard({
   existingProjectCodes = [],
   initialDraft,
   onSubmitProject,
+  onOpenCreatedProject,
   onCancel,
   onBackToCatalog,
   onDirtyChange,
@@ -94,8 +102,12 @@ export function ProjectCreationWizard({
   const [draft, setDraft] = useState<ProjectCreationWizardDraft>(baselineDraft);
   const [customDisciplineMode, setCustomDisciplineMode] = useState(false);
   const [errors, setErrors] = useState<WizardStepErrors>({});
-  const [submittedPayload, setSubmittedPayload] =
-    useState<ProjectCreationDraftPayload | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submittedRecord, setSubmittedRecord] = useState<{
+    payload: ProjectCreationDraftPayload;
+    projectId?: string;
+  } | null>(null);
   const [isLeaveConfirmOpen, setIsLeaveConfirmOpen] = useState(false);
 
   // Refs for focus management on validation failure
@@ -108,6 +120,7 @@ export function ProjectCreationWizard({
   const leadRef = useRef<HTMLSelectElement | null>(null);
   const milestoneTitleRef = useRef<HTMLInputElement | null>(null);
   const milestoneDateRef = useRef<HTMLInputElement | null>(null);
+  const codeInputRef = useRef<HTMLInputElement | null>(null);
 
   // Leave confirmation modal refs & WCAG 2.2 AA focus trap
   const leavePortalRef = useRef<HTMLDivElement | null>(null);
@@ -123,10 +136,11 @@ export function ProjectCreationWizard({
   });
 
   const isDirty = useMemo(() => {
-    if (submittedPayload) {
+    if (submittedRecord) {
       return false;
     }
     return (
+      (draft.code ?? '') !== (baselineDraft.code ?? '') ||
       draft.titlePt !== baselineDraft.titlePt ||
       draft.titleEn !== baselineDraft.titleEn ||
       draft.summaryPt !== baselineDraft.summaryPt ||
@@ -141,15 +155,28 @@ export function ProjectCreationWizard({
       draft.contributorUserIds.join(',') !==
         baselineDraft.contributorUserIds.join(',')
     );
-  }, [draft, baselineDraft, submittedPayload]);
+  }, [draft, baselineDraft, submittedRecord]);
 
   useEffect(() => {
     onDirtyChange?.(isDirty);
   }, [isDirty, onDirtyChange]);
 
+  const normalizedExistingCodes = useMemo(
+    () => new Set(existingProjectCodes.map((c) => normalizeProjectCode(c))),
+    [existingProjectCodes],
+  );
+
   const suggestedCode = useMemo(
     () => suggestNextProjectCode(existingProjectCodes),
     [existingProjectCodes],
+  );
+
+  const effectiveCode = useMemo(
+    () =>
+      draft.code?.trim()
+        ? normalizeProjectCode(draft.code)
+        : suggestedCode,
+    [draft.code, suggestedCode],
   );
 
   const selectedLeadUser = useMemo(
@@ -200,7 +227,7 @@ export function ProjectCreationWizard({
       if (draft.nextMilestoneTitle.trim().length < 4) {
         nextErrors.nextMilestoneTitle = dict.wizard.errors.nextMilestone;
       }
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(draft.nextMilestoneDateIso.trim())) {
+      if (!isValidIsoCalendarDate(draft.nextMilestoneDateIso)) {
         nextErrors.nextMilestoneDateIso = dict.wizard.errors.nextMilestoneDate;
       }
     }
@@ -306,6 +333,25 @@ export function ProjectCreationWizard({
       return;
     }
 
+    setSubmitError(null);
+
+    if (!effectiveCode || effectiveCode.length < 3) {
+      setSubmitError(dict.wizard.errors.projectCodeFormat);
+      codeInputRef.current?.focus();
+      return;
+    }
+
+    if (normalizedExistingCodes.has(effectiveCode)) {
+      setSubmitError(dict.wizard.errors.projectCodeDuplicate);
+      codeInputRef.current?.focus();
+      return;
+    }
+
+    if (!isValidIsoCalendarDate(draft.nextMilestoneDateIso)) {
+      setSubmitError(dict.wizard.errors.nextMilestoneDate);
+      return;
+    }
+
     const phaseMeta = dict.wizard.phaseChoices[draft.initialPhaseChoice];
     const normalizedSummaryEn =
       draft.summaryEn.trim() || draft.summaryPt.trim();
@@ -315,7 +361,7 @@ export function ProjectCreationWizard({
     );
 
     const payload: ProjectCreationDraftPayload = {
-      code: suggestedCode,
+      code: effectiveCode,
       title: {
         pt: draft.titlePt.trim(),
         en: draft.titleEn.trim(),
@@ -346,12 +392,31 @@ export function ProjectCreationWizard({
       publicationStatus: 'private',
     };
 
-    await onSubmitProject(payload);
-    setSubmittedPayload(payload);
+    setIsSubmitting(true);
+    try {
+      const result = await onSubmitProject(payload);
+      const savedCode = result?.savedCode?.trim() || payload.code;
+      setSubmittedRecord({
+        payload: {
+          ...payload,
+          code: savedCode,
+        },
+        projectId: result?.projectId,
+      });
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error && error.message
+          ? error.message
+          : dict.wizard.errors.submitFailedHeading,
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCreateAnother = () => {
-    setSubmittedPayload(null);
+    setSubmittedRecord(null);
+    setSubmitError(null);
     setDraft(baselineDraft);
     setCustomDisciplineMode(false);
     setErrors({});
@@ -361,7 +426,8 @@ export function ProjectCreationWizard({
   const errorList = Object.values(errors).filter(Boolean) as string[];
   const progressPercent = (step / STEP_LIST.length) * 100;
 
-  if (submittedPayload) {
+  if (submittedRecord) {
+    const { payload: savedPayload, projectId: savedProjectId } = submittedRecord;
     return (
       <section
         aria-labelledby="wizard-success-heading"
@@ -397,7 +463,7 @@ export function ProjectCreationWizard({
                 {dict.wizard.success.codeLabel}
               </dt>
               <dd className="mt-1 font-semibold text-white tabular-nums">
-                {submittedPayload.code}
+                {savedPayload.code}
               </dd>
             </div>
             <div>
@@ -414,16 +480,33 @@ export function ProjectCreationWizard({
                 {dict.gallery.leadLabel}
               </dt>
               <dd className="mt-1 text-[#E0E0E0]">
-                {submittedPayload.leadAuthorName}
+                {savedPayload.leadAuthorName}
               </dd>
             </div>
           </dl>
 
           <div className="flex flex-wrap items-center gap-3">
+            {savedProjectId && onOpenCreatedProject && (
+              <button
+                type="button"
+                onClick={() =>
+                  onOpenCreatedProject(savedProjectId, savedPayload.code)
+                }
+                className="min-h-[44px] px-4 py-2 bg-[#A65D4A] hover:bg-[#B86B57] text-xs font-medium uppercase tracking-[0.15em] text-white inline-flex items-center gap-2 cursor-pointer"
+              >
+                <span>{dict.wizard.success.openDossier}</span>
+                <ArrowRight size={14} aria-hidden="true" />
+              </button>
+            )}
+
             <button
               type="button"
               onClick={onBackToCatalog ?? onCancel}
-              className="min-h-[44px] px-4 py-2 bg-[#A65D4A] hover:bg-[#B86B57] text-xs font-medium uppercase tracking-[0.15em] text-white inline-flex items-center gap-2 cursor-pointer"
+              className={`min-h-[44px] px-4 py-2 text-xs font-medium uppercase tracking-[0.15em] inline-flex items-center gap-2 cursor-pointer ${
+                savedProjectId && onOpenCreatedProject
+                  ? 'border border-white/18 bg-[#101010] hover:border-white/40 text-white'
+                  : 'bg-[#A65D4A] hover:bg-[#B86B57] text-white'
+              }`}
             >
               <ArrowLeft size={14} aria-hidden="true" />
               <span>{dict.wizard.success.backToCatalog}</span>
@@ -1109,15 +1192,62 @@ export function ProjectCreationWizard({
         {/* STEP 4 — REVIEW & PRIVACY GUARANTEE */}
         {step === 4 && (
           <div className="space-y-6">
+            {submitError && (
+              <div
+                role="alert"
+                className="border border-[#A65D4A] bg-[#21100E] p-4 flex items-start gap-3 text-sm text-[#F5C2B8]"
+              >
+                <AlertTriangle
+                  size={18}
+                  aria-hidden="true"
+                  className="text-[#E58573] shrink-0 mt-0.5"
+                />
+                <div className="space-y-1">
+                  <p className="font-medium text-white">
+                    {dict.wizard.errors.submitFailedHeading}
+                  </p>
+                  <p className="text-xs sm:text-sm">{submitError}</p>
+                </div>
+              </div>
+            )}
+
             <dl className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div className="bg-[#101010] border border-white/12 p-4 space-y-2 md:col-span-2">
+              <div className="bg-[#101010] border border-white/12 p-4 space-y-3 md:col-span-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <dt className="text-[11px] uppercase tracking-[0.14em] text-[#9E9E9E]">
                     {dict.wizard.reviewCodePreviewLabel}
                   </dt>
                   <span className="text-xs font-semibold text-[#CE826D] tabular-nums">
-                    {suggestedCode}
+                    {effectiveCode}
                   </span>
+                </div>
+                <div className="pt-1">
+                  <label
+                    htmlFor="wiz-project-code"
+                    className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD]"
+                  >
+                    {dict.wizard.fields.projectCode}
+                  </label>
+                  <input
+                    ref={codeInputRef}
+                    id="wiz-project-code"
+                    type="text"
+                    value={draft.code ?? ''}
+                    onChange={(e) => {
+                      setDraft((p) => ({
+                        ...p,
+                        code: e.target.value,
+                      }));
+                      if (submitError) {
+                        setSubmitError(null);
+                      }
+                    }}
+                    placeholder={suggestedCode}
+                    className="oa-field-input max-w-xs"
+                  />
+                  <p className="mt-1 text-[11px] text-[#9E9E9E]">
+                    {dict.wizard.fields.projectCodeHelp}
+                  </p>
                 </div>
                 <dd className="text-lg font-normal text-white">
                   {draft.titlePt.trim()} /{' '}
@@ -1233,7 +1363,8 @@ export function ProjectCreationWizard({
               <button
                 key="wizard-submit-button"
                 type="submit"
-                className="min-h-[44px] px-5 py-2 bg-[#A65D4A] hover:bg-[#B86B57] text-xs font-medium uppercase tracking-[0.15em] text-white inline-flex items-center gap-2 cursor-pointer"
+                disabled={isSubmitting}
+                className="min-h-[44px] px-5 py-2 bg-[#A65D4A] hover:bg-[#B86B57] disabled:opacity-60 text-xs font-medium uppercase tracking-[0.15em] text-white inline-flex items-center gap-2 cursor-pointer"
               >
                 <Check size={14} aria-hidden="true" />
                 <span>{dict.common.saveInBrowser}</span>
