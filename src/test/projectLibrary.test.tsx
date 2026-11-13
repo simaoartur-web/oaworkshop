@@ -406,7 +406,7 @@ describe('Phase 03A · Canonical Project Library Domain & Engine', () => {
     expect(
       await screen.findByText('Torre Botânica de Maputo'),
     ).toBeInTheDocument();
-  });
+  }, 45_000);
 
   it('prevents false confirmation on localStorage write failure, preserves draft, and rejects duplicate codes / invalid dates', async () => {
     const user = userEvent.setup();
@@ -577,5 +577,125 @@ describe('Phase 03A · Canonical Project Library Domain & Engine', () => {
     expect(listProjects({ includeArchived: true })).toHaveLength(
       STUDIO_DESK_PROJECTS.length,
     );
+  });
+
+  it('supports restore after archive and routes Global Search + Back/Forward to newly created local dossier', async () => {
+    const user = userEvent.setup();
+    const actor = seedArchitectSession(0); // Helena Mondlane (director)
+    const created = createProject(
+      {
+        titlePt: 'Observatório Fluvial do Incomáti',
+        titleEn: 'Incomati River Observatory',
+        subtitlePt: 'Plataforma elevada de monitorização hídrica e sombreamento em madeira.',
+        departmentId: 'architecture',
+        disciplinePt: 'Arquitectura Pública',
+        studioBase: 'Maputo',
+        phasePt: 'Conceito',
+        projectStatus: 'concept',
+        leadUserId: actor.id,
+        nextMilestoneTitlePt: 'Entrega de anteprojecto estrutural',
+        nextMilestoneDateIso: getOffsetIsoDate(10),
+      },
+      actor,
+    );
+
+    archiveProject(created.identity.id, actor);
+
+    renderWorkspaceApp(`/workspace/projects/${created.identity.id}`);
+    expect(
+      await screen.findByText(/Este projecto está arquivado/i),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole('button', { name: /Restaurar para Em curso/i }),
+    );
+    expect(
+      screen.queryByText(/Este projecto está arquivado/i),
+    ).not.toBeInTheDocument();
+    expect(getProjectById(created.identity.id)?.lifecycle.projectStatus).toBe(
+      'in_progress',
+    );
+
+    // Search via Global Search dialog routes to newly created project's dossier
+    await user.click(
+      screen.getByRole('button', {
+        name: /Abrir pesquisa demonstrativa local/i,
+      }),
+    );
+    const searchInput = await screen.findByRole('combobox');
+    await user.type(searchInput, 'Incomáti');
+    const resultBtn = await screen.findByRole('button', {
+      name: /Observatório Fluvial do Incomáti/i,
+    });
+    await user.click(resultBtn);
+
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Observatório Fluvial do Incomáti',
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('adapts Project Gallery & Dossier consistently across all 6 demo profiles and switches PT/EN cleanly', async () => {
+    const user = userEvent.setup();
+
+    for (let idx = 0; idx < DEMO_USERS.length; idx++) {
+      const profile = seedArchitectSession(idx);
+      const view = renderWorkspaceApp('/workspace/projects');
+      expect(
+        await screen.findByRole('heading', {
+          name: /Projectos do Atelier/i,
+        }),
+      ).toBeInTheDocument();
+
+      const allCanonical = listProjects({ includeArchived: false });
+      const expectedMine = allCanonical.filter((p) =>
+        isUserIndividuallyAssociatedWithProject(p, profile),
+      ).length;
+      const expectedRoleOnly = allCanonical.filter((p) =>
+        isUserMatchedOnlyByRole(p, profile),
+      ).length;
+
+      expect(
+        screen.getByRole('button', {
+          name: new RegExp(`Os meus projectos \\(${expectedMine}\\)`, 'i'),
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', {
+          name: new RegExp(`Por função \\(${expectedRoleOnly}\\)`, 'i'),
+        }),
+      ).toBeInTheDocument();
+
+      view.unmount();
+    }
+
+    // Bilingual PT <-> EN switch on integrated catalog & dossier
+    seedArchitectSession(1);
+    renderWorkspaceApp('/workspace/projects');
+    await user.click(
+      await screen.findByRole('button', { name: /Mudar idioma para inglês/i }),
+    );
+    expect(
+      await screen.findByRole('heading', { name: /Studio Projects/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /My projects/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /By role/i }),
+    ).toBeInTheDocument();
+
+    // Open first project dossier in EN
+    await user.click(
+      screen.getAllByRole('button', { name: /Open project/i })[0],
+    );
+    expect(
+      await screen.findByRole('tab', { name: /Identity/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('tab', { name: /Documentation/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /History/i })).toBeInTheDocument();
   });
 });

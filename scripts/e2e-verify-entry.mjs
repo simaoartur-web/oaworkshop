@@ -510,7 +510,18 @@ async function main() {
         fullPage: false,
       });
 
-      // Phase 03 Integrated E2E: Gallery -> 4-Step Wizard -> Confirmation -> Dossier -> Reload -> Model Phase 04 -> Archive -> 404
+      // Toggle Galeria <-> Lista técnica & check PT <-> EN language switching
+      await page.getByRole('button', { name: /Lista técnica/i }).click();
+      await page.locator('table').waitFor({ state: 'visible' });
+      await checkNoHorizontalOverflow(page, 'Workspace Projects Technical List 1440px');
+      await page.getByRole('button', { name: /^Galeria$/i }).click();
+
+      await page.getByRole('button', { name: /Mudar idioma para inglês/i }).click();
+      await page.getByRole('heading', { name: /Studio Projects/i }).waitFor({ state: 'visible' });
+      await page.getByRole('button', { name: /Switch language to Portuguese/i }).click();
+      await page.getByRole('heading', { name: /Projectos do Atelier/i }).waitFor({ state: 'visible' });
+
+      // Phase 03 Integrated E2E: Gallery -> 4-Step Wizard -> Confirmation -> Dossier -> Edit/Revision/Doc -> Reload -> Model Phase 04 -> Archive/Restore -> Search/Back/Forward -> 404
       await page.getByRole('button', { name: /Novo projecto/i }).click();
       await page.waitForURL(`${BASE_URL}/workspace/projects/new`);
       await page.waitForTimeout(150);
@@ -536,10 +547,37 @@ async function main() {
       await page.getByRole('heading', { name: 'Pavilhão E2E Maputo' }).waitFor({ state: 'visible' });
       await checkNoHorizontalOverflow(page, 'Workspace Projects Dossier 1440px');
 
-      // Reload persistence & strict private default verification
+      // Edit metadata inline, add revision in History, add file reference in Documentation
+      await page.getByRole('button', { name: /Editar ficha técnica/i }).click();
+      const phaseInput = page.getByLabel(/Fase actual/i);
+      await phaseInput.fill('Projecto de Execução');
+      await page.getByRole('button', { name: /Guardar alterações/i }).click();
+      await page.getByText(/Alterações guardadas neste navegador/i).waitFor({ state: 'visible' });
+
+      await page.getByRole('tab', { name: /Histórico/i }).click();
+      await page.getByRole('button', { name: /Registar revisão/i }).click();
+      await page.getByLabel(/Resumo técnico da revisão/i).fill('Revisão E2E persistente v02.');
+      await page.getByRole('button', { name: /Guardar revisão neste navegador/i }).click();
+      await page.getByText('Revisão E2E persistente v02.').waitFor({ state: 'visible' });
+
+      await page.getByRole('tab', { name: /Documentação/i }).click();
+      await page.locator('[role="tabpanel"]').getByRole('button', { name: /Adicionar informação/i }).click();
+      await page.getByLabel(/Nome do ficheiro/i).fill('e2e-planta-terreo.pdf');
+      await page.getByLabel(/Relação com o projecto/i).fill('Prancha geral de validação E2E.');
+      await page.getByRole('button', { name: /Guardar referência neste navegador/i }).click();
+      await page.getByText('e2e-planta-terreo.pdf').waitFor({ state: 'visible' });
+
+      // Reload persistence verification across Metadata, Revision, and Document Reference
       await page.reload({ waitUntil: 'load' });
       await page.getByRole('heading', { name: 'Pavilhão E2E Maputo' }).waitFor({ state: 'visible' });
       await page.getByText(/Privado por omissão/i).first().waitFor({ state: 'visible' });
+      await page.getByRole('tab', { name: /Desenvolvimento/i }).click();
+      await page.getByText(/Projecto de Execução/i).first().waitFor({ state: 'visible' });
+      await page.getByRole('tab', { name: /Histórico/i }).click();
+      await page.getByText('Revisão E2E persistente v02.').waitFor({ state: 'visible' });
+      await page.getByRole('tab', { name: /Documentação/i }).click();
+      await page.getByText('e2e-planta-terreo.pdf').waitFor({ state: 'visible' });
+      await page.getByRole('tab', { name: /Identidade/i }).click();
       await page.screenshot({
         path: path.join(ARTIFACT_DIR, 'oa_projects_dossier_1440.png'),
         fullPage: false,
@@ -553,7 +591,7 @@ async function main() {
       await page.getByRole('link', { name: /Voltar ao Dossier/i }).click();
       await page.waitForURL(createdUrl);
 
-      // Archive locally -> disappears from 'Todos' chip, visible under 'Arquivado'
+      // Archive locally -> disappears from 'Todos' chip, visible under 'Arquivado' -> reopen & restore
       await page.getByRole('button', { name: /Arquivar projecto/i }).click();
       await page.getByText(/Este projecto está arquivado/i).waitFor({ state: 'visible' });
       await page.getByRole('button', { name: /Voltar aos projectos/i }).click();
@@ -562,6 +600,29 @@ async function main() {
       assertCondition(hiddenActiveCount === 0, 'Archived project must be hidden under Todos filter');
       await page.getByRole('button', { name: /^Arquivado$/i }).click();
       await page.getByText('Pavilhão E2E Maputo').first().waitFor({ state: 'visible' });
+
+      // Reopen archived project & restore it back to Em curso
+      await page.getByRole('button', { name: /Abrir projecto/i }).first().click();
+      await page.waitForURL(createdUrl);
+      await page.getByRole('button', { name: /Restaurar para Em curso/i }).click();
+      await page.getByRole('button', { name: /Voltar aos projectos/i }).click();
+      await page.waitForURL(`${BASE_URL}/workspace/projects`);
+      await page.getByText('Pavilhão E2E Maputo').first().waitFor({ state: 'visible' });
+
+      // Global Search for newly created local project -> routes directly to dossier + Back/Forward
+      await page.keyboard.press('Control+k');
+      await searchDialog.waitFor({ state: 'visible' });
+      await searchInput.fill('Pavilhão E2E Maputo');
+      await page.waitForTimeout(150);
+      await page.keyboard.press('Enter');
+      await page.waitForURL(createdUrl);
+      await page.getByRole('heading', { name: 'Pavilhão E2E Maputo' }).waitFor({ state: 'visible' });
+      await page.goBack();
+      await page.waitForURL(`${BASE_URL}/workspace/projects`);
+      await page.goForward();
+      await page.waitForURL(createdUrl);
+      await page.getByRole('button', { name: /Voltar aos projectos/i }).click();
+      await page.waitForURL(`${BASE_URL}/workspace/projects`);
 
       // Verify invalid ID renders honest 404 fallback cleanly
       await page.goto(`${BASE_URL}/workspace/projects/id-invalido-404`, { waitUntil: 'load' });
