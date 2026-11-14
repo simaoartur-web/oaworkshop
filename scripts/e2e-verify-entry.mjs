@@ -583,19 +583,26 @@ async function main() {
         fullPage: false,
       });
 
-      // Visit Phase 04 Web 3D placeholder & return
+      // Visit Phase 04A 3D Model Engine route & return
       const createdUrl = page.url();
       await page.getByRole('button', { name: /Abrir vista 3D \(Fase 04\)/i }).click();
       await page.waitForURL(`${createdUrl}/model`);
-      await page.getByText(/Visualizador Web 3D \(\.glb \/ \.skp\) previsto para a Fase 04/i).waitFor({ state: 'visible' });
+      await page.getByText(/FASE 04 · MOTOR DE MODELOS 3D & CONTRATO DE FICHEIROS/i).waitFor({ state: 'visible' });
+      await checkNoHorizontalOverflow(page, 'Workspace Projects Model Engine 1440px');
+      await page.screenshot({
+        path: path.join(ARTIFACT_DIR, 'oa_projects_model_engine_1440.png'),
+        fullPage: false,
+      });
       await page.getByRole('link', { name: /Voltar ao Dossier/i }).click();
       await page.waitForURL(createdUrl);
+      await page.getByRole('heading', { name: 'Pavilhão E2E Maputo' }).waitFor({ state: 'visible' });
 
       // Archive locally -> disappears from 'Todos' chip, visible under 'Arquivado' -> reopen & restore
       await page.getByRole('button', { name: /Arquivar projecto/i }).click();
       await page.getByText(/Este projecto está arquivado/i).waitFor({ state: 'visible' });
       await page.getByRole('button', { name: /Voltar aos projectos/i }).click();
       await page.waitForURL(`${BASE_URL}/workspace/projects`);
+      await page.getByRole('heading', { name: /Projectos do Atelier/i }).waitFor({ state: 'visible' });
       const hiddenActiveCount = await page.getByText('Pavilhão E2E Maputo').count();
       assertCondition(hiddenActiveCount === 0, 'Archived project must be hidden under Todos filter');
       await page.getByRole('button', { name: /^Arquivado$/i }).click();
@@ -607,6 +614,7 @@ async function main() {
       await page.getByRole('button', { name: /Restaurar para Em curso/i }).click();
       await page.getByRole('button', { name: /Voltar aos projectos/i }).click();
       await page.waitForURL(`${BASE_URL}/workspace/projects`);
+      await page.getByRole('heading', { name: /Projectos do Atelier/i }).waitFor({ state: 'visible' });
       await page.getByText('Pavilhão E2E Maputo').first().waitFor({ state: 'visible' });
 
       // Global Search for newly created local project -> routes directly to dossier + Back/Forward

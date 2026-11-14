@@ -12,8 +12,8 @@ O **O+A Workspace** é o ambiente digital interno de trabalho da **O+A Arquitect
 | **Fase 01** | Experiência de entrada (`/login`, `/welcome`), sessão mock, 6 perfis demo, PT/EN, preferências locais, recuperação demo honesta e destino `/workspace` | **Concluída e revista (Fase 02A)** |
 | **Fase 02A (Argon A)** | Hardening da Fase 01 (modal `inert`/focus trap, E2E portátil, fuso `CET`/`CEST` dinâmico, auditoria de acesso demo) + **Workspace Shell** (rail, cabeçalho contextual, pesquisa local, notificações demo, `/workspace/settings` e slot `/workspace`) | **Implementada (`codex/f02-shell-hardening`)** |
 | **Fase 02B (Argon B)** | Página operacional `StudioDeskPage` para encaixe no slot `/workspace` | Em paralelo noutra branch |
-| **Fase 03** | Biblioteca de projectos (galeria + lista técnica), criação guiada e dossier vivo | Planeada |
-| **Fase 04** | Visualizador Web 3D real (`.glb`/`.gltf`) + registo honesto de `.skp` original | Planeada |
+| **Fase 03** | Biblioteca de projectos (galeria + lista técnica), criação guiada e dossier vivo | **Concluída e integrada (`codex/f02-integration-preview`)** |
+| **Fase 04** | Motor de modelos 3D (`.glb`/`.gltf`), distinção de referências `.skp` documentais e visualizador Web 3D | **Fase 04A implementada (`codex/f04-model-engine`)** |
 | **Fase 05** | Operação de equipa: tarefas (lista/board acessível), calendário, departamentos, equipa e biblioteca | Planeada |
 | **Fase 06** | Fila editorial de publicação, pré-visualização local do site e relatórios derivados | Planeada |
 | **Fase 07** | Auditoria final UX, WCAG 2.2 AA, performance, i18n e regressão | Planeada |

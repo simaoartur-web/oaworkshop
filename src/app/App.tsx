@@ -1,4 +1,4 @@
-import { Suspense, useEffect, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, type ReactNode } from 'react';
 import {
   BrowserRouter,
   Navigate,
@@ -20,6 +20,10 @@ import {
   WorkspaceSessionProvider,
   useWorkspaceSession,
 } from './WorkspaceSessionContext';
+
+const ProjectModelEnginePage = lazy(
+  () => import('../features/model-engine/ProjectModelEnginePage'),
+);
 
 function ScrollResetOnRouteChange() {
   const { pathname } = useLocation();
@@ -88,7 +92,10 @@ export function AppRoutes() {
             <Route path="projects" element={<ProjectLibraryCatalogPage />} />
             <Route path="projects/new" element={<ProjectCreateEnginePage />} />
             <Route path="projects/:id" element={<ProjectDossierShellPage />} />
-            <Route path="projects/:id/model" element={<PlannedModuleView />} />
+            <Route
+              path="projects/:id/model"
+              element={<ProjectModelEnginePage />}
+            />
             <Route path="projects/*" element={<PlannedModuleView />} />
             <Route path="tasks" element={<PlannedModuleView />} />
             <Route path="calendar" element={<PlannedModuleView />} />
