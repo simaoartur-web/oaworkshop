@@ -33,8 +33,12 @@ export const EMBEDDED_DEMO_GLTF_JSON = JSON.stringify(
   {
     asset: {
       version: '2.0',
-      generator: 'O+A Workspace Phase 04A Model Engine (Fictive Study)',
+      generator: 'O+A Workspace Phase 04 Model Engine (Fictive Study)',
       copyright: 'O+A Arquitectos e Planeadores — Demo Study Only',
+      extras: {
+        declaredUnit: 'm',
+        declaredScale: '1:100',
+      },
     },
     scene: 0,
     scenes: [
@@ -81,7 +85,7 @@ export const EMBEDDED_DEMO_GLTF_JSON = JSON.stringify(
         count: 3,
         type: 'VEC3',
         min: [0, 0, 0],
-        max: [1, 1, 0],
+        max: [6, 3.5, 4],
       },
     ],
     bufferViews: [
@@ -95,13 +99,15 @@ export const EMBEDDED_DEMO_GLTF_JSON = JSON.stringify(
     buffers: [
       {
         byteLength: 36,
-        uri: 'data:application/octet-stream;base64,AAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAgD8AAAAA',
+        uri: 'data:application/octet-stream;base64,AAAAAAAAAAAAAAAAAACwQAAAAAAAAIBAAAAAAAAAGEAAAAAA',
       },
     ],
   },
   null,
   2,
 );
+
+export const EMBEDDED_DEMO_GLTF_DATA_URI = `data:model/gltf+json;charset=utf-8,${encodeURIComponent(EMBEDDED_DEMO_GLTF_JSON)}`;
 
 const DEFAULT_FICTIVE_STUDY_DISCLAIMER = {
   pt: 'Estudo volumétrico fictício de demonstração — não constitui representação geométrica autêntica nem executiva do projecto.',
@@ -110,7 +116,8 @@ const DEFAULT_FICTIVE_STUDY_DISCLAIMER = {
 
 /**
  * Category B — Local demonstrative 3D model catalog associated with fictive studio studies.
- * Note: `sd-proj-oa-25-084` and newly created local projects intentionally have no default
+ * Points exclusively to real published `.glb` binaries in `/assets/models/` and self-contained `.gltf` 2.0 manifests.
+ * Note: `sd-proj-oa-25-084`, `sd-proj-oa-26-119`, and newly created local projects intentionally have no default
  * entry here so the honest empty/document-only state is preserved and verifiable.
  */
 export const DEMO_MODEL_CATALOG: readonly DemoModelCatalogEntry[] = [
@@ -118,20 +125,22 @@ export const DEMO_MODEL_CATALOG: readonly DemoModelCatalogEntry[] = [
     id: 'demo-model-oa-26-101-glb',
     projectId: 'sd-proj-oa-26-101',
     projectCode: 'OA-26-101',
-    code: 'MOD-OA-26-101-GLB',
-    fileName: 'oa-26-101-ponta-vermelha-massing-demo.glb',
+    code: 'MOD-OA-101-V3',
+    fileName: 'oa-ponta-vermelha-pavilion-demo.glb',
     format: 'glb',
-    assetPath: '/assets/models/oa-ponta-vermelha-massing.glb',
+    assetPath: '/assets/models/oa-ponta-vermelha-pavilion-demo.glb',
+    byteSize: 24116,
+    declaredUnit: 'm',
     title: {
       pt: 'Maquete Volumétrica · Pátio e Galeria (Estudo Demo .glb)',
       en: 'Volumetric Maquette · Courtyard & Gallery (.glb Demo Study)',
     },
     studySummary: {
-      pt: 'Estudo fictício de implantação 1:200 com pátio sombreado, pala perimetral em betão e núcleo de taipa.',
-      en: 'Fictive 1:200 siting study with shaded courtyard, perimeter concrete canopy, and rammed-earth core.',
+      pt: 'Estudo fictício de implantação 1:100 com pátio sombreado, pala perimetral em betão e núcleo de taipa.',
+      en: 'Fictive 1:100 siting study with shaded courtyard, perimeter concrete canopy, and rammed-earth core.',
     },
-    scale: '1 : 200',
-    sizeHint: '1.4 MB (Estudo Demo)',
+    scale: '1:100',
+    sizeHint: '24.1 KB (Estudo Demo)',
     category: 'demo-asset',
     isFictiveStudy: true,
     fictiveNotice: DEFAULT_FICTIVE_STUDY_DISCLAIMER,
@@ -140,11 +149,13 @@ export const DEMO_MODEL_CATALOG: readonly DemoModelCatalogEntry[] = [
     id: 'demo-model-oa-26-101-gltf',
     projectId: 'sd-proj-oa-26-101',
     projectCode: 'OA-26-101',
-    code: 'MOD-OA-26-101-GLTF',
+    code: 'MOD-OA-101-GLTF',
     fileName: 'oa-26-101-canopy-section-study.gltf',
     format: 'gltf',
-    assetPath: '/assets/models/oa-ponta-vermelha-section.gltf',
+    assetPath: EMBEDDED_DEMO_GLTF_DATA_URI,
     embeddedGltfJson: EMBEDDED_DEMO_GLTF_JSON,
+    byteSize: EMBEDDED_DEMO_GLTF_JSON.length,
+    declaredUnit: 'm',
     title: {
       pt: 'Prisma Esquemático de Brise-Soleil (Estudo Completo .gltf)',
       en: 'Brise-Soleil Schematic Prism (Complete .gltf Study)',
@@ -153,8 +164,8 @@ export const DEMO_MODEL_CATALOG: readonly DemoModelCatalogEntry[] = [
       pt: 'Exemplo demonstrativo .gltf 2.0 completo com buffer binário base64 incorporado no manifesto.',
       en: 'Complete demonstrative .gltf 2.0 example with base64 binary buffer embedded in the manifest.',
     },
-    scale: '1 : 100',
-    sizeHint: '48 KB (.gltf autónomo)',
+    scale: '1:100',
+    sizeHint: '1.2 KB (.gltf autónomo)',
     category: 'demo-asset',
     isFictiveStudy: true,
     fictiveNotice: DEFAULT_FICTIVE_STUDY_DISCLAIMER,
@@ -163,20 +174,22 @@ export const DEMO_MODEL_CATALOG: readonly DemoModelCatalogEntry[] = [
     id: 'demo-model-oa-26-108-glb',
     projectId: 'sd-proj-oa-26-108',
     projectCode: 'OA-26-108',
-    code: 'MOD-OA-26-108-GLB',
-    fileName: 'oa-26-108-costa-terraces-study-demo.glb',
+    code: 'MOD-OA-108-V2',
+    fileName: 'oa-costa-terraces-massing-demo.glb',
     format: 'glb',
-    assetPath: '/assets/models/oa-costa-terraces-study.glb',
+    assetPath: '/assets/models/oa-costa-terraces-massing-demo.glb',
+    byteSize: 13000,
+    declaredUnit: 'm',
     title: {
       pt: 'Maquete Topográfica · Socalcos da Costa (Estudo Demo .glb)',
       en: 'Topographic Maquette · Coastal Terraces (.glb Demo Study)',
     },
     studySummary: {
-      pt: 'Estudo territorial fictício 1:500 de retenção pluvial e percursos pedonais.',
-      en: 'Fictive 1:500 territorial study of stormwater retention and pedestrian corridors.',
+      pt: 'Estudo territorial fictício 1:250 de retenção pluvial e percursos pedonais.',
+      en: 'Fictive 1:250 territorial study of stormwater retention and pedestrian corridors.',
     },
-    scale: '1 : 500',
-    sizeHint: '2.1 MB (Estudo Demo)',
+    scale: '1:250',
+    sizeHint: '13.0 KB (Estudo Demo)',
     category: 'demo-asset',
     isFictiveStudy: true,
     fictiveNotice: DEFAULT_FICTIVE_STUDY_DISCLAIMER,
@@ -185,11 +198,13 @@ export const DEMO_MODEL_CATALOG: readonly DemoModelCatalogEntry[] = [
     id: 'demo-model-oa-26-112-gltf',
     projectId: 'sd-proj-oa-26-112',
     projectCode: 'OA-26-112',
-    code: 'MOD-OA-26-112-GLTF',
+    code: 'MOD-OA-112-GLTF',
     fileName: 'oa-26-112-climate-blocks-sample.gltf',
     format: 'gltf',
-    assetPath: '/assets/models/oa-climate-blocks-sample.gltf',
+    assetPath: EMBEDDED_DEMO_GLTF_DATA_URI,
     embeddedGltfJson: EMBEDDED_DEMO_GLTF_JSON,
+    byteSize: EMBEDDED_DEMO_GLTF_JSON.length,
+    declaredUnit: 'm',
     title: {
       pt: 'Amostra Volumétrica · Blocos de Terra Comprimida (.gltf Completo)',
       en: 'Volumetric Sample · Compressed Earth Blocks (Complete .gltf)',
@@ -198,30 +213,8 @@ export const DEMO_MODEL_CATALOG: readonly DemoModelCatalogEntry[] = [
       pt: 'Modelo demonstrativo .gltf 2.0 com geometria e recursos totalmente incorporados para ensaio térmico fictício.',
       en: 'Demonstrative .gltf 2.0 model with fully embedded geometry and resources for fictive thermal testing.',
     },
-    scale: '1 : 20',
-    sizeHint: '52 KB (.gltf autónomo)',
-    category: 'demo-asset',
-    isFictiveStudy: true,
-    fictiveNotice: DEFAULT_FICTIVE_STUDY_DISCLAIMER,
-  },
-  {
-    id: 'demo-model-oa-26-119-glb',
-    projectId: 'sd-proj-oa-26-119',
-    projectCode: 'OA-26-119',
-    code: 'MOD-OA-26-119-GLB',
-    fileName: 'oa-26-119-baia-modular-timber-demo.glb',
-    format: 'glb',
-    assetPath: '/assets/models/oa-baia-modular-timber.glb',
-    title: {
-      pt: 'Módulo de Galeria · Grelha de Madeira (Estudo Demo .glb)',
-      en: 'Gallery Module · Timber Grid (.glb Demo Study)',
-    },
-    studySummary: {
-      pt: 'Estudo espacial fictício 1:50 da caixilharia interior e iluminação zenital filtrada.',
-      en: 'Fictive 1:50 interior spatial study of timber joinery and filtered zenithal lighting.',
-    },
-    scale: '1 : 50',
-    sizeHint: '1.1 MB (Estudo Demo)',
+    scale: '1:20',
+    sizeHint: '1.2 KB (.gltf autónomo)',
     category: 'demo-asset',
     isFictiveStudy: true,
     fictiveNotice: DEFAULT_FICTIVE_STUDY_DISCLAIMER,
@@ -241,11 +234,19 @@ function emitModelEngineUpdated(): void {
   window.dispatchEvent(new CustomEvent(MODEL_ENGINE_UPDATED_EVENT));
 }
 
+export function isValidTemporaryObjectUrl(url: unknown): url is string {
+  return (
+    typeof url === 'string' &&
+    url.trim().startsWith('blob:') &&
+    url.trim().length > 5
+  );
+}
+
 function revokeObjectUrlSafely(url: string): void {
   if (
     typeof URL !== 'undefined' &&
     typeof URL.revokeObjectURL === 'function' &&
-    url.startsWith('blob:')
+    isValidTemporaryObjectUrl(url)
   ) {
     try {
       URL.revokeObjectURL(url);
@@ -256,10 +257,16 @@ function revokeObjectUrlSafely(url: string): void {
 }
 
 function createObjectUrlSafely(blob: Blob): string {
-  if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
-    return URL.createObjectURL(blob);
+  if (typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') {
+    throw new Error('Browser URL.createObjectURL API is unavailable.');
   }
-  return `blob:oa-workspace-session/${Date.now()}`;
+  const created = URL.createObjectURL(blob);
+  if (!isValidTemporaryObjectUrl(created)) {
+    throw new Error(
+      'URL.createObjectURL returned an invalid temporary blob: URL.',
+    );
+  }
+  return created;
 }
 
 // Automatically clear and revoke all temporary session ObjectURLs when the global demo reset clears localStorage
@@ -312,20 +319,48 @@ export function detectModelFormatFromName(fileName: string): ModelFileFormat {
 }
 
 /**
- * Validates the 12-byte binary glTF 2.0 (`.glb`) header:
+ * Validates the 20-byte binary glTF 2.0 (`.glb`) header and first JSON chunk header:
  * - magic === 0x46546C67 ('glTF' in ASCII little-endian)
  * - version === 2
- * - declared total length >= 12
+ * - declared total length >= 20 and matches expectedTotalByteLength (when provided)
+ * - first chunk type === 0x4E4F534A ('JSON') and 20 + jsonChunkLength <= declaredLength
  */
-export function validateGlbHeaderBytes(bytes: ArrayBuffer): boolean {
-  if (bytes.byteLength < 12) {
+export function validateGlbHeaderBytes(
+  bytes: ArrayBuffer,
+  expectedTotalByteLength?: number,
+): boolean {
+  if (bytes.byteLength < 20) {
     return false;
   }
   const view = new DataView(bytes);
   const magic = view.getUint32(0, true);
   const version = view.getUint32(4, true);
   const declaredLength = view.getUint32(8, true);
-  return magic === 0x46546c67 && version === 2 && declaredLength >= 12;
+  if (magic !== 0x46546c67 || version !== 2 || declaredLength < 20) {
+    return false;
+  }
+  if (
+    expectedTotalByteLength !== undefined &&
+    declaredLength !== expectedTotalByteLength
+  ) {
+    return false;
+  }
+  if (
+    expectedTotalByteLength === undefined &&
+    declaredLength < bytes.byteLength
+  ) {
+    return false;
+  }
+  const jsonChunkLength = view.getUint32(12, true);
+  const jsonChunkType = view.getUint32(16, true);
+  if (
+    jsonChunkType !== 0x4e4f534a ||
+    jsonChunkLength === 0 ||
+    20 + jsonChunkLength > declaredLength
+  ) {
+    return false;
+  }
+  return true;
 }
 
 export interface GltfManifestValidationCheck {
@@ -406,6 +441,13 @@ export function validateGltfManifestText(
       if (trimmedUri.startsWith('data:')) {
         continue;
       }
+      if (
+        /^(?:https?:|\/\/|ftp:|javascript:|file:|blob:)/i.test(trimmedUri) ||
+        trimmedUri.includes('..')
+      ) {
+        missingExternal.push(trimmedUri);
+        continue;
+      }
       const normalizedName = trimmedUri.replace(/^\.?\//, '').toLowerCase();
       if (
         availableResourceNames &&
@@ -457,6 +499,15 @@ async function readFileHeaderBytes(
   });
 }
 
+async function readFullFileArrayBuffer(
+  file: Pick<Blob, 'slice' | 'arrayBuffer'>,
+): Promise<ArrayBuffer> {
+  if (typeof file.arrayBuffer === 'function') {
+    return file.arrayBuffer();
+  }
+  return readFileHeaderBytes(file, Number.MAX_SAFE_INTEGER);
+}
+
 async function readFileTextContent(
   file: Pick<Blob, 'text' | 'slice'>,
 ): Promise<string> {
@@ -477,7 +528,7 @@ async function readFileTextContent(
 /**
  * Validates a user-selected file for Phase 04 Web 3D preview.
  * Enforces size limits, rejects empty files, explains `.skp` non-WebGL nature,
- * verifies `.glb` binary magic header, and verifies `.gltf` manifest & resource completeness.
+ * verifies `.glb` binary magic header + declared length, and verifies `.gltf` manifest & resource completeness.
  */
 export async function validateModelFileSelection(
   file: Pick<File, 'name' | 'size' | 'slice' | 'text' | 'arrayBuffer'>,
@@ -546,8 +597,8 @@ export async function validateModelFileSelection(
 
   if (detectedFormat === 'glb') {
     try {
-      const headerBuffer = await readFileHeaderBytes(file, 12);
-      if (!validateGlbHeaderBytes(headerBuffer)) {
+      const headerBuffer = await readFileHeaderBytes(file, 20);
+      if (!validateGlbHeaderBytes(headerBuffer, byteSize)) {
         return {
           ok: false,
           errorCode: 'INVALID_GLB_HEADER',
@@ -555,8 +606,8 @@ export async function validateModelFileSelection(
           fileName,
           byteSize,
           message: {
-            pt: `O ficheiro "${fileName}" não apresenta um cabeçalho binário glTF 2.0 (.glb) válido.`,
-            en: `The file "${fileName}" does not contain a valid glTF 2.0 (.glb) binary header.`,
+            pt: `O ficheiro "${fileName}" não apresenta um cabeçalho binário glTF 2.0 (.glb) válido ou o comprimento declarado não coincide com o ficheiro.`,
+            en: `The file "${fileName}" does not contain a valid glTF 2.0 (.glb) binary header or its declared length does not match the file size.`,
           },
         };
       }
@@ -644,17 +695,68 @@ export async function validateModelFileSelection(
 }
 
 /**
- * Helper to create a valid binary `.glb` ArrayBuffer for tests or synthetic study verification.
+ * Helper to create a valid binary `.glb` ArrayBuffer with a complete 1-triangle (3-vertex)
+ * 3D architectural massing mesh so both header validation and Three.js `GLTFLoader` succeed.
  */
 export function createMinimalValidGlbBytes(): Uint8Array<ArrayBuffer> {
+  const positions = new Float32Array([0, 0, 0, 4, 0, 0, 0, 3, 2]);
+  const normals = new Float32Array([0, 0, 1, 0, 0, 1, 0, 0, 1]);
+  const indices = new Uint16Array([0, 1, 2, 0]); // 6 bytes + 2 pad = 8 bytes
+  const binChunkLength =
+    positions.byteLength + normals.byteLength + indices.byteLength; // 36 + 36 + 8 = 80 bytes
+
   const jsonChunk = new TextEncoder().encode(
     JSON.stringify({
-      asset: { version: '2.0' },
-      scenes: [{ nodes: [] }],
+      asset: { version: '2.0', generator: 'OAWorkspaceMinimalGlb' },
+      scene: 0,
+      scenes: [{ nodes: [0] }],
+      nodes: [{ name: 'OA_Local_Study_Prism', mesh: 0 }],
+      meshes: [
+        {
+          primitives: [
+            {
+              attributes: { POSITION: 0, NORMAL: 1 },
+              indices: 2,
+            },
+          ],
+        },
+      ],
+      accessors: [
+        {
+          bufferView: 0,
+          componentType: 5126,
+          count: 3,
+          type: 'VEC3',
+          min: [0, 0, 0],
+          max: [4, 3, 2],
+        },
+        {
+          bufferView: 1,
+          componentType: 5126,
+          count: 3,
+          type: 'VEC3',
+          min: [0, 0, 1],
+          max: [0, 0, 1],
+        },
+        {
+          bufferView: 2,
+          componentType: 5123,
+          count: 3,
+          type: 'SCALAR',
+          min: [0],
+          max: [2],
+        },
+      ],
+      bufferViews: [
+        { buffer: 0, byteOffset: 0, byteLength: 36, target: 34962 },
+        { buffer: 0, byteOffset: 36, byteLength: 36, target: 34962 },
+        { buffer: 0, byteOffset: 72, byteLength: 6, target: 34963 },
+      ],
+      buffers: [{ byteLength: binChunkLength }],
     }),
   );
   const paddedJsonLength = Math.ceil(jsonChunk.byteLength / 4) * 4;
-  const totalLength = 12 + 8 + paddedJsonLength;
+  const totalLength = 12 + 8 + paddedJsonLength + 8 + binChunkLength;
   const buffer = new ArrayBuffer(totalLength);
   const view = new DataView(buffer);
   // Header: magic 'glTF', version 2, totalLength
@@ -666,9 +768,17 @@ export function createMinimalValidGlbBytes(): Uint8Array<ArrayBuffer> {
   view.setUint32(16, 0x4e4f534a, true);
   const bytes = new Uint8Array(buffer);
   bytes.set(jsonChunk, 20);
-  for (let i = 20 + jsonChunk.byteLength; i < totalLength; i++) {
+  for (let i = 20 + jsonChunk.byteLength; i < 20 + paddedJsonLength; i++) {
     bytes[i] = 0x20; // space padding per glTF 2.0 spec
   }
+  // BIN chunk header: chunkLength, chunkType 'BIN\0' (0x004E4942)
+  const binHeaderOffset = 20 + paddedJsonLength;
+  view.setUint32(binHeaderOffset, binChunkLength, true);
+  view.setUint32(binHeaderOffset + 4, 0x004e4942, true);
+  const binOffset = binHeaderOffset + 8;
+  bytes.set(new Uint8Array(positions.buffer), binOffset);
+  bytes.set(new Uint8Array(normals.buffer), binOffset + 36);
+  bytes.set(new Uint8Array(indices.buffer), binOffset + 72);
   return bytes;
 }
 
@@ -709,12 +819,30 @@ export async function selectSessionModelFile(
     return validation;
   }
 
+  let arrayBuffer: ArrayBuffer;
+  let objectUrl: string;
+  try {
+    arrayBuffer = await readFullFileArrayBuffer(file);
+    objectUrl = createObjectUrlSafely(file);
+  } catch {
+    return {
+      ok: false,
+      errorCode: 'INVALID_GLB_HEADER',
+      detectedFormat: validation.detectedFormat,
+      fileName: validation.fileName,
+      byteSize: validation.byteSize,
+      message: {
+        pt: `Não foi possível criar um ObjectURL temporário válido na sessão para "${validation.fileName}".`,
+        en: `Could not create a valid temporary session ObjectURL for "${validation.fileName}".`,
+      },
+    };
+  }
+
   const previous = sessionModelsByProjectId.get(projectId);
   if (previous) {
     revokeObjectUrlSafely(previous.objectUrl);
   }
 
-  const objectUrl = createObjectUrlSafely(file);
   const entry: SessionModelEntry = {
     id: `session-model-${projectId}-${Date.now()}`,
     projectId,
@@ -723,6 +851,7 @@ export async function selectSessionModelFile(
     byteSize: validation.byteSize,
     sizeLabel: validation.sizeLabel,
     objectUrl,
+    arrayBuffer,
     selectedAtIso: new Date().toISOString(),
     category: 'session-file',
   };

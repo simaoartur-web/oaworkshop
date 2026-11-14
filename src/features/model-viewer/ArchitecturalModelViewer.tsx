@@ -80,15 +80,19 @@ async function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
 export function ArchitecturalModelViewer({
   project = DEFAULT_DEMO_PROJECT_CONTEXT,
   modelSource,
-  availableModels = OA_DEMO_MODEL_SOURCES,
+  availableModels,
   language = 'pt',
   reduceMotion = false,
   externalLoading = false,
+  externalErrorDetail = null,
   maxFileSizeBytes = DEFAULT_MAX_MODEL_FILE_SIZE_BYTES,
   webglAvailableOverride,
   onModelLoaded,
   onModelError,
   onLocalFileSelected,
+  onRequestSelectLocalFile,
+  onRequestClearModel,
+  onRequestRestoreDemoModel,
   onSelectModelSource,
   onCameraPresetChange,
   onSceneDisposed,
@@ -100,17 +104,34 @@ export function ArchitecturalModelViewer({
   const fileInputId = useId();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const resolvedAvailableModels = useMemo<readonly ArchitecturalModelSource[]>(() => {
+    if (availableModels !== undefined) {
+      return availableModels;
+    }
+    if (modelSource === null) {
+      return [];
+    }
+    return OA_DEMO_MODEL_SOURCES;
+  }, [availableModels, modelSource]);
+
+  const isControlledByHost = Boolean(
+    onRequestSelectLocalFile ||
+      onRequestClearModel ||
+      onRequestRestoreDemoModel,
+  );
+
   const initialSource =
     modelSource === undefined
-      ? availableModels[0] ?? OA_DEMO_MODEL_SOURCES[0]
+      ? resolvedAvailableModels[0] ?? null
       : modelSource;
 
   const [internalSource, setInternalSource] =
     useState<ArchitecturalModelSource | null>(initialSource);
   const [hasUserOverriddenSource, setHasUserOverriddenSource] = useState(false);
 
-  const activeSource =
-    modelSource !== undefined && !hasUserOverriddenSource
+  const activeSource = isControlledByHost
+    ? (modelSource ?? null)
+    : modelSource !== undefined && !hasUserOverriddenSource
       ? modelSource
       : internalSource;
 
@@ -123,6 +144,9 @@ export function ArchitecturalModelViewer({
     if (!webglSupported) {
       return 'webgl_unavailable';
     }
+    if (externalErrorDetail) {
+      return externalErrorDetail.status;
+    }
     if (externalLoading) {
       return 'loading';
     }
@@ -132,7 +156,7 @@ export function ArchitecturalModelViewer({
     () =>
       !webglSupported
         ? buildWebGLUnavailableErrorDetail('WebGL context creation returned null.')
-        : null,
+        : externalErrorDetail ?? null,
   );
   const [loadedScene, setLoadedScene] = useState<THREE.Group | null>(null);
   const [telemetry, setTelemetry] = useState<LoadedModelTelemetry | null>(null);
@@ -144,15 +168,21 @@ export function ArchitecturalModelViewer({
   const activeSceneRef = useRef<THREE.Group | null>(null);
   const localBufferByUrlRef = useRef<Map<string, ArrayBuffer>>(new Map());
   const activeObjectUrlRef = useRef<string | null>(null);
+  const activeSourceRef = useRef<ArchitecturalModelSource | null>(activeSource);
   const onSceneDisposedRef = useRef(onSceneDisposed);
   const onModelLoadedRef = useRef(onModelLoaded);
   const onModelErrorRef = useRef(onModelError);
 
+  const activeSourceKey = activeSource
+    ? `${activeSource.id}::${activeSource.url}::${activeSource.format}::${activeSource.fileSizeBytes}`
+    : null;
+
   useEffect(() => {
+    activeSourceRef.current = activeSource;
     onSceneDisposedRef.current = onSceneDisposed;
     onModelLoadedRef.current = onModelLoaded;
     onModelErrorRef.current = onModelError;
-  }, [onSceneDisposed, onModelLoaded, onModelError]);
+  }, [activeSource, onSceneDisposed, onModelLoaded, onModelError]);
 
   const releaseCurrentScene = useCallback(() => {
     if (activeSceneRef.current) {
@@ -165,7 +195,11 @@ export function ArchitecturalModelViewer({
   const revokeActiveObjectUrl = useCallback(() => {
     if (activeObjectUrlRef.current) {
       localBufferByUrlRef.current.delete(activeObjectUrlRef.current);
-      if (typeof URL.revokeObjectURL === 'function') {
+      if (
+        typeof URL !== 'undefined' &&
+        typeof URL.revokeObjectURL === 'function' &&
+        activeObjectUrlRef.current.startsWith('blob:')
+      ) {
         try {
           URL.revokeObjectURL(activeObjectUrlRef.current);
         } catch {
@@ -205,12 +239,22 @@ export function ArchitecturalModelViewer({
         return;
       }
 
+      if (externalErrorDetail) {
+        releaseCurrentScene();
+        setLoadedScene(null);
+        setTelemetry(null);
+        setErrorDetail(externalErrorDetail);
+        setStatus(externalErrorDetail.status);
+        return;
+      }
+
       if (externalLoading) {
         setStatus('loading');
         return;
       }
 
-      if (!activeSource) {
+      const sourceToLoad = activeSourceRef.current;
+      if (!sourceToLoad) {
         releaseCurrentScene();
         setLoadedScene(null);
         setTelemetry(null);
@@ -223,14 +267,25 @@ export function ArchitecturalModelViewer({
       setErrorDetail(null);
 
       try {
-        let buffer = localBufferByUrlRef.current.get(activeSource.url);
+        const encodedEmbeddedGltf = sourceToLoad.embeddedGltfJson
+          ? new TextEncoder().encode(sourceToLoad.embeddedGltfJson)
+          : null;
+        let buffer =
+          sourceToLoad.arrayBuffer ??
+          (encodedEmbeddedGltf
+            ? encodedEmbeddedGltf.buffer.slice(
+                encodedEmbeddedGltf.byteOffset,
+                encodedEmbeddedGltf.byteOffset + encodedEmbeddedGltf.byteLength,
+              )
+            : undefined) ??
+          localBufferByUrlRef.current.get(sourceToLoad.url);
         if (!buffer) {
-          const response = await fetch(activeSource.url);
+          const response = await fetch(sourceToLoad.url);
           if (!response.ok) {
             throw buildInvalidModelErrorDetail(
-              activeSource.fileName,
+              sourceToLoad.fileName,
               'corrupt',
-              `HTTP ${response.status} while fetching ${activeSource.url}`,
+              `HTTP ${response.status} while fetching ${sourceToLoad.url}`,
             );
           }
           buffer = await response.arrayBuffer();
@@ -241,7 +296,7 @@ export function ArchitecturalModelViewer({
         if (buffer.byteLength > maxFileSizeBytes) {
           const err: ModelViewerErrorDetail = {
             status: 'error_too_large',
-            fileName: activeSource.fileName,
+            fileName: sourceToLoad.fileName,
             title: {
               pt: getModelViewerDictionary('pt').states.errorTooLargeTitle,
               en: getModelViewerDictionary('en').states.errorTooLargeTitle,
@@ -258,7 +313,7 @@ export function ArchitecturalModelViewer({
           throw err;
         }
 
-        const parsed = await parseGlbSceneAndTelemetry(buffer, activeSource);
+        const parsed = await parseGlbSceneAndTelemetry(buffer, sourceToLoad);
         if (cancelled) {
           disposeThreeObjectResources(parsed.scene);
           return;
@@ -276,7 +331,7 @@ export function ArchitecturalModelViewer({
           cameraPreset: 'isometric',
           revisionCounter: prev.revisionCounter + 1,
         }));
-        onModelLoadedRef.current?.(activeSource, parsed.telemetry);
+        onModelLoadedRef.current?.(sourceToLoad, parsed.telemetry);
       } catch (err) {
         if (cancelled) return;
         releaseCurrentScene();
@@ -291,7 +346,7 @@ export function ArchitecturalModelViewer({
           'message' in err
             ? (err as ModelViewerErrorDetail)
             : buildInvalidModelErrorDetail(
-                activeSource.fileName,
+                sourceToLoad.fileName,
                 'corrupt',
                 err instanceof Error ? err.message : 'Unknown model load failure.',
               );
@@ -308,14 +363,22 @@ export function ArchitecturalModelViewer({
       cancelled = true;
     };
   }, [
-    activeSource,
+    activeSourceKey,
+    externalErrorDetail,
     externalLoading,
     maxFileSizeBytes,
     releaseCurrentScene,
     webglSupported,
   ]);
 
+  const hasRestorableDemo =
+    Boolean(onRequestRestoreDemoModel) || resolvedAvailableModels.length > 0;
+
   const handleSelectBuiltInModel = (source: ArchitecturalModelSource) => {
+    if (isControlledByHost) {
+      onSelectModelSource?.(source);
+      return;
+    }
     revokeActiveObjectUrl();
     setHasUserOverriddenSource(true);
     setInternalSource(source);
@@ -323,7 +386,14 @@ export function ArchitecturalModelViewer({
   };
 
   const handleRestoreDemoModel = () => {
-    const fallbackDemo = availableModels[0] ?? OA_DEMO_MODEL_SOURCES[0];
+    if (onRequestRestoreDemoModel) {
+      onRequestRestoreDemoModel();
+      return;
+    }
+    const fallbackDemo = resolvedAvailableModels[0] ?? null;
+    if (!fallbackDemo) {
+      return;
+    }
     revokeActiveObjectUrl();
     setHasUserOverriddenSource(true);
     setInternalSource({ ...fallbackDemo });
@@ -331,6 +401,10 @@ export function ArchitecturalModelViewer({
   };
 
   const handleClearModel = () => {
+    if (onRequestClearModel) {
+      onRequestClearModel();
+      return;
+    }
     revokeActiveObjectUrl();
     setHasUserOverriddenSource(true);
     setInternalSource(null);
@@ -349,6 +423,11 @@ export function ArchitecturalModelViewer({
       return;
     }
 
+    if (onRequestSelectLocalFile) {
+      await onRequestSelectLocalFile(file);
+      return;
+    }
+
     const metaCheck = validateLocalModelFileMetadata(file, maxFileSizeBytes);
     if (!metaCheck.valid) {
       releaseCurrentScene();
@@ -364,10 +443,21 @@ export function ArchitecturalModelViewer({
       const buffer = await readFileAsArrayBuffer(file);
       revokeActiveObjectUrl();
 
-      const objectUrl =
-        typeof URL.createObjectURL === 'function'
-          ? URL.createObjectURL(file)
-          : `local-memory://${encodeURIComponent(file.name)}-${Date.now()}`;
+      if (
+        typeof URL === 'undefined' ||
+        typeof URL.createObjectURL !== 'function'
+      ) {
+        throw new Error('Browser URL.createObjectURL API is unavailable.');
+      }
+      const objectUrl = URL.createObjectURL(file);
+      if (
+        typeof objectUrl !== 'string' ||
+        !objectUrl.trim().startsWith('blob:')
+      ) {
+        throw new Error(
+          'URL.createObjectURL returned an invalid temporary blob: URL.',
+        );
+      }
 
       activeObjectUrlRef.current = objectUrl;
       localBufferByUrlRef.current.set(objectUrl, buffer);
@@ -573,7 +663,7 @@ export function ArchitecturalModelViewer({
 
           {/* Model Source Switcher & Local File Trigger */}
           <div className="flex flex-wrap items-center gap-2">
-            {availableModels.map((item) => {
+            {resolvedAvailableModels.map((item) => {
               const isSelected = activeSource?.id === item.id;
               return (
                 <button
@@ -677,7 +767,9 @@ export function ArchitecturalModelViewer({
               language={language}
               errorDetail={errorDetail}
               project={project}
-              onRestoreDemoModel={handleRestoreDemoModel}
+              onRestoreDemoModel={
+                hasRestorableDemo ? handleRestoreDemoModel : undefined
+              }
               onTriggerLocalFilePicker={handleTriggerLocalFilePicker}
               onBackToDossier={onBackToDossier}
             />
@@ -691,7 +783,9 @@ export function ArchitecturalModelViewer({
             source={activeSource}
             telemetry={telemetry}
             onTriggerLocalFilePicker={handleTriggerLocalFilePicker}
-            onRestoreDemoModel={handleRestoreDemoModel}
+            onRestoreDemoModel={
+              hasRestorableDemo ? handleRestoreDemoModel : undefined
+            }
             isShowingLocalFile={activeSource?.origin === 'local_temporary'}
           />
         </div>

@@ -72,9 +72,6 @@ export interface ModelEngineDictionary {
       'invalid-file': string;
       unavailable: string;
     };
-    simulateReadyCta: string;
-    simulateErrorCta: string;
-    contractNotice: string;
   };
   dossierStrip: {
     eyebrow: string;
@@ -171,10 +168,6 @@ export const MODEL_ENGINE_I18N: Record<AppLanguage, ModelEngineDictionary> = {
         'invalid-file': 'Ficheiro recusado na validação',
         unavailable: 'Sem modelo carregável associado',
       },
-      simulateReadyCta: 'Confirmar estado pronto (ready)',
-      simulateErrorCta: 'Testar callback de erro',
-      contractNotice:
-        'Slot preparado para o componente gráfico WebGL (src/features/model-viewer) através do contrato tipado ModelSource + ModelContext + ModelLoadState.',
     },
     dossierStrip: {
       eyebrow: 'MOTOR 3D · FASE 04',
@@ -274,10 +267,6 @@ export const MODEL_ENGINE_I18N: Record<AppLanguage, ModelEngineDictionary> = {
         'invalid-file': 'File rejected during validation',
         unavailable: 'No loadable model associated',
       },
-      simulateReadyCta: 'Confirm ready state',
-      simulateErrorCta: 'Test error callback',
-      contractNotice:
-        'Slot prepared for the WebGL graphics component (src/features/model-viewer) via the typed ModelSource + ModelContext + ModelLoadState contract.',
     },
     dossierStrip: {
       eyebrow: '3D ENGINE · PHASE 04',

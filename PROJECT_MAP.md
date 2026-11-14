@@ -75,11 +75,18 @@
 | `src/features/project-library/ProjectCreateEnginePage.tsx` | rota `/workspace/projects/new` ligando `ProjectCreationWizard` à criação local persistente |
 | `src/features/project-library/ProjectDossierShellPage.tsx` | rota `/workspace/projects/:id` ligando `ProjectDossierView` a documentos, histórico, edição, arquivo e faixa de estado 3D |
 | `src/features/project-library/i18n.ts` | dicionário bilingue PT/EN dos estados de erro, not-found e títulos da biblioteca |
-| `src/features/model-engine/modelViewerContract.ts` | contrato tipado Fase 04 (`ModelSource`, `ModelContext`, `ModelLoadState`, `ModelViewerCallbacks`) entre o motor A e o visualizador WebGL B |
-| `src/features/model-engine/useProjectModelEngine.ts` | hook reactivo que resolve estado 3D do projecto, valida ficheiros `.glb`/`.gltf` locais e gere `ObjectURL` de sessão |
-| `src/features/model-engine/ModelEngineStageSlot.tsx` | câmara técnica de pré-visualização 3D e slot de encaixe do componente gráfico do Agente B |
-| `src/features/model-engine/ProjectModelEnginePage.tsx` | rota `/workspace/projects/:id/model` (lazy-loaded) com distinção das 3 categorias (referência documental, modelo demo fictício e ficheiro de sessão) |
+| `src/features/model-engine/modelViewerContract.ts` | contrato tipado Fase 04 (`ModelSource`, `ModelContext`, `ModelLoadState`, `ModelViewerCallbacks`) e adaptadores entre o motor A e o visualizador WebGL B |
+| `src/features/model-engine/useProjectModelEngine.ts` | hook reactivo que resolve estado 3D do projecto, valida ficheiros `.glb`/`.gltf` locais, gere `ObjectURL` de sessão e sincroniza `loadState` real com `GLTFLoader` |
+| `src/features/model-engine/ModelEngineStageSlot.tsx` | câmara técnica de pré-visualização 3D integrando `ArchitecturalModelViewer` com a fonte única de estado do motor |
+| `src/features/model-engine/ProjectModelEnginePage.tsx` | rota `/workspace/projects/:id/model` (lazy-loaded) com palco 3D WebGL real e distinção das 3 categorias (referência documental, modelo demo fictício e ficheiro de sessão) |
 | `src/features/model-engine/i18n.ts`, `index.ts` | dicionário bilingue PT/EN e exportações públicas do motor de modelos 3D |
+| `src/features/model-viewer/ArchitecturalModelViewer.tsx` | visualizador 3D arquitectónico interactivo (`GLTFLoader`, estados `empty`/`loading`/`loaded`/erros/`webgl_unavailable`, câmaras, grelha/eixos/malha e ficha técnica) |
+| `src/features/model-viewer/ModelViewerStage.tsx` | palco WebGL R3F (`frameloop="demand"`, `dpr={[1, 2]}`, `OrbitControls`, iluminação de estúdio, grelha, eixos e wireframe) |
+| `src/features/model-viewer/ModelViewerControls.tsx` | barra de controlos de câmara (isométrica, superior, frontal, lateral, recentrar, repor vista, zoom, grelha, eixos, malha e ajuda) |
+| `src/features/model-viewer/ModelInformationPanel.tsx` | ficha técnica lateral com telemetria real (`meshes`, `triangles`, `vertices`, dimensões, unidades verificadas vs não verificadas e nota `.skp`) |
+| `src/features/model-viewer/ModelViewerFallback.tsx` | estados acessíveis de carregamento, modelo vazio, erro de formato/corrupção/tamanho e WebGL indisponível |
+| `src/features/model-viewer/glbInspector.ts` | inspecção binária `.glb`/`.gltf`, bloqueio de dependências externas, `parseGlbSceneAndTelemetry`, cálculo de poses de câmara e `disposeThreeObjectResources` |
+| `src/features/model-viewer/demoModels.ts`, `contracts.ts`, `i18n.ts`, `index.ts` | catálogo demo `.glb`, contratos tipados e dicionário bilingue PT/EN do visualizador 3D |
 | `src/features/project-experience/ProjectGalleryView.tsx` | vista editorial em Galeria & Lista Técnica com filtros por estado, âmbito individual/função e pesquisa |
 | `src/features/project-experience/ProjectDossierView.tsx` | dossier vivo em 6 secções (Identidade, Equipa, Desenvolvimento, Documentação, Histórico, Visibilidade) |
 | `src/features/project-experience/ProjectCreationWizard.tsx` | assistente guiado de 4 passos com validação de datas/códigos, tratamento de erros de gravação e continuidade |
@@ -100,7 +107,8 @@
 | `src/test/studioDesk.test.tsx` | suite unitária e de integração da Mesa de Trabalho do Argon B |
 | `src/test/projectLibrary.test.tsx` | suite de integração Fase 03 (motor canónico, UI integrada, códigos únicos, datas, falhas storage e continuidade) |
 | `src/test/projectExperience.test.tsx` | suite unitária/acessibilidade da experiência editorial B (galeria, dossier 6 secções e assistente 4 passos) |
-| `src/test/modelEngine.test.tsx` | suite da Fase 04A (distinção das 3 categorias, validação `.glb`/`.gltf`/`.skp`/tamanho/vazio, limpeza de `ObjectURL`, reset global, 6 perfis e PT/EN) |
+| `src/test/modelEngine.test.tsx` | suite integrada da Fase 04 (motor + visualizador WebGL real, 3 categorias, P0.1–P0.4, P1 50 MB / comprimento GLB / `ObjectURL`, 6 perfis e PT/EN) |
+| `src/test/modelViewer.test.tsx` | suite unitária da Fase 04B (`GLTFLoader` real, telemetria, vistas ortogonais/isométrica, grelha/eixos/malha, ficheiro local sem escala inventada, erros e dispose GPU) |
 | `src/test/integrationPreview.test.tsx` | suite do Quality Gate de integração (câmara única, 6 papéis, pesquisa integrada, reset e bilinguismo) |
 
 ## Recursos Públicos e Documentação
@@ -110,6 +118,8 @@
 | `public/logo.png`, `public/favicon.png` | activos oficiais de marca O+A |
 | `public/assets/studies/login-spatial-study.webp` | estudo espacial demonstrativo |
 | `public/assets/studies/welcome-maquette-study.webp` | estudo de maquete demonstrativa 1:200 |
+| `public/assets/models/oa-ponta-vermelha-pavilion-demo.glb` | modelo binário glTF 2.0 demonstrativo (`OA-26-101`, 16 malhas, 192 triângulos, escala `1:100`, unidade `m`) |
+| `public/assets/models/oa-costa-terraces-massing-demo.glb` | modelo binário glTF 2.0 demonstrativo (`OA-26-108`, 8 malhas, 96 triângulos, escala `1:250`, unidade `m`) |
 | `docs/DESIGN_BRIEF.md` | tese visual Fase 00 e comparação das composições de entrada |
 | `docs/DESIGN_SYSTEM.md` | tokens, tipografia, contraste WCAG 2.2 AA e movimento |
 | `docs/PRODUCT_SPEC.md` | fases 00–07, rotas e papéis demonstrativos |
@@ -125,4 +135,5 @@
 | `plans/007-phase-03-integration.md` | plano e registo de integração Fase 03 A+B, correcções P0/P1 e Quality Gate |
 | `plans/006-phase-03a-project-platform.md` | plano da Fase 03A (`codex/f03-project-platform`) — domínio canónico, catálogo e motor do dossier |
 | `plans/008-phase-04a-model-engine.md` | plano da Fase 04A (`codex/f04-model-engine`) — motor de modelos 3D, validação `.glb`/`.gltf`/`.skp` e rota `/workspace/projects/:id/model` |
+| `plans/009-phase-04-integration.md` | plano e registo da integração Fase 04 Equipa 1 (Agentes A+B), correcções P0/P1 e Quality Gate WebGL |
 | `scripts/e2e-verify-entry.mjs` | verificação E2E portátil em Chromium/Edge nas larguras 1440px, 680px altura, 768px, 720px (zoom) e 375px |

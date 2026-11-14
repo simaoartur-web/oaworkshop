@@ -220,7 +220,7 @@ const PT_DICTIONARY: ModelViewerDictionary = {
     errorTooLargeBody:
       'O ficheiro excede o limite seguro definido para leitura local fluída sem bloquear a memória gráfica.',
     errorTooLargeNextAction:
-      'Simplifique a malha ou exporte apenas a volumetria arquitectónica essencial em .glb (até 45 MB).',
+      'Simplifique a malha ou exporte apenas a volumetria arquitectónica essencial em .glb (até 50 MB).',
     webglUnavailableTitle: 'Contexto gráfico WebGL indisponível neste dispositivo',
     webglUnavailableBody:
       'O navegador ou placa gráfica não permitiu inicializar o motor 3D WebGL (ou o contexto gráfico foi interrompido). Os metadados técnicos do projecto permanecem acessíveis para consulta.',
@@ -343,7 +343,7 @@ const EN_DICTIONARY: ModelViewerDictionary = {
     errorTooLargeBody:
       'The file exceeds the safe threshold configured for responsive local inspection without exhausting GPU memory.',
     errorTooLargeNextAction:
-      'Simplify the mesh or export only the essential architectural massing in .glb (up to 45 MB).',
+      'Simplify the mesh or export only the essential architectural massing in .glb (up to 50 MB).',
     webglUnavailableTitle: 'WebGL graphics context unavailable on this device',
     webglUnavailableBody:
       'The browser or graphics adapter could not initialize the WebGL 3D engine (or the graphics context was lost). Project technical metadata remains accessible for review.',

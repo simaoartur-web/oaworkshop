@@ -27,10 +27,13 @@ export function ProjectModelEnginePage() {
     context,
     loadState,
     activeErrorMessage,
+    lastValidationFailure,
     loadedMetrics,
     ignoreDemoAsset,
     handleSelectLocalFile,
     handleClearLocalFile,
+    handleClearActiveModel,
+    handleRestoreDemoModel,
     handleSelectDemoAsset,
     handleToggleIgnoreDemoAsset,
     handleModelLoaded,
@@ -204,6 +207,7 @@ export function ProjectModelEnginePage() {
         context={context}
         loadState={loadState}
         errorMessage={activeErrorMessage}
+        lastValidationFailure={lastValidationFailure}
         availableDemoAssets={resolution.availableDemoAssets}
         resolution={resolution}
         callbacks={{
@@ -211,8 +215,11 @@ export function ProjectModelEnginePage() {
           onModelError: handleModelError,
           onBackToDossier: () =>
             navigate(`/workspace/projects/${project.identity.id}`),
+          onBackToProjects: () => navigate('/workspace/projects'),
           onSelectLocalFile: handleSelectLocalFile,
           onClearLocalFile: handleClearLocalFile,
+          onClearActiveModel: handleClearActiveModel,
+          onRestoreDemoModel: handleRestoreDemoModel,
           onSelectDemoAsset: handleSelectDemoAsset,
         }}
       />

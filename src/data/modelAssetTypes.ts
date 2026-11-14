@@ -67,13 +67,17 @@ export interface DemoModelCatalogEntry {
   code: string;
   fileName: string;
   format: ModelLoadableFormat;
-  /** Canonical static asset path (e.g. `/assets/models/...`) consumed by the WebGL viewer. */
+  /** Canonical static asset path (e.g. `/assets/models/...`) or data URI consumed by the WebGL viewer. */
   assetPath: string;
   /**
    * Optional self-contained glTF 2.0 JSON string (with embedded base64 buffer)
    * ensuring at least one complete, verifiable `.gltf` study is always resolvable.
    */
   embeddedGltfJson?: string;
+  /** Optional known byte size of the published demonstrative binary/manifest. */
+  byteSize?: number;
+  /** Optional verified linear unit declared in the demonstrative asset metadata. */
+  declaredUnit?: 'm' | 'cm' | 'mm' | null;
   title: LocalizedText;
   studySummary: LocalizedText;
   scale: string;
@@ -97,6 +101,8 @@ export interface SessionModelEntry {
   sizeLabel: string;
   /** Temporary `blob:` URL created via `URL.createObjectURL` and revoked on cleanup/replacement/reset. */
   objectUrl: string;
+  /** In-memory binary payload of the validated session file so GLTFLoader can parse it without re-fetching. */
+  arrayBuffer?: ArrayBuffer;
   selectedAtIso: string;
   category: 'session-file';
 }

@@ -220,7 +220,16 @@ export function ModelViewerStage({
   onWebGLContextLost,
 }: ModelViewerStageProps) {
   const dict = getModelViewerDictionary(language);
-  const hasNativeWebGLContext = useMemo(() => detectWebGLSupport(), []);
+  const hasNativeWebGLContext = useMemo(() => {
+    if (
+      typeof window === 'undefined' ||
+      typeof window.ResizeObserver === 'undefined' ||
+      (typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent))
+    ) {
+      return false;
+    }
+    return detectWebGLSupport();
+  }, []);
 
   // Ensure wireframe flag is always synchronized on the Three.js scene meshes
   useEffect(() => {

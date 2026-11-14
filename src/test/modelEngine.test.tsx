@@ -1,4 +1,6 @@
-import { render, screen, within } from '@testing-library/react';
+import fs from 'node:fs';
+import path from 'node:path';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppRoutes } from '../app/App';
@@ -8,10 +10,12 @@ import {
   clearAllSessionModels,
   clearSessionModelForProject,
   createMinimalValidGlbBytes,
+  DEMO_MODEL_CATALOG,
   EMBEDDED_DEMO_GLTF_JSON,
   resolveProjectModelById,
   resolveProjectModelState,
   selectSessionModelFile,
+  validateGlbHeaderBytes,
   validateModelFileSelection,
 } from '../data/modelAssetRepository';
 import { MAX_MODEL_FILE_SIZE_BYTES } from '../data/modelAssetTypes';
@@ -26,7 +30,31 @@ import {
   persistDemoSessionForUser,
   resetDemoWorkspaceState,
 } from '../data/sessionRepository';
+import {
+  DEFAULT_MAX_MODEL_FILE_SIZE_BYTES,
+  findDemoModelForProject,
+} from '../features/model-viewer/demoModels';
+import { detectWebGLSupport } from '../features/model-viewer/glbInspector';
+import * as glbInspectorModule from '../features/model-viewer/glbInspector';
 import { MemoryRouter } from 'react-router-dom';
+
+const PAVILION_GLB_PATH = path.resolve(
+  process.cwd(),
+  'public/assets/models/oa-ponta-vermelha-pavilion-demo.glb',
+);
+const COSTA_GLB_PATH = path.resolve(
+  process.cwd(),
+  'public/assets/models/oa-costa-terraces-massing-demo.glb',
+);
+
+const pavilionBytes = fs.readFileSync(PAVILION_GLB_PATH);
+const costaBytes = fs.readFileSync(COSTA_GLB_PATH);
+
+function toArrayBuffer(buf: Buffer): ArrayBuffer {
+  const copy = new Uint8Array(buf.byteLength);
+  copy.set(buf);
+  return copy.buffer;
+}
 
 function renderWorkspaceAt(initialPath: string) {
   return render(
@@ -43,12 +71,41 @@ function createValidGlbFile(fileName = 'estudo-sessao-valido.glb'): File {
   return new File([bytes], fileName, { type: 'model/gltf-binary' });
 }
 
-describe('Phase 04A · 3D Model Engine, File Contracts & Workspace Integration', () => {
+describe('Phase 04 · Integrated 3D Model Engine + Real WebGL Viewer (Agents A+B)', () => {
   beforeEach(() => {
     window.localStorage.clear();
     resetDemoWorkspaceState();
     clearProjectLibraryLocalState();
     clearAllSessionModels();
+
+    vi.spyOn(glbInspectorModule, 'detectWebGLSupport').mockReturnValue(true);
+    void detectWebGLSupport;
+
+    const originalFetch = globalThis.fetch;
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+      const url =
+        typeof input === 'string'
+          ? input
+          : input instanceof URL
+            ? input.toString()
+            : input.url;
+      if (url.startsWith('data:')) {
+        return originalFetch(input, init);
+      }
+      if (url.includes('oa-ponta-vermelha-pavilion-demo.glb')) {
+        return new Response(toArrayBuffer(pavilionBytes), {
+          status: 200,
+          headers: { 'Content-Type': 'model/gltf-binary' },
+        });
+      }
+      if (url.includes('oa-costa-terraces-massing-demo.glb')) {
+        return new Response(toArrayBuffer(costaBytes), {
+          status: 200,
+          headers: { 'Content-Type': 'model/gltf-binary' },
+        });
+      }
+      return new Response('Not found', { status: 404 });
+    });
   });
 
   afterEach(() => {
@@ -289,29 +346,55 @@ describe('Phase 04A · 3D Model Engine, File Contracts & Workspace Integration',
     ).toBeInTheDocument();
     archivedView.unmount();
 
-    // 3. Active project OA-26-101: shows fictive study disclaimer, switches .glb <-> .gltf demo study, selects & clears local session .glb, and returns to Dossier
+    // 3. Active project OA-26-101: loads real .glb via GLTFLoader, reaches loadState=ready only after GLTFLoader completes, switches .glb <-> .gltf demo study, selects & clears local session .glb, and returns to Dossier
     renderWorkspaceAt('/workspace/projects/sd-proj-oa-26-101/model');
     expect(
       await screen.findByRole('heading', {
-        name: /Galeria Cívica & Pátio da Ponta Vermelha/i,
+        name: /^Galeria Cívica & Pátio da Ponta Vermelha$/i,
       }),
     ).toBeInTheDocument();
     expect(
       screen.getByTestId('model-engine-fictive-study-notice'),
     ).toBeInTheDocument();
     expect(screen.getByTestId('model-engine-resolved-uri')).toHaveTextContent(
-      '/assets/models/oa-ponta-vermelha-massing.glb',
+      '/assets/models/oa-ponta-vermelha-pavilion-demo.glb',
     );
 
-    // Switch to the complete .gltf demonstrative study
+    // Wait for GLTFLoader to parse the real .glb and transition both viewer (status="loaded") and engine (loadState="ready")
+    await waitFor(() => {
+      expect(screen.getByTestId('architectural-model-viewer')).toHaveAttribute(
+        'data-viewer-status',
+        'loaded',
+      );
+      expect(
+        document.querySelector('[data-oa-model-stage-slot="true"]'),
+      ).toHaveAttribute('data-oa-model-load-state', 'ready');
+    });
+
+    // Real telemetry from oa-ponta-vermelha-pavilion-demo.glb (16 meshes · 192 tris) is reported to the page header
+    expect(screen.getByTestId('model-engine-loaded-metrics')).toHaveTextContent(
+      '16 meshes · 192 tris',
+    );
+
+    // Switch to the complete self-contained .gltf demonstrative study
     await user.click(
       screen.getByRole('button', {
         name: /Estudo demonstrativo activo: \.GLTF/i,
       }),
     );
     expect(screen.getByTestId('model-engine-resolved-uri')).toHaveTextContent(
-      '/assets/models/oa-ponta-vermelha-section.gltf',
+      'data:model/gltf+json;charset=utf-8,',
     );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architectural-model-viewer')).toHaveAttribute(
+        'data-viewer-status',
+        'loaded',
+      );
+      expect(screen.getByTestId('model-engine-loaded-metrics')).toHaveTextContent(
+        '1 meshes · 1 tris',
+      );
+    });
 
     // Upload a temporary local .glb file in the session
     const fileInput = screen.getByTestId(
@@ -328,6 +411,16 @@ describe('Phase 04A · 3D Model Engine, File Contracts & Workspace Integration',
         'maquete-local-sessao.glb',
       ),
     ).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architectural-model-viewer')).toHaveAttribute(
+        'data-viewer-status',
+        'loaded',
+      );
+      expect(screen.getByTestId('model-info-filename')).toHaveTextContent(
+        'maquete-local-sessao.glb',
+      );
+    });
 
     // Clear session file -> returns to demo-asset
     await user.click(
@@ -347,6 +440,80 @@ describe('Phase 04A · 3D Model Engine, File Contracts & Workspace Integration',
     ).toBeInTheDocument();
   });
 
+  it('enforces P0.1 (catalog points only to existing files), P0.2 (empty model source=null never loads another project model), and P1 (50MB unified limit, GLB declared length, and invalid ObjectURL rejection)', async () => {
+    const actor = DEMO_USERS[1];
+    persistDemoSessionForUser(actor);
+
+    // P0.1: Every non-data: assetPath in DEMO_MODEL_CATALOG must exist on disk in public/
+    for (const entry of DEMO_MODEL_CATALOG) {
+      if (entry.assetPath.startsWith('data:')) {
+        expect(entry.embeddedGltfJson).toBeTruthy();
+      } else {
+        const diskPath = path.resolve(
+          process.cwd(),
+          'public',
+          entry.assetPath.replace(/^\//, ''),
+        );
+        expect(fs.existsSync(diskPath)).toBe(true);
+      }
+    }
+
+    // P1: Unified 50 MB limit across engine and viewer
+    expect(DEFAULT_MAX_MODEL_FILE_SIZE_BYTES).toBe(MAX_MODEL_FILE_SIZE_BYTES);
+    expect(MAX_MODEL_FILE_SIZE_BYTES).toBe(50 * 1024 * 1024);
+
+    // P1: Reject GLB whose declared length in header does not match actual file byteLength
+    const validBytes = createMinimalValidGlbBytes();
+    const mismatchedBuffer = validBytes.buffer.slice(0);
+    const mismatchedView = new DataView(mismatchedBuffer);
+    mismatchedView.setUint32(8, validBytes.byteLength + 64, true); // wrong declared length
+    expect(
+      validateGlbHeaderBytes(mismatchedBuffer, validBytes.byteLength),
+    ).toBe(false);
+    const mismatchedFile = new File([mismatchedBuffer], 'comprimento-errado.glb', {
+      type: 'model/gltf-binary',
+    });
+    const mismatchedRes = await validateModelFileSelection(mismatchedFile);
+    expect(mismatchedRes.ok).toBe(false);
+
+    // P1: Reject invalid non-blob: temporary URL from URL.createObjectURL instead of inventing fallback
+    const badUrlSpy = vi
+      .spyOn(URL, 'createObjectURL')
+      .mockReturnValueOnce('http://invalid-non-blob-url.local/model.glb');
+    const badUrlResult = await selectSessionModelFile(
+      'sd-proj-oa-26-101',
+      createValidGlbFile('teste-url.glb'),
+    );
+    expect(badUrlResult.ok).toBe(false);
+    badUrlSpy.mockRestore();
+
+    // P0.2: Project without a loadable model (e.g. sd-proj-oa-25-084 or sd-proj-oa-26-119) renders empty state (source=null) and NEVER loads OA-26-101
+    expect(findDemoModelForProject('sd-proj-oa-25-084')).toBeNull();
+    expect(findDemoModelForProject('sd-proj-oa-26-119')).toBeNull();
+
+    const emptyProjectView = renderWorkspaceAt(
+      '/workspace/projects/sd-proj-oa-25-084/model',
+    );
+    expect(
+      await screen.findByTestId('model-engine-empty-state'),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByTestId('model-viewer-empty-state'),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('architectural-model-viewer')).toHaveAttribute(
+      'data-viewer-status',
+      'empty',
+    );
+    expect(
+      document.querySelector('[data-oa-model-stage-slot="true"]'),
+    ).toHaveAttribute('data-oa-model-load-state', 'idle');
+    // Must not show any "Load demonstrative model" button when the project has no demo model
+    expect(
+      screen.queryByRole('button', { name: /Carregar modelo demonstrativo/i }),
+    ).not.toBeInTheDocument();
+    emptyProjectView.unmount();
+  });
+
   it('supports all 6 demo profiles and switches PT/EN cleanly on /workspace/projects/:id/model', async () => {
     const user = userEvent.setup();
 
@@ -357,7 +524,7 @@ describe('Phase 04A · 3D Model Engine, File Contracts & Workspace Integration',
       );
       expect(
         await screen.findByRole('heading', {
-          name: /Galeria Cívica & Pátio da Ponta Vermelha|Civic Gallery & Ponta Vermelha Courtyard/i,
+          name: /^(Galeria Cívica & Pátio da Ponta Vermelha|Civic Gallery & Ponta Vermelha Courtyard)$/i,
         }),
       ).toBeInTheDocument();
       view.unmount();

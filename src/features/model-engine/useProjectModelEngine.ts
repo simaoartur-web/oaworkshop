@@ -30,6 +30,7 @@ interface ScopedEngineTransientState {
   lastValidationFailure: ModelFileValidationFailure | null;
   viewerRuntimeError: string | null;
   loadedMetrics: ModelLoadedMetrics | null;
+  loadedSourceKey: string | null;
 }
 
 const DEFAULT_TRANSIENT_FIELDS = {
@@ -39,6 +40,7 @@ const DEFAULT_TRANSIENT_FIELDS = {
   lastValidationFailure: null,
   viewerRuntimeError: null,
   loadedMetrics: null,
+  loadedSourceKey: null,
 } as const;
 
 export function useProjectModelEngine(projectId: string | undefined) {
@@ -104,9 +106,13 @@ export function useProjectModelEngine(projectId: string | undefined) {
     lastValidationFailure,
     viewerRuntimeError,
     loadedMetrics,
+    loadedSourceKey,
   } = activeTransient;
 
-  const project = getProject(projectId);
+  const project = useMemo(() => {
+    void engineRevision;
+    return getProject(projectId);
+  }, [getProject, projectId, engineRevision]);
 
   const resolution = useMemo<ResolvedProjectModelResolution | null>(() => {
     void engineRevision;
@@ -133,6 +139,8 @@ export function useProjectModelEngine(projectId: string | undefined) {
     return buildModelSourceFromResolution(resolution);
   }, [resolution]);
 
+  const currentSourceKey = source ? `${source.id}::${source.url}` : null;
+
   const context = useMemo<ModelContext | null>(() => {
     if (!project) {
       return null;
@@ -151,8 +159,8 @@ export function useProjectModelEngine(projectId: string | undefined) {
     if (lastValidationFailure || viewerRuntimeError) {
       return 'error';
     }
-    if (resolution?.hasLoadableModel) {
-      return 'ready';
+    if (resolution?.hasLoadableModel && currentSourceKey) {
+      return loadedSourceKey === currentSourceKey ? 'ready' : 'loading';
     }
     return 'idle';
   }, [
@@ -160,6 +168,8 @@ export function useProjectModelEngine(projectId: string | undefined) {
     lastValidationFailure,
     viewerRuntimeError,
     resolution?.hasLoadableModel,
+    currentSourceKey,
+    loadedSourceKey,
   ]);
 
   const activeErrorMessage = useMemo<string | null>(() => {
@@ -181,6 +191,8 @@ export function useProjectModelEngine(projectId: string | undefined) {
         isValidatingFile: true,
         lastValidationFailure: null,
         viewerRuntimeError: null,
+        loadedMetrics: null,
+        loadedSourceKey: null,
       }));
       try {
         const result = await selectSessionModelFile(project.identity.id, file);
@@ -188,17 +200,23 @@ export function useProjectModelEngine(projectId: string | undefined) {
           updateTransient(() => ({
             isValidatingFile: false,
             lastValidationFailure: result,
+            loadedMetrics: null,
+            loadedSourceKey: null,
           }));
         } else {
           updateTransient(() => ({
             isValidatingFile: false,
             lastValidationFailure: null,
+            viewerRuntimeError: null,
             loadedMetrics: null,
+            loadedSourceKey: null,
           }));
         }
       } catch {
         updateTransient(() => ({
           isValidatingFile: false,
+          loadedMetrics: null,
+          loadedSourceKey: null,
         }));
       }
     },
@@ -214,20 +232,53 @@ export function useProjectModelEngine(projectId: string | undefined) {
       lastValidationFailure: null,
       viewerRuntimeError: null,
       loadedMetrics: null,
+      loadedSourceKey: null,
+    }));
+  }, [project, updateTransient]);
+
+  const handleClearActiveModel = useCallback(() => {
+    if (!project) {
+      return;
+    }
+    clearSessionModelForProject(project.identity.id);
+    updateTransient(() => ({
+      ignoreDemoAsset: true,
+      lastValidationFailure: null,
+      viewerRuntimeError: null,
+      loadedMetrics: null,
+      loadedSourceKey: null,
+    }));
+  }, [project, updateTransient]);
+
+  const handleRestoreDemoModel = useCallback(() => {
+    if (!project) {
+      return;
+    }
+    clearSessionModelForProject(project.identity.id);
+    updateTransient(() => ({
+      ignoreDemoAsset: false,
+      lastValidationFailure: null,
+      viewerRuntimeError: null,
+      loadedMetrics: null,
+      loadedSourceKey: null,
     }));
   }, [project, updateTransient]);
 
   const handleSelectDemoAsset = useCallback(
     (demoAssetId: string) => {
+      if (project) {
+        clearSessionModelForProject(project.identity.id);
+      }
       updateTransient(() => ({
         ignoreDemoAsset: false,
         preferredDemoAssetId: demoAssetId,
         lastValidationFailure: null,
         viewerRuntimeError: null,
         loadedMetrics: null,
+        loadedSourceKey: null,
       }));
     },
-    [updateTransient],
+    [project, updateTransient],
   );
 
   const handleToggleIgnoreDemoAsset = useCallback(
@@ -237,25 +288,29 @@ export function useProjectModelEngine(projectId: string | undefined) {
         lastValidationFailure: null,
         viewerRuntimeError: null,
         loadedMetrics: null,
+        loadedSourceKey: null,
       }));
     },
     [updateTransient],
   );
 
   const handleModelLoaded = useCallback(
-    (metrics?: ModelLoadedMetrics) => {
+    (metrics?: ModelLoadedMetrics, explicitSourceKey?: string) => {
       updateTransient(() => ({
         viewerRuntimeError: null,
         loadedMetrics: metrics ?? {},
+        loadedSourceKey: explicitSourceKey ?? currentSourceKey,
       }));
     },
-    [updateTransient],
+    [updateTransient, currentSourceKey],
   );
 
   const handleModelError = useCallback(
     (message: string) => {
       updateTransient(() => ({
         viewerRuntimeError: message,
+        loadedMetrics: null,
+        loadedSourceKey: null,
       }));
     },
     [updateTransient],
@@ -280,6 +335,8 @@ export function useProjectModelEngine(projectId: string | undefined) {
     ignoreDemoAsset,
     handleSelectLocalFile,
     handleClearLocalFile,
+    handleClearActiveModel,
+    handleRestoreDemoModel,
     handleSelectDemoAsset,
     handleToggleIgnoreDemoAsset,
     handleModelLoaded,

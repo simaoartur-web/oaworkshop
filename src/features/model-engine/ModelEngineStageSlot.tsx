@@ -1,31 +1,57 @@
 import {
   AlertTriangle,
-  Box,
   CheckCircle2,
   FileUp,
   Info,
   Layers,
   Trash2,
 } from 'lucide-react';
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { pickLocalized } from '../../locales';
+import { ArchitecturalModelViewer } from '../model-viewer/ArchitecturalModelViewer';
 import { MODEL_ENGINE_I18N } from './i18n';
-import type { ModelViewerIntegrationProps } from './modelViewerContract';
+import {
+  mapDemoCatalogEntriesToViewerSources,
+  mapModelContextToViewerProjectContext,
+  mapModelSourceToArchitecturalModelSource,
+  mapValidationFailureToViewerErrorDetail,
+  type ModelViewerIntegrationProps,
+} from './modelViewerContract';
 
 export function ModelEngineStageSlot({
   source,
   context,
   loadState,
   errorMessage,
+  lastValidationFailure,
+  availableDemoAssets,
   resolution,
   callbacks,
 }: ModelViewerIntegrationProps) {
   const dict = MODEL_ENGINE_I18N[context.language];
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const viewerProject = useMemo(
+    () => mapModelContextToViewerProjectContext(context),
+    [context],
+  );
+  const viewerModelSource = useMemo(
+    () => mapModelSourceToArchitecturalModelSource(source, context),
+    [source, context],
+  );
+  const viewerAvailableModels = useMemo(
+    () => mapDemoCatalogEntriesToViewerSources(availableDemoAssets, context),
+    [availableDemoAssets, context],
+  );
+  const viewerErrorDetail = useMemo(
+    () => mapValidationFailureToViewerErrorDetail(lastValidationFailure),
+    [lastValidationFailure],
+  );
+
   return (
     <section
       aria-label={dict.stage.slotEyebrow}
+      data-testid="model-engine-stage-slot"
       data-oa-model-stage-slot="true"
       data-oa-model-load-state={loadState}
       data-oa-model-origin={resolution.origin}
@@ -132,102 +158,64 @@ export function ModelEngineStageSlot({
         </div>
       )}
 
-      {/* Main Chamber Body: Ready Source Telemetry vs Honest Empty State */}
+      {/* Active Source Contract Strip vs Honest Empty Summary */}
       {source ? (
-        <div className="space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-            <div className="bg-[#141414] border border-white/12 p-4">
-              <p className="text-[11px] uppercase tracking-[0.14em] text-[#9E9E9E]">
-                {dict.stage.originLabel}
-              </p>
-              <p className="mt-1.5 text-white font-medium">
-                {dict.stage.origins[source.origin]}
-              </p>
-            </div>
-
-            <div className="bg-[#141414] border border-white/12 p-4">
-              <p className="text-[11px] uppercase tracking-[0.14em] text-[#9E9E9E]">
-                {dict.stage.fileLabel}
-              </p>
-              <p className="mt-1.5 text-white font-mono text-xs break-all">
-                {source.fileName}
-              </p>
-            </div>
-
-            <div className="bg-[#141414] border border-white/12 p-4">
-              <p className="text-[11px] uppercase tracking-[0.14em] text-[#9E9E9E]">
-                {dict.stage.formatLabel}
-              </p>
-              <p className="mt-1.5 text-[#CE826D] font-mono uppercase text-xs">
-                .{source.format} · {source.sizeLabel}
-                {source.scale ? ` · ${source.scale}` : ''}
-              </p>
-            </div>
-
-            <div className="bg-[#141414] border border-white/12 p-4 md:col-span-2">
-              <p className="text-[11px] uppercase tracking-[0.14em] text-[#9E9E9E]">
-                {dict.stage.uriLabel}
-              </p>
-              <p
-                data-testid="model-engine-resolved-uri"
-                className="mt-1.5 text-[#D8D8D8] font-mono text-xs break-all"
-              >
-                {source.url}
-              </p>
-            </div>
-
-            <div className="bg-[#141414] border border-white/12 p-4">
-              <p className="text-[11px] uppercase tracking-[0.14em] text-[#9E9E9E]">
-                {dict.stage.privacyLabel}
-              </p>
-              <p className="mt-1.5 text-white text-xs">
-                {context.publicationStatus === 'private'
-                  ? dict.privateBadge
-                  : context.publicationStatus}
-              </p>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+          <div className="bg-[#141414] border border-white/12 p-4">
+            <p className="text-[11px] uppercase tracking-[0.14em] text-[#9E9E9E]">
+              {dict.stage.originLabel}
+            </p>
+            <p className="mt-1.5 text-white font-medium">
+              {dict.stage.origins[source.origin]}
+            </p>
           </div>
 
-          {/* Architectural Orthographic Framing Plate (Replaced by Agent B Canvas on Integration) */}
-          <div className="border border-white/14 bg-[#090909] p-6 sm:p-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-            <div className="flex items-start gap-4">
-              <div className="h-12 w-12 shrink-0 border border-[#A65D4A]/60 bg-[#171210] flex items-center justify-center text-[#CE826D]">
-                <Box size={22} strokeWidth={1.4} aria-hidden="true" />
-              </div>
-              <div className="space-y-1.5">
-                <p className="text-xs font-mono uppercase tracking-[0.16em] text-[#CE826D]">
-                  {context.projectCode} · {context.scale} · {context.elevationDatum}
-                </p>
-                <p className="text-base sm:text-lg font-light text-white">
-                  {pickLocalized(context.projectTitle, context.language)}
-                </p>
-                <p className="text-xs text-[#BDBDBD] max-w-2xl leading-relaxed">
-                  {dict.stage.contractNotice}
-                </p>
-              </div>
-            </div>
+          <div className="bg-[#141414] border border-white/12 p-4">
+            <p className="text-[11px] uppercase tracking-[0.14em] text-[#9E9E9E]">
+              {dict.stage.fileLabel}
+            </p>
+            <p className="mt-1.5 text-white font-mono text-xs break-all">
+              {source.fileName}
+            </p>
+          </div>
 
-            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-              <button
-                type="button"
-                onClick={() =>
-                  callbacks.onModelLoaded({
-                    triangleCount: 1240,
-                    meshCount: 4,
-                    loadDurationMs: 42,
-                  })
-                }
-                className="min-h-[40px] px-3.5 py-2 border border-white/18 bg-[#141414] hover:border-[#A65D4A] text-[11px] font-medium uppercase tracking-[0.13em] text-white cursor-pointer"
-              >
-                {dict.stage.simulateReadyCta}
-              </button>
-            </div>
+          <div className="bg-[#141414] border border-white/12 p-4">
+            <p className="text-[11px] uppercase tracking-[0.14em] text-[#9E9E9E]">
+              {dict.stage.formatLabel}
+            </p>
+            <p className="mt-1.5 text-[#CE826D] font-mono uppercase text-xs">
+              .{source.format} · {source.sizeLabel}
+              {source.scale ? ` · ${source.scale}` : ''}
+            </p>
+          </div>
+
+          <div className="bg-[#141414] border border-white/12 p-4 md:col-span-2">
+            <p className="text-[11px] uppercase tracking-[0.14em] text-[#9E9E9E]">
+              {dict.stage.uriLabel}
+            </p>
+            <p
+              data-testid="model-engine-resolved-uri"
+              className="mt-1.5 text-[#D8D8D8] font-mono text-xs break-all"
+            >
+              {source.url}
+            </p>
+          </div>
+
+          <div className="bg-[#141414] border border-white/12 p-4">
+            <p className="text-[11px] uppercase tracking-[0.14em] text-[#9E9E9E]">
+              {dict.stage.privacyLabel}
+            </p>
+            <p className="mt-1.5 text-white text-xs">
+              {context.publicationStatus === 'private'
+                ? dict.privateBadge
+                : context.publicationStatus}
+            </p>
           </div>
         </div>
       ) : (
         <div
           data-testid="model-engine-empty-state"
-          className="border border-dashed border-white/20 bg-[#121212] p-6 sm:p-8 space-y-4"
+          className="border border-dashed border-white/20 bg-[#121212] p-5 sm:p-6 space-y-3"
         >
           <div className="flex items-start gap-3.5">
             <Layers
@@ -236,7 +224,7 @@ export function ModelEngineStageSlot({
               aria-hidden="true"
               className="text-[#CE826D] shrink-0 mt-0.5"
             />
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <p className="text-sm sm:text-base font-medium text-white">
                 {dict.stage.slotEmptyHeading}
               </p>
@@ -250,6 +238,43 @@ export function ModelEngineStageSlot({
           </div>
         </div>
       )}
+
+      {/* Integrated Real WebGL 3D Viewer (Agent B) */}
+      <ArchitecturalModelViewer
+        project={viewerProject}
+        modelSource={viewerModelSource}
+        availableModels={viewerAvailableModels}
+        language={context.language}
+        externalErrorDetail={viewerErrorDetail}
+        onModelLoaded={(loadedSource, telemetry) => {
+          callbacks.onModelLoaded(
+            {
+              meshCount: telemetry.meshCount,
+              triangleCount: telemetry.triangleCount,
+              vertexCount: telemetry.vertexCount,
+              materialCount: telemetry.materialCount,
+            },
+            `${loadedSource.id}::${loadedSource.url}`,
+          );
+        }}
+        onModelError={(err) => {
+          callbacks.onModelError(pickLocalized(err.message, context.language));
+        }}
+        onRequestSelectLocalFile={callbacks.onSelectLocalFile}
+        onRequestClearModel={
+          callbacks.onClearActiveModel ?? callbacks.onClearLocalFile
+        }
+        onRequestRestoreDemoModel={
+          availableDemoAssets.length > 0
+            ? callbacks.onRestoreDemoModel
+            : undefined
+        }
+        onSelectModelSource={(selected) => {
+          callbacks.onSelectDemoAsset?.(selected.id);
+        }}
+        onBackToDossier={callbacks.onBackToDossier}
+        onBackToProjects={callbacks.onBackToProjects}
+      />
 
       {/* Action Bar: Select Local .glb/.gltf, Clear Session File, Back to Dossier */}
       <div className="pt-2 flex flex-wrap items-center justify-between gap-3">

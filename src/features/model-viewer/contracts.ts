@@ -53,6 +53,10 @@ export interface ArchitecturalModelSource {
   declaredScale?: string | null;
   licenseNote?: LocalizedText;
   isDemoModel: boolean;
+  /** Optional in-memory binary payload provided by the Model Engine to avoid duplicate ObjectURL fetch. */
+  arrayBuffer?: ArrayBuffer;
+  /** Optional self-contained glTF 2.0 JSON string provided by the Model Engine. */
+  embeddedGltfJson?: string;
 }
 
 /**
@@ -145,7 +149,9 @@ export interface ArchitecturalModelViewerProps {
   reduceMotion?: boolean;
   /** Optional external loading state override from host container. */
   externalLoading?: boolean;
-  /** Maximum allowed local file size in bytes (defaults to 45 MB). */
+  /** Optional external validation/runtime error detail supplied by the host Model Engine. */
+  externalErrorDetail?: ModelViewerErrorDetail | null;
+  /** Maximum allowed local file size in bytes (defaults to 50 MB). */
   maxFileSizeBytes?: number;
   /** Optional WebGL availability override (useful for deterministic testing). */
   webglAvailableOverride?: boolean;
@@ -161,6 +167,12 @@ export interface ArchitecturalModelViewerProps {
     file: File,
     source: ArchitecturalModelSource,
   ) => void;
+  /** Controlled callback to delegate local file validation and ObjectURL creation to Agent A's Model Engine. */
+  onRequestSelectLocalFile?: (file: File) => Promise<void> | void;
+  /** Controlled callback to delegate clearing the active model to Agent A's Model Engine. */
+  onRequestClearModel?: () => void;
+  /** Controlled callback to delegate restoring the project's demo model to Agent A's Model Engine. */
+  onRequestRestoreDemoModel?: () => void;
   /** Callback fired when the user switches between available models. */
   onSelectModelSource?: (source: ArchitecturalModelSource) => void;
   /** Callback fired when the user changes the camera preset. */

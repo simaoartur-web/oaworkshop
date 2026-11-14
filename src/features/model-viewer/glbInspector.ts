@@ -233,6 +233,7 @@ export function validateModelBufferContents(
 ):
   | { valid: true; jsonHeader: RawGltfJson }
   | { valid: false; error: ModelViewerErrorDetail } {
+  void origin;
   if (buffer.byteLength < 20) {
     return {
       valid: false,
@@ -261,7 +262,7 @@ export function validateModelBufferContents(
 
     const version = view.getUint32(4, true);
     const totalLength = view.getUint32(8, true);
-    if (version !== 2 || totalLength > buffer.byteLength || totalLength < 20) {
+    if (version !== 2 || totalLength !== buffer.byteLength || totalLength < 20) {
       return {
         valid: false,
         error: buildInvalidModelErrorDetail(
@@ -276,6 +277,7 @@ export function validateModelBufferContents(
     const jsonChunkType = view.getUint32(16, true);
     if (
       jsonChunkType !== GLB_JSON_CHUNK_TYPE ||
+      jsonChunkLength === 0 ||
       20 + jsonChunkLength > buffer.byteLength
     ) {
       return {
@@ -302,18 +304,16 @@ export function validateModelBufferContents(
           ),
         };
       }
-      if (origin === 'local_temporary') {
-        const externalUri = findExternalRelativeUri(parsed);
-        if (externalUri) {
-          return {
-            valid: false,
-            error: buildInvalidModelErrorDetail(
-              fileName,
-              'missing_deps',
-              `Unresolved external dependency URI: ${externalUri}`,
-            ),
-          };
-        }
+      const externalUri = findExternalRelativeUri(parsed);
+      if (externalUri) {
+        return {
+          valid: false,
+          error: buildInvalidModelErrorDetail(
+            fileName,
+            'missing_deps',
+            `Unresolved external dependency URI: ${externalUri}`,
+          ),
+        };
       }
       return { valid: true, jsonHeader: parsed };
     } catch (err) {
@@ -342,18 +342,16 @@ export function validateModelBufferContents(
         ),
       };
     }
-    if (origin === 'local_temporary') {
-      const externalUri = findExternalRelativeUri(parsed);
-      if (externalUri) {
-        return {
-          valid: false,
-          error: buildInvalidModelErrorDetail(
-            fileName,
-            'missing_deps',
-            `External resource "${externalUri}" cannot be resolved from a single local .gltf file.`,
-          ),
-        };
-      }
+    const externalUri = findExternalRelativeUri(parsed);
+    if (externalUri) {
+      return {
+        valid: false,
+        error: buildInvalidModelErrorDetail(
+          fileName,
+          'missing_deps',
+          `External resource "${externalUri}" cannot be resolved from a single local .gltf file.`,
+        ),
+      };
     }
     return { valid: true, jsonHeader: parsed };
   } catch (err) {
@@ -408,17 +406,105 @@ export async function parseGlbSceneAndTelemetry(
     throw precheck.error;
   }
 
-  const loader = new GLTFLoader();
+  const parseBuffer = (() => {
+    if (buffer.byteLength >= 4 && new DataView(buffer).getUint32(0, true) === 0x46546c67) {
+      return buffer.slice(0);
+    }
+    const jsonHeader = precheck.jsonHeader;
+    const firstBuffer = jsonHeader.buffers?.[0];
+    const uri = firstBuffer?.uri?.trim() ?? '';
+    const hasImageUri = (jsonHeader.images ?? []).some((img) =>
+      Boolean(img.uri && img.uri.trim().length > 0),
+    );
+    if (
+      jsonHeader.buffers?.length === 1 &&
+      !hasImageUri &&
+      uri.startsWith('data:') &&
+      uri.includes(';base64,')
+    ) {
+      try {
+        const base64Payload = uri.slice(uri.indexOf(';base64,') + ';base64,'.length);
+        const binaryString = atob(base64Payload);
+        const rawBin = new Uint8Array(binaryString.length);
+        for (let index = 0; index < binaryString.length; index += 1) {
+          rawBin[index] = binaryString.charCodeAt(index);
+        }
+        const restBuffer: Record<string, unknown> = { ...firstBuffer, byteLength: rawBin.byteLength };
+        delete restBuffer.uri;
+        const normalizedJson = {
+          ...jsonHeader,
+          buffers: [restBuffer],
+        };
+        const jsonBytes = new TextEncoder().encode(JSON.stringify(normalizedJson));
+        const jsonPad = (4 - (jsonBytes.byteLength % 4)) % 4;
+        const paddedJsonLen = jsonBytes.byteLength + jsonPad;
+        const binPad = (4 - (rawBin.byteLength % 4)) % 4;
+        const paddedBinLen = rawBin.byteLength + binPad;
+        const totalLength = 12 + 8 + paddedJsonLen + 8 + paddedBinLen;
+
+        const glbOut = new ArrayBuffer(totalLength);
+        const view = new DataView(glbOut);
+        const outBytes = new Uint8Array(glbOut);
+
+        view.setUint32(0, 0x46546c67, true);
+        view.setUint32(4, 2, true);
+        view.setUint32(8, totalLength, true);
+
+        view.setUint32(12, paddedJsonLen, true);
+        view.setUint32(16, 0x4e4f534a, true);
+        outBytes.set(jsonBytes, 20);
+        for (let padIndex = 0; padIndex < jsonPad; padIndex += 1) {
+          outBytes[20 + jsonBytes.byteLength + padIndex] = 0x20;
+        }
+
+        const binChunkOffset = 20 + paddedJsonLen;
+        view.setUint32(binChunkOffset, paddedBinLen, true);
+        view.setUint32(binChunkOffset + 4, 0x004e4942, true);
+        outBytes.set(rawBin, binChunkOffset + 8);
+        return glbOut;
+      } catch {
+        return buffer.slice(0);
+      }
+    }
+    return buffer.slice(0);
+  })();
+
+  let blockedExternalResourceUrl: string | null = null;
+  const manager = new THREE.LoadingManager();
+  manager.setURLModifier((url) => {
+    const trimmed = url.trim();
+    if (trimmed.length === 0 || trimmed.startsWith('data:') || trimmed.startsWith('blob:')) {
+      return url;
+    }
+    blockedExternalResourceUrl = trimmed;
+    return 'data:application/octet-stream;base64,';
+  });
+
+  const loader = new GLTFLoader(manager);
   let gltf: GLTF;
   try {
     gltf = await new Promise<GLTF>((resolve, reject) => {
-      loader.parse(buffer.slice(0), '', resolve, reject);
+      loader.parse(parseBuffer, '', resolve, reject);
     });
   } catch (err) {
+    if (blockedExternalResourceUrl) {
+      throw buildInvalidModelErrorDetail(
+        source.fileName,
+        'missing_deps',
+        `Blocked unauthorized external dependency URI: ${blockedExternalResourceUrl}`,
+      );
+    }
     throw buildInvalidModelErrorDetail(
       source.fileName,
       'corrupt',
       err instanceof Error ? err.message : 'GLTFLoader failed to parse buffer.',
+    );
+  }
+  if (blockedExternalResourceUrl) {
+    throw buildInvalidModelErrorDetail(
+      source.fileName,
+      'missing_deps',
+      `Blocked unauthorized external dependency URI: ${blockedExternalResourceUrl}`,
     );
   }
 

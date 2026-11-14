@@ -1,9 +1,10 @@
+import { MAX_MODEL_FILE_SIZE_BYTES } from '../../data/modelAssetTypes';
 import type {
   ArchitecturalModelSource,
   ModelViewerProjectContext,
 } from './contracts';
 
-export const DEFAULT_MAX_MODEL_FILE_SIZE_BYTES = 45 * 1024 * 1024; // 45 MB
+export const DEFAULT_MAX_MODEL_FILE_SIZE_BYTES = MAX_MODEL_FILE_SIZE_BYTES; // 50 MB
 
 export const OA_DEMO_MODEL_SOURCES: readonly ArchitecturalModelSource[] = [
   {
@@ -94,13 +95,16 @@ export const DEFAULT_DEMO_PROJECT_CONTEXT: ModelViewerProjectContext = {
 
 export function findDemoModelForProject(
   projectIdOrCode?: string | null,
-): ArchitecturalModelSource {
+): ArchitecturalModelSource | null {
   if (!projectIdOrCode) {
-    return OA_DEMO_MODEL_SOURCES[0];
+    return null;
   }
   const normalized = projectIdOrCode.trim().toLowerCase();
+  if (normalized.includes('101') || normalized.includes('ponta-vermelha')) {
+    return OA_DEMO_MODEL_SOURCES[0];
+  }
   if (normalized.includes('108') || normalized.includes('costa')) {
     return OA_DEMO_MODEL_SOURCES[1];
   }
-  return OA_DEMO_MODEL_SOURCES[0];
+  return null;
 }

@@ -153,6 +153,7 @@ function attachRuntimeMonitors(page, unexpectedRequests, runtimeErrors, label) {
     const allowed =
       url.startsWith(BASE_URL) ||
       url.startsWith('data:') ||
+      url.startsWith('blob:') ||
       url.startsWith('https://fonts.googleapis.com') ||
       url.startsWith('https://fonts.gstatic.com');
     if (!allowed) {
@@ -583,14 +584,16 @@ async function main() {
         fullPage: false,
       });
 
-      // Visit Phase 04A 3D Model Engine route & return
+      // Visit Phase 04 3D Model Engine route on newly created project -> verify P0.2 empty state (source=null)
       const createdUrl = page.url();
       await page.getByRole('button', { name: /Abrir vista 3D \(Fase 04\)/i }).click();
       await page.waitForURL(`${createdUrl}/model`);
       await page.getByText(/FASE 04 · MOTOR DE MODELOS 3D & CONTRATO DE FICHEIROS/i).waitFor({ state: 'visible' });
-      await checkNoHorizontalOverflow(page, 'Workspace Projects Model Engine 1440px');
+      await page.locator('[data-testid="architectural-model-viewer"][data-viewer-status="empty"]').waitFor({ state: 'visible' });
+      await page.getByTestId('model-engine-empty-state').waitFor({ state: 'visible' });
+      await checkNoHorizontalOverflow(page, 'Workspace Projects Model Engine Empty State 1440px');
       await page.screenshot({
-        path: path.join(ARTIFACT_DIR, 'oa_projects_model_engine_1440.png'),
+        path: path.join(ARTIFACT_DIR, 'oa_projects_model_empty_1440.png'),
         fullPage: false,
       });
       await page.getByRole('link', { name: /Voltar ao Dossier/i }).click();
@@ -631,6 +634,103 @@ async function main() {
       await page.waitForURL(createdUrl);
       await page.getByRole('button', { name: /Voltar aos projectos/i }).click();
       await page.waitForURL(`${BASE_URL}/workspace/projects`);
+
+      // Verify Phase 04 Integrated 3D Model Viewer with real WebGL on OA-26-101 & OA-26-108
+      await page.goto(`${BASE_URL}/workspace/projects/sd-proj-oa-26-101/model`, { waitUntil: 'load' });
+      await page.locator('[data-testid="architectural-model-viewer"][data-viewer-status="loaded"]').waitFor({
+        state: 'visible',
+        timeout: 15000,
+      });
+      await page.locator('[data-testid="model-engine-stage-slot"][data-oa-model-load-state="ready"]').waitFor({
+        state: 'visible',
+      });
+      const canvasLocator = page.locator('[data-testid="model-viewer-stage"] canvas');
+      await canvasLocator.waitFor({ state: 'visible' });
+      await page.getByTestId('architectural-model-viewer').scrollIntoViewIfNeeded();
+      await page.waitForTimeout(250);
+      const canvasBox = await canvasLocator.boundingBox();
+      assertCondition(
+        Boolean(canvasBox && canvasBox.width >= 300 && canvasBox.height >= 150),
+        `Expected real WebGL canvas with non-zero dimensions, got ${JSON.stringify(canvasBox)}`,
+      );
+      const trianglesText = (await page.getByTestId('model-telemetry-triangles').textContent()) ?? '';
+      const widthText = (await page.getByTestId('model-dimension-width').textContent()) ?? '';
+      assertCondition(
+        trianglesText.trim() === '192' && widthText.includes('24 m'),
+        `Expected real telemetry (192 triangles, 24 m) in telemetry panel, got triangles="${trianglesText}", width="${widthText}"`,
+      );
+      await checkNoHorizontalOverflow(page, 'Workspace Projects 3D Model Viewer 1440px');
+      await page.screenshot({
+        path: path.join(ARTIFACT_DIR, 'oa_projects_model_engine_1440.png'),
+        fullPage: false,
+      });
+
+      // Exercise camera presets, recenter, reset, zoom, and grid/axes/wireframe toggles
+      await page.getByRole('button', { name: /Vista superior/i }).click();
+      await page.waitForTimeout(120);
+      await page.getByRole('button', { name: /Vista frontal/i }).click();
+      await page.waitForTimeout(120);
+      await page.getByRole('button', { name: /Vista lateral/i }).click();
+      await page.waitForTimeout(120);
+      await page.getByRole('button', { name: /Vista isométrica/i }).click();
+      await page.waitForTimeout(120);
+      await page.getByRole('button', { name: /Aproximar vista/i }).click();
+      await page.getByRole('button', { name: /Afastar vista/i }).click();
+      await page.getByRole('button', { name: /Recentrar modelo/i }).click();
+      await page.getByRole('button', { name: /Repor vista inicial/i }).click();
+      await page.getByRole('button', { name: /Contorno \/ malha/i }).click();
+      await page.waitForTimeout(150);
+      await page.screenshot({
+        path: path.join(ARTIFACT_DIR, 'oa_projects_model_wireframe_1440.png'),
+        fullPage: false,
+      });
+      await page.getByRole('button', { name: /Contorno \/ malha/i }).click();
+
+      // Switch to self-contained .GLTF study and back to .GLB
+      await page.getByRole('button', { name: /MOD-OA-101-GLTF/i }).click();
+      await page.locator('[data-testid="architectural-model-viewer"][data-viewer-status="loaded"]').waitFor({
+        state: 'visible',
+      });
+      await page.getByRole('button', { name: /MOD-OA-101-V3/i }).click();
+      await page.locator('[data-testid="architectural-model-viewer"][data-viewer-status="loaded"]').waitFor({
+        state: 'visible',
+      });
+
+      // Responsive verification of 3D Viewer at 768px and 375px
+      await page.setViewportSize({ width: 768, height: 1024 });
+      await page.waitForTimeout(200);
+      await checkNoHorizontalOverflow(page, 'Workspace Projects 3D Model Viewer 768px');
+      await page.screenshot({
+        path: path.join(ARTIFACT_DIR, 'oa_projects_model_engine_768.png'),
+        fullPage: false,
+      });
+      await page.setViewportSize({ width: 375, height: 812 });
+      await page.waitForTimeout(200);
+      await checkNoHorizontalOverflow(page, 'Workspace Projects 3D Model Viewer 375px');
+      await page.screenshot({
+        path: path.join(ARTIFACT_DIR, 'oa_projects_model_engine_375.png'),
+        fullPage: false,
+      });
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.waitForTimeout(200);
+
+      // Verify second real .glb model on OA-26-108 (Costa do Sol Terraces)
+      await page.goto(`${BASE_URL}/workspace/projects/sd-proj-oa-26-108/model`, { waitUntil: 'load' });
+      await page.locator('[data-testid="architectural-model-viewer"][data-viewer-status="loaded"]').waitFor({
+        state: 'visible',
+        timeout: 15000,
+      });
+      const costaTrianglesText = (await page.getByTestId('model-telemetry-triangles').textContent()) ?? '';
+      assertCondition(
+        costaTrianglesText.trim() === '96',
+        `Expected 96 triangles on OA-26-108 model viewer, got: ${costaTrianglesText}`,
+      );
+      await page.getByTestId('architectural-model-viewer').scrollIntoViewIfNeeded();
+      await page.waitForTimeout(250);
+      await page.screenshot({
+        path: path.join(ARTIFACT_DIR, 'oa_projects_model_costa_1440.png'),
+        fullPage: false,
+      });
 
       // Verify invalid ID renders honest 404 fallback cleanly
       await page.goto(`${BASE_URL}/workspace/projects/id-invalido-404`, { waitUntil: 'load' });
