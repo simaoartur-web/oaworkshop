@@ -109,6 +109,7 @@
 | `docs/MOCK_DATA_CONTRACTS.md` | contratos de dados, `localStorage` e invariante zero-password |
 | `docs/INTEGRATION_FUTURE.md` | contrato documental de publicação futura para `oa-workshop.com` |
 | `docs/DECISIONS.md` | registo de decisões arquitecturais (ADR-001 a ADR-009) |
+| `docs/audits/phase04-performance.md` | auditoria empírica de desempenho, arquitectura, memória, orçamento e estratégia Three.js/WebGL para a Fase 04 |
 | `plans/001-phase-00-01-foundation-and-entry.md` | plano da Fase 00 e Fase 01 |
 | `plans/002-phase-02a-shell-hardening.md` | plano da Fase 02A (`codex/f02-shell-hardening`) |
 | `plans/003-phase-02-integration.md` | plano de integração técnica e Quality Gate da Fase 02 |
