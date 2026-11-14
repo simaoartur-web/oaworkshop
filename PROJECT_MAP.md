@@ -73,8 +73,13 @@
 | `src/features/project-library/projectExperienceContract.ts` | adaptadores explícitos bidireccionais entre `CanonicalProjectRecord` e `project-experience` DTOs |
 | `src/features/project-library/ProjectLibraryCatalogPage.tsx` | rota `/workspace/projects` ligando `ProjectGalleryView` ao motor canónico e pesquisa global |
 | `src/features/project-library/ProjectCreateEnginePage.tsx` | rota `/workspace/projects/new` ligando `ProjectCreationWizard` à criação local persistente |
-| `src/features/project-library/ProjectDossierShellPage.tsx` | rota `/workspace/projects/:id` ligando `ProjectDossierView` a documentos, histórico, edição e arquivo |
+| `src/features/project-library/ProjectDossierShellPage.tsx` | rota `/workspace/projects/:id` ligando `ProjectDossierView` a documentos, histórico, edição, arquivo e faixa de estado 3D |
 | `src/features/project-library/i18n.ts` | dicionário bilingue PT/EN dos estados de erro, not-found e títulos da biblioteca |
+| `src/features/model-engine/modelViewerContract.ts` | contrato tipado Fase 04 (`ModelSource`, `ModelContext`, `ModelLoadState`, `ModelViewerCallbacks`) entre o motor A e o visualizador WebGL B |
+| `src/features/model-engine/useProjectModelEngine.ts` | hook reactivo que resolve estado 3D do projecto, valida ficheiros `.glb`/`.gltf` locais e gere `ObjectURL` de sessão |
+| `src/features/model-engine/ModelEngineStageSlot.tsx` | câmara técnica de pré-visualização 3D e slot de encaixe do componente gráfico do Agente B |
+| `src/features/model-engine/ProjectModelEnginePage.tsx` | rota `/workspace/projects/:id/model` (lazy-loaded) com distinção das 3 categorias (referência documental, modelo demo fictício e ficheiro de sessão) |
+| `src/features/model-engine/i18n.ts`, `index.ts` | dicionário bilingue PT/EN e exportações públicas do motor de modelos 3D |
 | `src/features/project-experience/ProjectGalleryView.tsx` | vista editorial em Galeria & Lista Técnica com filtros por estado, âmbito individual/função e pesquisa |
 | `src/features/project-experience/ProjectDossierView.tsx` | dossier vivo em 6 secções (Identidade, Equipa, Desenvolvimento, Documentação, Histórico, Visibilidade) |
 | `src/features/project-experience/ProjectCreationWizard.tsx` | assistente guiado de 4 passos com validação de datas/códigos, tratamento de erros de gravação e continuidade |
@@ -82,6 +87,7 @@
 | `src/data/types.ts` | tipos estritos de domínio (`Role`, `DemoUser`, `DemoSession`, `UserPreferences`, etc.) |
 | `src/data/fixtures.ts` | 6 perfis demonstrativos fictícios, 9 departamentos e projecto de estudo `OA-26-014` |
 | `src/data/projectLibraryTypes.ts`, `projectLibraryAdapter.ts`, `projectLibraryRepository.ts` | camada canónica de projectos, validações, persistência `oa_workspace_project_library_v1` e datas dinâmicas |
+| `src/data/modelAssetTypes.ts`, `modelAssetRepository.ts` | tipos e repositório da Fase 04A (3 categorias de modelos 3D, catálogo demo `.glb`/`.gltf`, validação binária/manifesto até 50 MB e ciclo `ObjectURL` em memória) |
 | `src/data/studioDeskTypes.ts` | tipos de domínio da Mesa de Trabalho (`StudioDeskProject`, `DeskPriorityItem`, `DeskActivityItem`, etc.) |
 | `src/data/studioDeskFixtures.ts` | dados demonstrativos fictícios da Mesa de Trabalho (`STUDIO_DESK_PROJECTS`, `STUDIO_DESK_TASKS`, `ROLE_DESK_CONFIGS`) |
 | `src/data/sessionRepository.ts` | persistência local sanitizada (zero passwords em storage, limpeza automática de sessões corrompidas) |
@@ -94,6 +100,7 @@
 | `src/test/studioDesk.test.tsx` | suite unitária e de integração da Mesa de Trabalho do Argon B |
 | `src/test/projectLibrary.test.tsx` | suite de integração Fase 03 (motor canónico, UI integrada, códigos únicos, datas, falhas storage e continuidade) |
 | `src/test/projectExperience.test.tsx` | suite unitária/acessibilidade da experiência editorial B (galeria, dossier 6 secções e assistente 4 passos) |
+| `src/test/modelEngine.test.tsx` | suite da Fase 04A (distinção das 3 categorias, validação `.glb`/`.gltf`/`.skp`/tamanho/vazio, limpeza de `ObjectURL`, reset global, 6 perfis e PT/EN) |
 | `src/test/integrationPreview.test.tsx` | suite do Quality Gate de integração (câmara única, 6 papéis, pesquisa integrada, reset e bilinguismo) |
 
 ## Recursos Públicos e Documentação
@@ -108,7 +115,8 @@
 | `docs/PRODUCT_SPEC.md` | fases 00–07, rotas e papéis demonstrativos |
 | `docs/MOCK_DATA_CONTRACTS.md` | contratos de dados, `localStorage` e invariante zero-password |
 | `docs/INTEGRATION_FUTURE.md` | contrato documental de publicação futura para `oa-workshop.com` |
-| `docs/DECISIONS.md` | registo de decisões arquitecturais (ADR-001 a ADR-009) |
+| `docs/PHASE_04_MODEL_ENGINE_CONTRACT.md` | contrato de integração Fase 04 entre o motor de modelos 3D (Agente A) e o visualizador WebGL (Agente B) |
+| `docs/DECISIONS.md` | registo de decisões arquitecturais (ADR-001 a ADR-010) |
 | `plans/001-phase-00-01-foundation-and-entry.md` | plano da Fase 00 e Fase 01 |
 | `plans/002-phase-02a-shell-hardening.md` | plano da Fase 02A (`codex/f02-shell-hardening`) |
 | `plans/003-phase-02-integration.md` | plano de integração técnica e Quality Gate da Fase 02 |
@@ -116,4 +124,5 @@
 | `plans/005-phase-021-integration.md` | plano e registo da integração sequencial Fase 02.1 (`codex/f02-integration-preview`) |
 | `plans/007-phase-03-integration.md` | plano e registo de integração Fase 03 A+B, correcções P0/P1 e Quality Gate |
 | `plans/006-phase-03a-project-platform.md` | plano da Fase 03A (`codex/f03-project-platform`) — domínio canónico, catálogo e motor do dossier |
+| `plans/008-phase-04a-model-engine.md` | plano da Fase 04A (`codex/f04-model-engine`) — motor de modelos 3D, validação `.glb`/`.gltf`/`.skp` e rota `/workspace/projects/:id/model` |
 | `scripts/e2e-verify-entry.mjs` | verificação E2E portátil em Chromium/Edge nas larguras 1440px, 680px altura, 768px, 720px (zoom) e 375px |

@@ -372,13 +372,13 @@ describe('Phase 03A · Canonical Project Library Domain & Engine', () => {
       await screen.findByText('botanica-modelo-v02.skp'),
     ).toBeInTheDocument();
 
-    // Navigate to Phase 04 future model route -> honest placeholder
+    // Navigate to Phase 04 3D Model Engine route -> validates project, shows empty/metadata state & returns to Dossier
     await user.click(
       screen.getByRole('button', { name: /Abrir vista 3D \(Fase 04\)/i }),
     );
     expect(
       await screen.findByText(
-        /Visualizador Web 3D \(\.glb \/ \.skp\) previsto para a Fase 04/i,
+        /FASE 04 · MOTOR DE MODELOS 3D & CONTRATO DE FICHEIROS/i,
       ),
     ).toBeInTheDocument();
     await user.click(screen.getByRole('link', { name: /Voltar ao Dossier/i }));
