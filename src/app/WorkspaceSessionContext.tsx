@@ -19,6 +19,7 @@ import {
   switchDemoRole,
   type AuthAttemptResult,
 } from '../data/sessionRepository';
+import { clearAllSessionModels } from '../data/modelAssetRepository';
 import { clearProjectLibraryLocalState } from '../data/projectLibraryRepository';
 import { clearStudioDeskLocalState } from '../data/studioDeskFixtures';
 import type {
@@ -106,6 +107,7 @@ export function WorkspaceSessionProvider({
   }, []);
 
   const signOut = useCallback(() => {
+    clearAllSessionModels();
     clearDemoSession();
     setSession(null);
   }, []);
@@ -126,6 +128,7 @@ export function WorkspaceSessionProvider({
   }, []);
 
   const resetAllDemoData = useCallback(() => {
+    clearAllSessionModels();
     const freshPrefs = resetDemoWorkspaceState();
     resetShellLocalState();
     clearStudioDeskLocalState();

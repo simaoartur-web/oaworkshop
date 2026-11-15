@@ -23,7 +23,10 @@ import { DEMO_USERS, DEPARTMENTS } from '../../data/fixtures';
 import {
   getTodayIsoDate,
   isValidIsoCalendarDate,
+  PROJECT_LIBRARY_LIMITS,
+  validateProjectDocumentFileName,
 } from '../../data/projectLibraryRepository';
+import type { ProjectFileKind } from '../../data/projectLibraryTypes';
 import type { DeskReviewState } from '../../data/studioDeskTypes';
 import type { ProjectStatus } from '../../data/types';
 import type {
@@ -46,6 +49,24 @@ import {
   resolveDepartmentName,
 } from './helpers';
 import { getProjectExperienceDictionary } from './i18n';
+
+function mapFormatToFileKind(format: ProjectFileFormat): ProjectFileKind {
+  switch (format) {
+    case 'skp':
+      return 'source_skp';
+    case 'glb':
+    case 'gltf':
+      return 'model_3d';
+    case 'webp':
+      return 'photographic_log';
+    case 'xlsx':
+      return 'specification';
+    case 'dwg':
+    case 'pdf':
+    default:
+      return 'drawing';
+  }
+}
 
 const DOSSIER_SECTION_ORDER: readonly DossierSectionId[] = [
   'identity',
@@ -151,6 +172,8 @@ function ProjectDossierViewInner({
   const [docCode, setDocCode] = useState('');
   const [docFileName, setDocFileName] = useState('');
   const [docExtension, setDocExtension] = useState<ProjectFileFormat>('pdf');
+  const [isDocExtensionManuallySet, setIsDocExtensionManuallySet] =
+    useState(false);
   const [docVersion, setDocVersion] = useState('v01');
   const [docAuthor, setDocAuthor] = useState(project.leadAuthorName);
   const [docReviewState, setDocReviewState] =
@@ -262,6 +285,28 @@ function ProjectDossierViewInner({
 
     if (!trimmedFile) {
       nextErrors.fileName = dict.dossier.documentation.validationFileName;
+    } else {
+      try {
+        const expectedKind = mapFormatToFileKind(docExtension);
+        const cleanName = validateProjectDocumentFileName(
+          trimmedFile,
+          expectedKind,
+        );
+        const dotIdx = cleanName.lastIndexOf('.');
+        const actualExt =
+          dotIdx >= 0 ? cleanName.slice(dotIdx + 1).toLowerCase() : '';
+        if (actualExt !== docExtension.toLowerCase()) {
+          nextErrors.fileName =
+            language === 'en'
+              ? `Filename extension (.${actualExt || 'none'}) does not match selected format (.${docExtension}).`
+              : `A extensão do ficheiro (.${actualExt || 'sem extensão'}) não corresponde ao formato seleccionado (.${docExtension}).`;
+        }
+      } catch (validationErr) {
+        nextErrors.fileName =
+          validationErr instanceof Error && validationErr.message
+            ? validationErr.message
+            : dict.dossier.documentation.validationFileName;
+      }
     }
     if (!trimmedRelation) {
       nextErrors.relation = dict.dossier.documentation.validationRelation;
@@ -317,6 +362,8 @@ function ProjectDossierViewInner({
 
       setDocCode('');
       setDocFileName('');
+      setDocExtension('pdf');
+      setIsDocExtensionManuallySet(false);
       setDocVersion('v01');
       setDocRelation('');
       setDocErrors({});
@@ -721,6 +768,7 @@ function ProjectDossierViewInner({
                       <input
                         id="dossier-edit-phase"
                         type="text"
+                        maxLength={PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH}
                         value={editPhasePt}
                         onChange={(e) => setEditPhasePt(e.target.value)}
                         className="oa-field-input"
@@ -825,6 +873,7 @@ function ProjectDossierViewInner({
                       <input
                         id="dossier-edit-milestone-title"
                         type="text"
+                        maxLength={PROJECT_LIBRARY_LIMITS.MAX_TITLE_LENGTH}
                         value={editMilestoneTitlePt}
                         onChange={(e) =>
                           setEditMilestoneTitlePt(e.target.value)
@@ -859,6 +908,7 @@ function ProjectDossierViewInner({
                       <input
                         id="dossier-edit-notes"
                         type="text"
+                        maxLength={PROJECT_LIBRARY_LIMITS.MAX_TEXT_LENGTH}
                         value={editNotesPt}
                         onChange={(e) => setEditNotesPt(e.target.value)}
                         className="oa-field-input"
@@ -1276,9 +1326,23 @@ function ProjectDossierViewInner({
                         ref={fileNameInputRef}
                         id="doc-meta-filename"
                         type="text"
+                        maxLength={PROJECT_LIBRARY_LIMITS.MAX_FILENAME_LENGTH}
                         value={docFileName}
                         onChange={(e) => {
-                          setDocFileName(e.target.value);
+                          const nextValue = e.target.value;
+                          setDocFileName(nextValue);
+                          if (!isDocExtensionManuallySet) {
+                            const dotIdx = nextValue.trim().lastIndexOf('.');
+                            if (dotIdx >= 0) {
+                              const inferredExt = nextValue
+                                .trim()
+                                .slice(dotIdx + 1)
+                                .toLowerCase() as ProjectFileFormat;
+                              if (FILE_FORMAT_OPTIONS.includes(inferredExt)) {
+                                setDocExtension(inferredExt);
+                              }
+                            }
+                          }
                           if (docErrors.fileName) {
                             setDocErrors((prev) => ({
                               ...prev,
@@ -1316,9 +1380,10 @@ function ProjectDossierViewInner({
                       <select
                         id="doc-meta-extension"
                         value={docExtension}
-                        onChange={(e) =>
-                          setDocExtension(e.target.value as ProjectFileFormat)
-                        }
+                        onChange={(e) => {
+                          setDocExtension(e.target.value as ProjectFileFormat);
+                          setIsDocExtensionManuallySet(true);
+                        }}
                         className="oa-field-input bg-[#101010]"
                       >
                         {FILE_FORMAT_OPTIONS.map((fmt) => (
@@ -1339,6 +1404,7 @@ function ProjectDossierViewInner({
                       <input
                         id="doc-meta-version"
                         type="text"
+                        maxLength={PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH}
                         value={docVersion}
                         onChange={(e) => setDocVersion(e.target.value)}
                         className="oa-field-input"
@@ -1355,6 +1421,7 @@ function ProjectDossierViewInner({
                       <input
                         id="doc-meta-code"
                         type="text"
+                        maxLength={PROJECT_LIBRARY_LIMITS.MAX_CODE_LENGTH}
                         value={docCode}
                         onChange={(e) => setDocCode(e.target.value)}
                         placeholder={`${project.code}-DOC`}
@@ -1372,6 +1439,7 @@ function ProjectDossierViewInner({
                       <input
                         id="doc-meta-author"
                         type="text"
+                        maxLength={PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH}
                         value={docAuthor}
                         onChange={(e) => setDocAuthor(e.target.value)}
                         className="oa-field-input"
@@ -1419,6 +1487,7 @@ function ProjectDossierViewInner({
                         ref={relationInputRef}
                         id="doc-meta-relation"
                         type="text"
+                        maxLength={PROJECT_LIBRARY_LIMITS.MAX_TEXT_LENGTH}
                         value={docRelation}
                         onChange={(e) => {
                           setDocRelation(e.target.value);
@@ -1634,6 +1703,7 @@ function ProjectDossierViewInner({
                       <input
                         id="rev-meta-version"
                         type="text"
+                        maxLength={PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH}
                         value={revVersion}
                         onChange={(e) => setRevVersion(e.target.value)}
                         className="oa-field-input"
@@ -1679,6 +1749,7 @@ function ProjectDossierViewInner({
                       <input
                         id="rev-meta-summary"
                         type="text"
+                        maxLength={PROJECT_LIBRARY_LIMITS.MAX_TEXT_LENGTH}
                         value={revSummary}
                         onChange={(e) => setRevSummary(e.target.value)}
                         className="oa-field-input"

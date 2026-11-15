@@ -19,6 +19,7 @@ import {
   getOffsetIsoDate,
   isValidIsoCalendarDate,
   normalizeProjectCode,
+  PROJECT_LIBRARY_LIMITS,
 } from '../../data/projectLibraryRepository';
 import type { DepartmentId } from '../../data/types';
 import { useDialogFocusTrap } from '../../design-system/useDialogFocusTrap';
@@ -676,6 +677,7 @@ export function ProjectCreationWizard({
                   ref={titlePtRef}
                   id="wiz-title-pt"
                   type="text"
+                  maxLength={PROJECT_LIBRARY_LIMITS.MAX_TITLE_LENGTH}
                   value={draft.titlePt}
                   onChange={(e) => {
                     setDraft((p) => ({ ...p, titlePt: e.target.value }));
@@ -712,6 +714,7 @@ export function ProjectCreationWizard({
                   ref={titleEnRef}
                   id="wiz-title-en"
                   type="text"
+                  maxLength={PROJECT_LIBRARY_LIMITS.MAX_TITLE_LENGTH}
                   value={draft.titleEn}
                   onChange={(e) => {
                     setDraft((p) => ({ ...p, titleEn: e.target.value }));
@@ -755,6 +758,7 @@ export function ProjectCreationWizard({
                 ref={summaryRef}
                 id="wiz-summary-pt"
                 rows={3}
+                maxLength={PROJECT_LIBRARY_LIMITS.MAX_TEXT_LENGTH}
                 value={draft.summaryPt}
                 onChange={(e) => {
                   setDraft((p) => ({ ...p, summaryPt: e.target.value }));
@@ -797,6 +801,7 @@ export function ProjectCreationWizard({
               <textarea
                 id="wiz-summary-en"
                 rows={2}
+                maxLength={PROJECT_LIBRARY_LIMITS.MAX_TEXT_LENGTH}
                 value={draft.summaryEn}
                 onChange={(e) =>
                   setDraft((p) => ({ ...p, summaryEn: e.target.value }))
@@ -884,6 +889,7 @@ export function ProjectCreationWizard({
                     ref={customDisciplineRef}
                     id="wiz-discipline-custom"
                     type="text"
+                    maxLength={PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH}
                     value={draft.discipline}
                     onChange={(e) => {
                       setDraft((p) => ({ ...p, discipline: e.target.value }));
@@ -1111,6 +1117,7 @@ export function ProjectCreationWizard({
                   ref={milestoneTitleRef}
                   id="wiz-milestone-title"
                   type="text"
+                  maxLength={PROJECT_LIBRARY_LIMITS.MAX_TITLE_LENGTH}
                   value={draft.nextMilestoneTitle}
                   onChange={(e) => {
                     setDraft((p) => ({
@@ -1232,6 +1239,7 @@ export function ProjectCreationWizard({
                     ref={codeInputRef}
                     id="wiz-project-code"
                     type="text"
+                    maxLength={PROJECT_LIBRARY_LIMITS.MAX_CODE_LENGTH}
                     value={draft.code ?? ''}
                     onChange={(e) => {
                       setDraft((p) => ({

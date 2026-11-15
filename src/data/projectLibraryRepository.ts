@@ -32,6 +32,17 @@ import type {
 export const PROJECT_LIBRARY_STORAGE_KEY = 'oa_workspace_project_library_v1';
 export const PROJECT_LIBRARY_UPDATED_EVENT = 'oa:project-library-updated';
 
+export const PROJECT_LIBRARY_LIMITS = {
+  MAX_LOCAL_PROJECTS: 50,
+  MAX_FILES_PER_PROJECT: 100,
+  MAX_REVISIONS_PER_PROJECT: 100,
+  MAX_TITLE_LENGTH: 160,
+  MAX_CODE_LENGTH: 40,
+  MAX_SHORT_FIELD_LENGTH: 120,
+  MAX_FILENAME_LENGTH: 180,
+  MAX_TEXT_LENGTH: 2000,
+} as const;
+
 interface StoredLibraryEnvelope {
   version: 1;
   overridesById: Record<string, CanonicalProjectRecord>;
@@ -559,10 +570,27 @@ function saveEnvelope(envelope: StoredLibraryEnvelope): void {
       );
     }
   } catch (error) {
+    const isQuotaError =
+      (error instanceof Error && error.name === 'QuotaExceededError') ||
+      (typeof DOMException !== 'undefined' &&
+        error instanceof DOMException &&
+        (error.name === 'QuotaExceededError' ||
+          error.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+          error.code === 22 ||
+          error.code === 1014));
+    if (isQuotaError) {
+      const quotaError = new Error(
+        'Limite de armazenamento local do navegador atingido (QuotaExceededError). Exporte ou arquive projectos antigos antes de guardar novas alterações.',
+        { cause: error },
+      );
+      quotaError.name = 'QuotaExceededError';
+      throw quotaError;
+    }
     const detail =
       error instanceof Error && error.message ? ` (${error.message})` : '';
     throw new Error(
       `Falha ao guardar os dados da biblioteca no armazenamento local do navegador.${detail}`,
+      { cause: error },
     );
   }
   emitLibraryUpdated();
@@ -628,6 +656,110 @@ export function getProjectById(
         record.identity.slug.toLowerCase() === query,
     ) ?? null
   );
+}
+
+export const ALLOWED_EXTENSIONS_BY_FILE_KIND: Readonly<
+  Record<ProjectFileKind, ReadonlySet<string>>
+> = {
+  drawing: new Set(['pdf', 'dwg', 'dxf']),
+  model_3d: new Set(['glb', 'gltf']),
+  source_skp: new Set(['skp']),
+  specification: new Set(['pdf', 'xlsx', 'csv', 'docx', 'doc', 'txt', 'md']),
+  photographic_log: new Set(['webp', 'jpg', 'jpeg', 'png']),
+};
+
+const DANGEROUS_DOCUMENT_EXTENSIONS = new Set([
+  'html',
+  'htm',
+  'svg',
+  'js',
+  'mjs',
+  'cjs',
+  'ts',
+  'tsx',
+  'jsx',
+  'php',
+  'exe',
+  'bat',
+  'cmd',
+  'ps1',
+  'sh',
+  'vbs',
+]);
+
+const FILENAME_FORBIDDEN_CHARS = /[<>:"|?*]/;
+
+function hasAsciiControlChars(value: string): boolean {
+  for (let i = 0; i < value.length; i += 1) {
+    const code = value.charCodeAt(i);
+    if (code <= 0x1f || code === 0x7f) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function assertWithinMaxLength(
+  value: string,
+  fieldLabel: string,
+  maxLength: number,
+): string {
+  const trimmed = value.trim();
+  if (trimmed.length > maxLength) {
+    throw new Error(
+      `O campo "${fieldLabel}" excede o limite de ${maxLength} caracteres (${trimmed.length}).`,
+    );
+  }
+  return trimmed;
+}
+
+export function validateProjectDocumentFileName(
+  rawFileName: string,
+  kind: ProjectFileKind,
+): string {
+  const trimmed = assertWithinMaxLength(
+    rawFileName,
+    'Nome do ficheiro',
+    PROJECT_LIBRARY_LIMITS.MAX_FILENAME_LENGTH,
+  );
+  if (!trimmed) {
+    throw new Error('O nome fictício do ficheiro é obrigatório.');
+  }
+  if (
+    trimmed.includes('/') ||
+    trimmed.includes('\\') ||
+    trimmed.includes('..') ||
+    trimmed.startsWith('.') ||
+    /^[a-z][a-z0-9+.-]*:/i.test(trimmed) ||
+    hasAsciiControlChars(trimmed) ||
+    FILENAME_FORBIDDEN_CHARS.test(trimmed)
+  ) {
+    throw new Error(
+      `Nome de ficheiro documental inválido ("${trimmed}"). Use apenas o nome base com extensão sem caminhos, esquemas URL ou caracteres de controlo.`,
+    );
+  }
+  const extMatch = /\.([a-z0-9]{1,10})$/i.exec(trimmed);
+  if (!extMatch) {
+    throw new Error(
+      `O nome de ficheiro "${trimmed}" deve incluir uma extensão documental válida.`,
+    );
+  }
+  const ext = extMatch[1].toLowerCase();
+  if (DANGEROUS_DOCUMENT_EXTENSIONS.has(ext)) {
+    throw new Error(
+      `A extensão ".${ext}" não é permitida para referências documentais de arquitectura.`,
+    );
+  }
+  const allowedForKind = ALLOWED_EXTENSIONS_BY_FILE_KIND[kind];
+  if (!allowedForKind.has(ext)) {
+    const allowedList = Array.from(allowedForKind)
+      .map((item) => `.${item}`)
+      .join(', ');
+    throw new Error(
+      `A extensão ".${ext}" não corresponde ao tipo documental "${kind}" (extensões aceites: ${allowedList}).`,
+    );
+  }
+  return trimmed;
 }
 
 function deriveFileMeta(
@@ -741,10 +873,35 @@ export function createProject(
   input: CreateCanonicalProjectInput,
   actorUser: DemoUser,
 ): CanonicalProjectRecord {
-  const titlePt = input.titlePt.trim();
-  const titleEn = input.titleEn?.trim() || titlePt;
-  const subtitlePt = input.subtitlePt.trim();
-  const subtitleEn = input.subtitleEn?.trim() || subtitlePt;
+  const envelope = loadEnvelope();
+  if (envelope.createdRecords.length >= PROJECT_LIBRARY_LIMITS.MAX_LOCAL_PROJECTS) {
+    throw new Error(
+      `Limite máximo de ${PROJECT_LIBRARY_LIMITS.MAX_LOCAL_PROJECTS} projectos locais atingido nesta demonstração.`,
+    );
+  }
+
+  const titlePt = assertWithinMaxLength(
+    input.titlePt,
+    'Título do projecto (PT)',
+    PROJECT_LIBRARY_LIMITS.MAX_TITLE_LENGTH,
+  );
+  const titleEn =
+    assertWithinMaxLength(
+      input.titleEn ?? '',
+      'Título do projecto (EN)',
+      PROJECT_LIBRARY_LIMITS.MAX_TITLE_LENGTH,
+    ) || titlePt;
+  const subtitlePt = assertWithinMaxLength(
+    input.subtitlePt,
+    'Resumo do projecto (PT)',
+    PROJECT_LIBRARY_LIMITS.MAX_TEXT_LENGTH,
+  );
+  const subtitleEn =
+    assertWithinMaxLength(
+      input.subtitleEn ?? '',
+      'Resumo do projecto (EN)',
+      PROJECT_LIBRARY_LIMITS.MAX_TEXT_LENGTH,
+    ) || subtitlePt;
   if (!titlePt || !subtitlePt) {
     throw new Error('Título e resumo do projecto são obrigatórios.');
   }
@@ -764,7 +921,15 @@ export function createProject(
       : 'concept';
 
   const existing = listProjects({ includeArchived: true });
-  const rawCode = input.code ? normalizeProjectCode(input.code) : '';
+  const rawCode = input.code
+    ? normalizeProjectCode(
+        assertWithinMaxLength(
+          input.code,
+          'Código do projecto',
+          PROJECT_LIBRARY_LIMITS.MAX_CODE_LENGTH,
+        ),
+      )
+    : '';
   if (rawCode && !isProjectCodeAvailable(rawCode, existing)) {
     throw new Error(
       `O código "${rawCode}" já existe na biblioteca de projectos.`,
@@ -810,20 +975,56 @@ export function createProject(
   const nowIso = new Date().toISOString();
   const milestoneDateIso = input.nextMilestoneDateIso.trim() || getTodayIsoDate();
   const milestoneTitlePt =
-    input.nextMilestoneTitlePt.trim() || 'Revisão preliminar de dossier';
+    assertWithinMaxLength(
+      input.nextMilestoneTitlePt,
+      'Título do próximo marco',
+      PROJECT_LIBRARY_LIMITS.MAX_TITLE_LENGTH,
+    ) || 'Revisão preliminar de dossier';
   const milestoneTitleEn =
-    input.nextMilestoneTitleEn?.trim() || milestoneTitlePt;
-  const phasePt = input.phasePt.trim() || 'Estudo Prévio';
-  const phaseEn = input.phaseEn?.trim() || phasePt;
-  const disciplinePt = input.disciplinePt.trim() || department.name.pt;
-  const disciplineEn = input.disciplineEn?.trim() || department.name.en;
+    assertWithinMaxLength(
+      input.nextMilestoneTitleEn ?? '',
+      'Título do próximo marco (EN)',
+      PROJECT_LIBRARY_LIMITS.MAX_TITLE_LENGTH,
+    ) || milestoneTitlePt;
+  const phasePt =
+    assertWithinMaxLength(
+      input.phasePt,
+      'Fase',
+      PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
+    ) || 'Estudo Prévio';
+  const phaseEn =
+    assertWithinMaxLength(
+      input.phaseEn ?? '',
+      'Fase (EN)',
+      PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
+    ) || phasePt;
+  const disciplinePt =
+    assertWithinMaxLength(
+      input.disciplinePt,
+      'Disciplina',
+      PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
+    ) || department.name.pt;
+  const disciplineEn =
+    assertWithinMaxLength(
+      input.disciplineEn ?? '',
+      'Disciplina (EN)',
+      PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
+    ) || department.name.en;
   const visualAsset = pickDefaultVisualAsset(departmentId);
 
   const dossierNotesPt =
-    input.dossierNotesPt?.trim() ||
+    assertWithinMaxLength(
+      input.dossierNotesPt ?? '',
+      'Notas de dossier',
+      PROJECT_LIBRARY_LIMITS.MAX_TEXT_LENGTH,
+    ) ||
     'Registo demonstrativo criado localmente neste navegador. Sem sincronização em nuvem nem publicação externa.';
   const dossierNotesEn =
-    input.dossierNotesEn?.trim() ||
+    assertWithinMaxLength(
+      input.dossierNotesEn ?? '',
+      'Notas de dossier (EN)',
+      PROJECT_LIBRARY_LIMITS.MAX_TEXT_LENGTH,
+    ) ||
     'Demonstrative record created locally in this browser. No cloud sync or external publishing.';
 
   const files: ProjectFileReference[] = [];
@@ -832,11 +1033,15 @@ export function createProject(
       input.initialFileKind && VALID_FILE_KINDS.has(input.initialFileKind)
         ? input.initialFileKind
         : 'drawing';
-    const meta = deriveFileMeta(input.initialFileName, kind);
+    const validatedInitialFileName = validateProjectDocumentFileName(
+      input.initialFileName,
+      kind,
+    );
+    const meta = deriveFileMeta(validatedInitialFileName, kind);
     files.push({
       id: `file-${id}-01`,
       code: `${code}-DOC-01`,
-      fileName: input.initialFileName.trim(),
+      fileName: validatedInitialFileName,
       kind,
       formatLabel: meta.formatLabel,
       versionLabel: 'v01',
@@ -1002,6 +1207,67 @@ export function updateProjectMetadata(
   const nextMilestoneDateIso =
     rawUpdatedMilestoneDate || existing.schedule.nextMilestone.dateIso;
 
+  if (patch.title) {
+    assertWithinMaxLength(
+      patch.title.pt,
+      'Título do projecto (PT)',
+      PROJECT_LIBRARY_LIMITS.MAX_TITLE_LENGTH,
+    );
+    assertWithinMaxLength(
+      patch.title.en,
+      'Título do projecto (EN)',
+      PROJECT_LIBRARY_LIMITS.MAX_TITLE_LENGTH,
+    );
+  }
+  if (patch.subtitle) {
+    assertWithinMaxLength(
+      patch.subtitle.pt,
+      'Resumo do projecto (PT)',
+      PROJECT_LIBRARY_LIMITS.MAX_TEXT_LENGTH,
+    );
+    assertWithinMaxLength(
+      patch.subtitle.en,
+      'Resumo do projecto (EN)',
+      PROJECT_LIBRARY_LIMITS.MAX_TEXT_LENGTH,
+    );
+  }
+  if (patch.dossierNotes) {
+    assertWithinMaxLength(
+      patch.dossierNotes.pt,
+      'Notas de dossier (PT)',
+      PROJECT_LIBRARY_LIMITS.MAX_TEXT_LENGTH,
+    );
+    assertWithinMaxLength(
+      patch.dossierNotes.en,
+      'Notas de dossier (EN)',
+      PROJECT_LIBRARY_LIMITS.MAX_TEXT_LENGTH,
+    );
+  }
+  if (patch.phase) {
+    assertWithinMaxLength(
+      patch.phase.pt,
+      'Fase',
+      PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
+    );
+    assertWithinMaxLength(
+      patch.phase.en,
+      'Fase (EN)',
+      PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
+    );
+  }
+  if (patch.nextMilestone?.title) {
+    assertWithinMaxLength(
+      patch.nextMilestone.title.pt,
+      'Título do próximo marco',
+      PROJECT_LIBRARY_LIMITS.MAX_TITLE_LENGTH,
+    );
+    assertWithinMaxLength(
+      patch.nextMilestone.title.en,
+      'Título do próximo marco (EN)',
+      PROJECT_LIBRARY_LIMITS.MAX_TITLE_LENGTH,
+    );
+  }
+
   const nextTitle = patch.title
     ? sanitizeLocalizedText(patch.title, existing.editorial.title)
     : existing.editorial.title;
@@ -1140,8 +1406,28 @@ export function addProjectRevision(
     return null;
   }
 
-  const versionLabel = input.versionLabel.trim();
-  const summaryPt = input.summaryPt.trim();
+  if (existing.revisions.length >= PROJECT_LIBRARY_LIMITS.MAX_REVISIONS_PER_PROJECT) {
+    throw new Error(
+      `Limite máximo de ${PROJECT_LIBRARY_LIMITS.MAX_REVISIONS_PER_PROJECT} revisões atingido para este projecto.`,
+    );
+  }
+
+  const versionLabel = assertWithinMaxLength(
+    input.versionLabel,
+    'Versão da revisão',
+    PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
+  );
+  const summaryPt = assertWithinMaxLength(
+    input.summaryPt,
+    'Descrição da revisão',
+    PROJECT_LIBRARY_LIMITS.MAX_TEXT_LENGTH,
+  );
+  const summaryEn =
+    assertWithinMaxLength(
+      input.summaryEn ?? '',
+      'Descrição da revisão (EN)',
+      PROJECT_LIBRARY_LIMITS.MAX_TEXT_LENGTH,
+    ) || summaryPt;
   if (!versionLabel || !summaryPt) {
     throw new Error('Versão e descrição da revisão são obrigatórias.');
   }
@@ -1159,7 +1445,7 @@ export function addProjectRevision(
     versionLabel,
     summary: {
       pt: summaryPt,
-      en: input.summaryEn?.trim() || summaryPt,
+      en: summaryEn,
     },
     authorUserId: actorUser.id,
     authorName: actorUser.name,
@@ -1195,15 +1481,45 @@ export function addProjectFileReference(
     return null;
   }
 
-  const fileName = input.fileName.trim();
-  if (!fileName) {
-    throw new Error('O nome fictício do ficheiro é obrigatório.');
+  if (existing.files.length >= PROJECT_LIBRARY_LIMITS.MAX_FILES_PER_PROJECT) {
+    throw new Error(
+      `Limite máximo de ${PROJECT_LIBRARY_LIMITS.MAX_FILES_PER_PROJECT} referências documentais atingido para este projecto.`,
+    );
   }
 
   const kind: ProjectFileKind = VALID_FILE_KINDS.has(input.kind)
     ? input.kind
     : 'drawing';
-  const versionLabel = input.versionLabel.trim() || 'v01';
+  const fileName = validateProjectDocumentFileName(input.fileName, kind);
+  const versionLabel =
+    assertWithinMaxLength(
+      input.versionLabel,
+      'Versão documental',
+      PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
+    ) || 'v01';
+  const code =
+    assertWithinMaxLength(
+      input.code ?? '',
+      'Código documental',
+      PROJECT_LIBRARY_LIMITS.MAX_CODE_LENGTH,
+    ) || `${existing.identity.code}-DOC-${String(existing.files.length + 1).padStart(2, '0')}`;
+  const authorName =
+    assertWithinMaxLength(
+      input.authorName ?? '',
+      'Autor documental',
+      PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
+    ) || actorUser.name;
+  const customNotePt = assertWithinMaxLength(
+    input.notePt ?? '',
+    'Nota documental',
+    PROJECT_LIBRARY_LIMITS.MAX_TEXT_LENGTH,
+  );
+  const customNoteEn = assertWithinMaxLength(
+    input.noteEn ?? '',
+    'Nota documental (EN)',
+    PROJECT_LIBRARY_LIMITS.MAX_TEXT_LENGTH,
+  );
+
   const nowIso = new Date().toISOString();
   const nextNumber = String(existing.files.length + 1).padStart(2, '0');
   const meta = deriveFileMeta(fileName, kind);
@@ -1226,7 +1542,7 @@ export function addProjectFileReference(
 
   const nextFile: ProjectFileReference = {
     id: `file-${existing.identity.id}-${nextNumber}-${Date.now().toString(36)}`,
-    code: input.code?.trim() || `${existing.identity.code}-DOC-${nextNumber}`,
+    code,
     fileName,
     kind,
     formatLabel: meta.formatLabel,
@@ -1234,11 +1550,11 @@ export function addProjectFileReference(
     sizeHint: meta.sizeHint,
     addedAtIso,
     addedByUserId: actorUser.id,
-    addedByName: input.authorName?.trim() || actorUser.name,
+    addedByName: authorName,
     reviewState,
     note: {
-      pt: input.notePt?.trim() || defaultNotePt,
-      en: input.noteEn?.trim() || input.notePt?.trim() || defaultNoteEn,
+      pt: customNotePt || defaultNotePt,
+      en: customNoteEn || customNotePt || defaultNoteEn,
     },
   };
 

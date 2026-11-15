@@ -368,14 +368,92 @@ export interface GltfManifestValidationCheck {
   errorCode?:
     | 'INVALID_GLTF_JSON'
     | 'INVALID_GLTF_MANIFEST'
-    | 'GLTF_EXTERNAL_RESOURCES_MISSING';
+    | 'GLTF_EXTERNAL_RESOURCES_MISSING'
+    | 'UNSAFE_EMBEDDED_DATA_URI';
   missingExternalResources?: string[];
+  unsafeDataUris?: string[];
   embeddedResourcesVerified?: boolean;
 }
 
+function hasAsciiControlChars(value: string): boolean {
+  for (let i = 0; i < value.length; i += 1) {
+    const code = value.charCodeAt(i);
+    if (code <= 0x1f || code === 0x7f) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export const ALLOWED_BUFFER_DATA_MIMES: ReadonlySet<string> = new Set([
+  'application/octet-stream',
+  'application/gltf-buffer',
+]);
+
+export const ALLOWED_IMAGE_DATA_MIMES: ReadonlySet<string> = new Set([
+  'image/png',
+  'image/jpeg',
+  'image/webp',
+]);
+
+function summarizeRejectedUri(uri: string): string {
+  const commaIdx = uri.indexOf(',');
+  if (commaIdx !== -1) {
+    return `${uri.slice(0, Math.min(commaIdx, 64))},...`;
+  }
+  return uri.length > 80 ? `${uri.slice(0, 77)}...` : uri;
+}
+
+export function isAllowedEmbeddedDataUri(
+  uri: string,
+  resourceKind: 'buffer' | 'image',
+): boolean {
+  if (hasAsciiControlChars(uri)) {
+    return false;
+  }
+  const trimmed = uri.trim();
+  if (!/^data:/i.test(trimmed)) {
+    return false;
+  }
+  const commaIdx = trimmed.indexOf(',');
+  if (commaIdx === -1) {
+    return false;
+  }
+  const header = trimmed.slice(5, commaIdx);
+  const [rawMime = '', ...params] = header.split(';');
+  const mime = rawMime.trim().toLowerCase();
+  if (!mime) {
+    return false;
+  }
+  const allowedMimes =
+    resourceKind === 'buffer'
+      ? ALLOWED_BUFFER_DATA_MIMES
+      : ALLOWED_IMAGE_DATA_MIMES;
+  if (!allowedMimes.has(mime)) {
+    return false;
+  }
+  for (const param of params) {
+    const normalizedParam = param.trim().toLowerCase();
+    if (!normalizedParam) {
+      return false;
+    }
+    if (
+      normalizedParam !== 'base64' &&
+      !/^[a-z0-9.+-]+=[a-z0-9.+"_-]+$/i.test(normalizedParam)
+    ) {
+      return false;
+    }
+    if (/(?:svg|html|script|[<>])/i.test(normalizedParam)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 /**
- * Validates a `.gltf` JSON manifest and checks that all referenced `buffers` and `images`
- * either use embedded `data:` URIs or exist in `availableResourceNames`.
+ * Validates a `.gltf` JSON manifest (or `.glb` JSON chunk) and checks that all referenced
+ * `buffers` and `images` either use strictly allowlisted embedded `data:` URIs or exist in `availableResourceNames`.
+ * Rejects SVG, HTML, JavaScript, external URL schemes, path traversal, and unresolved relative paths.
  */
 export function validateGltfManifestText(
   rawText: string,
@@ -424,8 +502,13 @@ export function validateGltfManifestText(
     };
   }
 
+  const unsafeDataUris: string[] = [];
   const missingExternal: string[] = [];
-  const checkResourceList = (items: unknown) => {
+
+  const checkResourceList = (
+    items: unknown,
+    resourceKind: 'buffer' | 'image',
+  ) => {
     if (!Array.isArray(items)) {
       return;
     }
@@ -438,12 +521,21 @@ export function validateGltfManifestText(
         continue;
       }
       const trimmedUri = uri.trim();
-      if (trimmedUri.startsWith('data:')) {
+      if (hasAsciiControlChars(trimmedUri)) {
+        missingExternal.push(summarizeRejectedUri(trimmedUri));
+        continue;
+      }
+      if (/^data:/i.test(trimmedUri)) {
+        if (!isAllowedEmbeddedDataUri(trimmedUri, resourceKind)) {
+          unsafeDataUris.push(summarizeRejectedUri(trimmedUri));
+        }
         continue;
       }
       if (
-        /^(?:https?:|\/\/|ftp:|javascript:|file:|blob:)/i.test(trimmedUri) ||
-        trimmedUri.includes('..')
+        /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(trimmedUri) ||
+        trimmedUri.includes('..') ||
+        trimmedUri.includes('\\') ||
+        trimmedUri.startsWith('/')
       ) {
         missingExternal.push(trimmedUri);
         continue;
@@ -460,8 +552,16 @@ export function validateGltfManifestText(
     }
   };
 
-  checkResourceList(record.buffers);
-  checkResourceList(record.images);
+  checkResourceList(record.buffers, 'buffer');
+  checkResourceList(record.images, 'image');
+
+  if (unsafeDataUris.length > 0) {
+    return {
+      ok: false,
+      errorCode: 'UNSAFE_EMBEDDED_DATA_URI',
+      unsafeDataUris,
+    };
+  }
 
   if (missingExternal.length > 0) {
     return {
@@ -477,11 +577,12 @@ export function validateGltfManifestText(
   };
 }
 
-async function readFileHeaderBytes(
+async function readFileSliceBytes(
   file: Pick<Blob, 'slice'>,
-  byteCount: number,
+  start: number,
+  end: number,
 ): Promise<ArrayBuffer> {
-  const slice = file.slice(0, byteCount);
+  const slice = file.slice(start, end);
   if (typeof slice.arrayBuffer === 'function') {
     return slice.arrayBuffer();
   }
@@ -497,6 +598,13 @@ async function readFileHeaderBytes(
     reader.onerror = () => reject(reader.error ?? new Error('FileReader error'));
     reader.readAsArrayBuffer(slice);
   });
+}
+
+async function readFileHeaderBytes(
+  file: Pick<Blob, 'slice'>,
+  byteCount: number,
+): Promise<ArrayBuffer> {
+  return readFileSliceBytes(file, 0, byteCount);
 }
 
 async function readFullFileArrayBuffer(
@@ -525,10 +633,61 @@ async function readFileTextContent(
   });
 }
 
+function mapManifestCheckFailure(
+  detectedFormat: 'glb' | 'gltf',
+  fileName: string,
+  byteSize: number,
+  manifestCheck: GltfManifestValidationCheck,
+): ModelFileValidationFailure {
+  if (manifestCheck.errorCode === 'UNSAFE_EMBEDDED_DATA_URI') {
+    const blockedList = (manifestCheck.unsafeDataUris ?? []).join(', ');
+    return {
+      ok: false,
+      errorCode: 'UNSAFE_EMBEDDED_DATA_URI',
+      detectedFormat,
+      fileName,
+      byteSize,
+      unsafeDataUris: manifestCheck.unsafeDataUris,
+      message: {
+        pt: `O ficheiro "${fileName}" contém URIs data: não permitidos (${blockedList}). Apenas buffers binários (application/octet-stream, application/gltf-buffer) e texturas PNG, JPEG ou WebP são aceites.`,
+        en: `The file "${fileName}" contains disallowed data: URIs (${blockedList}). Only binary buffers (application/octet-stream, application/gltf-buffer) and PNG, JPEG, or WebP images are permitted.`,
+      },
+    };
+  }
+
+  if (manifestCheck.errorCode === 'GLTF_EXTERNAL_RESOURCES_MISSING') {
+    const missingList = (manifestCheck.missingExternalResources ?? []).join(', ');
+    return {
+      ok: false,
+      errorCode: 'GLTF_EXTERNAL_RESOURCES_MISSING',
+      detectedFormat,
+      fileName,
+      byteSize,
+      missingExternalResources: manifestCheck.missingExternalResources,
+      message: {
+        pt: `O manifesto "${fileName}" referencia recursos externos não incorporados (${missingList}). Para pré-visualização local dum único ficheiro, exporte como .glb binário ou .gltf com buffers/texturas incorporados (data:).`,
+        en: `The manifest "${fileName}" references unbundled external resources (${missingList}). For single-file local preview, export as a binary .glb or a .gltf with embedded buffers/textures (data:).`,
+      },
+    };
+  }
+
+  return {
+    ok: false,
+    errorCode: manifestCheck.errorCode ?? 'INVALID_GLTF_MANIFEST',
+    detectedFormat,
+    fileName,
+    byteSize,
+    message: {
+      pt: `O ficheiro "${fileName}" não é um manifesto glTF 2.0 válido (verifique "asset.version": "2.0" e a estrutura de cena/malha).`,
+      en: `The file "${fileName}" is not a valid glTF 2.0 manifest (check "asset.version": "2.0" and scene/mesh structure).`,
+    },
+  };
+}
+
 /**
  * Validates a user-selected file for Phase 04 Web 3D preview.
  * Enforces size limits, rejects empty files, explains `.skp` non-WebGL nature,
- * verifies `.glb` binary magic header + declared length, and verifies `.gltf` manifest & resource completeness.
+ * verifies `.glb` binary magic header + declared length + JSON chunk, and verifies `.gltf` manifest & resource completeness.
  */
 export async function validateModelFileSelection(
   file: Pick<File, 'name' | 'size' | 'slice' | 'text' | 'arrayBuffer'>,
@@ -596,6 +755,7 @@ export async function validateModelFileSelection(
   }
 
   if (detectedFormat === 'glb') {
+    let jsonChunkLength = 0;
     try {
       const headerBuffer = await readFileHeaderBytes(file, 20);
       if (!validateGlbHeaderBytes(headerBuffer, byteSize)) {
@@ -611,6 +771,7 @@ export async function validateModelFileSelection(
           },
         };
       }
+      jsonChunkLength = new DataView(headerBuffer).getUint32(12, true);
     } catch {
       return {
         ok: false,
@@ -623,6 +784,49 @@ export async function validateModelFileSelection(
           en: `Could not read the binary header of "${fileName}".`,
         },
       };
+    }
+
+    let jsonChunkText = '';
+    try {
+      const jsonChunkBuffer = await readFileSliceBytes(
+        file,
+        20,
+        20 + jsonChunkLength,
+      );
+      if (jsonChunkBuffer.byteLength < jsonChunkLength) {
+        return {
+          ok: false,
+          errorCode: 'INVALID_GLB_HEADER',
+          detectedFormat: 'glb',
+          fileName,
+          byteSize,
+          message: {
+            pt: `O bloco JSON do ficheiro "${fileName}" está truncado ou ilegível.`,
+            en: `The JSON chunk of "${fileName}" is truncated or unreadable.`,
+          },
+        };
+      }
+      jsonChunkText = new TextDecoder().decode(jsonChunkBuffer);
+    } catch {
+      return {
+        ok: false,
+        errorCode: 'INVALID_GLTF_JSON',
+        detectedFormat: 'glb',
+        fileName,
+        byteSize,
+        message: {
+          pt: `Não foi possível descodificar o chunk JSON do ficheiro "${fileName}".`,
+          en: `Could not decode the JSON chunk of "${fileName}".`,
+        },
+      };
+    }
+
+    const manifestCheck = validateGltfManifestText(
+      jsonChunkText,
+      availableResourceNames,
+    );
+    if (!manifestCheck.ok) {
+      return mapManifestCheckFailure('glb', fileName, byteSize, manifestCheck);
     }
 
     return {
@@ -655,33 +859,7 @@ export async function validateModelFileSelection(
 
   const manifestCheck = validateGltfManifestText(rawText, availableResourceNames);
   if (!manifestCheck.ok) {
-    if (manifestCheck.errorCode === 'GLTF_EXTERNAL_RESOURCES_MISSING') {
-      const missingList = (manifestCheck.missingExternalResources ?? []).join(', ');
-      return {
-        ok: false,
-        errorCode: 'GLTF_EXTERNAL_RESOURCES_MISSING',
-        detectedFormat: 'gltf',
-        fileName,
-        byteSize,
-        missingExternalResources: manifestCheck.missingExternalResources,
-        message: {
-          pt: `O manifesto "${fileName}" referencia recursos externos não incorporados (${missingList}). Para pré-visualização local dum único ficheiro, exporte como .glb binário ou .gltf com buffers/texturas incorporados (data:).`,
-          en: `The manifest "${fileName}" references unbundled external resources (${missingList}). For single-file local preview, export as a binary .glb or a .gltf with embedded buffers/textures (data:).`,
-        },
-      };
-    }
-
-    return {
-      ok: false,
-      errorCode: manifestCheck.errorCode ?? 'INVALID_GLTF_MANIFEST',
-      detectedFormat: 'gltf',
-      fileName,
-      byteSize,
-      message: {
-        pt: `O ficheiro "${fileName}" não é um manifesto glTF 2.0 válido (verifique "asset.version": "2.0" e a estrutura de cena/malha).`,
-        en: `The file "${fileName}" is not a valid glTF 2.0 manifest (check "asset.version": "2.0" and scene/mesh structure).`,
-      },
-    };
+    return mapManifestCheckFailure('gltf', fileName, byteSize, manifestCheck);
   }
 
   return {
