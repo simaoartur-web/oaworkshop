@@ -136,4 +136,5 @@
 | `plans/006-phase-03a-project-platform.md` | plano da Fase 03A (`codex/f03-project-platform`) — domínio canónico, catálogo e motor do dossier |
 | `plans/008-phase-04a-model-engine.md` | plano da Fase 04A (`codex/f04-model-engine`) — motor de modelos 3D, validação `.glb`/`.gltf`/`.skp` e rota `/workspace/projects/:id/model` |
 | `plans/009-phase-04-integration.md` | plano e registo da integração Fase 04 Equipa 1 (Agentes A+B), correcções P0/P1 e Quality Gate WebGL |
+| `docs/audits/phase04-security-postmerge.md` | auditoria independente pós-integração F04 (Agente D · Equipa 2): validação P0/P1/P2 e recomendações |
 | `scripts/e2e-verify-entry.mjs` | verificação E2E portátil em Chromium/Edge nas larguras 1440px, 680px altura, 768px, 720px (zoom) e 375px |
