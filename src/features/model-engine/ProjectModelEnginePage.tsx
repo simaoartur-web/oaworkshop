@@ -38,6 +38,7 @@ export function ProjectModelEnginePage() {
     handleToggleIgnoreDemoAsset,
     handleModelLoaded,
     handleModelError,
+    handleRetryRecovery,
   } = useProjectModelEngine(id);
 
   const dict = MODEL_ENGINE_I18N[language];
@@ -213,6 +214,7 @@ export function ProjectModelEnginePage() {
         callbacks={{
           onModelLoaded: handleModelLoaded,
           onModelError: handleModelError,
+          onRetryRecovery: handleRetryRecovery,
           onBackToDossier: () =>
             navigate(`/workspace/projects/${project.identity.id}`),
           onBackToProjects: () => navigate('/workspace/projects'),

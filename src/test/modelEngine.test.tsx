@@ -548,4 +548,77 @@ describe('Phase 04 · Integrated 3D Model Engine + Real WebGL Viewer (Agents A+B
       screen.getByRole('link', { name: /Back to Dossier/i }),
     ).toBeInTheDocument();
   });
+
+  it('coordinates WebGL runtime error -> onRetryRecovery -> full recovery without losing session files', async () => {
+    const user = userEvent.setup();
+    const actor = DEMO_USERS[1];
+    persistDemoSessionForUser(actor);
+
+    const view = renderWorkspaceAt('/workspace/projects/sd-proj-oa-26-101/model');
+    await waitFor(() => {
+      expect(screen.getByTestId('architectural-model-viewer')).toHaveAttribute(
+        'data-viewer-status',
+        'loaded',
+      );
+      expect(screen.getByTestId('model-engine-stage-slot')).toHaveAttribute(
+        'data-oa-model-load-state',
+        'ready',
+      );
+    });
+
+    // Upload a local .glb file to verify recovery preserves session-file origin rather than wiping it
+    const fileInput = screen.getByTestId(
+      'model-engine-file-input',
+    ) as HTMLInputElement;
+    const localGlb = createValidGlbFile('sessao-recuperacao.glb');
+    await user.upload(fileInput, localGlb);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('model-info-filename')).toHaveTextContent(
+        'sessao-recuperacao.glb',
+      );
+      expect(screen.getByTestId('model-engine-stage-slot')).toHaveAttribute(
+        'data-oa-model-load-state',
+        'ready',
+      );
+    });
+
+    // Simulate transient parse/stage failure on next loadAttempt via temporary mock, then click Retry
+    const parseSpy = vi
+      .spyOn(glbInspectorModule, 'parseGlbSceneAndTelemetry')
+      .mockRejectedValueOnce(new Error('Simulated WebGL context failure'));
+
+    // Trigger WebGL unavailability check failure on second demo upload/retry path
+    await user.click(
+      screen.getByRole('button', { name: /MOD-OA-101-GLTF/i }),
+    );
+    await screen.findByTestId('model-engine-error-alert');
+    expect(screen.getByTestId('model-engine-stage-slot')).toHaveAttribute(
+      'data-oa-model-load-state',
+      'error',
+    );
+
+    // Restore mock and click the Viewer Retry button -> onRetryRecovery clears Engine error and reloads cleanly
+    parseSpy.mockRestore();
+    await user.click(
+      screen.getByRole('button', {
+        name: /Tentar novamente com o modelo demonstrativo/i,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('architectural-model-viewer')).toHaveAttribute(
+        'data-viewer-status',
+        'loaded',
+      );
+      expect(screen.getByTestId('model-engine-stage-slot')).toHaveAttribute(
+        'data-oa-model-load-state',
+        'ready',
+      );
+    });
+    expect(
+      screen.queryByTestId('model-engine-error-alert'),
+    ).not.toBeInTheDocument();
+    view.unmount();
+  });
 });

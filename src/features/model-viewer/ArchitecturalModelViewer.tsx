@@ -180,9 +180,11 @@ export function ArchitecturalModelViewer({
   const activeObjectUrlRef = useRef<string | null>(null);
   const activeSourceRef = useRef<ArchitecturalModelSource | null>(activeSource);
   const telemetryRef = useRef<LoadedModelTelemetry | null>(null);
+  const isContextLostRef = useRef(isContextLost);
   const onSceneDisposedRef = useRef(onSceneDisposed);
   const onModelLoadedRef = useRef(onModelLoaded);
   const onModelErrorRef = useRef(onModelError);
+  const onRetryRecoveryRef = useRef(onRetryRecovery);
 
   const activeSourceKey = activeSource
     ? `${activeSource.id}::${activeSource.url}::${activeSource.format}::${activeSource.fileSizeBytes}`
@@ -191,10 +193,20 @@ export function ArchitecturalModelViewer({
   useEffect(() => {
     activeSourceRef.current = activeSource;
     telemetryRef.current = telemetry;
+    isContextLostRef.current = isContextLost;
     onSceneDisposedRef.current = onSceneDisposed;
     onModelLoadedRef.current = onModelLoaded;
     onModelErrorRef.current = onModelError;
-  }, [activeSource, telemetry, onSceneDisposed, onModelLoaded, onModelError]);
+    onRetryRecoveryRef.current = onRetryRecovery;
+  }, [
+    activeSource,
+    telemetry,
+    isContextLost,
+    onSceneDisposed,
+    onModelLoaded,
+    onModelError,
+    onRetryRecovery,
+  ]);
 
   const releaseCurrentScene = useCallback(() => {
     if (activeSceneRef.current) {
@@ -256,6 +268,16 @@ export function ArchitecturalModelViewer({
       }
 
       if (externalErrorDetail) {
+        // Keep the mounted Canvas/scene intact when WebGL lost context so browser restoration
+        // or controlled retry recovery can succeed without tearing down the stage unexpectedly.
+        if (
+          isContextLostRef.current &&
+          externalErrorDetail.status === 'webgl_unavailable'
+        ) {
+          setErrorDetail(externalErrorDetail);
+          setStatus('webgl_unavailable');
+          return;
+        }
         releaseCurrentScene();
         setLoadedScene(null);
         setLoadedSource(null);
@@ -413,7 +435,8 @@ export function ArchitecturalModelViewer({
   };
 
   const handleRestoreDemoModel = () => {
-    const recoveringStage = isContextLost || status === 'webgl_unavailable' || status === 'error_invalid';
+    const recoveringStage =
+      isContextLost || status === 'webgl_unavailable' || status === 'error_invalid';
     if (webglAvailableOverride === undefined) {
       setWebglCheckRevision((prev) => prev + 1);
     }
@@ -423,7 +446,7 @@ export function ArchitecturalModelViewer({
     setIsContextLost(false);
     setErrorDetail(null);
     setLoadAttemptCounter((prev) => prev + 1);
-    onRetryRecovery?.();
+    onRetryRecoveryRef.current?.();
 
     if (onRequestRestoreDemoModel) {
       onRequestRestoreDemoModel();
@@ -436,6 +459,54 @@ export function ArchitecturalModelViewer({
     revokeActiveObjectUrl();
     setHasUserOverriddenSource(true);
     setInternalSource({ ...fallbackDemo });
+    onSelectModelSource?.(fallbackDemo);
+  };
+
+  const handleRetryRecovery = () => {
+    const recoveringStage =
+      isContextLost ||
+      status === 'webgl_unavailable' ||
+      status === 'error_invalid' ||
+      status === 'error_format' ||
+      status === 'error_too_large';
+    if (webglAvailableOverride === undefined) {
+      setWebglCheckRevision((prev) => prev + 1);
+    }
+    if (recoveringStage) {
+      setStageResetKey((prev) => prev + 1);
+    }
+    setIsContextLost(false);
+    setErrorDetail(null);
+    onRetryRecoveryRef.current?.();
+
+    // When recovering from WebGL context loss (or a transient demo load failure), retry the active
+    // source in place without wiping session files; if a local file itself failed validation/parsing,
+    // restore the demonstrative model.
+    const shouldRetryActiveInPlace =
+      Boolean(activeSource) &&
+      !externalErrorDetail &&
+      (isContextLost ||
+        status === 'webgl_unavailable' ||
+        activeSource?.origin === 'demo');
+
+    if (shouldRetryActiveInPlace) {
+      setLoadAttemptCounter((prev) => prev + 1);
+      return;
+    }
+
+    if (onRequestRestoreDemoModel) {
+      onRequestRestoreDemoModel();
+      return;
+    }
+    const fallbackDemo = resolvedAvailableModels[0] ?? null;
+    if (!fallbackDemo) {
+      setLoadAttemptCounter((prev) => prev + 1);
+      return;
+    }
+    revokeActiveObjectUrl();
+    setHasUserOverriddenSource(true);
+    setInternalSource({ ...fallbackDemo });
+    setLoadAttemptCounter((prev) => prev + 1);
     onSelectModelSource?.(fallbackDemo);
   };
 
@@ -607,6 +678,7 @@ export function ArchitecturalModelViewer({
   const handleWebGLContextRestored = useCallback(() => {
     setIsContextLost(false);
     setErrorDetail(null);
+    onRetryRecoveryRef.current?.();
     if (activeSceneRef.current && telemetryRef.current) {
       setStatus('loaded');
       setStageSettings((prev) => ({
@@ -645,9 +717,13 @@ export function ArchitecturalModelViewer({
 
   const controlsDisabled = status !== 'loaded' || !loadedScene || isContextLost;
 
+  const hasFatalExternalError = Boolean(
+    externalErrorDetail &&
+      !(isContextLost && externalErrorDetail.status === 'webgl_unavailable'),
+  );
   const hasMountedStage = Boolean(
     webglSupported &&
-      !externalErrorDetail &&
+      !hasFatalExternalError &&
       loadedSource &&
       loadedScene &&
       telemetry,
@@ -886,7 +962,7 @@ export function ArchitecturalModelViewer({
                     errorDetail={errorDetail}
                     project={project}
                     onRestoreDemoModel={
-                      canRetryCurrentOrDemo ? handleRestoreDemoModel : undefined
+                      canRetryCurrentOrDemo ? handleRetryRecovery : undefined
                     }
                     onTriggerLocalFilePicker={handleTriggerLocalFilePicker}
                     onBackToDossier={onBackToDossier}
@@ -901,7 +977,7 @@ export function ArchitecturalModelViewer({
               errorDetail={errorDetail}
               project={project}
               onRestoreDemoModel={
-                canRetryCurrentOrDemo ? handleRestoreDemoModel : undefined
+                canRetryCurrentOrDemo ? handleRetryRecovery : undefined
               }
               onTriggerLocalFilePicker={handleTriggerLocalFilePicker}
               onBackToDossier={onBackToDossier}

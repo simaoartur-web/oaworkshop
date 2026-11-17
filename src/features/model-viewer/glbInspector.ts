@@ -247,14 +247,47 @@ interface RawGltfJson {
   meshes?: unknown[];
 }
 
+function hasAsciiControlChars(value: string): boolean {
+  for (let i = 0; i < value.length; i += 1) {
+    const code = value.charCodeAt(i);
+    if (code <= 0x1f || code === 0x7f) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function extractDataUriMimeType(uri: string): string | null {
-  const match = /^data:([a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+)?([;,]|$)/i.exec(
-    uri.trim(),
-  );
-  if (!match || !match[1]) {
+  if (hasAsciiControlChars(uri)) {
     return null;
   }
-  return match[1].toLowerCase();
+  const trimmed = uri.trim();
+  const commaIdx = trimmed.indexOf(',');
+  if (commaIdx === -1) {
+    return null;
+  }
+  const header = trimmed.slice(5, commaIdx);
+  const [rawMime = '', ...params] = header.split(';');
+  const mime = rawMime.trim().toLowerCase();
+  if (!mime) {
+    return null;
+  }
+  for (const param of params) {
+    const normalizedParam = param.trim().toLowerCase();
+    if (!normalizedParam) {
+      return null;
+    }
+    if (
+      normalizedParam !== 'base64' &&
+      !/^[a-z0-9.+-]+=[a-z0-9.+"_-]+$/i.test(normalizedParam)
+    ) {
+      return null;
+    }
+    if (/(?:svg|html|script|[<>])/i.test(normalizedParam)) {
+      return null;
+    }
+  }
+  return mime;
 }
 
 export function isAllowedEmbeddedDataUri(

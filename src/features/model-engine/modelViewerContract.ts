@@ -96,6 +96,7 @@ export interface ModelLoadedMetrics {
 export interface ModelViewerCallbacks {
   onModelLoaded: (metrics?: ModelLoadedMetrics, sourceKey?: string) => void;
   onModelError: (message: string) => void;
+  onRetryRecovery?: () => void;
   onBackToDossier: () => void;
   onBackToProjects?: () => void;
   onSelectLocalFile: (file: File) => Promise<void> | void;

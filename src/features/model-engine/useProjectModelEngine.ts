@@ -323,6 +323,15 @@ export function useProjectModelEngine(projectId: string | undefined) {
     }));
   }, [updateTransient]);
 
+  const handleRetryRecovery = useCallback(() => {
+    updateTransient(() => ({
+      lastValidationFailure: null,
+      viewerRuntimeError: null,
+      loadedMetrics: null,
+      loadedSourceKey: null,
+    }));
+  }, [updateTransient]);
+
   return {
     project,
     resolution,
@@ -341,6 +350,7 @@ export function useProjectModelEngine(projectId: string | undefined) {
     handleToggleIgnoreDemoAsset,
     handleModelLoaded,
     handleModelError,
+    handleRetryRecovery,
     clearErrors,
   };
 }

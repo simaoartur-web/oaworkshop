@@ -269,6 +269,7 @@ export function ModelEngineStageSlot({
             ? callbacks.onRestoreDemoModel
             : undefined
         }
+        onRetryRecovery={callbacks.onRetryRecovery}
         onSelectModelSource={(selected) => {
           callbacks.onSelectDemoAsset?.(selected.id);
         }}
