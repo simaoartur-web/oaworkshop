@@ -12,7 +12,27 @@ import { getModelViewerDictionary } from './i18n';
 const GLB_MAGIC = 0x46546c67; // 'glTF'
 const GLB_JSON_CHUNK_TYPE = 0x4e4f534a; // 'JSON'
 
-export function detectWebGLSupport(override?: boolean): boolean {
+const ALLOWED_BUFFER_DATA_MIME_TYPES = new Set([
+  'application/octet-stream',
+  'application/gltf-buffer',
+]);
+
+const ALLOWED_IMAGE_DATA_MIME_TYPES = new Set([
+  'image/png',
+  'image/jpeg',
+  'image/webp',
+]);
+
+let cachedWebGLSupport: boolean | null = null;
+
+export function resetWebGLSupportCache(): void {
+  cachedWebGLSupport = null;
+}
+
+export function detectWebGLSupport(
+  override?: boolean,
+  options?: { forceRecheck?: boolean },
+): boolean {
   if (typeof override === 'boolean') {
     return override;
   }
@@ -26,14 +46,34 @@ export function detectWebGLSupport(override?: boolean): boolean {
   ) {
     return false;
   }
+  if (!options?.forceRecheck && cachedWebGLSupport !== null) {
+    return cachedWebGLSupport;
+  }
   try {
     const canvas = document.createElement('canvas');
     const gl =
       canvas.getContext('webgl2') ||
       canvas.getContext('webgl') ||
       canvas.getContext('experimental-webgl');
-    return Boolean(gl);
+    const supported = Boolean(gl);
+    if (
+      gl &&
+      typeof (gl as WebGLRenderingContext).getExtension === 'function'
+    ) {
+      try {
+        (gl as WebGLRenderingContext)
+          .getExtension('WEBGL_lose_context')
+          ?.loseContext();
+      } catch {
+        // Ignore loseContext errors on synthetic/restricted WebGL handles
+      }
+    }
+    canvas.width = 0;
+    canvas.height = 0;
+    cachedWebGLSupport = supported;
+    return supported;
   } catch {
+    cachedWebGLSupport = false;
     return false;
   }
 }
@@ -207,22 +247,97 @@ interface RawGltfJson {
   meshes?: unknown[];
 }
 
-function findExternalRelativeUri(json: RawGltfJson): string | null {
+function extractDataUriMimeType(uri: string): string | null {
+  const match = /^data:([a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+)?([;,]|$)/i.exec(
+    uri.trim(),
+  );
+  if (!match || !match[1]) {
+    return null;
+  }
+  return match[1].toLowerCase();
+}
+
+export function isAllowedEmbeddedDataUri(
+  uri: string,
+  kind: 'buffer' | 'image' | 'any' = 'any',
+): boolean {
+  const trimmed = uri.trim();
+  if (!/^data:/i.test(trimmed)) {
+    return false;
+  }
+  const mimeType = extractDataUriMimeType(trimmed);
+  if (!mimeType) {
+    return false;
+  }
+  if (kind === 'buffer') {
+    return ALLOWED_BUFFER_DATA_MIME_TYPES.has(mimeType);
+  }
+  if (kind === 'image') {
+    return ALLOWED_IMAGE_DATA_MIME_TYPES.has(mimeType);
+  }
+  return (
+    ALLOWED_BUFFER_DATA_MIME_TYPES.has(mimeType) ||
+    ALLOWED_IMAGE_DATA_MIME_TYPES.has(mimeType)
+  );
+}
+
+interface UnauthorizedResourceUri {
+  uri: string;
+  kind: 'external' | 'disallowed_data_uri';
+}
+
+function findUnauthorizedResourceUri(
+  json: RawGltfJson,
+): UnauthorizedResourceUri | null {
   if (Array.isArray(json.buffers)) {
     for (const buf of json.buffers) {
-      if (typeof buf?.uri === 'string' && !buf.uri.startsWith('data:')) {
-        return buf.uri;
+      if (typeof buf?.uri === 'string') {
+        const trimmed = buf.uri.trim();
+        if (trimmed.length === 0) continue;
+        if (/^data:/i.test(trimmed)) {
+          if (!isAllowedEmbeddedDataUri(trimmed, 'buffer')) {
+            return { uri: trimmed, kind: 'disallowed_data_uri' };
+          }
+        } else {
+          return { uri: trimmed, kind: 'external' };
+        }
       }
     }
   }
   if (Array.isArray(json.images)) {
     for (const img of json.images) {
-      if (typeof img?.uri === 'string' && !img.uri.startsWith('data:')) {
-        return img.uri;
+      if (typeof img?.uri === 'string') {
+        const trimmed = img.uri.trim();
+        if (trimmed.length === 0) continue;
+        if (/^data:/i.test(trimmed)) {
+          if (!isAllowedEmbeddedDataUri(trimmed, 'image')) {
+            return { uri: trimmed, kind: 'disallowed_data_uri' };
+          }
+        } else {
+          return { uri: trimmed, kind: 'external' };
+        }
       }
     }
   }
   return null;
+}
+
+function isAllowedInternalBlobUrl(url: string): boolean {
+  if (!/^blob:/i.test(url)) {
+    return false;
+  }
+  if (
+    typeof window !== 'undefined' &&
+    window.location &&
+    typeof window.location.origin === 'string' &&
+    window.location.origin !== 'null' &&
+    window.location.origin.length > 0
+  ) {
+    return url
+      .toLowerCase()
+      .startsWith(`blob:${window.location.origin.toLowerCase()}`);
+  }
+  return true;
 }
 
 export function validateModelBufferContents(
@@ -304,14 +419,16 @@ export function validateModelBufferContents(
           ),
         };
       }
-      const externalUri = findExternalRelativeUri(parsed);
-      if (externalUri) {
+      const unauthorizedUri = findUnauthorizedResourceUri(parsed);
+      if (unauthorizedUri) {
         return {
           valid: false,
           error: buildInvalidModelErrorDetail(
             fileName,
-            'missing_deps',
-            `Unresolved external dependency URI: ${externalUri}`,
+            unauthorizedUri.kind === 'external' ? 'missing_deps' : 'corrupt',
+            unauthorizedUri.kind === 'external'
+              ? `Unresolved external dependency URI: ${unauthorizedUri.uri}`
+              : `Unauthorized embedded data URI MIME type: ${unauthorizedUri.uri.slice(0, 64)}`,
           ),
         };
       }
@@ -342,14 +459,16 @@ export function validateModelBufferContents(
         ),
       };
     }
-    const externalUri = findExternalRelativeUri(parsed);
-    if (externalUri) {
+    const unauthorizedUri = findUnauthorizedResourceUri(parsed);
+    if (unauthorizedUri) {
       return {
         valid: false,
         error: buildInvalidModelErrorDetail(
           fileName,
-          'missing_deps',
-          `External resource "${externalUri}" cannot be resolved from a single local .gltf file.`,
+          unauthorizedUri.kind === 'external' ? 'missing_deps' : 'corrupt',
+          unauthorizedUri.kind === 'external'
+            ? `External resource "${unauthorizedUri.uri}" cannot be resolved from a single local .gltf file.`
+            : `Unauthorized embedded data URI MIME type in .gltf: ${unauthorizedUri.uri.slice(0, 64)}`,
         ),
       };
     }
@@ -408,7 +527,7 @@ export async function parseGlbSceneAndTelemetry(
 
   const parseBuffer = (() => {
     if (buffer.byteLength >= 4 && new DataView(buffer).getUint32(0, true) === 0x46546c67) {
-      return buffer.slice(0);
+      return buffer;
     }
     const jsonHeader = precheck.jsonHeader;
     const firstBuffer = jsonHeader.buffers?.[0];
@@ -416,14 +535,17 @@ export async function parseGlbSceneAndTelemetry(
     const hasImageUri = (jsonHeader.images ?? []).some((img) =>
       Boolean(img.uri && img.uri.trim().length > 0),
     );
+    const base64MarkerMatch = /;base64,/i.exec(uri);
     if (
       jsonHeader.buffers?.length === 1 &&
       !hasImageUri &&
-      uri.startsWith('data:') &&
-      uri.includes(';base64,')
+      isAllowedEmbeddedDataUri(uri, 'buffer') &&
+      base64MarkerMatch
     ) {
       try {
-        const base64Payload = uri.slice(uri.indexOf(';base64,') + ';base64,'.length);
+        const base64Payload = uri.slice(
+          base64MarkerMatch.index + base64MarkerMatch[0].length,
+        );
         const binaryString = atob(base64Payload);
         const rawBin = new Uint8Array(binaryString.length);
         for (let index = 0; index < binaryString.length; index += 1) {
@@ -463,18 +585,28 @@ export async function parseGlbSceneAndTelemetry(
         outBytes.set(rawBin, binChunkOffset + 8);
         return glbOut;
       } catch {
-        return buffer.slice(0);
+        return buffer;
       }
     }
-    return buffer.slice(0);
+    return buffer;
   })();
 
   let blockedExternalResourceUrl: string | null = null;
   const manager = new THREE.LoadingManager();
   manager.setURLModifier((url) => {
     const trimmed = url.trim();
-    if (trimmed.length === 0 || trimmed.startsWith('data:') || trimmed.startsWith('blob:')) {
+    if (trimmed.length === 0) {
       return url;
+    }
+    if (/^data:/i.test(trimmed)) {
+      if (isAllowedEmbeddedDataUri(trimmed, 'any')) {
+        return trimmed;
+      }
+      blockedExternalResourceUrl = trimmed;
+      return 'data:application/octet-stream;base64,';
+    }
+    if (isAllowedInternalBlobUrl(trimmed)) {
+      return trimmed;
     }
     blockedExternalResourceUrl = trimmed;
     return 'data:application/octet-stream;base64,';
@@ -501,6 +633,9 @@ export async function parseGlbSceneAndTelemetry(
     );
   }
   if (blockedExternalResourceUrl) {
+    if (gltf?.scene) {
+      disposeThreeObjectResources(gltf.scene);
+    }
     throw buildInvalidModelErrorDetail(
       source.fileName,
       'missing_deps',

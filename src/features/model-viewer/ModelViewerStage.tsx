@@ -1,6 +1,6 @@
 import { OrbitControls } from '@react-three/drei';
 import { Canvas, useThree } from '@react-three/fiber';
-import { useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import type { AppLanguage } from '../../data/types';
@@ -11,10 +11,10 @@ import type {
 } from './contracts';
 import {
   computeCameraPoseForPreset,
-  detectWebGLSupport,
   type CameraPose,
 } from './glbInspector';
 import { getModelViewerDictionary } from './i18n';
+import { ModelViewerErrorBoundary } from './ModelViewerErrorBoundary';
 
 export interface ModelViewerStageProps {
   language?: AppLanguage;
@@ -23,7 +23,11 @@ export interface ModelViewerStageProps {
   telemetry: LoadedModelTelemetry;
   settings: ModelStageViewSettings;
   reduceMotion?: boolean;
+  /** Controlled reset epoch — increment only for explicit ErrorBoundary / WebGL recovery remounts. */
+  stageResetKey?: number;
   onWebGLContextLost?: () => void;
+  onWebGLContextRestored?: () => void;
+  onStageRenderError?: (error: Error) => void;
 }
 
 interface StageControllerProps {
@@ -31,6 +35,42 @@ interface StageControllerProps {
   telemetry: LoadedModelTelemetry;
   settings: ModelStageViewSettings;
   onWebGLContextLost?: () => void;
+  onWebGLContextRestored?: () => void;
+}
+
+function resolveStageRenderProfile(reduceMotion: boolean): {
+  economical: boolean;
+  dpr: number | [number, number];
+  maxDpr: number;
+  antialias: boolean;
+} {
+  const prefersReducedMotion =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lowCores =
+    typeof navigator !== 'undefined' &&
+    typeof navigator.hardwareConcurrency === 'number' &&
+    navigator.hardwareConcurrency > 0 &&
+    navigator.hardwareConcurrency <= 4;
+  const navWithMemory =
+    typeof navigator !== 'undefined'
+      ? (navigator as Navigator & { deviceMemory?: number })
+      : null;
+  const lowMemory =
+    typeof navWithMemory?.deviceMemory === 'number' &&
+    navWithMemory.deviceMemory > 0 &&
+    navWithMemory.deviceMemory <= 4;
+  const economical = Boolean(
+    reduceMotion || prefersReducedMotion || lowCores || lowMemory,
+  );
+
+  return {
+    economical,
+    dpr: economical ? 1 : [1, 1.5],
+    maxDpr: economical ? 1 : 1.5,
+    antialias: !economical,
+  };
 }
 
 function applyPoseToThreeCamera(
@@ -58,28 +98,51 @@ function StageSceneController({
   telemetry,
   settings,
   onWebGLContextLost,
+  onWebGLContextRestored,
 }: StageControllerProps) {
   const getThreeState = useThree((state) => state.get);
   const invalidate = useThree((state) => state.invalidate);
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
+  const onWebGLContextLostRef = useRef(onWebGLContextLost);
+  const onWebGLContextRestoredRef = useRef(onWebGLContextRestored);
 
-  // Attach WebGL context loss listener to the underlying canvas
   useEffect(() => {
-    const canvas = getThreeState().gl.domElement;
+    onWebGLContextLostRef.current = onWebGLContextLost;
+    onWebGLContextRestoredRef.current = onWebGLContextRestored;
+  }, [onWebGLContextLost, onWebGLContextRestored]);
+
+  // Attach WebGL context loss/restore listeners to the underlying canvas without churning on parent callback identity
+  useEffect(() => {
+    let isDisposing = false;
+    const { gl } = getThreeState();
+    const canvas = gl.domElement;
     const handleContextLost = (event: Event) => {
       event.preventDefault();
-      onWebGLContextLost?.();
+      if (!isDisposing) {
+        onWebGLContextLostRef.current?.();
+      }
     };
     const handleContextRestored = () => {
+      if (isDisposing) return;
+      onWebGLContextRestoredRef.current?.();
       invalidate();
     };
     canvas.addEventListener('webglcontextlost', handleContextLost, false);
     canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
     return () => {
+      isDisposing = true;
       canvas.removeEventListener('webglcontextlost', handleContextLost, false);
       canvas.removeEventListener('webglcontextrestored', handleContextRestored, false);
     };
-  }, [getThreeState, invalidate, onWebGLContextLost]);
+  }, [getThreeState, invalidate]);
+
+  // Dispose Three.js render lists when swapping scenes or tearing down
+  useEffect(() => {
+    return () => {
+      const { gl } = getThreeState();
+      gl.renderLists?.dispose();
+    };
+  }, [getThreeState, scene]);
 
   // Apply wireframe mode to all materials in the loaded scene
   useEffect(() => {
@@ -165,10 +228,22 @@ function StageSceneController({
     return Math.ceil(span * 1.8);
   }, [telemetry.dimensions.width, telemetry.dimensions.depth]);
 
+  const gridArgs = useMemo<[number, number, string, string]>(
+    () => [
+      gridSize,
+      Math.min(Math.max(Math.round(gridSize), 16), 40),
+      '#A65D4A',
+      '#222222',
+    ],
+    [gridSize],
+  );
+
   const axesSize = useMemo(
     () => Math.max(Number((telemetry.boundingRadius * 0.75).toFixed(1)), 4),
     [telemetry.boundingRadius],
   );
+
+  const axesArgs = useMemo<[number]>(() => [axesSize], [axesSize]);
 
   const minDistance = Math.max(telemetry.boundingRadius * 0.35, 1.0);
   const maxDistance = Math.max(telemetry.boundingRadius * 8.0, 80.0);
@@ -184,17 +259,14 @@ function StageSceneController({
       <directionalLight position={[0, 12, -20]} intensity={0.35} color="#EBD4C8" />
 
       {settings.showGrid && (
-        <gridHelper
-          args={[gridSize, Math.min(Math.max(Math.round(gridSize), 16), 40), '#A65D4A', '#222222']}
-          position={[0, -0.01, 0]}
-        />
+        <gridHelper args={gridArgs} position={[0, -0.01, 0]} />
       )}
 
       {settings.showAxes && (
-        <axesHelper args={[axesSize]} position={[0, 0.02, 0]} />
+        <axesHelper args={axesArgs} position={[0, 0.02, 0]} />
       )}
 
-      <primitive object={scene} />
+      <primitive object={scene} dispose={null} />
 
       <OrbitControls
         ref={controlsRef}
@@ -217,36 +289,43 @@ export function ModelViewerStage({
   scene,
   telemetry,
   settings,
+  reduceMotion = false,
+  stageResetKey = 0,
   onWebGLContextLost,
+  onWebGLContextRestored,
+  onStageRenderError,
 }: ModelViewerStageProps) {
   const dict = getModelViewerDictionary(language);
-  const hasNativeWebGLContext = useMemo(() => {
-    if (
-      typeof window === 'undefined' ||
-      typeof window.ResizeObserver === 'undefined' ||
-      (typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent))
-    ) {
-      return false;
-    }
-    return detectWebGLSupport();
+  const canRenderCanvas = useMemo(() => {
+    return (
+      typeof window !== 'undefined' &&
+      typeof window.ResizeObserver !== 'undefined' &&
+      !(typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent))
+    );
   }, []);
 
-  // Ensure wireframe flag is always synchronized on the Three.js scene meshes
+  const renderProfile = useMemo(
+    () => resolveStageRenderProfile(reduceMotion),
+    [reduceMotion],
+  );
+
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+
+  const handleCanvasCreated = useCallback(
+    ({ gl }: { gl: THREE.WebGLRenderer }) => {
+      rendererRef.current = gl;
+    },
+    [],
+  );
+
+  // Release cached global Three.js entries and render lists when the stage unmounts
   useEffect(() => {
-    scene.traverse((obj) => {
-      const mesh = obj as THREE.Mesh;
-      if (!mesh.isMesh || !mesh.material) return;
-      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-      for (const mat of mats) {
-        if ('wireframe' in mat) {
-          Object.assign(mat, {
-            wireframe: settings.wireframe,
-            needsUpdate: true,
-          });
-        }
-      }
-    });
-  }, [scene, settings.wireframe]);
+    return () => {
+      rendererRef.current?.renderLists?.dispose();
+      rendererRef.current = null;
+      THREE.Cache.clear();
+    };
+  }, [stageResetKey]);
 
   const activePose = useMemo(
     () =>
@@ -281,8 +360,21 @@ export function ModelViewerStage({
       data-recenter-count={String(settings.recenterCounter)}
       data-revision-count={String(settings.revisionCounter)}
       data-zoom-count={String(settings.zoomDeltaCounter)}
+      data-dpr-cap={String(renderProfile.maxDpr)}
+      data-power-preference="default"
+      data-preserve-drawing-buffer="false"
       className="relative w-full h-[340px] sm:h-[420px] lg:h-[470px] bg-[#050505] border border-white/10 overflow-hidden select-none"
     >
+      <p className="sr-only" aria-live="polite">
+        {`${dict.stage.activeCameraBadge}: ${presetLabel}. ${
+          settings.showGrid ? dict.stage.gridStateOn : dict.stage.gridStateOff
+        }. ${
+          settings.showAxes ? dict.stage.axesStateOn : dict.stage.axesStateOff
+        }. ${
+          settings.wireframe ? dict.stage.wireframeStateOn : dict.stage.wireframeStateOff
+        }.`}
+      </p>
+
       {/* Top Overlay: Active Camera & Spatial Mode */}
       <div className="pointer-events-none absolute top-3 left-3 right-3 z-10 flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-1.5">
@@ -312,30 +404,39 @@ export function ModelViewerStage({
         </span>
       </div>
 
-      {/* Interactive R3F Canvas — On-Demand Render Loop & Capped DPR */}
-      {hasNativeWebGLContext && (
-        <Canvas
-          frameloop="demand"
-          dpr={[1, 2]}
-          camera={{
-            position: activePose.position,
-            fov: 42,
-            near: activePose.near,
-            far: activePose.far,
-          }}
-          gl={{
-            antialias: true,
-            powerPreference: 'high-performance',
-            preserveDrawingBuffer: true,
-          }}
+      {/* Interactive R3F Canvas — Preserved across model swaps, On-Demand, DPR <= 1.5 */}
+      {canRenderCanvas && (
+        <ModelViewerErrorBoundary
+          resetKey={stageResetKey}
+          onError={(err) => onStageRenderError?.(err)}
         >
-          <StageSceneController
-            scene={scene}
-            telemetry={telemetry}
-            settings={settings}
-            onWebGLContextLost={onWebGLContextLost}
-          />
-        </Canvas>
+          <Canvas
+            key={stageResetKey}
+            frameloop="demand"
+            dpr={renderProfile.dpr}
+            resize={{ scroll: false, debounce: { scroll: 0, resize: 50 } }}
+            camera={{
+              position: activePose.position,
+              fov: 42,
+              near: activePose.near,
+              far: activePose.far,
+            }}
+            gl={{
+              antialias: renderProfile.antialias,
+              powerPreference: 'default',
+              preserveDrawingBuffer: false,
+            }}
+            onCreated={handleCanvasCreated}
+          >
+            <StageSceneController
+              scene={scene}
+              telemetry={telemetry}
+              settings={settings}
+              onWebGLContextLost={onWebGLContextLost}
+              onWebGLContextRestored={onWebGLContextRestored}
+            />
+          </Canvas>
+        </ModelViewerErrorBoundary>
       )}
 
       {/* Bottom Overlay: Honest Provenance Watermark & On-Demand Note */}

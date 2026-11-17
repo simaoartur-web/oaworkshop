@@ -93,6 +93,7 @@ export function ArchitecturalModelViewer({
   onRequestSelectLocalFile,
   onRequestClearModel,
   onRequestRestoreDemoModel,
+  onRetryRecovery,
   onSelectModelSource,
   onCameraPresetChange,
   onSceneDisposed,
@@ -135,9 +136,13 @@ export function ArchitecturalModelViewer({
       ? modelSource
       : internalSource;
 
+  const [webglCheckRevision, setWebglCheckRevision] = useState(0);
   const webglSupported = useMemo(
-    () => detectWebGLSupport(webglAvailableOverride),
-    [webglAvailableOverride],
+    () =>
+      detectWebGLSupport(webglAvailableOverride, {
+        forceRecheck: webglCheckRevision > 0,
+      }),
+    [webglAvailableOverride, webglCheckRevision],
   );
 
   const [status, setStatus] = useState<ModelViewerStatus>(() => {
@@ -159,7 +164,12 @@ export function ArchitecturalModelViewer({
         : externalErrorDetail ?? null,
   );
   const [loadedScene, setLoadedScene] = useState<THREE.Group | null>(null);
+  const [loadedSource, setLoadedSource] =
+    useState<ArchitecturalModelSource | null>(null);
   const [telemetry, setTelemetry] = useState<LoadedModelTelemetry | null>(null);
+  const [isContextLost, setIsContextLost] = useState(false);
+  const [loadAttemptCounter, setLoadAttemptCounter] = useState(0);
+  const [stageResetKey, setStageResetKey] = useState(0);
   const [stageSettings, setStageSettings] = useState<ModelStageViewSettings>(
     INITIAL_STAGE_SETTINGS,
   );
@@ -169,6 +179,7 @@ export function ArchitecturalModelViewer({
   const localBufferByUrlRef = useRef<Map<string, ArrayBuffer>>(new Map());
   const activeObjectUrlRef = useRef<string | null>(null);
   const activeSourceRef = useRef<ArchitecturalModelSource | null>(activeSource);
+  const telemetryRef = useRef<LoadedModelTelemetry | null>(null);
   const onSceneDisposedRef = useRef(onSceneDisposed);
   const onModelLoadedRef = useRef(onModelLoaded);
   const onModelErrorRef = useRef(onModelError);
@@ -179,10 +190,11 @@ export function ArchitecturalModelViewer({
 
   useEffect(() => {
     activeSourceRef.current = activeSource;
+    telemetryRef.current = telemetry;
     onSceneDisposedRef.current = onSceneDisposed;
     onModelLoadedRef.current = onModelLoaded;
     onModelErrorRef.current = onModelError;
-  }, [activeSource, onSceneDisposed, onModelLoaded, onModelError]);
+  }, [activeSource, telemetry, onSceneDisposed, onModelLoaded, onModelError]);
 
   const releaseCurrentScene = useCallback(() => {
     if (activeSceneRef.current) {
@@ -210,11 +222,13 @@ export function ArchitecturalModelViewer({
     }
   }, []);
 
-  // Dispose GPU geometries/materials/textures and ObjectURLs when component unmounts
+  // Dispose GPU geometries/materials/textures, local buffers, and ObjectURLs when component unmounts
   useEffect(() => {
+    const localBuffers = localBufferByUrlRef.current;
     return () => {
       releaseCurrentScene();
       revokeActiveObjectUrl();
+      localBuffers.clear();
     };
   }, [releaseCurrentScene, revokeActiveObjectUrl]);
 
@@ -229,7 +243,9 @@ export function ArchitecturalModelViewer({
       if (!webglSupported) {
         releaseCurrentScene();
         setLoadedScene(null);
+        setLoadedSource(null);
         setTelemetry(null);
+        setIsContextLost(false);
         const webglErr = buildWebGLUnavailableErrorDetail(
           'WebGL context creation returned null.',
         );
@@ -242,7 +258,9 @@ export function ArchitecturalModelViewer({
       if (externalErrorDetail) {
         releaseCurrentScene();
         setLoadedScene(null);
+        setLoadedSource(null);
         setTelemetry(null);
+        setIsContextLost(false);
         setErrorDetail(externalErrorDetail);
         setStatus(externalErrorDetail.status);
         return;
@@ -257,12 +275,15 @@ export function ArchitecturalModelViewer({
       if (!sourceToLoad) {
         releaseCurrentScene();
         setLoadedScene(null);
+        setLoadedSource(null);
         setTelemetry(null);
+        setIsContextLost(false);
         setErrorDetail(null);
         setStatus('empty');
         return;
       }
 
+      setIsContextLost(false);
       setStatus('loading');
       setErrorDetail(null);
 
@@ -323,7 +344,9 @@ export function ArchitecturalModelViewer({
         releaseCurrentScene();
         activeSceneRef.current = parsed.scene;
         setLoadedScene(parsed.scene);
+        setLoadedSource(sourceToLoad);
         setTelemetry(parsed.telemetry);
+        setIsContextLost(false);
         setErrorDetail(null);
         setStatus('loaded');
         setStageSettings((prev) => ({
@@ -336,7 +359,9 @@ export function ArchitecturalModelViewer({
         if (cancelled) return;
         releaseCurrentScene();
         setLoadedScene(null);
+        setLoadedSource(null);
         setTelemetry(null);
+        setIsContextLost(false);
 
         const structuredError: ModelViewerErrorDetail =
           err &&
@@ -366,6 +391,7 @@ export function ArchitecturalModelViewer({
     activeSourceKey,
     externalErrorDetail,
     externalLoading,
+    loadAttemptCounter,
     maxFileSizeBytes,
     releaseCurrentScene,
     webglSupported,
@@ -373,6 +399,7 @@ export function ArchitecturalModelViewer({
 
   const hasRestorableDemo =
     Boolean(onRequestRestoreDemoModel) || resolvedAvailableModels.length > 0;
+  const canRetryCurrentOrDemo = hasRestorableDemo || Boolean(activeSource);
 
   const handleSelectBuiltInModel = (source: ArchitecturalModelSource) => {
     if (isControlledByHost) {
@@ -386,6 +413,18 @@ export function ArchitecturalModelViewer({
   };
 
   const handleRestoreDemoModel = () => {
+    const recoveringStage = isContextLost || status === 'webgl_unavailable' || status === 'error_invalid';
+    if (webglAvailableOverride === undefined) {
+      setWebglCheckRevision((prev) => prev + 1);
+    }
+    if (recoveringStage) {
+      setStageResetKey((prev) => prev + 1);
+    }
+    setIsContextLost(false);
+    setErrorDetail(null);
+    setLoadAttemptCounter((prev) => prev + 1);
+    onRetryRecovery?.();
+
     if (onRequestRestoreDemoModel) {
       onRequestRestoreDemoModel();
       return;
@@ -432,7 +471,9 @@ export function ArchitecturalModelViewer({
     if (!metaCheck.valid) {
       releaseCurrentScene();
       setLoadedScene(null);
+      setLoadedSource(null);
       setTelemetry(null);
+      setIsContextLost(false);
       setErrorDetail(metaCheck.error);
       setStatus(metaCheck.error.status);
       onModelErrorRef.current?.(metaCheck.error);
@@ -502,7 +543,9 @@ export function ArchitecturalModelViewer({
       );
       releaseCurrentScene();
       setLoadedScene(null);
+      setLoadedSource(null);
       setTelemetry(null);
+      setIsContextLost(false);
       setErrorDetail(readErr);
       setStatus('error_invalid');
       onModelErrorRef.current?.(readErr);
@@ -552,18 +595,66 @@ export function ArchitecturalModelViewer({
   };
 
   const handleWebGLContextLost = useCallback(() => {
-    releaseCurrentScene();
-    setLoadedScene(null);
-    setTelemetry(null);
+    setIsContextLost(true);
     const lostErr = buildWebGLUnavailableErrorDetail(
       'WebGL context lost event triggered by browser/GPU.',
     );
     setErrorDetail(lostErr);
     setStatus('webgl_unavailable');
     onModelErrorRef.current?.(lostErr);
-  }, [releaseCurrentScene]);
+  }, []);
 
-  const controlsDisabled = status !== 'loaded' || !loadedScene;
+  const handleWebGLContextRestored = useCallback(() => {
+    setIsContextLost(false);
+    setErrorDetail(null);
+    if (activeSceneRef.current && telemetryRef.current) {
+      setStatus('loaded');
+      setStageSettings((prev) => ({
+        ...prev,
+        revisionCounter: prev.revisionCounter + 1,
+      }));
+      if (activeSourceRef.current) {
+        onModelLoadedRef.current?.(activeSourceRef.current, telemetryRef.current);
+      }
+    } else {
+      setLoadAttemptCounter((prev) => prev + 1);
+    }
+  }, []);
+
+  const handleStageRenderError = useCallback(
+    (err: Error) => {
+      releaseCurrentScene();
+      setLoadedScene(null);
+      setLoadedSource(null);
+      setTelemetry(null);
+      setIsContextLost(false);
+      const isWebglErr = /webgl|context/i.test(err.message);
+      const detail = isWebglErr
+        ? buildWebGLUnavailableErrorDetail(err.message)
+        : buildInvalidModelErrorDetail(
+            activeSourceRef.current?.fileName ?? '3d-stage',
+            'corrupt',
+            err.message,
+          );
+      setErrorDetail(detail);
+      setStatus(detail.status);
+      onModelErrorRef.current?.(detail);
+    },
+    [releaseCurrentScene],
+  );
+
+  const controlsDisabled = status !== 'loaded' || !loadedScene || isContextLost;
+
+  const hasMountedStage = Boolean(
+    webglSupported &&
+      !externalErrorDetail &&
+      loadedSource &&
+      loadedScene &&
+      telemetry,
+  );
+  const keepStageMounted =
+    hasMountedStage &&
+    (status === 'loaded' || status === 'loading' || isContextLost);
 
   return (
     <section
@@ -578,6 +669,8 @@ export function ArchitecturalModelViewer({
         id={fileInputId}
         type="file"
         accept=".glb,.gltf"
+        tabIndex={-1}
+        aria-hidden="true"
         onChange={handleLocalFileChange}
         data-testid="model-viewer-file-input"
         className="sr-only"
@@ -741,26 +834,66 @@ export function ArchitecturalModelViewer({
             }
           />
 
-          {status === 'loaded' && activeSource && loadedScene && telemetry ? (
-            <Suspense
-              fallback={
-                <ModelViewerFallback
-                  status="loading"
-                  language={language}
-                  project={project}
-                />
-              }
-            >
-              <LazyModelViewerStage
-                language={language}
-                source={activeSource}
-                scene={loadedScene}
-                telemetry={telemetry}
-                settings={stageSettings}
-                reduceMotion={reduceMotion}
-                onWebGLContextLost={handleWebGLContextLost}
-              />
-            </Suspense>
+          {keepStageMounted && loadedSource && loadedScene && telemetry ? (
+            <div className="relative">
+              <div
+                inert={status === 'loading' || isContextLost ? true : undefined}
+                aria-hidden={isContextLost ? 'true' : undefined}
+                className={isContextLost ? 'invisible pointer-events-none' : undefined}
+              >
+                <Suspense
+                  fallback={
+                    <ModelViewerFallback
+                      status="loading"
+                      language={language}
+                      project={project}
+                    />
+                  }
+                >
+                  <LazyModelViewerStage
+                    language={language}
+                    source={loadedSource}
+                    scene={loadedScene}
+                    telemetry={telemetry}
+                    settings={stageSettings}
+                    reduceMotion={reduceMotion}
+                    stageResetKey={stageResetKey}
+                    onWebGLContextLost={handleWebGLContextLost}
+                    onWebGLContextRestored={handleWebGLContextRestored}
+                    onStageRenderError={handleStageRenderError}
+                  />
+                </Suspense>
+              </div>
+
+              {status === 'loading' && (
+                <div
+                  data-testid="model-viewer-loading-overlay"
+                  className="absolute inset-0 z-20 bg-[#050505]/80 backdrop-blur-[1px]"
+                >
+                  <ModelViewerFallback
+                    status="loading"
+                    language={language}
+                    project={project}
+                  />
+                </div>
+              )}
+
+              {isContextLost && (
+                <div className="absolute inset-0 z-20">
+                  <ModelViewerFallback
+                    status="webgl_unavailable"
+                    language={language}
+                    errorDetail={errorDetail}
+                    project={project}
+                    onRestoreDemoModel={
+                      canRetryCurrentOrDemo ? handleRestoreDemoModel : undefined
+                    }
+                    onTriggerLocalFilePicker={handleTriggerLocalFilePicker}
+                    onBackToDossier={onBackToDossier}
+                  />
+                </div>
+              )}
+            </div>
           ) : (
             <ModelViewerFallback
               status={status === 'loaded' ? 'loading' : status}
@@ -768,7 +901,7 @@ export function ArchitecturalModelViewer({
               errorDetail={errorDetail}
               project={project}
               onRestoreDemoModel={
-                hasRestorableDemo ? handleRestoreDemoModel : undefined
+                canRetryCurrentOrDemo ? handleRestoreDemoModel : undefined
               }
               onTriggerLocalFilePicker={handleTriggerLocalFilePicker}
               onBackToDossier={onBackToDossier}

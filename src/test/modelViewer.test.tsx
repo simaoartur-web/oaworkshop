@@ -6,11 +6,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   ArchitecturalModelViewer,
   OA_DEMO_MODEL_SOURCES,
+  detectWebGLSupport,
   getModelViewerDictionary,
+  isAllowedEmbeddedDataUri,
+  parseGlbSceneAndTelemetry,
+  resetWebGLSupportCache,
+  validateModelBufferContents,
   type DisposalSummary,
   type LoadedModelTelemetry,
   type ModelViewerErrorDetail,
 } from '../features/model-viewer';
+import { ModelViewerErrorBoundary } from '../features/model-viewer/ModelViewerErrorBoundary';
 
 const PAVILION_GLB_PATH = path.resolve(
   process.cwd(),
@@ -439,5 +445,270 @@ describe('O+A Workspace — Phase 04B Interactive Architectural 3D Viewer', () =
       screen.getAllByRole('button', { name: /Back to dossier/i })[0],
     );
     expect(onBackToDossier).toHaveBeenCalledTimes(1);
+  });
+
+  it('caches WebGL capability probes and disposes the temporary probe context via WEBGL_lose_context', () => {
+    resetWebGLSupportCache();
+    const loseContext = vi.fn();
+    const getContextSpy = vi.fn().mockReturnValue({
+      getExtension: (name: string) =>
+        name === 'WEBGL_lose_context' ? { loseContext } : null,
+    });
+    const fakeCanvas = {
+      width: 300,
+      height: 150,
+      getContext: getContextSpy,
+    } as unknown as HTMLCanvasElement;
+
+    const origNavigator = globalThis.navigator;
+    const uaSpy = vi
+      .spyOn(window.navigator, 'userAgent', 'get')
+      .mockReturnValue('Mozilla/5.0 Chrome/131.0.0.0 Safari/537.36');
+    const createElementOrig = document.createElement.bind(document);
+    let canvasCreations = 0;
+    const createElSpy = vi
+      .spyOn(document, 'createElement')
+      .mockImplementation(((tagName: string, options?: ElementCreationOptions) => {
+        if (tagName.toLowerCase() === 'canvas') {
+          canvasCreations += 1;
+          return fakeCanvas;
+        }
+        return createElementOrig(tagName, options);
+      }) as typeof document.createElement);
+
+    try {
+      void origNavigator;
+      expect(detectWebGLSupport()).toBe(true);
+      expect(detectWebGLSupport()).toBe(true);
+      expect(detectWebGLSupport()).toBe(true);
+      expect(canvasCreations).toBe(1);
+      expect(loseContext).toHaveBeenCalledTimes(1);
+
+      expect(detectWebGLSupport(undefined, { forceRecheck: true })).toBe(true);
+      expect(canvasCreations).toBe(2);
+      expect(loseContext).toHaveBeenCalledTimes(2);
+    } finally {
+      createElSpy.mockRestore();
+      uaSpy.mockRestore();
+      resetWebGLSupportCache();
+    }
+  });
+
+  it('rejects disallowed data: URI MIME types case-insensitively and allows valid glTF embedded buffers/images', async () => {
+    expect(
+      isAllowedEmbeddedDataUri('DATA:application/octet-stream;base64,AAAA', 'buffer'),
+    ).toBe(true);
+    expect(
+      isAllowedEmbeddedDataUri('data:application/gltf-buffer;base64,AAAA', 'buffer'),
+    ).toBe(true);
+    expect(
+      isAllowedEmbeddedDataUri('Data:Image/PNG;base64,AAAA', 'image'),
+    ).toBe(true);
+    expect(
+      isAllowedEmbeddedDataUri('data:image/jpeg;base64,AAAA', 'image'),
+    ).toBe(true);
+    expect(
+      isAllowedEmbeddedDataUri('data:image/webp;base64,AAAA', 'image'),
+    ).toBe(true);
+
+    // Blocked dangerous/non-allowlisted MIME types
+    expect(
+      isAllowedEmbeddedDataUri('data:image/svg+xml;base64,PHN2Zy8+', 'image'),
+    ).toBe(false);
+    expect(
+      isAllowedEmbeddedDataUri('DATA:IMAGE/SVG+XML,<svg></svg>', 'image'),
+    ).toBe(false);
+    expect(
+      isAllowedEmbeddedDataUri('data:text/html;base64,PHNjcmlwdD4=', 'any'),
+    ).toBe(false);
+    expect(
+      isAllowedEmbeddedDataUri('data:application/javascript,alert(1)', 'any'),
+    ).toBe(false);
+    expect(isAllowedEmbeddedDataUri('data:,plain', 'any')).toBe(false);
+
+    const svgImageGltf = JSON.stringify({
+      asset: { version: '2.0' },
+      images: [{ uri: 'data:image/svg+xml;base64,PHN2Zy8+' }],
+      buffers: [{ uri: 'data:application/octet-stream;base64,AAAA', byteLength: 3 }],
+    });
+    const svgCheck = validateModelBufferContents(
+      new TextEncoder().encode(svgImageGltf).buffer,
+      'gltf',
+      'evil-svg.gltf',
+    );
+    expect(svgCheck.valid).toBe(false);
+    if (!svgCheck.valid) {
+      expect(svgCheck.error.status).toBe('error_invalid');
+      expect(svgCheck.error.technicalDetail).toMatch(/Unauthorized embedded data URI/i);
+    }
+
+    const htmlBufferGltf = JSON.stringify({
+      asset: { version: '2.0' },
+      buffers: [{ uri: 'DATA:text/html;charset=utf-8,<h1>bad</h1>', byteLength: 12 }],
+    });
+    const htmlCheck = validateModelBufferContents(
+      new TextEncoder().encode(htmlBufferGltf).buffer,
+      'gltf',
+      'evil-html.gltf',
+    );
+    expect(htmlCheck.valid).toBe(false);
+
+    // Valid uppercase DATA:application/octet-stream glTF triangle still parses through GLTFLoader
+    const positions = new Float32Array([0, 0, 0, 2, 0, 0, 0, 2, 0]);
+    const base64Buf = Buffer.from(positions.buffer).toString('base64');
+    const validUppercaseGltf = JSON.stringify({
+      asset: { version: '2.0' },
+      scene: 0,
+      scenes: [{ nodes: [0] }],
+      nodes: [{ name: 'ValidPrism', mesh: 0 }],
+      meshes: [{ primitives: [{ attributes: { POSITION: 0 } }] }],
+      accessors: [
+        {
+          bufferView: 0,
+          componentType: 5126,
+          count: 3,
+          type: 'VEC3',
+          min: [0, 0, 0],
+          max: [2, 2, 0],
+        },
+      ],
+      bufferViews: [{ buffer: 0, byteOffset: 0, byteLength: 36, target: 34962 }],
+      buffers: [
+        {
+          uri: `DATA:application/octet-stream;base64,${base64Buf}`,
+          byteLength: 36,
+        },
+      ],
+    });
+    await expect(
+      parseGlbSceneAndTelemetry(
+        new TextEncoder().encode(validUppercaseGltf).buffer,
+        {
+          ...OA_DEMO_MODEL_SOURCES[0],
+          format: 'gltf',
+          fileName: 'valid-uppercase.gltf',
+        },
+      ),
+    ).resolves.toMatchObject({
+      telemetry: { meshCount: 1, vertexCount: 3 },
+    });
+  });
+
+  it('preserves the mounted stage with a loading overlay during model swaps, exposes accessible sr-only file input tabIndex=-1, and re-runs load on retry', async () => {
+    const user = userEvent.setup();
+    let releaseSecondModel!: () => void;
+    let shouldFailFirst = false;
+    let pavilionFetchCalls = 0;
+
+    vi.restoreAllMocks();
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = typeof input === 'string' ? input : input.toString();
+      if (url.includes('oa-ponta-vermelha-pavilion-demo.glb')) {
+        pavilionFetchCalls += 1;
+        if (shouldFailFirst) {
+          return new Response('Temporary error', { status: 500 });
+        }
+        return new Response(toArrayBuffer(pavilionBytes), {
+          status: 200,
+          headers: { 'Content-Type': 'model/gltf-binary' },
+        });
+      }
+      if (url.includes('oa-costa-terraces-massing-demo.glb')) {
+        await new Promise<void>((resolve) => {
+          releaseSecondModel = resolve;
+        });
+        return new Response(toArrayBuffer(costaBytes), {
+          status: 200,
+          headers: { 'Content-Type': 'model/gltf-binary' },
+        });
+      }
+      return new Response('Not found', { status: 404 });
+    });
+
+    const { unmount } = render(<ArchitecturalModelViewer webglAvailableOverride={true} />);
+
+    const initialStage = await screen.findByTestId('model-viewer-stage');
+    expect(screen.getByTestId('model-viewer-file-input')).toHaveAttribute(
+      'tabindex',
+      '-1',
+    );
+
+    // Swap model while delaying second fetch -> stage stays mounted with loading overlay
+    await user.click(
+      screen.getByRole('button', { name: OA_DEMO_MODEL_SOURCES[1].code }),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId('model-viewer-loading-overlay')).toBeInTheDocument();
+    });
+    expect(screen.getByTestId('model-viewer-stage')).toBe(initialStage);
+
+    releaseSecondModel();
+    await waitFor(() => {
+      expect(screen.getByTestId('model-telemetry-meshes')).toHaveTextContent('8');
+    });
+    expect(screen.queryByTestId('model-viewer-loading-overlay')).not.toBeInTheDocument();
+
+    // Now test Retry after a failure on the exact same demo model key
+    unmount();
+    shouldFailFirst = true;
+    pavilionFetchCalls = 0;
+    render(<ArchitecturalModelViewer webglAvailableOverride={true} />);
+    await screen.findByTestId('model-viewer-fallback-error_invalid');
+    expect(pavilionFetchCalls).toBe(1);
+
+    shouldFailFirst = false;
+    await user.click(
+      screen.getByRole('button', {
+        name: /Tentar novamente com o modelo demonstrativo/i,
+      }),
+    );
+
+    await screen.findByTestId('model-viewer-stage');
+    expect(pavilionFetchCalls).toBe(2);
+    expect(screen.getByTestId('architectural-model-viewer')).toHaveAttribute(
+      'data-viewer-status',
+      'loaded',
+    );
+  });
+
+  it('catches stage runtime exceptions inside ModelViewerErrorBoundary and resets cleanly on resetKey increment', () => {
+    const captured: Error[] = [];
+    function MaybeThrowingChild({ crash }: { crash: boolean }) {
+      if (crash) {
+        throw new Error('Simulated WebGL stage runtime failure');
+      }
+      return <div data-testid="stage-recovered-child">OK</div>;
+    }
+
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const { rerender } = render(
+        <ModelViewerErrorBoundary
+          resetKey={0}
+          onError={(err) => captured.push(err)}
+          fallback={<div data-testid="boundary-fallback">Caught</div>}
+        >
+          <MaybeThrowingChild crash={true} />
+        </ModelViewerErrorBoundary>,
+      );
+
+      expect(screen.getByTestId('boundary-fallback')).toBeInTheDocument();
+      expect(captured).toHaveLength(1);
+      expect(captured[0].message).toMatch(/Simulated WebGL stage runtime failure/);
+
+      rerender(
+        <ModelViewerErrorBoundary
+          resetKey={1}
+          onError={(err) => captured.push(err)}
+          fallback={<div data-testid="boundary-fallback">Caught</div>}
+        >
+          <MaybeThrowingChild crash={false} />
+        </ModelViewerErrorBoundary>,
+      );
+
+      expect(screen.getByTestId('stage-recovered-child')).toBeInTheDocument();
+    } finally {
+      consoleErrorSpy.mockRestore();
+    }
   });
 });

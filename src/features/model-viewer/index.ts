@@ -20,7 +20,9 @@ export {
   detectWebGLSupport,
   disposeThreeObjectResources,
   formatByteSize,
+  isAllowedEmbeddedDataUri,
   parseGlbSceneAndTelemetry,
+  resetWebGLSupportCache,
   validateLocalModelFileMetadata,
   validateModelBufferContents,
 } from './glbInspector';
