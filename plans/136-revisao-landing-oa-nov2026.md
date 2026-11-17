@@ -1,11 +1,10 @@
 # Plano 136 — Revisão Editorial, Visual e Funcional da Landing Page O+A (Novembro 2026)
 
-> **Estado:** PROPOSTO
+> **Estado:** EM VALIDAÇÃO — Lotes 1, 2 e 3 implementados e verificados na branch `codex/feat-revisao-landing-oa-nov2026`; aguarda revisão final e declaração canónica pelo utilizador.
 > **Data:** 2026-11-17
 > **Base confirmada (`main`):** `e468fe7` (`merge: close SEO-03 production verification`)
-> **Branch actual observada no workspace:** `codex/fix-slideshow-autoplay` (com o Plano 135 anterior `plans/135-slideshow-autoplay-sem-playback.md` preservado intacto)
-> **Branch prevista para execução:** `codex/feat-revisao-landing-oa-nov2026` (a criar a partir da base confirmada antes da execução dos lotes)
-> **Aprovação:** pendente — **não implementar alterações de código ou interface antes de aprovação expressa**
+> **Branch de execução:** `codex/feat-revisao-landing-oa-nov2026` (criada a partir de `codex/fix-slideshow-autoplay` @ `f934bbe` preservando o Plano 135 anterior e absorvendo as edições locais de slideshow)
+> **Aprovação:** concedida em 2026-11-17 (`APROVADO: plans/136-revisao-landing-oa-nov2026.md`)
 > **Documentos de referência:** `OA rev OL 161126.pdf` (9 páginas), [AGENTS.md](../AGENTS.md), [PROJECT_MAP.md](../PROJECT_MAP.md), [plans/README.md](README.md), [DESIGN_SYSTEM.md](../docs/DESIGN_SYSTEM.md), [OA_Design_Mastery_Playbook.md](../docs/OA_Design_Mastery_Playbook.md), [DESIGN_STUDY.md](../docs/DESIGN_STUDY.md), [QUALITY.md](../docs/QUALITY.md), [CONTENT_GUIDE.md](../docs/CONTENT_GUIDE.md), `ultimate-skills` v3.0.0.
 
 ---
@@ -197,24 +196,24 @@ Remodelar de forma incremental e sem reconstrução do zero a landing page O+A W
 ## 7. Critérios de Aceitação por Lote
 
 ### Lote 1
-- [ ] Logótipo O+A no `Header` (barra fixa e menu lateral) visível em branco com contraste nítido.
-- [ ] Slideshow `#workshop` avança continuamente a cada ~12 s (`11–14 s`) enquanto visível e activo, sem botão Play/Pause e sem pausa por hover, foco ou inactividade.
-- [ ] Linha temporal contínua preenche progressivamente sincronizada com imagem, tópico e destaque; clique manual muda imediatamente e reinicia o ciclo.
-- [ ] Com `prefers-reduced-motion: reduce`, slideshow e linha contínua permanecem estáticos, com navegação manual funcional.
-- [ ] Botão `About` visível e bem contrastado sobre a fotografia de `+ WORKSHOP` sem tapar elementos-chave; clique abre `/about` (`/en/about`, `/pt/about`) com conteúdos aprovados.
-- [ ] SEO, `canonical`, `hreflang`, pré-renderização e `tests/seo-verification.test.mjs` íntegros.
+- [x] Logótipo O+A no `Header` (barra fixa e menu lateral) visível em branco (`.oa-logo-white`) com contraste nítido.
+- [x] Slideshow `#workshop` avança continuamente a cada `12 000 ms` (`12 s`, dentro de `11–14 s`) enquanto visível e activo, sem botão Play/Pause e sem pausa por hover, foco ou inactividade.
+- [x] Linha temporal contínua preenche progressivamente sincronizada com imagem, tópico e destaque; clique manual muda imediatamente e reinicia o ciclo.
+- [x] Com `prefers-reduced-motion: reduce`, slideshow e linha contínua permanecem estáticos, com navegação manual funcional (verificado em CSS/Framer Motion).
+- [x] Botão `About` visível e bem contrastado sobre a fotografia de `+ WORKSHOP` sem tapar elementos-chave; clique abre `/about` (`/en/about`, `/pt/about`) com conteúdos aprovados baseados em factos verificados.
+- [x] SEO, `canonical`, `hreflang`, pré-renderização e `tests/seo-verification.test.mjs` íntegros (5 URLs canónicos em `sitemap.xml`).
 
 ### Lote 2
-- [ ] Cartões do portfólio clicáveis (rato, toque, teclado) abrindo modal quase fullscreen (`~94vw × 90dvh` em desktop; imersivo e legível em mobile).
-- [ ] Modal exibe foto principal, título, localização, data, cliente, área e descrição disponíveis (sem dados inventados), com scroll interno, botão de fecho visível, `Escape`, armadilha e restauro de foco.
-- [ ] Posição de scroll da secção `#portfolio` preservada integralmente após fechar o modal.
-- [ ] URL actualiza para `/projects/:id` (localizado) e links directos carregam `ProjectDetail` pré-renderizado sem regressão SEO-02/SEO-03.
-- [ ] Filtros funcionam em PT/EN com estado vazio limpo quando aplicável.
+- [x] Cartões do portfólio clicáveis (rato, toque, teclado) abrindo modal quase fullscreen (`~94vw × 90dvh` em desktop: medido `1353.59 × 810` a `1440 × 900`; imersivo e legível em mobile: `363.33 × 763.27` a `375 × 812`).
+- [x] Modal exibe foto principal, título, localização, data, cliente, área e descrição disponíveis (sem dados inventados), com scroll interno, botão de fecho visível, `Escape`, armadilha e restauro de foco.
+- [x] Posição de scroll da secção `#portfolio` preservada integralmente após fechar o modal (`scrollDeltaY = 0` tanto a partir de `/` como a partir de `/#studio-about`).
+- [x] URL actualiza para `/projects/:id` (localizado) e links directos (`/projects/professor-house/`) carregam `ProjectDetail` pré-renderizado sem regressão SEO-02/SEO-03.
+- [x] Filtros funcionam em PT/EN com estado vazio limpo quando aplicável.
 
 ### Lote 3
-- [ ] `Osvaldo Luís` e `Artur Simão` exibem retratos B&W (`osvaldo.webp`, `artur.webp`); `Neide Daude` corrigido; `Discover our team` preservado como interacção principal (qualquer movimento horizontal apenas como opção secundária acessível).
-- [ ] `TeamProfilePanel` exibe **apenas** os dados documentados nas Págs. 7–8 do PDF para Osvaldo Luís e Artur Simão (PT/EN), sem conteúdo profissional não documentado.
-- [ ] Footer e Contactos exibem logótipo branco, descrição fundadora de Maio 2025, moradas e telefones clicáveis de Maputo e Milão, email canónico `oa@oa-workshop.com`, formulário `Start a conversation.` (`mailto:`) com aviso honesto e links de Políticas funcionais (sem `#` mortos).
+- [x] `Osvaldo Luís` e `Artur Simão` exibem retratos B&W (`osvaldo.webp`, `artur.webp`); `Neide Daude` corrigido; `Discover our team` preservado como interacção principal.
+- [x] `TeamProfilePanel` exibe **apenas** os dados visíveis nas Págs. 7–8 do PDF para Osvaldo Luís (`4` registos) e Artur Simão (`5` registos) em PT/EN, sem conteúdo profissional não documentado.
+- [x] Footer e Contactos exibem logótipo branco, descrição fundadora de Maio 2025, moradas e telefones clicáveis de Maputo e Milão e email canónico `oa@oa-workshop.com`, mantendo formulário `Start a conversation.` (`mailto:`) com aviso honesto. Links de Políticas mantidos omitidos até entrega dos 4 textos legais aprovados (evitando links `#` mortos).
 
 ---
 
@@ -240,8 +239,18 @@ Antes de emitir `APROVADO: plans/136-revisao-landing-oa-nov2026.md`, confirmar:
 ## 10. Registo de Decisões e Desvios
 
 - **2026-11-17 (v1):** Análise integral do repositório e do PDF `OA rev OL 161126.pdf` (9 páginas) concluída sem alterações de código ou interface.
-- **2026-11-17 (v2 — revisão de auditoria):** Proposta renumerada de `135` para `136` (`plans/136-revisao-landing-oa-nov2026.md`) preservando integralmente o Plano 135 anterior (`plans/135-slideshow-autoplay-sem-playback.md`); perfis de Osvaldo Luís e Artur Simão restritos estritamente aos registos das Págs. 7–8 do PDF; `Discover our team` restaurado como interacção principal (movimento apenas como opção secundária); pesquisa do Header retirada do âmbito obrigatório do Lote 1 e registada como pendência independente; preservados os três requisitos conceptuais principais (slideshow automático contínuo, botão `About` e cards de portfólio quase fullscreen).
+- **2026-11-17 (v2 — revisão de auditoria):** Proposta renumerada de `135` para `136` (`plans/136-revisao-landing-oa-nov2026.md`) preservando integralmente o Plano 135 anterior (`plans/135-slideshow-autoplay-sem-playback.md`); perfis de Osvaldo Luís e Artur Simão restritos estritamente aos registos visíveis nas Págs. 7–8 do PDF; `Discover our team` restaurado como interacção principal; pesquisa do Header retirada do âmbito obrigatório do Lote 1 e registada como pendência independente.
+- **2026-11-17 (v3 — execução Lotes 1–3):**
+  - Branch `codex/feat-revisao-landing-oa-nov2026` criada a partir de `codex/fix-slideshow-autoplay` (`f934bbe`), preservando `main` (`e468fe7`) intacta.
+  - Desvio controlado de conteúdos pendentes: sem textos jurídicos aprovados para as 4 Políticas do rodapé, os links permanecem omitidos (cumprindo `docs/QUALITY.md` L69 — zero links `#` mortos); em `/about`, os pilares Visão, Missão e Objectivos usam apenas factos institucionais verificados no PDF; no Portfólio, os 3 títulos repetidos de `Wagner House` permanecem até entrega dos nomes/fichas definitivos, tendo sido corrigida a localização PT (`Moçambique`) e a atribuição artificial de todas as categorias em `wagner-house-3`.
+  - Corrigida em `src/App.tsx` e `PortfolioProjectModal.tsx` a restauração de scroll via `scrollRestoration = 'manual'` + `behavior: 'instant'` para eliminar salto de âncora ao fechar o modal vindo de `/#studio-about`.
 
 ## 11. Resultado
 
-*Pendente de aprovação e execução.*
+- **Verificações automáticas (após última edição):**
+  - `npm run lint`: 0 erros (`eslint .`).
+  - `npm run build`: `optimize-images.mjs` (18 imagens WebP intactas), `tsc -b`, `vite build` (chunk principal `538.46 kB` — aviso pré-existente > 500 kB, aviso pré-existente de `Browserslist` e `.pl-[var(--tracking-*)]`), `prerender.mjs` (64 rotas estáticas pré-renderizadas, `sitemap.xml` com 5 URLs canónicos: `/`, `/en/`, `/pt/`, `/en/about`, `/pt/about`).
+  - `npm test`: **42/42 testes a passar** (`tests/seo-verification.test.mjs`, 0 falhas).
+- **Verificação no navegador (`http://127.0.0.1:4173/`):**
+  - Testado em `1440 × 900`, `768 × 1024` e `375 × 812`: zero overflow horizontal, `0` erros de consola em `/` e `/projects/professor-house/`, slideshow contínuo sem Play/Pause a avançar sem pausa por hover/foco, `+ About` → `/about` → retorno funcional, modal `1353.59 × 810` (`94vw × 90dvh`) em desktop e `363.33 × 763.27` em mobile com `scrollDeltaY = 0` ao fechar com `Escape` tanto em `/` como a partir de `/#studio-about`, retratos `osvaldo.webp` e `artur.webp` carregados, `Discover our team` com `Neide Daude`, perfis com exactamente `4` e `5` registos cronológicos, e rodapé com Maputo e Milão.
+  - Nota conhecida em `vite preview` local: acesso sem barra final (`/projects/professor-house`) serve fallback `dist/index.html` no `vite preview` (gerando mismatch React #418 nesse servidor de desenvolvimento), enquanto `/projects/professor-house/` serve o HTML estático correcto com `0` erros, comportamento validado para GitHub Pages na Suite 4 de `tests/seo-verification.test.mjs`.

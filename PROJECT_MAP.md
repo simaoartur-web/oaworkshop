@@ -62,6 +62,7 @@
 | Caminho | Responsabilidade |
 |---|---|
 | `src/pages/Home.tsx` | composição da página inicial e das secções temáticas |
+| `src/pages/About.tsx` | página institucional dedicada O+A (história, visão, missão e objectivos) |
 | `src/pages/Projects.tsx` | catálogo geral de projectos |
 | `src/pages/ProjectDetail.tsx` | detalhe de um projecto identificado pela rota |
 | `src/pages/NotFound.tsx` | resposta 404 bilingue com directiva noindex |
@@ -74,13 +75,14 @@ Não existe página administrativa. Qualquer proposta para a criar exige novo pl
 |---|---|---|
 | `src/components/layout/` | `Header.tsx`, `Footer.tsx` | navegação e enquadramento persistente |
 | `src/components/home/HeroSection.tsx` | abertura institucional com fundo `#ED7D31`, símbolo O+A interactivo e entrada para `#workshop` | página inicial |
-| `src/components/home/WorkshopSection.tsx` | secção interactiva Architecture / Urban Planning / Research (Protótipo 01, R02.1) com palco fotográfico, destaque e controlos | página inicial |
-| `src/components/home/WorkshopTabs.tsx` | navegação inferior em 3 colunas sobre fundo preto com indicadores lineares, etiqueta `DESTAQUE` e suporte por teclado | WorkshopSection |
-| `src/components/home/workshop.css` | estilos locais do Protótipo 01 (palco 78%, barra inferior 22%, responsividade e movimento reduzido) | WorkshopSection |
-| `src/components/home/StudioAboutSection.tsx` | secção institucional `+ WORKSHOP` (R05, Slide 6) com fotografia real do escritório, retrato P&B dos fundadores e citação oficial | página inicial |
-| `src/components/home/studio-about.css` | estilos dedicados da secção institucional `+ WORKSHOP` (grelha 70/30 desktop, tablet e mobile) | StudioAboutSection |
-| `src/components/home/ProjectsSection.tsx` | secção `+ PORTFOLIO` (R03) com barra de 8 filtros e grelha 3×2 de 6 projectos com fotografias oficiais | página inicial |
-| `src/components/home/portfolio.css` | estilos locais da secção `+ PORTFOLIO`, grelha 3×2, estados de filtro e placeholders `?` | ProjectsSection |
+| `src/components/home/WorkshopSection.tsx` | secção Architecture / Urban Planning / Research com autoplay contínuo de 12 segundos, sem Play/Pause e sem pausa por hover/foco | página inicial |
+| `src/components/home/WorkshopTabs.tsx` | navegação inferior em 3 colunas sobre fundo preto com linha temporal contínua progressiva, etiqueta `DESTAQUE` e suporte por teclado | WorkshopSection |
+| `src/components/home/workshop.css` | estilos locais do Protótipo 01 (palco 78%, barra inferior 22%, linha progressiva contínua, responsividade e movimento reduzido) | WorkshopSection |
+| `src/components/home/StudioAboutSection.tsx` | secção institucional `+ WORKSHOP` com fotografia do escritório, botão `About` → `/about`, retrato P&B dos fundadores e citação oficial | página inicial |
+| `src/components/home/studio-about.css` | estilos dedicados da secção institucional `+ WORKSHOP` e botão `About` (grelha 70/30 desktop, tablet e mobile) | StudioAboutSection |
+| `src/components/home/ProjectsSection.tsx` | secção `+ PORTFOLIO` com barra de 8 filtros e cartões clicáveis ligados a `PORTFOLIO_PROJECTS` abrindo modal com preservação de scroll | página inicial |
+| `src/components/home/PortfolioProjectModal.tsx` | painel/modal imersivo quase fullscreen (`~94vw × 90dvh`) com ficha técnica, scroll interno, `Escape` e sincronização de URL | App, ProjectsSection |
+| `src/components/home/portfolio.css` | estilos locais da secção `+ PORTFOLIO`, cartões clicáveis e modal imersivo | ProjectsSection, PortfolioProjectModal |
 | `src/components/home/CategoryMapSection.tsx` | mapa e cartões por disciplina | legado desacoplado de `Home.tsx` (R04); preservado no repositório |
 | `src/components/home/NewsSection.tsx` | carrossel editorial/notícias locais | legado desacoplado de `Home.tsx` (R04); preservado no repositório |
 | `src/components/home/ContactSection.tsx` | informação e acção de contacto | página inicial |
@@ -117,13 +119,15 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 | `docs/QUALITY.md` | verificações técnicas, visuais e de acessibilidade |
 | `docs/decisions/` | decisões arquitecturais duradouras |
 | `docs/decisions/0002-identidade-website-json-ld.md` | identidade WebSite estável na raiz, separada de Organization e invariável por idioma |
+| `docs/decisions/0003-autoplay-workshop-sem-playback.md` | temporização e foco do autoplay; retirada integral de reprodução por escolha do utilizador e limites de acessibilidade |
 | `plans/` | planos numerados, aprovação e estado |
 | `plans/080-seo-infraestrutura-indexacao.md` | plano de infraestrutura SEO, indexação orgânica e pré-renderização |
 | `plans/082-seo02-en-first-correcao.md` | execução aprovada SEO-02 EN-first: inglês, marcador neutro de Vancouver, metadados de imagens e favicon |
 | `plans/084-seo03-identidade-resultados.md` | SEO-03 canónico, integrado e publicado: identidade WebSite exclusiva da raiz; Organization, idiomas e indexação preservados e verificados em produção |
 | `plans/124-design-mastery-playbook.md` | integração das referências de design nas instruções dos agentes |
 | `plans/134-performance-imagens-autoplay-fades.md` | plano R06: pipeline de optimização Sharp, autoplay robusto e crossfades |
-| `plans/135-slideshow-autoplay-sem-playback.md` | execução aprovada da correcção do autoplay e retirada integral de Play/Pause conforme decisão do utilizador |
+| `plans/135-slideshow-autoplay-sem-playback.md` | execução anterior da correcção do autoplay e retirada de Play/Pause |
+| `plans/136-revisao-landing-oa-nov2026.md` | revisão editorial, visual e funcional da landing page O+A (Lotes 1–3) |
 | `prompts/` | normas e modelos de prompts |
 
 ## Publicação

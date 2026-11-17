@@ -23,3 +23,4 @@ Estados: `PROPOSTA`, `ACEITE`, `SUBSTITUÍDA` ou `REVOGADA`.
 |---|---|---|
 | `0001-front-end-primeiro.md` | ACEITE | Manter o projecto exclusivamente front-end |
 | `0002-identidade-website-json-ld.md` | ACEITE | Identidade WebSite única na raiz e contrato separado de Organization |
+| `0003-autoplay-workshop-sem-playback.md` | ACEITE | Autoplay de oito segundos, foco de entrada e retirada integral de Play/Pause por escolha do utilizador |
