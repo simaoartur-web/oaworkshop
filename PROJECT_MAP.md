@@ -81,11 +81,11 @@
 | `src/features/model-engine/ProjectModelEnginePage.tsx` | rota `/workspace/projects/:id/model` (lazy-loaded) com palco 3D WebGL real e distinção das 3 categorias (referência documental, modelo demo fictício e ficheiro de sessão) |
 | `src/features/model-engine/i18n.ts`, `index.ts` | dicionário bilingue PT/EN e exportações públicas do motor de modelos 3D |
 | `src/features/model-viewer/ArchitecturalModelViewer.tsx` | visualizador 3D arquitectónico interactivo (`GLTFLoader`, estados `empty`/`loading`/`loaded`/erros/`webgl_unavailable`, câmaras, grelha/eixos/malha e ficha técnica) |
-| `src/features/model-viewer/ModelViewerStage.tsx` | palco WebGL R3F (`frameloop="demand"`, `dpr={[1, 2]}`, `OrbitControls`, iluminação de estúdio, grelha, eixos e wireframe) |
+| `src/features/model-viewer/ModelViewerStage.tsx`, `ModelViewerErrorBoundary.tsx` | palco WebGL R3F preservado em trocas de modelo (`frameloop="demand"`, `dpr` até `1.5` ou perfil económico `1`, `powerPreference: 'default'`, `preserveDrawingBuffer: false`, `ErrorBoundary`, `OrbitControls`) |
 | `src/features/model-viewer/ModelViewerControls.tsx` | barra de controlos de câmara (isométrica, superior, frontal, lateral, recentrar, repor vista, zoom, grelha, eixos, malha e ajuda) |
 | `src/features/model-viewer/ModelInformationPanel.tsx` | ficha técnica lateral com telemetria real (`meshes`, `triangles`, `vertices`, dimensões, unidades verificadas vs não verificadas e nota `.skp`) |
 | `src/features/model-viewer/ModelViewerFallback.tsx` | estados acessíveis de carregamento, modelo vazio, erro de formato/corrupção/tamanho e WebGL indisponível |
-| `src/features/model-viewer/glbInspector.ts` | inspecção binária `.glb`/`.gltf`, bloqueio de dependências externas, `parseGlbSceneAndTelemetry`, cálculo de poses de câmara e `disposeThreeObjectResources` |
+| `src/features/model-viewer/glbInspector.ts` | detecção WebGL em cache com `loseContext()`, inspecção `.glb`/`.gltf` com allowlist estrita de `data:` URIs, bloqueio de dependências externas no `LoadingManager`, `parseGlbSceneAndTelemetry` e `disposeThreeObjectResources` |
 | `src/features/model-viewer/demoModels.ts`, `contracts.ts`, `i18n.ts`, `index.ts` | catálogo demo `.glb`, contratos tipados e dicionário bilingue PT/EN do visualizador 3D |
 | `src/features/project-experience/ProjectGalleryView.tsx` | vista editorial em Galeria & Lista Técnica com filtros por estado, âmbito individual/função e pesquisa |
 | `src/features/project-experience/ProjectDossierView.tsx` | dossier vivo em 6 secções (Identidade, Equipa, Desenvolvimento, Documentação, Histórico, Visibilidade) |

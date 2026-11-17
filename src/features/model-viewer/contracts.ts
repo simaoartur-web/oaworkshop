@@ -173,6 +173,8 @@ export interface ArchitecturalModelViewerProps {
   onRequestClearModel?: () => void;
   /** Controlled callback to delegate restoring the project's demo model to Agent A's Model Engine. */
   onRequestRestoreDemoModel?: () => void;
+  /** Optional callback triggered when the user requests recovery after a WebGL/runtime failure. */
+  onRetryRecovery?: () => void;
   /** Callback fired when the user switches between available models. */
   onSelectModelSource?: (source: ArchitecturalModelSource) => void;
   /** Callback fired when the user changes the camera preset. */
