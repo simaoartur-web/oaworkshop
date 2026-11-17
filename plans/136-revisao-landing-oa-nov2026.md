@@ -112,33 +112,23 @@ Remodelar de forma incremental e sem reconstrução do zero a landing page O+A W
   - Ligar `osvaldo-luis` a `/images/team/osvaldo.webp` e `artur-simao` a `/images/team/artur.webp` (recursos B&W já presentes em `public/images/team/`), mantendo iniciais automáticas em `TeamAvatar` para colaboradores sem retrato autorizado.
   - Corrigir o nome `'Neide'` → `'Neide Daude'` (Pág. 6).
 - **Perfis detalhados de Osvaldo Luís e Artur Simão — estritamente segundo Págs. 7–8 do PDF:**
-  - **Regra obrigatória:** Incluir nos perfis (`TeamProfilePanel.tsx`) **exclusivamente** os títulos, qualificações e entradas cronológicas documentadas nas páginas 7 e 8 do PDF `OA rev OL 161126.pdf`. **Remover** quaisquer classificações não documentadas no PDF (como `"Senior Architect & Urbanist"` presente hoje em `locales.*.team.roles`, salvo confirmação expressa) e manter `bio: null` (prosa narrativa adicional) e `links: []` até aprovação explícita.
-  - **Dados documentados permitidos para Osvaldo Luís (Págs. 6–7):**
+  - **Regra obrigatória:** Incluir nos perfis (`TeamProfilePanel.tsx`) **exclusivamente** os títulos, qualificações e entradas cronológicas visíveis nas páginas 7 e 8 do PDF `OA rev OL 161126.pdf`. **Remover** quaisquer classificações não documentadas no PDF (como `"Senior Architect & Urbanist"` presente hoje em `locales.*.team.roles`, salvo confirmação expressa) e manter `bio: null` (prosa narrativa adicional) e `links: []` até aprovação explícita. Quaisquer entradas adicionais fora do que está visível nas págs. 7–8 não são consideradas verificadas e exigem confirmação prévia.
+  - **Dados visíveis e confirmados para Osvaldo Luís (Págs. 6–7):**
     - Cargo / qualificações: `Managing Director` · `Architect and Planner`, `MSc in Regional and Urban Planning`, `MSc in Design for Development, Architecture, Urban Planning and Heritage`.
-    - Cronologia (11 registos verificados da Pág. 7):
+    - Cronologia (4 registos visíveis na Pág. 7):
       - `2026`: `MSc in Design for Development, Architecture, Urban Planning and Heritage in the Global South, Politecnico di Milano. Milan, Italy`
       - `2023`: `MSc in Regional and Urban Planning, Universidade Eduardo Mondlane, Maputo, Mozambique.`
       - `2018`: `Degree in Architecture and Physical Planning, Universidade Eduardo Mondlane, Maputo, Mozambique.`
       - `2025 - 2026`: `Architect and Urban Planner, AVSI Foundation, Nairobi, Kenya.`
-      - `2025`: `Architect, Alder Clavuot Nunzi Architekten, Soglio, Switzerland.`
-      - `2025`: `Urban Planning Consultant, Systematica, Milan, Italy.`
-      - `2024 – 2025`: `Architect and Urban Planner Expert, PDUL (World Bank)/Verde Azul, Gaza/Niassa, Mozambique.`
-      - `2024 – 2025`: `Project Analyst Disaster Risk Reduction, UN-Habitat, Maputo, Mozambique.`
-      - `2023 – 2025`: `Local Architect, ARS Progetti, Maputo, Mozambique.`
-      - `2022 – 2023`: `Architect and Planner, AVSI Foundation, Maputo/Pemba, Mozambique.`
-      - `2018 - 2022`: `Coordinator of the Urban and Physical Planning Department, Vedor Lda, Maputo, Mozambique.`
-  - **Dados documentados permitidos para Artur Simão (Págs. 6 e 8):**
+  - **Dados visíveis e confirmados para Artur Simão (Págs. 6 e 8):**
     - Cargo / qualificações: `Technical Director` *(corrigindo `"TECNICAL"` da Pág. 6)* · `Architect, Planner and Lecturer`, `MSc in Regional and Urban Planning`.
-    - Cronologia (8 registos verificados da Pág. 8):
+    - Cronologia (5 registos visíveis na Pág. 8):
       - `2023`: `MSc in Regional and Urban Planning, Universidade Eduardo Mondlane. Maputo, Mozambique`
       - `2018`: `Degree in Architecture and Physical Planning, Universidade Eduardo Mondlane. Maputo, Mozambique`
       - `2025 - Present`: `Lecturer, Faculty of Architecture and Physical Planning, Eduardo Mondlane University, Mozambique. Maputo, Mozambique`
       - `2025 - 2026`: `Architect and WASH Consultant - UNICEF Mozambique. Maputo, Mozambique`
       - `2022 - 2026`: `Architect and Urban Planner, DELCAM / KPMG - Municipal Council of Maputo City, Mozambique. Maputo, Mozambique`
-      - `2020 - 2023`: `Architect and Project Manager, RENOVO Consultancy and Construction, Maputo, Mozambique.`
-      - `2022 - Present`: `Architect and Researcher, FRORESCER - Association for Child and Adolescent Mental Health, Maputo, Mozambique.`
-      - `2015 - 2016`: `Reseach Assistant, Research into “Informal Housing” by Emile Pinard PhD, from the University of the Witswatersrand in South Africa. Maputo, Mozambique` *(corrigir lapsos ortográficos `"Research"` / `"Witwatersrand"` na versão final após validação)*.
-  - Traduzir estas entradas com fidelidade para PT em `src/locales/pt.ts`, mantendo nomes de instituições conforme política editorial. Qualquer cargo, projecto, texto biográfico ou link externo adicional exige confirmação prévia.
+  - Traduzir estas entradas com fidelidade para PT em `src/locales/pt.ts`, mantendo nomes de instituições conforme política editorial. Qualquer cargo, registo cronológico adicional, texto biográfico ou link externo exige confirmação prévia.
 
 #### 3.2. Contactos, Escritórios, Políticas e Footer (Pág. 9)
 - **Consolidação `ContactSection.tsx` + `Footer.tsx`:**
