@@ -53,7 +53,8 @@ export type ModelValidationErrorCode =
   | 'INVALID_GLB_HEADER'
   | 'INVALID_GLTF_JSON'
   | 'INVALID_GLTF_MANIFEST'
-  | 'GLTF_EXTERNAL_RESOURCES_MISSING';
+  | 'GLTF_EXTERNAL_RESOURCES_MISSING'
+  | 'UNSAFE_EMBEDDED_DATA_URI';
 
 export type ModelLoadState = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -131,6 +132,7 @@ export interface ModelFileValidationFailure {
   fileName: string;
   byteSize: number;
   missingExternalResources?: string[];
+  unsafeDataUris?: string[];
   message: LocalizedText;
 }
 

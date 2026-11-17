@@ -108,7 +108,9 @@
 | `src/test/projectLibrary.test.tsx` | suite de integração Fase 03 (motor canónico, UI integrada, códigos únicos, datas, falhas storage e continuidade) |
 | `src/test/projectExperience.test.tsx` | suite unitária/acessibilidade da experiência editorial B (galeria, dossier 6 secções e assistente 4 passos) |
 | `src/test/modelEngine.test.tsx` | suite integrada da Fase 04 (motor + visualizador WebGL real, 3 categorias, P0.1–P0.4, P1 50 MB / comprimento GLB / `ObjectURL`, 6 perfis e PT/EN) |
+| `src/test/modelEngineSecurity.test.tsx` | suite adversarial da Fase 04 Hardening A (allowlist MIME `data:`, inspecção JSON de `.glb`, bloqueio antes do `GLTFLoader` e limpeza de sessão no logout) |
 | `src/test/modelViewer.test.tsx` | suite unitária da Fase 04B (`GLTFLoader` real, telemetria, vistas ortogonais/isométrica, grelha/eixos/malha, ficheiro local sem escala inventada, erros e dispose GPU) |
+| `src/test/projectLibrarySecurity.test.tsx` | suite de integridade documental e quotas da Fase 04 Hardening A (nomes de ficheiro seguros, correspondência extensão/tipo, limites de caracteres/registos e `QuotaExceededError`) |
 | `src/test/integrationPreview.test.tsx` | suite do Quality Gate de integração (câmara única, 6 papéis, pesquisa integrada, reset e bilinguismo) |
 
 ## Recursos Públicos e Documentação
@@ -136,4 +138,5 @@
 | `plans/006-phase-03a-project-platform.md` | plano da Fase 03A (`codex/f03-project-platform`) — domínio canónico, catálogo e motor do dossier |
 | `plans/008-phase-04a-model-engine.md` | plano da Fase 04A (`codex/f04-model-engine`) — motor de modelos 3D, validação `.glb`/`.gltf`/`.skp` e rota `/workspace/projects/:id/model` |
 | `plans/009-phase-04-integration.md` | plano e registo da integração Fase 04 Equipa 1 (Agentes A+B), correcções P0/P1 e Quality Gate WebGL |
+| `plans/010-phase-04a-security-hardening.md` | plano da Fase 04 Hardening — Agente A (`codex/f04a-security-hardening`): allowlist `data:` URI, inspecção GLB, limpeza logout, nomes documentais e quotas |
 | `scripts/e2e-verify-entry.mjs` | verificação E2E portátil em Chromium/Edge nas larguras 1440px, 680px altura, 768px, 720px (zoom) e 375px |
