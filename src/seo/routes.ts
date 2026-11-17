@@ -1,4 +1,4 @@
-import { ALL_PROJECTS } from '../data/projects';
+import { hasProjectId } from '../data/projects';
 
 export type SupportedLanguage = 'en' | 'pt';
 
@@ -159,6 +159,12 @@ export function resolveLegacyHashRedirect(
         canonicalPath = '/pt/';
     } else if (rawPath === '/en') {
         canonicalPath = '/en/';
+    } else if (rawPath === '/about') {
+        canonicalPath = '/about';
+    } else if (rawPath === '/pt/about') {
+        canonicalPath = '/pt/about';
+    } else if (rawPath === '/en/about') {
+        canonicalPath = '/en/about';
     } else if (rawPath === '/projects') {
         canonicalPath = '/projects';
     } else if (rawPath === '/pt/projects') {
@@ -189,7 +195,7 @@ export function resolveLegacyHashRedirect(
         }
 
         // Verify ID exists in known projects
-        const exists = ALL_PROJECTS.some((p) => p.id === id);
+        const exists = hasProjectId(id);
         if (!exists) {
             return null;
         }

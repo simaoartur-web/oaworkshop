@@ -1,4 +1,4 @@
-import { useRef, useState, type KeyboardEvent } from 'react';
+import { useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import type { WorkshopAreaId } from './WorkshopSection';
 
 export interface WorkshopTabItem {
@@ -11,6 +11,10 @@ export interface WorkshopTabItem {
 interface WorkshopTabsProps {
     items: readonly WorkshopTabItem[];
     activeId: WorkshopAreaId;
+    cycleId: number;
+    durationMs: number;
+    isAutoPlaying: boolean;
+    reducedMotion: boolean;
     label: string;
     onSelect: (id: WorkshopAreaId) => void;
     onIntent?: (id: WorkshopAreaId) => void;
@@ -19,6 +23,10 @@ interface WorkshopTabsProps {
 export default function WorkshopTabs({
     items,
     activeId,
+    cycleId,
+    durationMs,
+    isAutoPlaying,
+    reducedMotion,
     label,
     onSelect,
     onIntent,
@@ -26,6 +34,7 @@ export default function WorkshopTabs({
     const [focusedId, setFocusedId] = useState<WorkshopAreaId | null>(null);
     const listRef = useRef<HTMLDivElement>(null);
     const buttons = useRef<Array<HTMLButtonElement | null>>([]);
+    const activeIndex = items.findIndex((item) => item.id === activeId);
 
     const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
         let next: number;
@@ -65,6 +74,17 @@ export default function WorkshopTabs({
         >
             {items.map((item, index) => {
                 const isSelected = activeId === item.id;
+                const progressState =
+                    index < activeIndex
+                        ? 'completed'
+                        : isSelected
+                          ? reducedMotion
+                              ? 'static'
+                              : isAutoPlaying
+                                ? 'filling'
+                                : 'idle'
+                          : 'upcoming';
+
                 return (
                     <button
                         key={item.id}
@@ -92,7 +112,22 @@ export default function WorkshopTabs({
                             </span>
                             <span className="workshop-tab-label">{item.label}</span>
                         </span>
-                        <span className="workshop-tab-line" aria-hidden="true" />
+                        <span className="workshop-tab-line" aria-hidden="true">
+                            <span
+                                key={
+                                    progressState === 'filling'
+                                        ? `${item.id}-${cycleId}-run`
+                                        : `${item.id}-${progressState}`
+                                }
+                                className="workshop-tab-line-fill"
+                                data-progress={progressState}
+                                style={
+                                    {
+                                        '--workshop-slide-duration': `${durationMs}ms`,
+                                    } as CSSProperties
+                                }
+                            />
+                        </span>
                         <span className="workshop-tab-body">
                             <span className="workshop-tab-tag">{item.tag}</span>
                             <span className="workshop-tab-desc">{item.desc}</span>

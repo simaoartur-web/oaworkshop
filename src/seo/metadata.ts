@@ -5,7 +5,13 @@ import {
     stripLanguagePrefix,
     buildLocalizedPath,
 } from './routes';
-import { ALL_PROJECTS, hasVerifiedProjects, type Project } from '../data/projects';
+import {
+    ALL_PROJECTS,
+    ALL_PROJECT_ROUTE_ENTRIES,
+    PORTFOLIO_PROJECTS,
+    hasVerifiedProjects,
+    type Project,
+} from '../data/projects';
 import enLocale from '../locales/en';
 import ptLocale from '../locales/pt';
 
@@ -100,15 +106,15 @@ export function buildOrganizationJsonLd(lang: SupportedLanguage): Record<string,
                 '@type': 'Person',
                 name: 'Osvaldo Luís',
                 jobTitle: isPt
-                    ? 'Director-Geral · Arquitecto e Urbanista Sénior'
-                    : 'Managing Director · Senior Architect & Urbanist',
+                    ? 'Director-Geral · Arquitecto e Planeador'
+                    : 'Managing Director · Architect and Planner',
             },
             {
                 '@type': 'Person',
                 name: 'Artur Simão',
                 jobTitle: isPt
-                    ? 'Director Técnico · Arquitecto e Urbanista Sénior'
-                    : 'Technical Director · Senior Architect & Urbanist',
+                    ? 'Director Técnico · Arquitecto, Planeador e Docente'
+                    : 'Technical Director · Architect, Planner and Lecturer',
             },
         ],
         address: [
@@ -133,16 +139,29 @@ export function buildOrganizationJsonLd(lang: SupportedLanguage): Record<string,
  * Resolves localized project details (title and description) from local locale dictionaries.
  */
 function getProjectDetails(
-    project: Project,
+    projectId: string,
     lang: SupportedLanguage
 ): { title: string; description: string } {
     const localeResource = lang === 'pt' ? ptLocale : enLocale;
+
+    const portfolioMatch = PORTFOLIO_PROJECTS.find((item) => item.id === projectId);
+    if (portfolioMatch) {
+        const item = localeResource.portfolio?.items?.find((entry) => entry.id === projectId);
+        return {
+            title: item?.title || projectId,
+            description: item?.location || '',
+        };
+    }
+
+    const catalogMatch = ALL_PROJECTS.find((item) => item.id === projectId) as Project | undefined;
+    if (!catalogMatch) return { title: projectId, description: '' };
+
     const disciplineProjects =
-        localeResource.categorySections?.projects?.[project.discipline];
+        localeResource.categorySections?.projects?.[catalogMatch.discipline];
     const item = Array.isArray(disciplineProjects)
-        ? disciplineProjects[project.contentIndex]
+        ? disciplineProjects[catalogMatch.contentIndex]
         : undefined;
-    const projectTitle = item?.title || project.id;
+    const projectTitle = item?.title || catalogMatch.id;
     const projectDesc = item?.description || '';
     return { title: projectTitle, description: projectDesc };
 }
@@ -267,6 +286,52 @@ export function getPageMetadata(
         };
     }
 
+    // 1b. Studio About Page: '/about', '/en/about', '/pt/about'
+    if (stripped === '/about') {
+        const canonical = `${SITE_URL}${buildLocalizedPath('/about', lang)}`;
+        const title = isPt
+            ? 'Sobre o Atelier | O+A Arquitectos e Planeadores'
+            : 'About the Studio | O+A Architects and Planners';
+
+        const description = isPt
+            ? 'História, visão, missão e objectivos do estúdio africano de arquitectura sustentável, urbanismo e investigação fundado por Osvaldo Luís e Artur Simão em Maputo e Milão.'
+            : 'History, vision, mission and objectives of the African studio for sustainable architecture, urbanism and research founded by Osvaldo Luís and Artur Simão in Maputo and Milan.';
+
+        return {
+            title,
+            description,
+            canonical,
+            robots: 'index, follow',
+            lang,
+            isIndexable: true,
+            og: {
+                title,
+                description,
+                url: canonical,
+                type: 'website',
+                image: DEFAULT_OG_IMAGE,
+                imageWidth: DEFAULT_OG_IMAGE_WIDTH,
+                imageHeight: DEFAULT_OG_IMAGE_HEIGHT,
+                imageAlt,
+                locale,
+                localeAlternate,
+                siteName,
+            },
+            twitter: {
+                card: 'summary_large_image',
+                title,
+                description,
+                image: DEFAULT_OG_IMAGE,
+                imageAlt,
+            },
+            alternates: [
+                { hrefLang: 'en', href: `${SITE_URL}/en/about` },
+                { hrefLang: 'pt', href: `${SITE_URL}/pt/about` },
+            ],
+            jsonLd: undefined,
+        };
+    }
+
     // 2. Project Catalog: '/projects'
     if (stripped === '/projects') {
         const isVerified = hasVerifiedProjects();
@@ -317,13 +382,13 @@ export function getPageMetadata(
     // 3. Project Detail: '/projects/:id'
     if (stripped.startsWith('/projects/')) {
         const projectId = stripped.replace('/projects/', '').trim();
-        const found = ALL_PROJECTS.find((p) => p.id === projectId);
+        const found = ALL_PROJECT_ROUTE_ENTRIES.find((p) => p.id === projectId);
         if (!found) {
             // Non-existent project treated consistently as 404
             return getNotFoundMetadata(lang);
         }
 
-        const details = getProjectDetails(found, lang);
+        const details = getProjectDetails(found.id, lang);
         const resolvedTitle = dynamicTitle || details.title;
 
         const title = `${resolvedTitle} | ${siteName}`;

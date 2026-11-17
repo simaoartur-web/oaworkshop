@@ -113,7 +113,7 @@ test('Suite 1: Static Files and HTML Inspection', async (t) => {
         assert.match(content, /Sitemap:\s*https:\/\/www\.oa-workshop\.com\/sitemap\.xml/i);
     });
 
-    await t.test('dist/sitemap.xml is valid XML and contains exactly 3 canonical URLs', () => {
+    await t.test('dist/sitemap.xml is valid XML and contains expected canonical URLs', () => {
         const filePath = path.join(distDir, 'sitemap.xml');
         assert.ok(fs.existsSync(filePath), 'sitemap.xml must exist');
         const xml = fs.readFileSync(filePath, 'utf8');
@@ -122,11 +122,13 @@ test('Suite 1: Static Files and HTML Inspection', async (t) => {
         assert.match(xml, /<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9"/);
 
         const locs = [...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => m[1]);
-        assert.equal(locs.length, 3, 'sitemap.xml must contain exactly 3 URLs');
+        assert.equal(locs.length, 5, 'sitemap.xml must contain 5 canonical URLs');
         assert.deepEqual(locs.sort(), [
             'https://www.oa-workshop.com/',
             'https://www.oa-workshop.com/en/',
             'https://www.oa-workshop.com/pt/',
+            'https://www.oa-workshop.com/en/about',
+            'https://www.oa-workshop.com/pt/about',
         ].sort());
 
         // Zero '#' in any sitemap URL
@@ -160,6 +162,19 @@ test('Suite 2: Metadata Generation and Transition Cleaning', async (t) => {
             assert.equal(meta.og.url, 'https://www.oa-workshop.com/');
             assert.ok(meta.jsonLd, 'Homepage must have jsonLd');
             assert.equal(meta.alternates.length, 3);
+        });
+
+        await t.test('About page returns indexable localized metadata with alternates', () => {
+            const metaEn = getPageMetadata('/about', 'en');
+            assert.equal(metaEn.canonical, 'https://www.oa-workshop.com/en/about');
+            assert.equal(metaEn.robots, 'index, follow');
+            assert.equal(metaEn.isIndexable, true);
+            assert.equal(metaEn.alternates.length, 2);
+
+            const metaPt = getPageMetadata('/pt/about', 'pt');
+            assert.equal(metaPt.canonical, 'https://www.oa-workshop.com/pt/about');
+            assert.equal(metaPt.robots, 'index, follow');
+            assert.equal(metaPt.isIndexable, true);
         });
 
         await t.test('Project catalog is noindex and has no JSON-LD', () => {
@@ -385,6 +400,15 @@ test('Suite 4: Static Server without SPA Fallback (Real HTTP Responses)', async 
         assert.match(resPt.headers['content-type'], /text\/html/);
         assert.ok(resPt.data.includes('A nossa equipa') || resPt.data.includes('Pessoas e prática'));
 
+        // 3b. About page /about/ and /pt/about/
+        const resAbout = await fetchHttp('/about/');
+        assert.equal(resAbout.statusCode, 200);
+        assert.ok(resAbout.data.includes('About the Studio'));
+
+        const resPtAbout = await fetchHttp('/pt/about/');
+        assert.equal(resPtAbout.statusCode, 200);
+        assert.ok(resPtAbout.data.includes('Sobre o Atelier'));
+
         // 4. Projects catalog /projects/
         const resProjects = await fetchHttp('/projects/');
         assert.equal(resProjects.statusCode, 200);
@@ -547,7 +571,7 @@ test('Suite 6: SEO-02 English content and image resources', async (t) => {
                 checkedOrganizations++;
             }
         }
-        assert.equal(checkedImages, 7, 'Three homepages, three catalogs and the 404 use the institutional OG image');
+        assert.equal(checkedImages, 10, 'Three homepages, three about pages, three catalogs and the 404 use the institutional OG image');
         assert.equal(checkedOrganizations, 3);
     });
 
@@ -590,15 +614,16 @@ test('Suite 6: SEO-02 English content and image resources', async (t) => {
         }
     });
 
-    await t.test('All twelve demo projects and catalogs stay noindex in every language and outside the sitemap', () => {
+    await t.test('All demo and draft portfolio projects and catalogs stay noindex in every language and outside the sitemap', () => {
         const ids = fs.readdirSync(path.join(distDir, 'projects'), { withFileTypes: true })
             .filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort();
         assert.deepEqual(ids, [
-            'carmichael', 'drr-resilience', 'karlatornet', 'london-smart', 'milan', 'milan-urban',
-            'modular-sanitation', 'resilient-housing', 'rivage', 'singapore-green', 'urban-heat-lab', 'vancouver-waterfront',
+            'carmichael', 'drr-resilience', 'karlatornet', 'london-smart', 'metita-house', 'milan', 'milan-urban',
+            'modular-sanitation', 'nelson-house', 'professor-house', 'resilient-housing', 'rivage', 'singapore-green',
+            'urban-heat-lab', 'vancouver-waterfront', 'wagner-house-1', 'wagner-house-2', 'wagner-house-3',
         ]);
         const sitemap = readHtml('sitemap.xml');
-        assert.equal((sitemap.match(/<loc>/g) || []).length, 3);
+        assert.equal((sitemap.match(/<loc>/g) || []).length, 5);
         assert.ok(!sitemap.includes('/projects'));
         for (const prefix of ['', 'en/', 'pt/']) {
             for (const file of [`${prefix}projects/index.html`, ...ids.map((id) => `${prefix}projects/${id}/index.html`)]) {
@@ -647,7 +672,7 @@ test('Suite 7: SEO-03 website identity', async (t) => {
             return entry.isDirectory() ? collectHtml(file) : entry.name.endsWith('.html') ? [file] : [];
         });
         const files = collectHtml(distDir).filter((file) => file !== path.join(distDir, 'index.html'));
-        assert.equal(files.length, 42);
+        assert.equal(files.length, 63);
         for (const file of files) {
             const scripts = structuredData(path.relative(distDir, file));
             assert.ok(!scripts.some((script) => script.selector === 'website-json-ld'), file);

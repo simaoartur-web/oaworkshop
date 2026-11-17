@@ -6,6 +6,11 @@ import { useTranslation } from 'react-i18next';
 import { getSafeTeamProfileUrl, type TeamMember } from '../../data/team';
 import TeamAvatar from './TeamAvatar';
 
+interface TimelineEntry {
+    period: string;
+    detail: string;
+}
+
 interface Props {
     member: TeamMember;
     onDismiss: () => void;
@@ -21,6 +26,10 @@ const TeamProfilePanel = ({ member, onDismiss, returnFocusRef, fallbackFocusRef 
     const pointerStartedOutside = useRef(false);
     const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [closing, setClosing] = useState(false);
+    const roleLines = t(`team.roles.${member.role}`).split(' · ');
+    const timelineEntries = member.timeline
+        ? (t(`team.timelines.${member.timeline}`, { returnObjects: true }) as TimelineEntry[])
+        : [];
     const seenLinkIds = new Set<string>();
     const socialLinks = member.links.flatMap((link) => {
         const href = getSafeTeamProfileUrl(link.url);
@@ -103,11 +112,32 @@ const TeamProfilePanel = ({ member, onDismiss, returnFocusRef, fallbackFocusRef 
                     <p className="text-xs uppercase leading-relaxed tracking-[0.16em] text-gray-400">{t(member.leadership ? 'team.leadership' : 'team.practice')}</p>
                 </div>
                 <h2 id="team-profile-name" className="break-words text-4xl font-light tracking-tight text-white">{member.name}</h2>
-                <p className="mt-4 text-base font-light leading-relaxed text-gray-300">{t(`team.roles.${member.role}`)}</p>
+                <div className="mt-4 space-y-1 text-base font-light leading-relaxed text-gray-300">
+                    {roleLines.map((line, index) => (
+                        <p key={index}>{line}</p>
+                    ))}
+                </div>
                 <dl className="mt-8 border-t border-white/15 pt-6">
                     <dt className="text-xs uppercase tracking-[0.16em] text-gray-400">{t('team.area')}</dt>
                     <dd className="mt-2 text-sm leading-relaxed text-gray-300">{t(`team.categories.${member.category}`)}</dd>
                 </dl>
+                {Array.isArray(timelineEntries) && timelineEntries.length > 0 && (
+                    <section aria-labelledby="team-timeline-title" className="mt-8 border-t border-white/15 pt-6">
+                        <h3 id="team-timeline-title" className="mb-4 text-xs uppercase tracking-[0.16em] text-gray-400">{t('team.experience')}</h3>
+                        <ul className="space-y-5">
+                            {timelineEntries.map((entry, index) => (
+                                <li key={`${entry.period}-${index}`} className="border-l border-white/15 pl-4">
+                                    <p className="text-xs font-semibold tracking-[0.06em] text-[#ED7D31]">
+                                        {entry.period}
+                                    </p>
+                                    <p className="mt-1 text-sm font-light leading-relaxed text-gray-200">
+                                        {entry.detail}
+                                    </p>
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
+                )}
                 {member.bio && (
                     <section aria-labelledby="team-biography-title" className="mt-8">
                         <h3 id="team-biography-title" className="mb-3 text-xs uppercase tracking-[0.16em] text-gray-400">{t('team.biography')}</h3>

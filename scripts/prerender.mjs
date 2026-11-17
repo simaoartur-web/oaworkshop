@@ -25,21 +25,24 @@ async function main() {
 
     try {
         const { render } = await vite.ssrLoadModule('/src/entry-server.tsx');
-        const { ALL_PROJECTS } = await vite.ssrLoadModule('/src/data/projects.ts');
+        const { ALL_PROJECT_ROUTE_ENTRIES } = await vite.ssrLoadModule('/src/data/projects.ts');
 
         // Route definitions
         const routes = [
             { path: '/', outPath: 'index.html' },
             { path: '/en/', outPath: 'en/index.html' },
             { path: '/pt/', outPath: 'pt/index.html' },
+            { path: '/about', outPath: 'about/index.html' },
+            { path: '/en/about', outPath: 'en/about/index.html' },
+            { path: '/pt/about', outPath: 'pt/about/index.html' },
             { path: '/projects', outPath: 'projects/index.html' },
             { path: '/en/projects', outPath: 'en/projects/index.html' },
             { path: '/pt/projects', outPath: 'pt/projects/index.html' },
             { path: '/404', outPath: '404.html' },
         ];
 
-        // Add mock projects (each with en, pt, and default)
-        for (const p of ALL_PROJECTS) {
+        // Add project detail routes (each with en, pt, and default)
+        for (const p of ALL_PROJECT_ROUTE_ENTRIES) {
             routes.push({
                 path: `/projects/${p.id}`,
                 outPath: `projects/${p.id}/index.html`,

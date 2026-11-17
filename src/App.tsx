@@ -1,20 +1,60 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, type Location } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
+import About from './pages/About';
 import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
 import NotFound from './pages/NotFound';
+import PortfolioProjectModal from './components/home/PortfolioProjectModal';
 import DocumentHead from './seo/DocumentHead';
 import { getLanguageFromPathname } from './seo/routes';
 
-// ScrollToTop component with hash anchor support
-const ScrollToTop = () => {
+interface LocationState {
+    backgroundLocation?: Location;
+}
+
+// ScrollToTop component with hash anchor support and modal-return scroll preservation
+const ScrollToTop = ({ isModalOpen }: { isModalOpen: boolean }) => {
     const { pathname, hash } = useLocation();
+    const wasModalOpenRef = useRef(false);
+    const savedScrollYRef = useRef(0);
+    const prevRestorationRef = useRef<ScrollRestoration>('auto');
+
     useEffect(() => {
+        if (isModalOpen) {
+            if (!wasModalOpenRef.current) {
+                savedScrollYRef.current = window.scrollY;
+                if ('scrollRestoration' in window.history) {
+                    prevRestorationRef.current = window.history.scrollRestoration;
+                    window.history.scrollRestoration = 'manual';
+                }
+            }
+            wasModalOpenRef.current = true;
+            return;
+        }
+
+        if (wasModalOpenRef.current) {
+            wasModalOpenRef.current = false;
+            const targetY = savedScrollYRef.current;
+            const restore = () => window.scrollTo({ top: targetY, behavior: 'instant' as ScrollBehavior });
+            restore();
+            const frame = requestAnimationFrame(restore);
+            const timer = window.setTimeout(() => {
+                restore();
+                if ('scrollRestoration' in window.history) {
+                    window.history.scrollRestoration = prevRestorationRef.current;
+                }
+            }, 60);
+            return () => {
+                cancelAnimationFrame(frame);
+                window.clearTimeout(timer);
+            };
+        }
+
         if (hash && hash !== '#top') {
             const targetId = hash.slice(1);
             const frame = requestAnimationFrame(() => {
@@ -26,13 +66,17 @@ const ScrollToTop = () => {
             return () => cancelAnimationFrame(frame);
         }
         window.scrollTo({ top: 0, behavior: 'auto' });
-    }, [pathname, hash]);
+    }, [pathname, hash, isModalOpen]);
+
     return null;
 };
 
 function App() {
     const location = useLocation();
     const { i18n } = useTranslation();
+    const state = location.state as LocationState | null;
+    const backgroundLocation = state?.backgroundLocation;
+    const displayLocation = backgroundLocation ?? location;
 
     // Keep active language aligned with route language prefix
     useEffect(() => {
@@ -45,15 +89,18 @@ function App() {
     return (
         <div className="flex flex-col min-h-screen bg-black-900 text-white">
             <DocumentHead />
-            <ScrollToTop />
+            <ScrollToTop isModalOpen={Boolean(backgroundLocation)} />
             <Header />
 
             <main className="flex-grow">
                 <AnimatePresence mode="wait">
-                    <Routes location={location} key={location.pathname}>
+                    <Routes location={displayLocation} key={displayLocation.pathname}>
                         <Route path="/" element={<Home />} />
                         <Route path="/en" element={<Home />} />
                         <Route path="/pt" element={<Home />} />
+                        <Route path="/about" element={<About />} />
+                        <Route path="/en/about" element={<About />} />
+                        <Route path="/pt/about" element={<About />} />
                         <Route path="/projects" element={<Projects />} />
                         <Route path="/en/projects" element={<Projects />} />
                         <Route path="/pt/projects" element={<Projects />} />
@@ -63,6 +110,14 @@ function App() {
                         <Route path="*" element={<NotFound />} />
                     </Routes>
                 </AnimatePresence>
+
+                {backgroundLocation && (
+                    <Routes>
+                        <Route path="/projects/:id" element={<PortfolioProjectModal />} />
+                        <Route path="/en/projects/:id" element={<PortfolioProjectModal />} />
+                        <Route path="/pt/projects/:id" element={<PortfolioProjectModal />} />
+                    </Routes>
+                )}
             </main>
 
             <Footer />

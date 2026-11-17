@@ -3,6 +3,27 @@ import type { TFunction } from 'i18next';
 export type ProjectDiscipline = 'architecture' | 'urbanism' | 'research';
 export type EditorialStatus = 'demo' | 'verified';
 
+export type PortfolioFilterKey =
+    | 'all'
+    | 'architecture'
+    | 'urbanPlanning'
+    | 'competitions'
+    | 'interiorDesign'
+    | 'landscaping'
+    | 'furniture'
+    | 'heritage';
+
+export const PORTFOLIO_FILTER_KEYS: readonly PortfolioFilterKey[] = [
+    'all',
+    'architecture',
+    'urbanPlanning',
+    'competitions',
+    'interiorDesign',
+    'landscaping',
+    'furniture',
+    'heritage',
+];
+
 export interface MapMarker {
     lat: number;
     lng: number;
@@ -27,6 +48,37 @@ export interface LocalizedProject extends Project {
     description: string;
     scope: string[];
     area: string;
+}
+
+export interface PortfolioProjectItem {
+    id: string;
+    categories: readonly Exclude<PortfolioFilterKey, 'all'>[];
+    mainImage: string;
+    imageWebp?: string;
+    thumbnail: string;
+    date?: string;
+    client?: string;
+    area?: string;
+    isPlaceholder?: boolean;
+    editorialStatus: EditorialStatus;
+}
+
+export interface ResolvedProjectDetail {
+    id: string;
+    title: string;
+    location?: string;
+    date?: string;
+    client?: string;
+    area?: string;
+    category?: string;
+    description?: string;
+    scope?: string[];
+    mainImage: string;
+    imageWebp?: string;
+    imageAlt: string;
+    imageIsPlaceholder?: boolean;
+    editorialStatus?: EditorialStatus;
+    categories?: readonly Exclude<PortfolioFilterKey, 'all'>[];
 }
 
 const project = (
@@ -113,12 +165,141 @@ export const PROJECT_GROUPS: Record<ProjectDiscipline, Project[]> = {
 
 export const ALL_PROJECTS = Object.values(PROJECT_GROUPS).flat();
 
+/**
+ * Homepage + PORTFOLIO showcase items (single typed source of truth).
+ * Metadata not yet confirmed by the studio (client, area, full descriptions) is omitted rather than fabricated.
+ */
+export const PORTFOLIO_PROJECTS: readonly PortfolioProjectItem[] = [
+    {
+        id: 'professor-house',
+        categories: ['architecture'],
+        mainImage: '/images/portfolio/professor-house.jpg',
+        imageWebp: '/images/portfolio/professor-house.webp',
+        thumbnail: '/images/portfolio/professor-house.webp',
+        date: '2026',
+        editorialStatus: 'demo',
+    },
+    {
+        id: 'metita-house',
+        categories: ['architecture', 'landscaping'],
+        mainImage: '/images/portfolio/metita-house.jpg',
+        imageWebp: '/images/portfolio/metita-house.webp',
+        thumbnail: '/images/portfolio/metita-house.webp',
+        date: '2026',
+        editorialStatus: 'demo',
+    },
+    {
+        id: 'nelson-house',
+        categories: ['architecture', 'interiorDesign'],
+        mainImage: '/images/portfolio/nelson-house.jpg',
+        imageWebp: '/images/portfolio/nelson-house.webp',
+        thumbnail: '/images/portfolio/nelson-house.webp',
+        date: '2026',
+        editorialStatus: 'demo',
+    },
+    {
+        id: 'wagner-house-1',
+        categories: ['architecture', 'landscaping', 'interiorDesign'],
+        mainImage: '/images/portfolio/wagner-house.jpg',
+        imageWebp: '/images/portfolio/wagner-house.webp',
+        thumbnail: '/images/portfolio/wagner-house.webp',
+        date: '2026',
+        editorialStatus: 'demo',
+    },
+    {
+        id: 'wagner-house-2',
+        categories: ['architecture', 'landscaping', 'interiorDesign'],
+        mainImage: '/images/portfolio/wagner-house-2.jpg',
+        imageWebp: '/images/portfolio/wagner-house-2.webp',
+        thumbnail: '/images/portfolio/wagner-house-2.webp',
+        date: '2026',
+        editorialStatus: 'demo',
+    },
+    {
+        id: 'wagner-house-3',
+        categories: ['architecture', 'landscaping', 'interiorDesign'],
+        mainImage: '/images/portfolio/wagner-house-3.jpg',
+        imageWebp: '/images/portfolio/wagner-house-3.webp',
+        thumbnail: '/images/portfolio/wagner-house-3.webp',
+        date: '2026',
+        editorialStatus: 'demo',
+    },
+];
+
+export const ALL_PROJECT_ROUTE_ENTRIES: ReadonlyArray<{
+    id: string;
+    mainImage: string;
+    imageIsPlaceholder?: boolean;
+    editorialStatus?: EditorialStatus;
+}> = [...ALL_PROJECTS, ...PORTFOLIO_PROJECTS];
+
+export const hasProjectId = (id: string): boolean =>
+    ALL_PROJECT_ROUTE_ENTRIES.some((item) => item.id === id);
+
 export const localizeProject = (source: Project, t: TFunction): LocalizedProject => {
     const content = t(`categorySections.projects.${source.discipline}.${source.contentIndex}`, {
         returnObjects: true,
     }) as Pick<LocalizedProject, 'title' | 'category' | 'location' | 'description' | 'scope' | 'area'>;
 
     return { ...source, ...content };
+};
+
+interface PortfolioTranslatedEntry {
+    id: string;
+    title: string;
+    location: string;
+    imageAlt: string;
+    description?: string;
+    client?: string;
+    area?: string;
+    date?: string;
+}
+
+export const resolveProjectDetail = (id: string, t: TFunction): ResolvedProjectDetail | null => {
+    const portfolioSource = PORTFOLIO_PROJECTS.find((item) => item.id === id);
+    if (portfolioSource) {
+        const items = t('portfolio.items', { returnObjects: true }) as PortfolioTranslatedEntry[];
+        const copy = Array.isArray(items) ? items.find((item) => item.id === id) : undefined;
+        const categoryLabels = portfolioSource.categories
+            .map((cat) => t(`portfolio.filters.${cat}`))
+            .join(' · ');
+
+        return {
+            id: portfolioSource.id,
+            title: copy?.title ?? portfolioSource.id,
+            location: copy?.location,
+            date: copy?.date ?? portfolioSource.date,
+            client: copy?.client ?? portfolioSource.client,
+            area: copy?.area ?? portfolioSource.area,
+            category: categoryLabels,
+            description: copy?.description,
+            mainImage: portfolioSource.mainImage,
+            imageWebp: portfolioSource.imageWebp,
+            imageAlt: portfolioSource.isPlaceholder ? '' : (copy?.imageAlt ?? copy?.title ?? portfolioSource.id),
+            imageIsPlaceholder: portfolioSource.isPlaceholder,
+            editorialStatus: portfolioSource.editorialStatus,
+            categories: portfolioSource.categories,
+        };
+    }
+
+    const catalogSource = ALL_PROJECTS.find((item) => item.id === id);
+    if (!catalogSource) return null;
+
+    const localized = localizeProject(catalogSource, t);
+    return {
+        id: localized.id,
+        title: localized.title,
+        location: localized.location,
+        date: localized.year,
+        area: localized.area && localized.area !== 'N/A' ? localized.area : undefined,
+        category: localized.category,
+        description: localized.description,
+        scope: localized.scope,
+        mainImage: localized.mainImage,
+        imageAlt: localized.imageIsPlaceholder ? '' : localized.title,
+        imageIsPlaceholder: localized.imageIsPlaceholder,
+        editorialStatus: localized.editorialStatus,
+    };
 };
 
 export const COMMON_MARKERS: MapMarker[] = [
@@ -134,4 +315,4 @@ export const COMMON_MARKERS: MapMarker[] = [
 ];
 
 export const hasVerifiedProjects = (): boolean =>
-    ALL_PROJECTS.some((item) => item.editorialStatus === 'verified');
+    ALL_PROJECT_ROUTE_ENTRIES.some((item) => item.editorialStatus === 'verified');

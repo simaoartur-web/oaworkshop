@@ -30,16 +30,47 @@ const ContactSection = () => {
                         <h3 className="mb-6 md:mb-8 text-3xl sm:text-4xl font-light leading-tight md:text-6xl">
                             {t('contact.titleStart')} <br /><span className="font-semibold">{t('contact.titleStrong')}</span>
                         </h3>
-                        <p className="mb-10 md:mb-14 max-w-md text-base sm:text-lg font-light leading-relaxed text-gray-400">{t('contact.intro')}</p>
+                        <p className="mb-10 md:mb-12 max-w-md text-base sm:text-lg font-light leading-relaxed text-gray-400">{t('contact.intro')}</p>
 
-                        <div className="space-y-8 md:space-y-10">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-10">
                             <div>
-                                <h4 className="mb-2 text-xs uppercase tracking-widest text-gray-500">{t('contact.emailLabel')}</h4>
-                                <a href={`mailto:${PUBLIC_EMAIL}`} className="text-xl sm:text-2xl font-light transition-colors hover:text-gray-300 break-all">{PUBLIC_EMAIL}</a>
+                                <h4 className="mb-2 text-xs uppercase tracking-widest text-[#ED7D31]">{t('contact.mainOfficeTitle')}</h4>
+                                <p className="text-sm font-medium text-white mb-2">{t('contact.locationLine2')}</p>
+                                <p className="text-sm font-light leading-relaxed text-gray-300 mb-3">
+                                    {t('contact.maputoAddress')}
+                                </p>
+                                <ul className="space-y-1.5 text-sm font-light text-gray-300">
+                                    <li>
+                                        <a href="tel:+258876569776" className="inline-block py-0.5 hover:text-white transition-colors">
+                                            +258 87 65 69 776
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="tel:+258847555427" className="inline-block py-0.5 hover:text-white transition-colors">
+                                            +258 84 75 55 427
+                                        </a>
+                                    </li>
+                                    <li className="pt-1">
+                                        <a href={`mailto:${PUBLIC_EMAIL}`} className="inline-block py-0.5 text-white hover:text-[#ED7D31] transition-colors break-all">
+                                            {PUBLIC_EMAIL}
+                                        </a>
+                                    </li>
+                                </ul>
                             </div>
+
                             <div>
-                                <h4 className="mb-2 text-xs uppercase tracking-widest text-gray-500">{t('contact.locations')}</h4>
-                                <p className="text-base sm:text-lg font-light text-gray-400">{t('contact.locationLine')} <br /> {t('contact.locationLine2')}</p>
+                                <h4 className="mb-2 text-xs uppercase tracking-widest text-[#ED7D31]">{t('contact.repOfficeTitle')}</h4>
+                                <p className="text-sm font-medium text-white mb-2">{t('contact.locationLine')}</p>
+                                <p className="text-sm font-light leading-relaxed text-gray-300 mb-3">
+                                    {t('contact.milanoAddress')}
+                                </p>
+                                <ul className="space-y-1.5 text-sm font-light text-gray-300">
+                                    <li>
+                                        <a href="tel:+393513531205" className="inline-block py-0.5 hover:text-white transition-colors">
+                                            +39 351 3531205
+                                        </a>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </motion.div>

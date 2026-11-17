@@ -1,8 +1,8 @@
 import { motion, useInView, useReducedMotion } from 'framer-motion';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import WorkshopTabs from './WorkshopTabs';
 import './workshop.css';
 
@@ -53,7 +53,7 @@ const AREAS: readonly WorkshopArea[] = [
     },
 ];
 
-const SLIDE_DURATION_MS = 8000;
+export const SLIDE_DURATION_MS = 12000;
 const withoutPlus = (text: string) => text.replace(/^\+\s*/, '');
 
 function focusSection(sectionId: string, reducedMotion: boolean) {
@@ -90,13 +90,8 @@ export default function WorkshopSection() {
         if (typeof document === 'undefined') return true;
         return !document.hidden;
     });
-    const [isPlaying, setIsPlaying] = useState(true);
-    const [isHovered, setIsHovered] = useState(false);
-    const [isFocused, setIsFocused] = useState(false);
     const [activeId, setActiveId] = useState<WorkshopAreaId>('architecture');
-    const [idleTick, setIdleTick] = useState(0);
-
-    const idleTimerRef = useRef<number | null>(null);
+    const [cycleId, setCycleId] = useState(0);
 
     const copies = t('workshop.slides', { returnObjects: true }) as WorkshopCopy[];
     const defaultTag = t('workshop.featuredTag');
@@ -105,26 +100,6 @@ export default function WorkshopSection() {
     const nextId = AREAS[(activeIndex + 1) % AREAS.length].id;
     const prevId = AREAS[(activeIndex - 1 + AREAS.length) % AREAS.length].id;
 
-    // Trigger temporary pause on user action, auto-resuming after SLIDE_DURATION_MS of idle
-    const registerUserInteraction = useCallback(() => {
-        if (idleTimerRef.current !== null) {
-            window.clearTimeout(idleTimerRef.current);
-        }
-        idleTimerRef.current = window.setTimeout(() => {
-            setIdleTick((tick) => tick + 1);
-        }, SLIDE_DURATION_MS);
-    }, []);
-
-    // Clean up idle timer on unmount
-    useEffect(() => {
-        return () => {
-            if (idleTimerRef.current !== null) {
-                window.clearTimeout(idleTimerRef.current);
-            }
-        };
-    }, []);
-
-    // Page Visibility listener
     useEffect(() => {
         const handleVisibility = () => setPageVisible(!document.hidden);
         document.addEventListener('visibilitychange', handleVisibility);
@@ -133,47 +108,44 @@ export default function WorkshopSection() {
         };
     }, []);
 
-    // Autoplay condition: respects reducedMotion, pageVisible, viewport, user play/pause, hover, and focus
-    const canAutoRotate =
-        !reducedMotion && pageVisible && inViewport && isPlaying && !isHovered && !isFocused;
+    // Continuous playback while observing the section (never paused by hover, focus, or inactivity).
+    const canAutoRotate = !reducedMotion && pageVisible && inViewport;
 
     useEffect(() => {
         if (!canAutoRotate) return;
         const timer = window.setTimeout(() => {
             setActiveId(nextId);
+            setCycleId((value) => value + 1);
         }, SLIDE_DURATION_MS);
         return () => window.clearTimeout(timer);
-    }, [canAutoRotate, nextId, idleTick]);
+    }, [canAutoRotate, nextId, cycleId]);
 
-    // Hash navigation handling
     useEffect(() => {
         const target = AREAS.find((item) => `#${item.targetId}` === hash);
         if (!target) return;
         const frame = requestAnimationFrame(() => {
             setActiveId(target.id);
+            setCycleId((value) => value + 1);
             focusSection('workshop', Boolean(reducedMotion));
         });
         return () => cancelAnimationFrame(frame);
     }, [hash, reducedMotion]);
 
     const selectArea = (id: WorkshopAreaId) => {
-        registerUserInteraction();
-        if (id === activeId) return;
-        setActiveId(id);
+        setCycleId((value) => value + 1);
+        if (id !== activeId) {
+            setActiveId(id);
+        }
     };
 
     const selectPrevious = () => {
-        registerUserInteraction();
+        setCycleId((value) => value + 1);
         setActiveId(prevId);
     };
 
     const selectNext = () => {
-        registerUserInteraction();
+        setCycleId((value) => value + 1);
         setActiveId(nextId);
-    };
-
-    const togglePlayPause = () => {
-        setIsPlaying((prev) => !prev);
     };
 
     return (
@@ -182,22 +154,6 @@ export default function WorkshopSection() {
             ref={sectionRef}
             className="workshop-section"
             aria-label={t('workshop.sectionLabel')}
-            onPointerEnter={(event) => {
-                if (event.pointerType === 'mouse') {
-                    setIsHovered(true);
-                }
-            }}
-            onPointerLeave={() => {
-                setIsHovered(false);
-                registerUserInteraction();
-            }}
-            onFocusCapture={() => setIsFocused(true)}
-            onBlurCapture={(event) => {
-                if (!event.currentTarget.contains(event.relatedTarget)) {
-                    setIsFocused(false);
-                    registerUserInteraction();
-                }
-            }}
         >
             <div className="workshop-stage">
                 <div className="workshop-image-stage">
@@ -240,7 +196,7 @@ export default function WorkshopSection() {
                             initial={{ opacity: reducedMotion ? 1 : 0, y: reducedMotion ? 0 : 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{
-                                duration: reducedMotion ? 0 : 0.28,
+                                duration: reducedMotion ? 0 : 0.35,
                                 ease: [0.22, 1, 0.36, 1],
                             }}
                         >
@@ -267,23 +223,6 @@ export default function WorkshopSection() {
                             onClick={selectPrevious}
                         >
                             <ChevronLeft size={18} strokeWidth={1.75} aria-hidden="true" />
-                        </button>
-                        <button
-                            type="button"
-                            className="workshop-nav-btn workshop-nav-btn-playback"
-                            aria-label={
-                                isPlaying
-                                    ? t('workshop.pauseSlideshow')
-                                    : t('workshop.playSlideshow')
-                            }
-                            aria-pressed={!isPlaying}
-                            onClick={togglePlayPause}
-                        >
-                            {isPlaying ? (
-                                <Pause size={16} strokeWidth={2} aria-hidden="true" />
-                            ) : (
-                                <Play size={16} strokeWidth={2} aria-hidden="true" className="translate-x-[1px]" />
-                            )}
                         </button>
                         <button
                             type="button"
@@ -319,6 +258,10 @@ export default function WorkshopSection() {
                         };
                     })}
                     activeId={activeId}
+                    cycleId={cycleId}
+                    durationMs={SLIDE_DURATION_MS}
+                    isAutoPlaying={canAutoRotate}
+                    reducedMotion={Boolean(reducedMotion)}
                     label={t('workshop.navigationLabel')}
                     onSelect={selectArea}
                 />

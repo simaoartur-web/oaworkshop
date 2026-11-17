@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Plus, Search, X } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { buildLocalizedPath, getHomePrefix, getLocalizedInternalLink } from '../../seo/routes';
+import { buildLocalizedPath, getHomePrefix, getLocalizedInternalLink, stripLanguagePrefix } from '../../seo/routes';
 
 const Header = () => {
     const { t, i18n } = useTranslation();
@@ -39,8 +39,10 @@ const Header = () => {
     }, [location]);
 
     const activeLanguage = i18n.resolvedLanguage === 'pt' ? 'pt' : 'en';
+    const isHomeRoute = stripLanguagePrefix(location.pathname) === '/';
     const homePrefix = getHomePrefix(location.pathname);
     const homeLink = homePrefix;
+    const aboutLink = getLocalizedInternalLink('/about', location.pathname);
     const projectsLink = getLocalizedInternalLink('/projects', location.pathname);
     const targetEnPath = buildLocalizedPath(location.pathname, 'en', location.hash);
     const targetPtPath = buildLocalizedPath(location.pathname, 'pt', location.hash);
@@ -52,7 +54,7 @@ const Header = () => {
     return (
         <>
             <motion.header
-                style={{ opacity: headerOpacity }}
+                style={{ opacity: isHomeRoute ? headerOpacity : 1 }}
                 animate={{ y: isHidden ? "-100%" : 0 }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                 className="fixed top-0 w-full z-[80] py-2.5 md:py-4 bg-[#070707]/60 backdrop-blur-md border-b border-white/[0.06] shadow-lg shadow-black/20"
@@ -64,7 +66,7 @@ const Header = () => {
                             <img
                                 src="/logo.png"
                                 alt="O+A"
-                                className="w-14 h-14 sm:w-16 sm:h-16 md:w-24 md:h-24 object-contain brightness-110 group-hover:scale-105 transition-transform duration-500"
+                                className="oa-logo-white w-14 h-14 sm:w-16 sm:h-16 md:w-24 md:h-24 object-contain group-hover:scale-105 transition-transform duration-500"
                             />
                         </Link>
                     </motion.div>
@@ -183,7 +185,7 @@ const Header = () => {
                                         <img
                                             src="/logo.png"
                                             alt="O+A"
-                                            className="w-16 h-16 sm:w-20 sm:h-20 md:w-28 md:h-28 object-contain brightness-150 contrast-125"
+                                            className="oa-logo-white w-16 h-16 sm:w-20 sm:h-20 md:w-28 md:h-28 object-contain"
                                         />
                                         <div className="flex flex-col">
                                             <span className="font-light tracking-[0.28em] text-[10px] sm:text-[11px] md:text-[12px] text-white/85 uppercase">{t('common.discipline')}</span>
@@ -205,9 +207,17 @@ const Header = () => {
                                     <span className="ml-7 sm:ml-10 md:ml-16 text-lg sm:text-xl md:text-3xl lg:text-4xl italic text-terracota/85 group-hover:text-terracota group-hover:translate-x-3 transition-all duration-500">{t('nav.exploreStudio')}</span>
                                 </Link>
 
-                                <Link to={`${homePrefix}#portfolio`} onClick={() => setIsMenuOpen(false)} className="group flex flex-col items-start gap-1">
+                                <Link to={aboutLink} onClick={() => setIsMenuOpen(false)} className="group flex flex-col items-start gap-1">
                                     <div className="flex items-baseline gap-3 sm:gap-4">
                                         <span className="text-xs sm:text-sm md:text-base font-bold tracking-widest text-white/25 group-hover:text-terracota transition-colors duration-500">02.</span>
+                                        <span className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/60 group-hover:text-white transition-all duration-500">{t('nav.about')}</span>
+                                    </div>
+                                    <span className="ml-7 sm:ml-10 md:ml-16 text-lg sm:text-xl md:text-3xl lg:text-4xl italic text-terracota/85 group-hover:text-terracota group-hover:translate-x-3 transition-all duration-500">{t('nav.aboutSubtitle')}</span>
+                                </Link>
+
+                                <Link to={`${homePrefix}#portfolio`} onClick={() => setIsMenuOpen(false)} className="group flex flex-col items-start gap-1">
+                                    <div className="flex items-baseline gap-3 sm:gap-4">
+                                        <span className="text-xs sm:text-sm md:text-base font-bold tracking-widest text-white/25 group-hover:text-terracota transition-colors duration-500">03.</span>
                                         <span className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/60 group-hover:text-white transition-all duration-500">{t('nav.expertise')}</span>
                                     </div>
                                     <span className="ml-7 sm:ml-10 md:ml-16 text-lg sm:text-xl md:text-3xl lg:text-4xl italic text-terracota/85 group-hover:text-terracota group-hover:translate-x-3 transition-all duration-500">{t('nav.ourSkills')}</span>
@@ -215,7 +225,7 @@ const Header = () => {
 
                                 <Link to={projectsLink} onClick={() => setIsMenuOpen(false)} className="group flex flex-col items-start gap-1">
                                     <div className="flex items-baseline gap-3 sm:gap-4">
-                                        <span className="text-xs sm:text-sm md:text-base font-bold tracking-widest text-white/25 group-hover:text-terracota transition-colors duration-500">03.</span>
+                                        <span className="text-xs sm:text-sm md:text-base font-bold tracking-widest text-white/25 group-hover:text-terracota transition-colors duration-500">04.</span>
                                         <span className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/60 group-hover:text-white transition-all duration-500">{t('nav.projects')}</span>
                                     </div>
                                     <span className="ml-7 sm:ml-10 md:ml-16 text-lg sm:text-xl md:text-3xl lg:text-4xl italic text-terracota/85 group-hover:text-terracota group-hover:translate-x-3 transition-all duration-500">{t('nav.portfolio')}</span>
@@ -223,7 +233,7 @@ const Header = () => {
 
                                 <Link to={`${homePrefix}#contact`} onClick={() => setIsMenuOpen(false)} className="group flex flex-col items-start gap-1">
                                     <div className="flex items-baseline gap-3 sm:gap-4">
-                                        <span className="text-xs sm:text-sm md:text-base font-bold tracking-widest text-white/25 group-hover:text-terracota transition-colors duration-500">04.</span>
+                                        <span className="text-xs sm:text-sm md:text-base font-bold tracking-widest text-white/25 group-hover:text-terracota transition-colors duration-500">05.</span>
                                         <span className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-light tracking-tight text-white/60 group-hover:text-white transition-all duration-500">{t('nav.contact')}</span>
                                     </div>
                                     <span className="ml-7 sm:ml-10 md:ml-16 text-lg sm:text-xl md:text-3xl lg:text-4xl italic text-white/30 group-hover:text-white group-hover:translate-x-3 transition-all duration-500">{t('nav.letsTalk')}</span>

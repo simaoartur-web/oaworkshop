@@ -1,5 +1,8 @@
 import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowUpRight } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { getLocalizedInternalLink } from '../../seo/routes';
 import './studio-about.css';
 
 const OFFICE_IMAGE_SRC = `${import.meta.env.BASE_URL}images/workshop-about/office-space.png`;
@@ -9,7 +12,9 @@ const FOUNDERS_IMAGE_WEBP = `${import.meta.env.BASE_URL}images/workshop-about/fo
 
 const StudioAboutSection = () => {
     const { t } = useTranslation();
+    const { pathname } = useLocation();
     const reducedMotion = useReducedMotion();
+    const aboutLink = getLocalizedInternalLink('/about', pathname);
 
     return (
         <section
@@ -53,8 +58,26 @@ const StudioAboutSection = () => {
                                 className="studio-about-office-img"
                             />
                         </picture>
-                        <figcaption className="sr-only">
-                            {t('studioAbout.photoLabel')}
+                        <div className="studio-about-office-scrim" aria-hidden="true" />
+                        <figcaption className="studio-about-office-caption">
+                            <Link
+                                to={aboutLink}
+                                aria-label={t('studioAbout.aboutAriaLabel')}
+                                className="studio-about-cta"
+                            >
+                                <span className="studio-about-cta-plus" aria-hidden="true">
+                                    +
+                                </span>
+                                <span className="studio-about-cta-label">
+                                    {t('studioAbout.photoLabel')}
+                                </span>
+                                <ArrowUpRight
+                                    size={16}
+                                    strokeWidth={1.75}
+                                    aria-hidden="true"
+                                    className="studio-about-cta-arrow"
+                                />
+                            </Link>
                         </figcaption>
                     </motion.figure>
 
