@@ -470,6 +470,7 @@ export function ProjectGalleryView({
                     src={project.imageSrc}
                     alt={pickText(project.imageAlt, language)}
                     loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover opacity-90"
                   />
                   <div className="absolute inset-x-0 top-0 p-3 flex items-center justify-between gap-2 bg-gradient-to-b from-black/75 to-transparent">

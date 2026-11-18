@@ -249,8 +249,8 @@ export function ProjectOverviewPanel({
                         src={project.imageSrc}
                         alt={pickLocalized(project.imageAlt, language)}
                         className="h-full w-full object-cover object-center"
-                        loading="eager"
-                        decoding="sync"
+                        loading="lazy"
+                        decoding="async"
                       />
                       <div
                         aria-hidden="true"

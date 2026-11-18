@@ -74,7 +74,8 @@ export function FeaturedProjectPlate({
               alt={pickLocalized(project.imageAlt, language)}
               className="h-full w-full object-cover object-center"
               loading="eager"
-              decoding="sync"
+              decoding="async"
+              fetchPriority="high"
             />
             <div
               aria-hidden="true"

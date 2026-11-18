@@ -19,11 +19,61 @@ interface ZonedDateTimeParts {
   second: number;
 }
 
+const MAX_FORMATTER_CACHE_ENTRIES = 64;
+const MAX_VALUE_CACHE_ENTRIES = 64;
+
+const dateTimeFormatterCache = new Map<string, Intl.DateTimeFormat>();
+const editorialDateCache = new Map<string, string>();
+const studioClocksCache = new Map<
+  number,
+  {
+    maputo: string;
+    milan: string;
+    maputoTime: string;
+    milanTime: string;
+    maputoAbbreviation: 'CAT';
+    milanAbbreviation: MilanZoneAbbreviation;
+  }
+>();
+
+function getCachedFormatter(
+  locale: string,
+  options: Intl.DateTimeFormatOptions,
+): Intl.DateTimeFormat {
+  const key = [
+    locale,
+    options.timeZone ?? '',
+    options.weekday ?? '',
+    options.year ?? '',
+    options.month ?? '',
+    options.day ?? '',
+    options.hour ?? '',
+    options.minute ?? '',
+    options.second ?? '',
+    options.hourCycle ?? '',
+  ].join('|');
+
+  const cached = dateTimeFormatterCache.get(key);
+  if (cached) {
+    return cached;
+  }
+
+  const formatter = new Intl.DateTimeFormat(locale, options);
+  if (dateTimeFormatterCache.size >= MAX_FORMATTER_CACHE_ENTRIES) {
+    const oldestKey = dateTimeFormatterCache.keys().next().value;
+    if (oldestKey !== undefined) {
+      dateTimeFormatterCache.delete(oldestKey);
+    }
+  }
+  dateTimeFormatterCache.set(key, formatter);
+  return formatter;
+}
+
 function getZonedDateTimeParts(
   date: Date,
   timeZone: string,
 ): ZonedDateTimeParts {
-  const formatter = new Intl.DateTimeFormat('en-GB', {
+  const formatter = getCachedFormatter('en-GB', {
     timeZone,
     year: 'numeric',
     month: '2-digit',
@@ -138,14 +188,34 @@ export function formatEditorialDate(
   date: Date = new Date(),
   studioBase: StudioBase = 'Maputo',
 ): string {
+  const timeMs = date.getTime();
+  if (!Number.isFinite(timeMs)) {
+    return '';
+  }
+  const minuteBucket = Math.floor(timeMs / 60_000);
+  const cacheKey = `${language}|${studioBase}|${minuteBucket}`;
+  const cached = editorialDateCache.get(cacheKey);
+  if (cached !== undefined) {
+    return cached;
+  }
+
   const locale = language === 'pt' ? 'pt-PT' : 'en-GB';
-  return new Intl.DateTimeFormat(locale, {
+  const formatted = getCachedFormatter(locale, {
     weekday: 'long',
     day: '2-digit',
     month: 'long',
     year: 'numeric',
     timeZone: resolveStudioTimeZone(studioBase),
   }).format(date);
+
+  if (editorialDateCache.size >= MAX_VALUE_CACHE_ENTRIES) {
+    const oldestKey = editorialDateCache.keys().next().value;
+    if (oldestKey !== undefined) {
+      editorialDateCache.delete(oldestKey);
+    }
+  }
+  editorialDateCache.set(cacheKey, formatted);
+  return formatted;
 }
 
 export function formatStudioClocks(date: Date = new Date()): {
@@ -156,8 +226,20 @@ export function formatStudioClocks(date: Date = new Date()): {
   maputoAbbreviation: 'CAT';
   milanAbbreviation: MilanZoneAbbreviation;
 } {
+  const timeMs = date.getTime();
+  const minuteBucket = Number.isFinite(timeMs)
+    ? Math.floor(timeMs / 60_000)
+    : Number.NaN;
+
+  if (Number.isFinite(minuteBucket)) {
+    const cached = studioClocksCache.get(minuteBucket);
+    if (cached) {
+      return cached;
+    }
+  }
+
   const formatTimeInZone = (timeZone: string) =>
-    new Intl.DateTimeFormat('en-GB', {
+    getCachedFormatter('en-GB', {
       hour: '2-digit',
       minute: '2-digit',
       hourCycle: 'h23',
@@ -168,12 +250,24 @@ export function formatStudioClocks(date: Date = new Date()): {
   const milanTime = formatTimeInZone(STUDIO_TIMEZONES.Milão);
   const milanAbbreviation = resolveMilanTimeZoneAbbreviation(date);
 
-  return {
+  const result = {
     maputo: `${maputoTime} CAT`,
     milan: `${milanTime} ${milanAbbreviation}`,
     maputoTime,
     milanTime,
-    maputoAbbreviation: 'CAT',
+    maputoAbbreviation: 'CAT' as const,
     milanAbbreviation,
   };
+
+  if (Number.isFinite(minuteBucket)) {
+    if (studioClocksCache.size >= MAX_VALUE_CACHE_ENTRIES) {
+      const oldestKey = studioClocksCache.keys().next().value;
+      if (oldestKey !== undefined) {
+        studioClocksCache.delete(oldestKey);
+      }
+    }
+    studioClocksCache.set(minuteBucket, result);
+  }
+
+  return result;
 }

@@ -1,4 +1,3 @@
-import { motion, useReducedMotion } from 'framer-motion';
 import {
   AlertCircle,
   ArrowRight,
@@ -36,7 +35,20 @@ export function LoginPage() {
     signInAsDemoUser,
     setLanguage,
   } = useWorkspaceSession();
-  const prefersReducedMotion = useReducedMotion();
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean>(() =>
+    typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false,
+  );
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return;
+    }
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = () => setPrefersReducedMotion(mq.matches);
+    mq.addEventListener?.('change', onChange);
+    return () => mq.removeEventListener?.('change', onChange);
+  }, []);
   const shouldReduceMotion =
     prefersReducedMotion || preferences.reduceMotionOverride === 'reduce';
 
@@ -203,15 +215,11 @@ export function LoginPage() {
         {/* Central Spatial Canvas */}
         <div className="relative flex-1 min-h-[210px] sm:min-h-[300px] lg:min-h-0 flex flex-col justify-end">
           {visualMode === 'photo' ? (
-            <motion.div
+            <div
               key="spatial-photo"
-              initial={{ opacity: shouldReduceMotion ? 1 : 0 }}
-              animate={{ opacity: 1 }}
-              transition={{
-                duration: shouldReduceMotion ? 0 : 0.45,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-              className="absolute inset-0"
+              className={`absolute inset-0 ${
+                shouldReduceMotion ? '' : 'transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]'
+              }`}
             >
               <img
                 src={LOGIN_SPATIAL_STUDY.imageSrc}
@@ -219,6 +227,7 @@ export function LoginPage() {
                 className="h-full w-full object-cover object-center"
                 loading="eager"
                 decoding="async"
+                fetchPriority="high"
               />
               {/* Controlled architectural vignette — preserves contrast for editorial plinth */}
               <div
@@ -234,23 +243,19 @@ export function LoginPage() {
                 aria-hidden="true"
                 className="hidden md:block absolute inset-y-0 right-10 w-px bg-white/[0.08]"
               />
-            </motion.div>
+            </div>
           ) : (
-            <motion.div
+            <div
               key="spatial-section"
-              initial={{ opacity: shouldReduceMotion ? 1 : 0 }}
-              animate={{ opacity: 1 }}
-              transition={{
-                duration: shouldReduceMotion ? 0 : 0.35,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-              className="relative flex-1 flex items-center justify-center min-h-[240px] sm:min-h-[340px] lg:min-h-full"
+              className={`relative flex-1 flex items-center justify-center min-h-[240px] sm:min-h-[340px] lg:min-h-full ${
+                shouldReduceMotion ? '' : 'transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]'
+              }`}
             >
               <ArchitecturalSectionDrawing
                 ariaLabel={t.login.sectionSvgAria}
                 language={language}
               />
-            </motion.div>
+            </div>
           )}
 
           {/* Editorial Lower Plinth */}
