@@ -241,6 +241,13 @@ export function canonicalToStudioDeskProject(
   };
 }
 
+let cachedSeedCanonicalProjects: CanonicalProjectRecord[] | null = null;
+
 export function getSeedCanonicalProjects(): CanonicalProjectRecord[] {
-  return STUDIO_DESK_PROJECTS.map(studioDeskProjectToCanonical);
+  if (cachedSeedCanonicalProjects === null) {
+    cachedSeedCanonicalProjects = STUDIO_DESK_PROJECTS.map(
+      studioDeskProjectToCanonical,
+    );
+  }
+  return [...cachedSeedCanonicalProjects];
 }

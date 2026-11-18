@@ -200,6 +200,9 @@ describe('Phase 04 Hardening · Agent A Project Library Integrity & Quotas (P1.6
       PROJECT_LIBRARY_STORAGE_KEY,
       JSON.stringify(seededEnvelope),
     );
+    window.dispatchEvent(
+      new StorageEvent('storage', { key: PROJECT_LIBRARY_STORAGE_KEY }),
+    );
 
     expect(() =>
       createProject(
@@ -246,6 +249,9 @@ describe('Phase 04 Hardening · Agent A Project Library Integrity & Quotas (P1.6
         overridesById: { [targetId]: filledOverride },
         createdRecords: [],
       }),
+    );
+    window.dispatchEvent(
+      new StorageEvent('storage', { key: PROJECT_LIBRARY_STORAGE_KEY }),
     );
 
     expect(() =>

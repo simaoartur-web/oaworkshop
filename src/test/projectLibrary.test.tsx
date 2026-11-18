@@ -108,8 +108,11 @@ describe('Phase 03A · Canonical Project Library Domain & Engine', () => {
       true,
     );
 
-    // Inject corrupted JSON & verify safe recovery to seed defaults
+    // Inject corrupted JSON (simulating external storage write) & verify safe recovery to seed defaults
     window.localStorage.setItem(PROJECT_LIBRARY_STORAGE_KEY, '{corrupted_json');
+    window.dispatchEvent(
+      new StorageEvent('storage', { key: PROJECT_LIBRARY_STORAGE_KEY }),
+    );
     const recovered = listProjects({ includeArchived: true });
     expect(recovered).toHaveLength(STUDIO_DESK_PROJECTS.length);
 
@@ -121,6 +124,9 @@ describe('Phase 03A · Canonical Project Library Domain & Engine', () => {
         overridesById: {},
         createdRecords: [{ broken: true }],
       }),
+    );
+    window.dispatchEvent(
+      new StorageEvent('storage', { key: PROJECT_LIBRARY_STORAGE_KEY }),
     );
     const cleaned = listProjects({ includeArchived: true });
     expect(cleaned).toHaveLength(STUDIO_DESK_PROJECTS.length);

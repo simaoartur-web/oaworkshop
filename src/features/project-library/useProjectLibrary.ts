@@ -1,13 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useMemo, useSyncExternalStore } from 'react';
 import { useWorkspaceSession } from '../../app/WorkspaceSessionContext';
 import {
   addProjectFileReference,
   addProjectRevision,
   archiveProject,
   createProject,
-  getProjectById,
-  listProjects,
-  listStudioDeskCompatibleProjects,
+  getProjectLibrarySnapshot,
   resetProjectLibraryState,
   restoreProjectFromArchive,
   subscribeProjectLibraryChanges,
@@ -50,23 +48,31 @@ export interface UseProjectLibraryResult {
 
 export function useProjectLibrary(): UseProjectLibraryResult {
   const { currentUser } = useWorkspaceSession();
-  const [projects, setProjects] = useState<CanonicalProjectRecord[]>(() =>
-    listProjects({ includeArchived: true }),
-  );
-  const [studioDeskProjects, setStudioDeskProjects] = useState<StudioDeskProject[]>(
-    () => listStudioDeskCompatibleProjects({ includeArchived: true }),
+  const snapshot = useSyncExternalStore(
+    subscribeProjectLibraryChanges,
+    getProjectLibrarySnapshot,
+    getProjectLibrarySnapshot,
   );
 
-  const refresh = useCallback(() => {
-    setProjects(listProjects({ includeArchived: true }));
-    setStudioDeskProjects(listStudioDeskCompatibleProjects({ includeArchived: true }));
-  }, []);
+  const projects = useMemo<CanonicalProjectRecord[]>(
+    () => [...snapshot.allRecords],
+    [snapshot],
+  );
 
-  useEffect(() => subscribeProjectLibraryChanges(refresh), [refresh]);
+  const studioDeskProjects = useMemo<StudioDeskProject[]>(
+    () => [...snapshot.studioDeskAll],
+    [snapshot],
+  );
 
   const getProject = useCallback(
-    (idOrCode: string | undefined | null) => getProjectById(idOrCode),
-    [],
+    (idOrCode: string | undefined | null) => {
+      const query = idOrCode?.trim().toLowerCase();
+      if (!query) {
+        return null;
+      }
+      return snapshot.lookupMap.get(query) ?? null;
+    },
+    [snapshot],
   );
 
   const create = useCallback(

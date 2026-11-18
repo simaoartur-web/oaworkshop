@@ -3,7 +3,10 @@ import {
   DEPARTMENTS,
   FEATURED_STUDY_PROJECT,
 } from '../../data/fixtures';
-import { listProjects } from '../../data/projectLibraryRepository';
+import {
+  getProjectLibrarySnapshot,
+  subscribeProjectLibraryChanges,
+} from '../../data/projectLibraryRepository';
 import type { AppLanguage, Role } from '../../data/types';
 import { pickLocalized } from '../../locales';
 import { WORKSPACE_NAV_ITEMS } from './shellNavigation';
@@ -27,6 +30,17 @@ export interface WorkspaceSearchEntry {
   isPlannedRoute?: boolean;
 }
 
+interface IndexedWorkspaceSearchEntry extends WorkspaceSearchEntry {
+  normCode: string;
+  normTitle: string;
+}
+
+interface CachedProjectSearchBucket {
+  libraryVersion: number;
+  language: AppLanguage;
+  entries: readonly IndexedWorkspaceSearchEntry[];
+}
+
 function normalizeForSearch(value: string): string {
   return value
     .normalize('NFD')
@@ -35,136 +49,128 @@ function normalizeForSearch(value: string): string {
     .trim();
 }
 
-export function buildWorkspaceSearchEntries(
-  language: AppLanguage,
-): WorkspaceSearchEntry[] {
-  const routeEntries: WorkspaceSearchEntry[] = WORKSPACE_NAV_ITEMS.map(
-    (item) => ({
-      id: `route-${item.id}`,
-      category: 'route',
-      code: `${item.plateNumber} · ${item.shortTag}`,
-      title: pickLocalized(item.label, language),
-      subtitle: `${pickLocalized(item.description, language)} (${pickLocalized(
-        item.targetPhase,
-        language,
-      )})`,
-      targetPath: item.path,
-      isPlannedRoute: item.status === 'planned',
+function withNormalizedMeta(
+  entry: WorkspaceSearchEntry,
+): IndexedWorkspaceSearchEntry {
+  return {
+    ...entry,
+    normCode: normalizeForSearch(entry.code),
+    normTitle: normalizeForSearch(entry.title),
+  };
+}
+
+interface StaticSearchBuckets {
+  routeEntries: readonly IndexedWorkspaceSearchEntry[];
+  profileEntries: readonly IndexedWorkspaceSearchEntry[];
+  studyAndDepartmentEntries: readonly IndexedWorkspaceSearchEntry[];
+}
+
+const staticBucketsByLanguage = new Map<AppLanguage, StaticSearchBuckets>();
+const projectBucketsByLanguage = new Map<
+  AppLanguage,
+  CachedProjectSearchBucket
+>();
+
+subscribeProjectLibraryChanges(() => {
+  projectBucketsByLanguage.clear();
+});
+
+export function clearWorkspaceSearchIndexCache(): void {
+  projectBucketsByLanguage.clear();
+}
+
+function getStaticBuckets(language: AppLanguage): StaticSearchBuckets {
+  const existing = staticBucketsByLanguage.get(language);
+  if (existing) {
+    return existing;
+  }
+
+  const routeEntries: IndexedWorkspaceSearchEntry[] = WORKSPACE_NAV_ITEMS.map(
+    (item) =>
+      withNormalizedMeta({
+        id: `route-${item.id}`,
+        category: 'route',
+        code: `${item.plateNumber} · ${item.shortTag}`,
+        title: pickLocalized(item.label, language),
+        subtitle: `${pickLocalized(item.description, language)} (${pickLocalized(
+          item.targetPhase,
+          language,
+        )})`,
+        targetPath: item.path,
+        isPlannedRoute: item.status === 'planned',
+        searchText: normalizeForSearch(
+          [
+            item.plateNumber,
+            item.shortTag,
+            item.path,
+            item.label.pt,
+            item.label.en,
+            item.description.pt,
+            item.description.en,
+            item.targetPhase.pt,
+            item.targetPhase.en,
+          ].join(' '),
+        ),
+      }),
+  );
+
+  const profileEntries: IndexedWorkspaceSearchEntry[] = DEMO_USERS.map(
+    (user) => {
+      const dept = DEPARTMENTS[user.departmentId];
+      return withNormalizedMeta({
+        id: `profile-${user.id}`,
+        category: 'profile',
+        code: `${user.code} · ${user.studioBase}`,
+        title: user.name,
+        subtitle: `${pickLocalized(user.roleLabel, language)} · ${pickLocalized(
+          dept.name,
+          language,
+        )}`,
+        targetPath: '/workspace',
+        switchToRole: user.role,
+        isPlannedRoute: false,
+        searchText: normalizeForSearch(
+          [
+            user.code,
+            user.name,
+            user.email,
+            user.studioBase,
+            user.role,
+            user.roleLabel.pt,
+            user.roleLabel.en,
+            dept.name.pt,
+            dept.name.en,
+          ].join(' '),
+        ),
+      });
+    },
+  );
+
+  const departmentEntries: IndexedWorkspaceSearchEntry[] = Object.values(
+    DEPARTMENTS,
+  ).map((dept) =>
+    withNormalizedMeta({
+      id: `dept-${dept.id}`,
+      category: 'department',
+      code: dept.code,
+      title: pickLocalized(dept.name, language),
+      subtitle: pickLocalized(dept.focus, language),
+      targetPath: '/workspace/departments',
+      isPlannedRoute: true,
       searchText: normalizeForSearch(
         [
-          item.plateNumber,
-          item.shortTag,
-          item.path,
-          item.label.pt,
-          item.label.en,
-          item.description.pt,
-          item.description.en,
-          item.targetPhase.pt,
-          item.targetPhase.en,
+          dept.code,
+          dept.id,
+          dept.name.pt,
+          dept.name.en,
+          dept.focus.pt,
+          dept.focus.en,
         ].join(' '),
       ),
     }),
   );
 
-  const projectEntries: WorkspaceSearchEntry[] = listProjects({
-    includeArchived: true,
-  }).map((record) => {
-    const dept = DEPARTMENTS[record.classification.departmentId];
-    const targetPath =
-      record.metadata.origin === 'seed-fixture'
-        ? `/workspace?project=${record.identity.id}`
-        : `/workspace/projects/${record.identity.id}`;
-    return {
-      id: `project-${record.identity.id}`,
-      category: 'project',
-      code: `${record.identity.code} · ${record.location.studioBase}`,
-      title: pickLocalized(record.editorial.title, language),
-      subtitle: `${pickLocalized(record.classification.discipline, language)} · ${record.classification.scale} · ${record.ownership.leadAuthorName}`,
-      targetPath,
-      isPlannedRoute: false,
-      searchText: normalizeForSearch(
-        [
-          record.identity.code,
-          record.identity.id,
-          record.identity.slug,
-          dept.code,
-          dept.name.pt,
-          dept.name.en,
-          record.location.studioBase,
-          record.ownership.leadAuthorName,
-          record.ownership.leadAuthorCode,
-          record.classification.scale,
-          record.classification.areaSqm,
-          record.classification.elevationDatum,
-          record.editorial.title.pt,
-          record.editorial.title.en,
-          record.editorial.subtitle.pt,
-          record.editorial.subtitle.en,
-          record.classification.discipline.pt,
-          record.classification.discipline.en,
-          record.lifecycle.phase.pt,
-          record.lifecycle.phase.en,
-          record.lifecycle.projectStatus,
-          ...record.deliverables.flatMap((d) => [d.code, d.label.pt, d.label.en]),
-          ...record.files.map((f) => f.fileName),
-        ].join(' '),
-      ),
-    };
-  });
-
-  const profileEntries: WorkspaceSearchEntry[] = DEMO_USERS.map((user) => {
-    const dept = DEPARTMENTS[user.departmentId];
-    return {
-      id: `profile-${user.id}`,
-      category: 'profile',
-      code: `${user.code} · ${user.studioBase}`,
-      title: user.name,
-      subtitle: `${pickLocalized(user.roleLabel, language)} · ${pickLocalized(
-        dept.name,
-        language,
-      )}`,
-      targetPath: '/workspace',
-      switchToRole: user.role,
-      isPlannedRoute: false,
-      searchText: normalizeForSearch(
-        [
-          user.code,
-          user.name,
-          user.email,
-          user.studioBase,
-          user.role,
-          user.roleLabel.pt,
-          user.roleLabel.en,
-          dept.name.pt,
-          dept.name.en,
-        ].join(' '),
-      ),
-    };
-  });
-
-  const departmentEntries: WorkspaceSearchEntry[] = Object.values(
-    DEPARTMENTS,
-  ).map((dept) => ({
-    id: `dept-${dept.id}`,
-    category: 'department',
-    code: dept.code,
-    title: pickLocalized(dept.name, language),
-    subtitle: pickLocalized(dept.focus, language),
-    targetPath: '/workspace/departments',
-    isPlannedRoute: true,
-    searchText: normalizeForSearch(
-      [
-        dept.code,
-        dept.id,
-        dept.name.pt,
-        dept.name.en,
-        dept.focus.pt,
-        dept.focus.en,
-      ].join(' '),
-    ),
-  }));
-
-  const studyEntry: WorkspaceSearchEntry = {
+  const studyEntry: IndexedWorkspaceSearchEntry = withNormalizedMeta({
     id: `study-${FEATURED_STUDY_PROJECT.id}`,
     category: 'study',
     code: `${FEATURED_STUDY_PROJECT.code} · Welcome`,
@@ -188,59 +194,147 @@ export function buildWorkspaceSearchEntries(
         FEATURED_STUDY_PROJECT.location.en,
       ].join(' '),
     ),
-  };
+  });
 
-  return [
-    ...routeEntries,
-    ...profileEntries,
-    ...projectEntries,
-    studyEntry,
-    ...departmentEntries,
-  ];
+  const bucket: StaticSearchBuckets = {
+    routeEntries,
+    profileEntries,
+    studyAndDepartmentEntries: [studyEntry, ...departmentEntries],
+  };
+  staticBucketsByLanguage.set(language, bucket);
+  return bucket;
 }
+
+function getIndexedSearchEntries(
+  language: AppLanguage,
+): readonly IndexedWorkspaceSearchEntry[] {
+  const staticBuckets = getStaticBuckets(language);
+  const snapshot = getProjectLibrarySnapshot();
+  const cachedProjects = projectBucketsByLanguage.get(language);
+
+  if (cachedProjects && cachedProjects.libraryVersion === snapshot.version) {
+    return cachedProjects.entries;
+  }
+
+  const projectEntries: IndexedWorkspaceSearchEntry[] = snapshot.allRecords.map(
+    (record) => {
+      const dept = DEPARTMENTS[record.classification.departmentId];
+      const targetPath =
+        record.metadata.origin === 'seed-fixture'
+          ? `/workspace?project=${record.identity.id}`
+          : `/workspace/projects/${record.identity.id}`;
+      return withNormalizedMeta({
+        id: `project-${record.identity.id}`,
+        category: 'project',
+        code: `${record.identity.code} · ${record.location.studioBase}`,
+        title: pickLocalized(record.editorial.title, language),
+        subtitle: `${pickLocalized(record.classification.discipline, language)} · ${record.classification.scale} · ${record.ownership.leadAuthorName}`,
+        targetPath,
+        isPlannedRoute: false,
+        searchText: normalizeForSearch(
+          [
+            record.identity.code,
+            record.identity.id,
+            record.identity.slug,
+            dept.code,
+            dept.name.pt,
+            dept.name.en,
+            record.location.studioBase,
+            record.ownership.leadAuthorName,
+            record.ownership.leadAuthorCode,
+            record.classification.scale,
+            record.classification.areaSqm,
+            record.classification.elevationDatum,
+            record.editorial.title.pt,
+            record.editorial.title.en,
+            record.editorial.subtitle.pt,
+            record.editorial.subtitle.en,
+            record.classification.discipline.pt,
+            record.classification.discipline.en,
+            record.lifecycle.phase.pt,
+            record.lifecycle.phase.en,
+            record.lifecycle.projectStatus,
+            ...record.deliverables.flatMap((d) => [d.code, d.label.pt, d.label.en]),
+            ...record.files.map((f) => f.fileName),
+          ].join(' '),
+        ),
+      });
+    },
+  );
+
+  const combinedEntries: readonly IndexedWorkspaceSearchEntry[] = [
+    ...staticBuckets.routeEntries,
+    ...staticBuckets.profileEntries,
+    ...projectEntries,
+    ...staticBuckets.studyAndDepartmentEntries,
+  ];
+
+  projectBucketsByLanguage.set(language, {
+    libraryVersion: snapshot.version,
+    language,
+    entries: combinedEntries,
+  });
+
+  return combinedEntries;
+}
+
+export function buildWorkspaceSearchEntries(
+  language: AppLanguage,
+): WorkspaceSearchEntry[] {
+  return [...getIndexedSearchEntries(language)];
+}
+
+const DEFAULT_SUGGESTED_IDS = new Set([
+  'project-sd-proj-oa-26-101',
+  'project-sd-proj-oa-26-108',
+  'route-desk',
+  'route-projects',
+  'route-settings',
+  'profile-usr-dir-01',
+  'profile-usr-arq-02',
+]);
 
 export function searchWorkspaceDemo(
   query: string,
   language: AppLanguage,
 ): WorkspaceSearchEntry[] {
-  const entries = buildWorkspaceSearchEntries(language);
+  const entries = getIndexedSearchEntries(language);
   const normalizedQuery = normalizeForSearch(query);
 
   if (!normalizedQuery) {
     // Curated immediate entries when query is empty:
     // Featured Projects + Primary Routes + Key profiles
-    return entries.filter((entry) =>
-      [
-        'project-sd-proj-oa-26-101',
-        'project-sd-proj-oa-26-108',
-        'route-desk',
-        'route-projects',
-        'route-settings',
-        'profile-usr-dir-01',
-        'profile-usr-arq-02',
-      ].includes(entry.id),
-    );
+    return entries.filter((entry) => DEFAULT_SUGGESTED_IDS.has(entry.id));
   }
 
   const terms = normalizedQuery.split(/\s+/).filter(Boolean);
+  const scored: Array<{ entry: IndexedWorkspaceSearchEntry; score: number }> = [];
 
-  return entries
-    .map((entry) => {
-      const matchesAll = terms.every((term) => entry.searchText.includes(term));
-      if (!matchesAll) {
-        return null;
+  for (const entry of entries) {
+    let matchesAll = true;
+    for (const term of terms) {
+      if (!entry.searchText.includes(term)) {
+        matchesAll = false;
+        break;
       }
-      const normTitle = normalizeForSearch(entry.title);
-      const normCode = normalizeForSearch(entry.code);
-      let score = 1;
-      if (normCode.startsWith(normalizedQuery) || normTitle.startsWith(normalizedQuery)) {
-        score = 3;
-      } else if (normTitle.includes(normalizedQuery)) {
-        score = 2;
-      }
-      return { entry, score };
-    })
-    .filter((item): item is { entry: WorkspaceSearchEntry; score: number } => Boolean(item))
+    }
+    if (!matchesAll) {
+      continue;
+    }
+
+    let score = 1;
+    if (
+      entry.normCode.startsWith(normalizedQuery) ||
+      entry.normTitle.startsWith(normalizedQuery)
+    ) {
+      score = 3;
+    } else if (entry.normTitle.includes(normalizedQuery)) {
+      score = 2;
+    }
+    scored.push({ entry, score });
+  }
+
+  return scored
     .sort((a, b) => b.score - a.score)
     .slice(0, 14)
     .map((item) => item.entry);

@@ -1,5 +1,14 @@
 import '@testing-library/jest-dom/vitest';
 import { configure } from '@testing-library/react';
+import { beforeEach } from 'vitest';
+import { invalidateProjectLibraryCache } from '../data/projectLibraryRepository';
+import { clearWorkspaceSearchIndexCache } from '../features/workspace-shell/globalSearchIndex';
+
+// Ensure module-level in-memory caches start clean across isolated Vitest test cases
+beforeEach(() => {
+  invalidateProjectLibraryCache();
+  clearWorkspaceSearchIndexCache();
+});
 
 // Allow sufficient time for React.lazy route chunks under parallel Vitest execution
 configure({ asyncUtilTimeout: 5000 });
