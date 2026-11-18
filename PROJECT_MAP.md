@@ -119,7 +119,7 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 | `docs/QUALITY.md` | verificações técnicas, visuais e de acessibilidade |
 | `docs/decisions/` | decisões arquitecturais duradouras |
 | `docs/decisions/0002-identidade-website-json-ld.md` | identidade WebSite estável na raiz, separada de Organization e invariável por idioma |
-| `docs/decisions/0003-autoplay-workshop-sem-playback.md` | temporização e foco do autoplay; retirada integral de reprodução por escolha do utilizador e limites de acessibilidade |
+| `docs/decisions/0003-autoplay-workshop-sem-playback.md` | autoplay contínuo de 12 segundos sem pausa por hover/foco, linha progressiva, retirada de Play/Pause e excepção WCAG 2.2 SC 2.2.2 |
 | `plans/` | planos numerados, aprovação e estado |
 | `plans/080-seo-infraestrutura-indexacao.md` | plano de infraestrutura SEO, indexação orgânica e pré-renderização |
 | `plans/082-seo02-en-first-correcao.md` | execução aprovada SEO-02 EN-first: inglês, marcador neutro de Vancouver, metadados de imagens e favicon |
@@ -145,6 +145,7 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 | Caminho | Responsabilidade |
 |---|---|
 | `tests/seo-verification.test.mjs` | testes de pré-renderização, metadados, idiomas, servidor estático, rotas legadas, regressões SEO-02 e identidade WebSite SEO-03 |
+| `tests/slideshow-regression.test.mjs` | testes de regressão do slideshow (12 s, ausência de Play/Pause, continuidade sem pausa por hover/foco, linha progressiva e movimento reduzido) |
 
 ## Caminhos deliberadamente inexistentes
 
