@@ -1,0 +1,103 @@
+name: O+A Workspace Quality Gate
+
+on:
+  pull_request:
+    branches:
+      - codex/f02-integration-preview
+  push:
+    branches:
+      - "codex/**"
+    paths-ignore:
+      - "**.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workspace-qg-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gate:
+    name: Isolation, Lint, Build, Chunk Check, Tests & Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Guard against accidental PR targeting public website branch
+        shell: bash
+        run: |
+          if [ "${{ github.base_ref }}" = "main" ] || [ "${{ github.ref_name }}" = "main" ]; then
+            echo "ERROR: O+A Workspace branches must never target the protected public website branch."
+            exit 1
+          fi
+
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Verify isolation from public website (oaworkshop)
+        shell: bash
+        run: |
+          if [ -f "CNAME" ] || [ -f "public/CNAME" ] || [ -d "src/seo" ] || [ -f ".github/workflows/deploy.yml" ]; then
+            echo "ERROR: Public website files detected in O+A Workspace branch."
+            exit 1
+          fi
+          if ls .env* 1>/dev/null 2>&1; then
+            echo "ERROR: Environment secret file detected in versioned tree."
+            exit 1
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Static analysis (ESLint)
+        run: npm run lint
+
+      - name: Production build (TypeScript + Vite)
+        run: npm run build
+
+      - name: Verify 0 B of 3D / motion chunks in initial entry preloads
+        shell: bash
+        run: |
+          if grep -E "vendor-(three|r3f|motion)" dist/index.html; then
+            echo "ERROR: 3D or motion vendor chunk leaked into initial dist/index.html preload."
+            exit 1
+          fi
+          echo "OK: Initial entry preloads contain 0 B of vendor-three, vendor-r3f, and vendor-motion."
+
+      - name: Unit & integration tests (Vitest)
+        # TODO(F0451-P1-4): switch to 'npm run test' upon integration of F04.5.1 stabilization.
+        run: npx vitest run --no-file-parallelism
+
+      - name: Production dependency security audit
+        run: npm audit --omit=dev --audit-level=high
+
+  e2e-visual:
+    name: E2E Visual & Responsive Verification (PR to preview)
+    if: github.event_name == 'pull_request' && github.base_ref == 'codex/f02-integration-preview'
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Ensure Chromium browser for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E verification across critical viewports
+        run: npm run test:e2e
