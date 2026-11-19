@@ -33,7 +33,13 @@ const Portrait = ({
                     loading={isCutout ? 'eager' : 'lazy'}
                     decoding="async"
                     className={`${imageClasses} ${status === 'loaded' ? 'is-loaded' : ''}`}
-                    style={isCutout ? undefined : { objectPosition: image.objectPosition ?? 'center' }}
+                    style={
+                        isCutout
+                            ? image.cutoutScale && image.cutoutScale !== 1
+                                ? { scale: String(image.cutoutScale) }
+                                : undefined
+                            : { objectPosition: image.objectPosition ?? 'center' }
+                    }
                     onLoad={() => setStatus('loaded')}
                     onError={() => setStatus('failed')}
                 />

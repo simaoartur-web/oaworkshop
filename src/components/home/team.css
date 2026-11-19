@@ -49,7 +49,7 @@
     width: min(48vw, 640px);
     height: 220px;
     background-position: center 68%;
-    opacity: 0.1;
+    opacity: 0;
     clip-path: polygon(0% 18%, 74% 58%, 100% 100%, 0% 100%);
     -webkit-mask-image: radial-gradient(ellipse 80% 75% at 24% 82%, #000 20%, transparent 76%);
     mask-image: radial-gradient(ellipse 80% 75% at 24% 82%, #000 20%, transparent 76%);
@@ -84,6 +84,7 @@
     width: 28rem;
     height: 14rem;
     background: radial-gradient(circle, rgba(237, 125, 49, 0.04) 0%, transparent 72%);
+    opacity: 0;
 }
 
 .team-arch-line {
@@ -346,24 +347,16 @@
 }
 
 .team-member-role--collaborator {
-    margin-top: 0.3rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.45rem;
     font-size: 0.8125rem;
     font-weight: 400;
     line-height: 1.38;
     color: #ffffff;
 }
 
-.team-member-secondary {
-    margin-top: 0.35rem;
-    margin-bottom: 1.1rem;
-    font-size: 0.75rem;
-    font-weight: 300;
-    line-height: 1.45;
-    color: #b8b3ad;
-}
-
 .team-member-body--collaborator {
-    padding-top: 0.85rem;
+    padding-top: 0.9rem;
 }
 
 .team-member-divider {
@@ -423,7 +416,13 @@
 
 @media (min-width: 1200px) {
     .team-avatar--collaborator {
-        height: 11.75rem;
+        height: 10.25rem;
+    }
+}
+
+@media (min-width: 1366px) {
+    .team-avatar--collaborator {
+        height: 11.5rem;
     }
 }
 
@@ -460,6 +459,7 @@
 
 .team-avatar-image--cutout {
     opacity: 1;
+    transform-origin: bottom center;
     filter: grayscale(1) contrast(1.06);
     transition: transform 240ms ease;
 }
@@ -495,15 +495,12 @@
 }
 
 .team-profile-trigger--collaborator {
-    padding: 0.55rem 0.9rem;
+    padding: 0;
     min-height: 2.75rem;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.03);
-    color: #e0e0e0;
-    transition:
-        border-color 180ms ease,
-        background-color 180ms ease,
-        color 180ms ease;
+    border: 0;
+    background: transparent;
+    color: #d6d3ce;
+    transition: color 180ms ease;
 }
 
 .team-profile-arrow {
@@ -604,7 +601,7 @@
 }
 
 .team-collaborators-band {
-    padding-top: 2rem;
+    padding-top: 1.5rem;
 }
 
 .team-box-header {
@@ -661,7 +658,7 @@
 @media (min-width: 1200px) {
     .team-collaborators-grid {
         grid-template-columns: repeat(6, minmax(0, 1fr));
-        gap: 1.5rem 1.25rem;
+        gap: 1.5rem 1rem;
     }
 }
 
@@ -678,8 +675,6 @@
     }
 
     .team-member:hover .team-profile-trigger--collaborator {
-        border-color: rgba(237, 125, 49, 0.55);
-        background: rgba(237, 125, 49, 0.08);
         color: #ffffff;
     }
 

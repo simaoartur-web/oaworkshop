@@ -79,9 +79,6 @@ const TeamMember = ({ member, onOpen }: Props) => {
                         <p key={index}>{line}</p>
                     ))}
                 </div>
-                <p className="team-member-secondary">
-                    {t(`team.categories.${member.category}`)}
-                </p>
                 <button
                     type="button"
                     aria-haspopup="dialog"

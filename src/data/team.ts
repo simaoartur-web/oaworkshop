@@ -10,6 +10,7 @@ export type TeamProfilePlatform = keyof typeof en.team.socialPlatforms & keyof t
 export interface TeamImage {
     readonly src: string;
     readonly objectPosition?: string;
+    readonly cutoutScale?: number;
 }
 
 export interface TeamProfileLink {
@@ -71,10 +72,10 @@ export const TEAM_MEMBERS: readonly TeamMember[] = [
         timeline: 'artur',
         links: [],
     },
-    { id: 'mivas-massingue', name: 'Mivas Massingue', leadership: false, role: 'juniorArchitect', category: 'architecture', image: { src: '/images/team/mivas-massingue.webp', objectPosition: '50% 18%' }, bio: null, timeline: null, links: [] },
-    { id: 'edson-camba', name: 'Edson Camba', leadership: false, role: 'constructionTechnician', category: 'construction', image: { src: '/images/team/edson-camba.webp', objectPosition: '50% 18%' }, bio: null, timeline: null, links: [] },
-    { id: 'leticia-muguambe', name: 'Letícia Muguambe', leadership: false, role: 'geographer', category: 'geography', image: { src: '/images/team/leticia-munguambe.webp', objectPosition: '50% 18%' }, bio: null, timeline: null, links: [] },
-    { id: 'maxime-zabrodin', name: 'Maxime Zabrodin', leadership: false, role: 'seniorArchitect', category: 'architecture', image: { src: '/images/team/maxime-zabrodin.webp', objectPosition: '50% 18%' }, bio: null, timeline: null, links: [] },
-    { id: 'neide-daude', name: 'Neide Daude', leadership: false, role: 'juniorArchitectFemale', category: 'architecture', image: { src: '/images/team/neide-daude.webp', objectPosition: '50% 18%' }, bio: null, timeline: null, links: [] },
-    { id: 'imran-jafar', name: 'Imran Jafar', leadership: false, role: 'itMarketing', category: 'itMarketing', image: { src: '/images/team/imran-jafar.webp', objectPosition: '50% 18%' }, bio: null, timeline: null, links: [] },
+    { id: 'mivas-massingue', name: 'Mivas Massingue', leadership: false, role: 'juniorArchitect', category: 'architecture', image: { src: '/images/team/mivas-massingue.webp', objectPosition: '50% 18%', cutoutScale: 1 }, bio: null, timeline: null, links: [] },
+    { id: 'edson-camba', name: 'Edson Camba', leadership: false, role: 'constructionTechnician', category: 'construction', image: { src: '/images/team/edson-camba.webp', objectPosition: '50% 18%', cutoutScale: 1.02 }, bio: null, timeline: null, links: [] },
+    { id: 'leticia-muguambe', name: 'Letícia Muguambe', leadership: false, role: 'geographer', category: 'geography', image: { src: '/images/team/leticia-munguambe.webp', objectPosition: '50% 18%', cutoutScale: 1.08 }, bio: null, timeline: null, links: [] },
+    { id: 'maxime-zabrodin', name: 'Maxime Zabrodin', leadership: false, role: 'seniorArchitect', category: 'architecture', image: { src: '/images/team/maxime-zabrodin.webp', objectPosition: '50% 18%', cutoutScale: 1.01 }, bio: null, timeline: null, links: [] },
+    { id: 'neide-daude', name: 'Neide Daude', leadership: false, role: 'juniorArchitectFemale', category: 'architecture', image: { src: '/images/team/neide-daude.webp', objectPosition: '50% 18%', cutoutScale: 1.14 }, bio: null, timeline: null, links: [] },
+    { id: 'imran-jafar', name: 'Imran Jafar', leadership: false, role: 'itMarketing', category: 'itMarketing', image: { src: '/images/team/imran-jafar.webp', objectPosition: '50% 18%', cutoutScale: 1 }, bio: null, timeline: null, links: [] },
 ];

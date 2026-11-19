@@ -121,7 +121,7 @@ Em cumprimento estrito da instrução de **não alterar nomes, cargos ou experi�
 - [x] 2. As **6 fotografias reais** do ZIP estão correctamente associadas aos respectivos membros (com `.webp` optimizado e transparência RGBA 4 canais preservada sobre `#070707`).
 - [x] 3. **Zero duplicação de iniciais** (`.team-member-initials` = `0` no DOM) e ausência de monogramas quando existe fotografia carregada.
 - [x] 4. Retratos monocromáticos proporcionais e **alinhados pela base**, mantendo nitidez natural de `leticia-munguambe.webp` (`131 × 198 px`).
-- [x] 5. Nomes em laranja O+A (`#ED7D31`), funções em branco (`#FFFFFF`), área secundária em cinzento claro (`#B8B3AD`) e botões `View profile` alinhados consistentemente.
+- [x] 5. Nomes em laranja O+A (`#ED7D31`), funções em branco (`#FFFFFF`) sem categoria redundante nos cartões (preservada nos perfis individuais `TeamProfilePanel`), e links discretos `View profile` com seta laranja alinhados consistentemente.
 - [x] 6. `Discover our team` / `Close team` e abertura/fecho de perfis (`TeamProfilePanel`) funcionais em PT e EN.
 - [x] 7. Navegação integral por teclado (`Tab`, `Enter`, `Escape`) e foco visível preservados.
 - [x] 8. **Zero overflow horizontal** em `1440 × 900`, `1366 × 768`, `1024 × 768`, `768 × 1024` e `375 × 812`.
@@ -151,18 +151,23 @@ Em cumprimento estrito da instrução de **não alterar nomes, cargos ou experi�
   - Mantido `objectPosition: '50% 18%'` em `src/data/team.ts` para preservar o rosto centrado em `TeamProfilePanel` (`variant="frame"` / `object-cover`), enquanto os colaboradores na faixa principal usam `variant="cutout"` (`object-contain object-bottom`, `opacity: 1`) garantindo alinhamento uniforme pela base sem cortar a cabeça/cabelo de `leticia-munguambe.webp`.
   - Mantido `Letícia Muguambe` (ortografia de código), nomes, funções e cronologias inalterados; usada a chave existente `team.categories.*` em cinzento claro (`#B8B3AD`) como linha secundária.
   - Nota de implementação ESLint: para evitar `react-hooks/set-state-in-effect` em `TeamAvatar.tsx`, imagens `variant="cutout"` renderizam com `opacity: 1` imediato (com fallback via `onError`) sem efeitos síncronos.
+- **2026-11-19 (v3 — polish editorial pós-revisão):**
+  - Removida dos cartões dos colaboradores a linha secundária redundante `team.categories.*` (`TeamMember.tsx` e `team.css`), mantendo `Practice area` integralmente dentro de `TeamProfilePanel.tsx`.
+  - Transformados os botões rectangulares `View profile` dos colaboradores em links visuais discretos sem caixa/borda (`.team-profile-trigger--collaborator`), alinhados com os dos fundadores, mantendo alvo `min-h-11` (`44 px`), `:focus-visible` e seta laranja.
+  - Ocultado o resíduo de silhueta/brilho inferior (`.team-backdrop-photo--bottom`, `.team-backdrop-glow--bottom`) para manter fundo preto puro sob os recortes P&B.
+  - Uniformizada a escala visual dos bustos via `cutoutScale` CSS (`transform-origin: bottom center`, sem editar ficheiros de imagem) a partir dos limites alfa medidos com `sharp` (`edson: 1.02`, `leticia: 1.08`, `maxime: 1.01`, `neide: 1.14`, `mivas/imran: 1`), e ajustada a altura do palco em `>= 1200 px` (`10.25rem`) e `>= 1366 px` (`11.5rem`).
 
 ## 10. Resultado
 
 - **Verificações automáticas (após última edição):**
   - `npm run lint`: `0` erros (`eslint .`).
-  - `npm run build`: `optimize-images.mjs` (24 imagens WebP optimizadas, 82,1% redução total), `tsc -b`, `vite build` e `prerender.mjs` (64 rotas pré-renderizadas, `sitemap.xml` com 5 URLs canónicos).
+  - `npm run build`: `optimize-images.mjs` (24 imagens WebP optimizadas, 82,1% redução total), `tsc -b`, `vite build` (`108.35 kB` CSS, `539.17 kB` JS) e `prerender.mjs` (64 rotas pré-renderizadas, `sitemap.xml` com 5 URLs canónicos).
   - `npm test`: **49/49 testes a passar** (`42` em `tests/seo-verification.test.mjs` + suíte `Slideshow regression invariants (Plan 136)` em `tests/slideshow-regression.test.mjs`, `0` falhas, `0` ignorados).
   - `git diff --check`: `0` problemas.
 - **Verificação visual e funcional no navegador (`http://127.0.0.1:4173/`):**
-  - `1440 × 900` (EN `/`): fechado e expandido (6 colunas horizontais uniformes em `y = 335.18 px`, `width = 197.33 px`), todos os 6 `.webp` carregados (`HTTP 200`, `is-loaded`), `.team-member-initials` = `0`, abertura de `Letícia Muguambe` via `Enter` em `TeamProfilePanel` + fecho `Escape`, recolha funcional (`Close team` → `Discover our team`), `htmlWidth = 1432 <= 1440`.
-  - `1366 × 768` (EN `/`): 6 colunas horizontais numa única linha (`y = 268.75 px`, `width = 188.33 px`), sem corte de texto, `htmlWidth = 1358 <= 1366`.
-  - `1024 × 768` (EN `/`): grelha responsiva de 3 colunas × 2 linhas (`width = 280 px`), `htmlWidth = 1016 <= 1024`.
-  - `768 × 1024` (PT `/pt/`): estados fechado (`Conhecer a equipa`) e expandido (`Fechar equipa`), 3 colunas × 2 linhas (`width = 205.33 px`), incluindo `Tecnologias de Informação e Marketing` sem corte, `htmlWidth = 760 <= 768`.
-  - `375 × 812` (PT `/pt/` e EN `/`): estados fechado e expandido em 2 colunas × 3 linhas (`width = 155.67 px`), `htmlWidth = 367.33 <= 375`, `0` erros de consola e `0` pedidos falhados.
+  - `1440 × 900` (EN `/`): fechado e expandido (6 colunas horizontais uniformes em `y = 561.84 px`, `width = 197.33 px`), todos os 6 `.webp` carregados (`HTTP 200`), `.team-member-secondary` nos cartões = `0`, `.team-member-initials` = `0`, abertura do perfil de `Neide Daude` exibindo `Practice area: Architecture` + fecho por `Escape` + recolha `Close team`, `htmlWidth = 1432 <= 1440`.
+  - `1200 × 900` (EN `/` e PT `/pt/`): 6 colunas horizontais numa única linha (`width = 164 px`, `y = 561.91 px` EN / `561.56 px` PT), zero corte de texto (`Tecnologias de Informação e Marketing` envolvido em `164 px`), links `View profile` discretos sem borda rectangular, `htmlWidth = 1192 <= 1200`.
+  - `1024 × 768` (EN `/`): grelha responsiva 3 colunas × 2 linhas (`width = 280 px`), `htmlWidth = 1016 <= 1024`.
+  - `768 × 1024` (PT `/pt/`): grelha responsiva 3 colunas × 2 linhas (`width = 205.33 px`), `Tecnologias de Informação e Marketing` sem corte, `htmlWidth = 760 <= 768`.
+  - `375 × 812` (PT `/pt/` e EN `/`): grelha responsiva 2 colunas × 3 linhas (`width = 155.67 px`), `htmlWidth = 367.33 <= 375`, `0` erros de consola e `0` pedidos falhados.
   - Nota de sandbox: `page.evaluate` está desactivado na sandbox `webview_browser`; dimensões e ausência de overflow foram medidas via `boundingBox()` (`html`, `body`, cartões e textos) e estado `HTTP 200` + inspeção visual directa das capturas.
