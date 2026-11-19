@@ -34,8 +34,8 @@
 |---|---|---|---|
 | `@agent-a` | <implementar / read-only / standby> | `<lista exacta de caminhos>` | Tudo fora da lista + `main`/site público |
 | `@agent-b` | <implementar / read-only / standby> | `<lista exacta de caminhos>` | Tudo fora da lista + `main`/site público |
-| `@agent-c` | Auditor Perf/Arq (`read-only`) | Nenhum ficheiro versionado (`%TEMP%\oa-audit-c\`) | Qualquer escrita em ficheiros versionados |
-| `@agent-d` | Auditor Sec/QA (`read-only`) | Nenhum ficheiro versionado (`%TEMP%\oa-audit-d\`) | Qualquer escrita em ficheiros versionados |
+| `@agent-c` | Auditor Perf/Arq (`read-only` em código) | Exclusivamente `docs/agent-reports/<fase>/<task-id>-agent-c.md` na branch `codex/fXX-audit-agent-c` (scripts temp em `%TEMP%\oa-audit-c\`) | Qualquer código de produção, `PROJECT_MAP.md`, `main`/site público |
+| `@agent-d` | Auditor Sec/QA (`read-only` em código) | Exclusivamente `docs/agent-reports/<fase>/<task-id>-agent-d.md` (e artefactos de teste autorizados) na branch `codex/fXX-qa-agent-d` (scripts temp em `%TEMP%\oa-audit-d\`) | Qualquer código de produção, `PROJECT_MAP.md`, `main`/site público |
 
 ---
 

@@ -5,7 +5,7 @@ description: "Apply when conducting independent performance, architecture, secur
 
 # Regras de Auditoria Independente, QA & Segurança (`@agent-c` e `@agent-d`)
 
-1. **Estritamente Read-Only em Código:** Auditores nunca modificam código de produção nem executam merges. Para cumprir a Git Delivery Policy v1, o commit na branch exclusiva da auditoria (`codex/fXX-audit-agent-c`, `codex/fXX-qa-agent-d`) deve conter **exclusivamente** o relatório em `docs/agent-reports/<fase>/<task-id>-<agente>.md` e eventuais artefactos de teste autorizados; são proibidas modificações funcionais artificiais apenas para produzir um commit.
+1. **Read-Only em Código de Produção; Escrita Documental Exclusiva:** Auditores nunca modificam código de produção (`src/`, `public/`, `index.html`, `vite.config.ts`, `package.json`), nunca alteram `PROJECT_MAP.md` e nunca executam merges. Para cumprir a Git Delivery Policy v1, o commit na branch exclusiva da auditoria (`codex/fXX-audit-agent-c`, `codex/fXX-qa-agent-d`) deve conter **exclusivamente** o relatório em `docs/agent-reports/<fase>/<task-id>-<agente>.md` e eventuais artefactos de teste explicitamente autorizados no `TASK_CONTRACT`; são proibidas modificações funcionais artificiais apenas para produzir um commit.
 2. **Isolamento de ambiente e portas:**
    - Nunca alterar `oaworkshop`, `main` ou worktrees de outros agentes.
    - Guardar scripts e artefactos temporários exclusivamente em `%TEMP%\oa-audit-<agente>\`.
