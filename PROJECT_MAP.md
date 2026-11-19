@@ -146,4 +146,5 @@
 | `plans/011-phase-045a-data-consistency.md` | plano da Fase 04.5A (`codex/f045a-data-consistency`) — cache canónica, pesquisa pré-normalizada e sincronização Studio Desk |
 | `plans/012-phase-045b-loading-performance.md` | plano da Fase 04.5B (`codex/f045b-loading-performance`) — code-splitting, `manualChunks`, loading states, cache `Intl` e imagens |
 | `plans/013-phase-045-integration.md` | plano e relatório da integração Fase 04.5 A+B (`codex/f02-integration-preview`), correcções P1/P2, benchmarks multi-execução e Quality Gate |
+| `docs/audits/phase045-security-qa-final.md` | auditoria independente de segurança e QA da Fase 04.5 (Gemini D · `codex/f045-security-qa-final`) |
 | `scripts/e2e-verify-entry.mjs` | verificação E2E portátil em Chromium/Edge nas larguras 1440px, 680px altura, 768px, 720px (zoom) e 375px |
