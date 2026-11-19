@@ -34,3 +34,5 @@ Este repositório aloja o **O+A Workspace** (*Architectural Operating Space*), u
 - Toda a alteração de código exige um contrato de missão baseado em `docs/agent-ops/TASK_CONTRACT.md`, plano em `plans/`, propriedade exclusiva de ficheiros e aprovação humana expressa antes da execução.
 - Regras técnicas especializadas por domínio e auditoria são carregadas progressivamente a partir de `.agents/rules/`.
 - Nunca alterar `main`, o website público `oaworkshop`, executar merges no preview, criar trabalhadores adicionais ou iniciar novas fases sem aprovação humana explícita.
+- **Git Delivery Policy v1 (`TASK DONE`):** Nenhuma tarefa recebe estado `DONE` sem relatório Markdown em `docs/agent-reports/<fase>/<task-id>-<agente>.md`, commit na branch exclusiva da tarefa (`codex/fXX-...`), `git push` para `origin` e verificação formal pelo `@coordinator` (caso contrário: `PENDING DELIVERY`, `FAILED` ou `BLOCKED`).
+- A actualização global de `PROJECT_MAP.md` é coordenada na fase de integração para evitar conflitos entre branches paralelas de agentes.

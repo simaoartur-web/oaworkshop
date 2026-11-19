@@ -108,3 +108,19 @@ Qualquer agente deve parar imediatamente e publicar `@coordinator [blocked]` per
 - **Protecção de branches recomendada no GitHub:**
   - `main`: push directo bloqueado, PR + aprovação do proprietário obrigatória, sem `force push`, sem eliminação.
   - `codex/f02-integration-preview`: PR obrigatório a partir de `codex/*`, checks do `workspace-quality-gate` obrigatórios, aprovação humana obrigatória, sem `force push`, sem eliminação.
+
+---
+
+## 9. Git Delivery Policy v1 (Definição de `TASK DONE`)
+
+**Regra permanente:** `TASK DONE = Trabalho terminado + Relatório Markdown + Commit + Push + Verificação pelo Coordenador`. Se qualquer elemento faltar, classificar como `PENDING DELIVERY`, `FAILED` ou `BLOCKED`.
+
+1. **Convenções de branches exclusivas:** `codex/fXX-task-agent-a`, `codex/fXX-task-agent-b`, `codex/fXX-audit-agent-c`, `codex/fXX-qa-agent-d` (em worktrees isolados; nunca `main`; nunca `force push`; sem merge sem autorização humana).
+2. **Localização e conteúdo obrigatório dos relatórios:** `docs/agent-reports/<fase>/<task-id>-<agente>.md`, contendo identificador da tarefa, nome do agente, objectivo/âmbito, branch e commit base, ficheiros modificados, trabalho executado, testes realizados e resultados reais (sem invenções), problemas `P0/P1/P2`, limitações/pendências, estado verdadeiro (`PASSED`, `FAILED` ou `BLOCKED`) e recomendações — sem credenciais, tokens ou dados privados.
+3. **Convenções de commits:**
+   - Implementação (`@agent-a` / `@agent-b`): `feat(fXX): <resumo> — agent-a` / `fix(fXX): <resumo> — agent-b`
+   - Auditoria (`@agent-c`): `docs(audit): <resumo> — agent-c`
+   - QA (`@agent-d`): `test(qa): <resumo> — agent-d`
+   - Em tarefas de auditoria somente leitura, o commit inclui **exclusivamente** o relatório e eventuais artefactos de teste autorizados (nunca alterações funcionais artificiais).
+4. **Coordenação de `PROJECT_MAP.md` e controlo de tokens:** A actualização global de `PROJECT_MAP.md` ocorre na integração para evitar conflitos. Nunca re-executar tarefas ou suites completas apenas para gerar relatórios; reutilizar evidências já recolhidas e não iniciar novas missões após o `push`.
+5. **Verificação e resumo ao Responsável Humano:** Antes de declarar `DONE`, o `@coordinator` confirma branch remota, SHA, âmbito do diff, correspondência do relatório e ausência de conflitos, apresentando o resumo canónico com links verificáveis do GitHub (`AGENTE / TAREFA / ESTADO / BRANCH / COMMIT SHA / RELATÓRIO / TESTES / PENDÊNCIAS / RECOMENDAÇÃO`).

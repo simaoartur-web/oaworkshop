@@ -57,13 +57,19 @@
 
 ---
 
-## 5. Formato Obrigatório de Entrega (`@coordinator [done]`)
-Cada agente responsável publica um único relatório final contendo exactamente:
-1. **Tarefa executada**
-2. **Evidências** (medições, saídas de comando ou passos reproduzíveis)
-3. **Ficheiros envolvidos**
-4. **Testes realizados**
-5. **Problemas `P0` / `P1` / `P2`**
-6. **Recomendações**
-7. **Commit SHA e branch** (ou `read-only / sem alterações`)
+## 5. Formato Obrigatório de Entrega — Git Delivery Policy v1 (`TASK DONE`)
+Nenhuma tarefa é considerada `DONE` sem os 5 elementos: **Trabalho terminado + Relatório Markdown + Commit + Push + Verificação pelo Coordenador** (caso contrário: `PENDING DELIVERY`, `FAILED` ou `BLOCKED`).
+
+1. **Relatório no repositório:** `docs/agent-reports/<fase>/<task-id>-<agente>.md` contendo:
+   - Identificador da tarefa, Nome do agente, Objectivo e âmbito, Branch e commit base
+   - Ficheiros modificados, Trabalho executado, Testes realizados e resultados reais
+   - Problemas `P0` / `P1` / `P2`, Limitações e pendências
+   - Estado verdadeiro: `PASSED` | `FAILED` | `BLOCKED`
+   - Recomendações (sem credenciais, tokens ou dados sensíveis)
+2. **Commit & Push na branch exclusiva** (`codex/fXX-task-agent-a`, `codex/fXX-task-agent-b`, `codex/fXX-audit-agent-c`, `codex/fXX-qa-agent-d`):
+   - `feat(fXX): ... — agent-a` · `fix(fXX): ... — agent-b` · `docs(audit): ... — agent-c` · `test(qa): ... — agent-d`
+   - Auditorias read-only incluem exclusivamente o relatório e artefactos de teste autorizados.
+3. **Notificação ao Coordenador (`@coordinator [done]`):** Informar branch, commit SHA e estado, aguardando verificação.
+4. **Resumo do Coordenador ao Responsável Humano (com links GitHub verificáveis):**
+   `AGENTE` · `TAREFA` · `ESTADO` · `BRANCH` · `COMMIT SHA` · `RELATÓRIO` · `TESTES` · `PENDÊNCIAS` · `RECOMENDAÇÃO`
 ```

@@ -3,8 +3,8 @@
 - **Branch:** `codex/docs-agent-governance-v1`
 - **Base:** `origin/codex/f02-integration-preview` (`4197c2ef4c71dbdc7bd00617d16d77111eba0bc5`)
 - **Worktree isolado:** `D:/projects/O+A Architecture and Planners/Main/oaworkspace-governance-v1`
-- **Aprovação humana:** Aprovado pelo responsável sobre a proposta `agent_governance_v1_proposal.md`
-- **Estado:** Etapa 2 concluída (documentação, regras `.agents/rules/`, adição mínima a `AGENTS.md`, `PROJECT_MAP.md` e Quality Gate CI gravados e verificados); aguarda aprovação do `TASK_CONTRACT` para a Etapa 3 (Missão-Piloto) e eventual merge no preview.
+- **Aprovação humana:** Aprovado pelo responsável sobre a proposta `agent_governance_v1_proposal.md` e adenda `git_delivery_policy_v1_amendment.md`
+- **Estado:** Etapa 2 + adenda Git Delivery Policy v1 gravadas e verificadas em `codex/docs-agent-governance-v1`; aguarda aprovação humana para integração em `codex/f02-integration-preview` e eventual arranque da Etapa 3 (Missão-Piloto).
 
 ---
 
