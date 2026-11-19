@@ -27,3 +27,10 @@ Este repositório aloja o **O+A Workspace** (*Architectural Operating Space*), u
 - Trabalhar em branches dedicadas (`codex/...`), nunca directamente em `main`.
 - Português por omissão (grafia institucional O+A) e Inglês completo em paridade de chaves (`src/locales/pt.ts` e `src/locales/en.ts`).
 - Executar `npm run lint`, `npm run test`, `npm run build` e verificação E2E visual nas larguras críticas antes de fechar cada fase.
+
+## 5. Governança Multiagente e Contratos de Missão
+
+- O modelo operacional da equipa (`@coordinator`, `@agent-a`, `@agent-b`, `@agent-c`, `@agent-d`) está definido em `docs/agent-ops/OPERATING_MODEL.md`.
+- Toda a alteração de código exige um contrato de missão baseado em `docs/agent-ops/TASK_CONTRACT.md`, plano em `plans/`, propriedade exclusiva de ficheiros e aprovação humana expressa antes da execução.
+- Regras técnicas especializadas por domínio e auditoria são carregadas progressivamente a partir de `.agents/rules/`.
+- Nunca alterar `main`, o website público `oaworkshop`, executar merges no preview, criar trabalhadores adicionais ou iniciar novas fases sem aprovação humana explícita.
