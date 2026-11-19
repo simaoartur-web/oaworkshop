@@ -493,14 +493,71 @@ function emptyEnvelope(): StoredLibraryEnvelope {
   };
 }
 
+export interface ProjectLibrarySnapshot {
+  version: number;
+  envelope: StoredLibraryEnvelope;
+  allRecords: readonly CanonicalProjectRecord[];
+  activeRecords: readonly CanonicalProjectRecord[];
+  lookupMap: ReadonlyMap<string, CanonicalProjectRecord>;
+  studioDeskAll: readonly StudioDeskProject[];
+  studioDeskActive: readonly StudioDeskProject[];
+}
+
+let cachedSnapshot: ProjectLibrarySnapshot | null = null;
+let cacheVersionCounter = 0;
+let isInternalEventEmit = false;
+const librarySubscribers = new Set<() => void>();
+
+function deepFreezeValue<T>(value: T): T {
+  if (value && typeof value === 'object' && !Object.isFrozen(value)) {
+    Object.freeze(value);
+    for (const nested of Object.values(value as Record<string, unknown>)) {
+      deepFreezeValue(nested);
+    }
+  }
+  return value;
+}
+
+function notifyLibrarySubscribers(): void {
+  for (const listener of Array.from(librarySubscribers)) {
+    listener();
+  }
+}
+
 function emitLibraryUpdated(): void {
+  notifyLibrarySubscribers();
   if (typeof window === 'undefined') {
     return;
   }
-  window.dispatchEvent(new CustomEvent(PROJECT_LIBRARY_UPDATED_EVENT));
+  isInternalEventEmit = true;
+  try {
+    window.dispatchEvent(new CustomEvent(PROJECT_LIBRARY_UPDATED_EVENT));
+  } finally {
+    isInternalEventEmit = false;
+  }
 }
 
-function loadEnvelope(): StoredLibraryEnvelope {
+export function invalidateProjectLibraryCache(): void {
+  cachedSnapshot = null;
+  cacheVersionCounter += 1;
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event: StorageEvent) => {
+    if (event.key === null || event.key === PROJECT_LIBRARY_STORAGE_KEY) {
+      invalidateProjectLibraryCache();
+      notifyLibrarySubscribers();
+    }
+  });
+  window.addEventListener(PROJECT_LIBRARY_UPDATED_EVENT, () => {
+    if (!isInternalEventEmit) {
+      invalidateProjectLibraryCache();
+      notifyLibrarySubscribers();
+    }
+  });
+}
+
+function loadEnvelopeFromStorage(): StoredLibraryEnvelope {
   if (typeof window === 'undefined') {
     return emptyEnvelope();
   }
@@ -556,88 +613,156 @@ function loadEnvelope(): StoredLibraryEnvelope {
   }
 }
 
-function saveEnvelope(envelope: StoredLibraryEnvelope): void {
-  if (typeof window === 'undefined') {
-    return;
-  }
-  const serialized = JSON.stringify(envelope);
-  try {
-    window.localStorage.setItem(PROJECT_LIBRARY_STORAGE_KEY, serialized);
-    const verified = window.localStorage.getItem(PROJECT_LIBRARY_STORAGE_KEY);
-    if (verified === null) {
-      throw new Error(
-        'Não foi possível confirmar a gravação local dos dados neste navegador.',
-      );
+function buildLibrarySnapshot(
+  envelope: StoredLibraryEnvelope,
+): ProjectLibrarySnapshot {
+  const seeds = getSeedCanonicalProjects();
+  const resolvedSeeds = seeds.map(
+    (seed) => envelope.overridesById[seed.identity.id] ?? seed,
+  );
+  const allRecords = [...envelope.createdRecords, ...resolvedSeeds].map(
+    deepFreezeValue,
+  );
+  const activeRecords = allRecords.filter(
+    (record) =>
+      !record.metadata.isArchived &&
+      record.lifecycle.projectStatus !== 'archived',
+  );
+
+  const lookupMap = new Map<string, CanonicalProjectRecord>();
+  const registerKey = (key: string, record: CanonicalProjectRecord) => {
+    const normalized = key.trim().toLowerCase();
+    if (normalized && !lookupMap.has(normalized)) {
+      lookupMap.set(normalized, record);
     }
-  } catch (error) {
-    const isQuotaError =
-      (error instanceof Error && error.name === 'QuotaExceededError') ||
-      (typeof DOMException !== 'undefined' &&
-        error instanceof DOMException &&
-        (error.name === 'QuotaExceededError' ||
-          error.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
-          error.code === 22 ||
-          error.code === 1014));
-    if (isQuotaError) {
-      const quotaError = new Error(
-        'Limite de armazenamento local do navegador atingido (QuotaExceededError). Exporte ou arquive projectos antigos antes de guardar novas alterações.',
+  };
+  for (const record of allRecords) {
+    registerKey(record.identity.id, record);
+    registerKey(record.identity.code, record);
+    registerKey(record.identity.slug, record);
+  }
+
+  const studioDeskAll = allRecords.map((record) =>
+    deepFreezeValue(canonicalToStudioDeskProject(record)),
+  );
+  const studioDeskActive = studioDeskAll.filter(
+    (project) => project.projectStatus !== 'archived',
+  );
+
+  cacheVersionCounter += 1;
+
+  return Object.freeze({
+    version: cacheVersionCounter,
+    envelope: deepFreezeValue<StoredLibraryEnvelope>({
+      version: 1,
+      overridesById: { ...envelope.overridesById },
+      createdRecords: [...envelope.createdRecords],
+    }),
+    allRecords: Object.freeze(allRecords),
+    activeRecords: Object.freeze(activeRecords),
+    lookupMap,
+    studioDeskAll: Object.freeze(studioDeskAll),
+    studioDeskActive: Object.freeze(studioDeskActive),
+  });
+}
+
+export function getProjectLibrarySnapshot(): ProjectLibrarySnapshot {
+  if (cachedSnapshot === null) {
+    cachedSnapshot = buildLibrarySnapshot(loadEnvelopeFromStorage());
+  }
+  return cachedSnapshot;
+}
+
+export function getProjectLibraryVersion(): number {
+  return getProjectLibrarySnapshot().version;
+}
+
+function loadEnvelope(): StoredLibraryEnvelope {
+  return getProjectLibrarySnapshot().envelope;
+}
+
+function saveEnvelope(envelope: StoredLibraryEnvelope): void {
+  if (typeof window !== 'undefined') {
+    const serialized = JSON.stringify(envelope);
+    try {
+      window.localStorage.setItem(PROJECT_LIBRARY_STORAGE_KEY, serialized);
+      const verified = window.localStorage.getItem(PROJECT_LIBRARY_STORAGE_KEY);
+      if (verified === null) {
+        throw new Error(
+          'Não foi possível confirmar a gravação local dos dados neste navegador.',
+        );
+      }
+    } catch (error) {
+      const isQuotaError =
+        (error instanceof Error && error.name === 'QuotaExceededError') ||
+        (typeof DOMException !== 'undefined' &&
+          error instanceof DOMException &&
+          (error.name === 'QuotaExceededError' ||
+            error.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+            error.code === 22 ||
+            error.code === 1014));
+      if (isQuotaError) {
+        const quotaError = new Error(
+          'Limite de armazenamento local do navegador atingido (QuotaExceededError). Exporte ou arquive projectos antigos antes de guardar novas alterações.',
+          { cause: error },
+        );
+        quotaError.name = 'QuotaExceededError';
+        throw quotaError;
+      }
+      const detail =
+        error instanceof Error && error.message ? ` (${error.message})` : '';
+      throw new Error(
+        `Falha ao guardar os dados da biblioteca no armazenamento local do navegador.${detail}`,
         { cause: error },
       );
-      quotaError.name = 'QuotaExceededError';
-      throw quotaError;
     }
-    const detail =
-      error instanceof Error && error.message ? ` (${error.message})` : '';
-    throw new Error(
-      `Falha ao guardar os dados da biblioteca no armazenamento local do navegador.${detail}`,
-      { cause: error },
-    );
   }
+  // Update the in-memory cache ONLY after persistence succeeds.
+  cachedSnapshot = buildLibrarySnapshot(envelope);
   emitLibraryUpdated();
 }
 
 function persistMutatedRecord(record: CanonicalProjectRecord): void {
-  const envelope = loadEnvelope();
+  const envelope = getProjectLibrarySnapshot().envelope;
+  const nextOverridesById = { ...envelope.overridesById };
+  const nextCreatedRecords = [...envelope.createdRecords];
   if (record.metadata.origin === 'seed-fixture') {
-    envelope.overridesById[record.identity.id] = record;
+    nextOverridesById[record.identity.id] = record;
   } else {
-    const existingIndex = envelope.createdRecords.findIndex(
+    const existingIndex = nextCreatedRecords.findIndex(
       (item) => item.identity.id === record.identity.id,
     );
     if (existingIndex >= 0) {
-      envelope.createdRecords[existingIndex] = record;
+      nextCreatedRecords[existingIndex] = record;
     } else {
-      envelope.createdRecords.unshift(record);
+      nextCreatedRecords.unshift(record);
     }
   }
-  saveEnvelope(envelope);
+  saveEnvelope({
+    version: 1,
+    overridesById: nextOverridesById,
+    createdRecords: nextCreatedRecords,
+  });
 }
 
 export function listProjects(options?: {
   includeArchived?: boolean;
 }): CanonicalProjectRecord[] {
   const includeArchived = options?.includeArchived ?? true;
-  const envelope = loadEnvelope();
-  const seeds = getSeedCanonicalProjects().map(
-    (seed) => envelope.overridesById[seed.identity.id] ?? seed,
-  );
-
-  // Locally created projects surface alongside seed projects immediately
-  const combined = [...envelope.createdRecords, ...seeds];
-  if (includeArchived) {
-    return combined;
-  }
-  return combined.filter(
-    (record) =>
-      !record.metadata.isArchived &&
-      record.lifecycle.projectStatus !== 'archived',
-  );
+  const snapshot = getProjectLibrarySnapshot();
+  return includeArchived
+    ? [...snapshot.allRecords]
+    : [...snapshot.activeRecords];
 }
 
 export function listStudioDeskCompatibleProjects(options?: {
   includeArchived?: boolean;
 }): StudioDeskProject[] {
-  return listProjects(options).map(canonicalToStudioDeskProject);
+  const includeArchived = options?.includeArchived ?? true;
+  const snapshot = getProjectLibrarySnapshot();
+  return includeArchived
+    ? [...snapshot.studioDeskAll]
+    : [...snapshot.studioDeskActive];
 }
 
 export function getProjectById(
@@ -647,15 +772,7 @@ export function getProjectById(
   if (!query) {
     return null;
   }
-  const all = listProjects({ includeArchived: true });
-  return (
-    all.find(
-      (record) =>
-        record.identity.id.toLowerCase() === query ||
-        record.identity.code.toLowerCase() === query ||
-        record.identity.slug.toLowerCase() === query,
-    ) ?? null
-  );
+  return getProjectLibrarySnapshot().lookupMap.get(query) ?? null;
 }
 
 export const ALLOWED_EXTENSIONS_BY_FILE_KIND: Readonly<
@@ -1573,14 +1690,14 @@ export function addProjectFileReference(
 }
 
 export function clearProjectLibraryLocalState(): void {
-  if (typeof window === 'undefined') {
-    return;
+  if (typeof window !== 'undefined') {
+    try {
+      window.localStorage.removeItem(PROJECT_LIBRARY_STORAGE_KEY);
+    } catch {
+      // Ignore storage removal errors
+    }
   }
-  try {
-    window.localStorage.removeItem(PROJECT_LIBRARY_STORAGE_KEY);
-  } catch {
-    // Ignore storage removal errors
-  }
+  invalidateProjectLibraryCache();
   emitLibraryUpdated();
 }
 
@@ -1592,19 +1709,9 @@ export function resetProjectLibraryState(): CanonicalProjectRecord[] {
 export function subscribeProjectLibraryChanges(
   listener: () => void,
 ): () => void {
-  if (typeof window === 'undefined') {
-    return () => {};
-  }
-  const handleStorage = (event: StorageEvent) => {
-    if (event.key === null || event.key === PROJECT_LIBRARY_STORAGE_KEY) {
-      listener();
-    }
-  };
-  window.addEventListener(PROJECT_LIBRARY_UPDATED_EVENT, listener);
-  window.addEventListener('storage', handleStorage);
+  librarySubscribers.add(listener);
   return () => {
-    window.removeEventListener(PROJECT_LIBRARY_UPDATED_EVENT, listener);
-    window.removeEventListener('storage', handleStorage);
+    librarySubscribers.delete(listener);
   };
 }
 

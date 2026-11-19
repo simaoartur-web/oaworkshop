@@ -79,7 +79,12 @@ export function ProjectDossierDialog({
         className="w-full max-w-2xl border border-white/18 bg-[#111111] p-5 sm:p-8 text-white max-h-[90dvh] overflow-y-auto overscroll-contain focus:outline-none"
       >
         {state.type === 'dossier' ? (
-          <>
+          (() => {
+            const activeDossierProject =
+              projects.find((item) => item.id === state.project.id) ??
+              state.project;
+            return (
+              <>
             <div className="flex items-start justify-between gap-4 pb-4 oa-hairline-b">
               <div>
                 <p className="text-[11px] font-medium uppercase tracking-[0.20em] text-[#E0E0E0]">
@@ -87,13 +92,13 @@ export function ProjectDossierDialog({
                     aria-hidden="true"
                     className="inline-block h-1.5 w-1.5 bg-[#A65D4A] mr-2 align-middle"
                   />
-                  {state.project.code} · {deskDict.dialog.dossierCode}
+                  {activeDossierProject.code} · {deskDict.dialog.dossierCode}
                 </p>
                 <h2
                   id={titleId}
                   className="mt-2 text-xl sm:text-2xl font-light tracking-tight text-white"
                 >
-                  {pickLocalized(state.project.title, language)}
+                  {pickLocalized(activeDossierProject.title, language)}
                 </h2>
               </div>
 
@@ -110,7 +115,7 @@ export function ProjectDossierDialog({
 
             <div id={descId} className="mt-5 space-y-5">
               <p className="text-sm leading-relaxed text-[#E0E0E0]">
-                {pickLocalized(state.project.dossierNotes, language)}
+                {pickLocalized(activeDossierProject.dossierNotes, language)}
               </p>
 
               <dl className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-4 oa-hairline-t oa-hairline-b text-xs">
@@ -119,7 +124,7 @@ export function ProjectDossierDialog({
                     {deskDict.featured.disciplineLabel}
                   </dt>
                   <dd className="mt-1 font-medium text-white">
-                    {pickLocalized(state.project.discipline, language)}
+                    {pickLocalized(activeDossierProject.discipline, language)}
                   </dd>
                 </div>
                 <div>
@@ -127,7 +132,7 @@ export function ProjectDossierDialog({
                     {deskDict.featured.scaleLabel}
                   </dt>
                   <dd className="mt-1 font-medium text-white tabular-nums">
-                    {state.project.scale}
+                    {activeDossierProject.scale}
                   </dd>
                 </div>
                 <div>
@@ -135,7 +140,7 @@ export function ProjectDossierDialog({
                     {deskDict.featured.areaLabel}
                   </dt>
                   <dd className="mt-1 font-medium text-white tabular-nums">
-                    {state.project.areaSqm}
+                    {activeDossierProject.areaSqm}
                   </dd>
                 </div>
                 <div>
@@ -143,7 +148,7 @@ export function ProjectDossierDialog({
                     {deskDict.featured.datumLabel}
                   </dt>
                   <dd className="mt-1 font-medium text-white tabular-nums">
-                    {state.project.elevationDatum}
+                    {activeDossierProject.elevationDatum}
                   </dd>
                 </div>
               </dl>
@@ -153,7 +158,7 @@ export function ProjectDossierDialog({
                   {deskDict.dialog.deliverablesTitle}
                 </h3>
                 <ul className="divide-y divide-white/10 border border-white/12 bg-[#0D0D0D]">
-                  {state.project.deliverables.map((item) => (
+                  {activeDossierProject.deliverables.map((item) => (
                     <li
                       key={item.id}
                       className="px-4 py-3 flex flex-wrap items-center justify-between gap-2 text-xs"
@@ -198,7 +203,9 @@ export function ProjectDossierDialog({
                 {deskDict.dialog.honestDemoNote}
               </p>
             </div>
-          </>
+              </>
+            );
+          })()
         ) : state.type === 'task' ? (
           (() => {
             const task = state.task;

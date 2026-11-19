@@ -16,10 +16,10 @@ import {
   ROLE_DESK_CONFIGS,
   saveStudioDeskLocalState,
   STUDIO_DESK_ACTIVITIES,
-  STUDIO_DESK_PROJECTS,
   STUDIO_DESK_STORAGE_KEY,
   STUDIO_DESK_TASKS,
 } from '../../data/studioDeskFixtures';
+import { useProjectLibrary } from '../project-library/useProjectLibrary';
 import type {
   DeskActivityKind,
   DeskFilterScope,
@@ -58,6 +58,14 @@ const CANONICAL_SECTION_ORDER: readonly DeskSectionKey[] = [
   'overview',
   'activity',
 ];
+
+function normalizeDeskSearchText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
 
 const NOOP = () => {};
 
@@ -190,6 +198,12 @@ function AuthenticatedStudioDesk({
 }: AuthenticatedStudioDeskProps) {
   const activeRole = currentUser.role;
   const roleConfig = ROLE_DESK_CONFIGS[activeRole];
+  const { studioDeskProjects } = useProjectLibrary();
+  const activeDeskProjects = useMemo(
+    () =>
+      studioDeskProjects.filter((proj) => proj.projectStatus !== 'archived'),
+    [studioDeskProjects],
+  );
 
   const [localState, setLocalState] = useState<StudioDeskLocalState>(() =>
     loadStudioDeskLocalState(),
@@ -215,13 +229,13 @@ function AuthenticatedStudioDesk({
     }
     const normalized = trimmedUrlProject.toLowerCase();
     return (
-      STUDIO_DESK_PROJECTS.find(
+      studioDeskProjects.find(
         (proj) =>
           proj.id.toLowerCase() === normalized ||
           proj.code.toLowerCase() === normalized,
       ) ?? null
     );
-  }, [trimmedUrlProject]);
+  }, [studioDeskProjects, trimmedUrlProject]);
 
   const [highlightedTaskId, setHighlightedTaskId] = useState<string | null>(null);
   const [manualHighlightedProjectId, setManualHighlightedProjectId] = useState<
@@ -305,21 +319,25 @@ function AuthenticatedStudioDesk({
 
   const featuredProject = useMemo<StudioDeskProject>(() => {
     return (
-      STUDIO_DESK_PROJECTS.find(
+      activeDeskProjects.find(
         (proj) => proj.id === roleConfig.featuredProjectId,
-      ) ?? STUDIO_DESK_PROJECTS[0]
+      ) ??
+      activeDeskProjects[0] ??
+      studioDeskProjects[0]
     );
-  }, [roleConfig.featuredProjectId]);
+  }, [activeDeskProjects, studioDeskProjects, roleConfig.featuredProjectId]);
 
   const myProjectIds = useMemo(() => {
     return new Set(
-      STUDIO_DESK_PROJECTS.filter(
-        (proj) =>
-          proj.leadUserId === currentUser.id ||
-          proj.contributorUserIds.includes(currentUser.id),
-      ).map((proj) => proj.id),
+      studioDeskProjects
+        .filter(
+          (proj) =>
+            proj.leadUserId === currentUser.id ||
+            proj.contributorUserIds.includes(currentUser.id),
+        )
+        .map((proj) => proj.id),
     );
-  }, [currentUser.id]);
+  }, [currentUser.id, studioDeskProjects]);
 
   // Direct assignments for the active profile (drives top operational summary cleanly).
   const myAssignedTasks = useMemo(() => {
@@ -444,7 +462,7 @@ function AuthenticatedStudioDesk({
   }, [activeRole, localState.taskStatuses, myAssignedTasks]);
 
   const attentionProject = useMemo<StudioDeskProject | undefined>(() => {
-    const needAttention = STUDIO_DESK_PROJECTS.filter(
+    const needAttention = activeDeskProjects.filter(
       (proj) => proj.reviewState !== 'approved_internal',
     );
     return (
@@ -452,7 +470,7 @@ function AuthenticatedStudioDesk({
       needAttention.find((proj) => proj.assignedRoles.includes(activeRole)) ??
       featuredProject
     );
-  }, [activeRole, featuredProject, myProjectIds]);
+  }, [activeDeskProjects, activeRole, featuredProject, myProjectIds]);
 
   const visibleActivities = useMemo(() => {
     return [...STUDIO_DESK_ACTIVITIES]
@@ -487,52 +505,69 @@ function AuthenticatedStudioDesk({
       .sort((a, b) => b.timestampIso.localeCompare(a.timestampIso));
   }, [activeRole, activityKindFilter, currentUser.id, myProjectIds, scope]);
 
-  const visibleProjects = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLowerCase();
+  const indexedDeskProjects = useMemo(
+    () =>
+      studioDeskProjects.map((project) => ({
+        project,
+        searchText: normalizeDeskSearchText(
+          [
+            project.code,
+            project.title.pt,
+            project.title.en,
+            project.discipline.pt,
+            project.discipline.en,
+            project.studioBase,
+            project.leadAuthorName,
+          ].join(' '),
+        ),
+      })),
+    [studioDeskProjects],
+  );
 
-    const filtered = STUDIO_DESK_PROJECTS.filter((project) => {
+  const visibleProjects = useMemo(() => {
+    const normalizedQuery = normalizeDeskSearchText(searchQuery);
+
+    const filtered: StudioDeskProject[] = [];
+    for (const item of indexedDeskProjects) {
+      const { project } = item;
+      if (projectStatusFilter === 'archived') {
+        if (project.projectStatus !== 'archived') {
+          continue;
+        }
+      } else {
+        if (project.projectStatus === 'archived') {
+          continue;
+        }
+        if (
+          projectStatusFilter !== 'all' &&
+          project.projectStatus !== projectStatusFilter
+        ) {
+          continue;
+        }
+      }
       if (scope === 'my_work' && !myProjectIds.has(project.id)) {
-        return false;
+        continue;
       }
       if (
         scope === 'role_focus' &&
         !myProjectIds.has(project.id) &&
         !project.assignedRoles.includes(activeRole)
       ) {
-        return false;
+        continue;
       }
       if (
         scope === 'attention' &&
         project.reviewState === 'approved_internal'
       ) {
-        return false;
+        continue;
       }
-      if (
-        projectStatusFilter !== 'all' &&
-        project.projectStatus !== projectStatusFilter
-      ) {
-        return false;
+      if (normalizedQuery.length > 0 && !item.searchText.includes(normalizedQuery)) {
+        continue;
       }
-      if (normalizedQuery.length > 0) {
-        const haystack = [
-          project.code,
-          project.title.pt,
-          project.title.en,
-          project.discipline.pt,
-          project.discipline.en,
-          project.studioBase,
-          project.leadAuthorName,
-        ]
-          .join(' ')
-          .toLowerCase();
-        if (!haystack.includes(normalizedQuery)) {
-          return false;
-        }
-      }
-      return true;
-    });
+      filtered.push(project);
+    }
 
-    return [...filtered].sort((a, b) => {
+    return filtered.sort((a, b) => {
       if (projectSortBy === 'code') {
         return a.code.localeCompare(b.code);
       }
@@ -553,6 +588,7 @@ function AuthenticatedStudioDesk({
     });
   }, [
     activeRole,
+    indexedDeskProjects,
     myProjectIds,
     projectSortBy,
     projectStatusFilter,
@@ -992,7 +1028,7 @@ function AuthenticatedStudioDesk({
       {/* Accessible Project Dossier, Task Inspection & Future-Phase Modal */}
       <ProjectDossierDialog
         state={dialogState}
-        projects={STUDIO_DESK_PROJECTS}
+        projects={studioDeskProjects}
         taskStatuses={localState.taskStatuses}
         currentUserId={currentUser.id}
         onSetTaskStatus={handleSetTaskStatus}

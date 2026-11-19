@@ -4,11 +4,16 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type KeyboardEvent,
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useWorkspaceSession } from '../../app/WorkspaceSessionContext';
+import {
+  getProjectLibrarySnapshot,
+  subscribeProjectLibraryChanges,
+} from '../../data/projectLibraryRepository';
 import { useDialogFocusTrap } from '../../design-system/useDialogFocusTrap';
 import {
   searchWorkspaceDemo,
@@ -47,10 +52,16 @@ function GlobalSearchModalContent({
     onClose,
   });
 
-  const results = useMemo(
-    () => searchWorkspaceDemo(query, language),
-    [query, language],
+  const librarySnapshot = useSyncExternalStore(
+    subscribeProjectLibraryChanges,
+    getProjectLibrarySnapshot,
+    getProjectLibrarySnapshot,
   );
+
+  const results = useMemo(() => {
+    void librarySnapshot.version;
+    return searchWorkspaceDemo(query, language);
+  }, [query, language, librarySnapshot.version]);
 
   const safeActiveIndex =
     results.length > 0 ? Math.min(activeIndex, results.length - 1) : 0;

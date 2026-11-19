@@ -63,6 +63,19 @@ export function ProjectDossierShellPage() {
     return resolveProjectModelState(record);
   }, [record, modelEngineTick]);
 
+  const deskProject = useMemo(
+    () => (record ? canonicalToStudioDeskProject(record) : null),
+    [record],
+  );
+  const documents = useMemo(
+    () => (record ? canonicalFilesToExperienceDocuments(record) : []),
+    [record],
+  );
+  const revisions = useMemo(
+    () => (record ? canonicalRevisionsToExperienceRevisions(record) : []),
+    [record],
+  );
+
   useEffect(() => {
     if (record) {
       document.title = `${record.identity.code} · ${record.editorial.title[language]} — O+A Workspace`;
@@ -81,7 +94,7 @@ export function ProjectDossierShellPage() {
     return null;
   }
 
-  if (!record) {
+  if (!record || !deskProject) {
     return (
       <div className="w-full max-w-[920px] mx-auto px-4 sm:px-6 lg:px-10 py-10 space-y-6">
         <p className="text-[11px] font-mono uppercase tracking-[0.20em] text-[#CE826D]">
@@ -110,9 +123,6 @@ export function ProjectDossierShellPage() {
     );
   }
 
-  const deskProject = canonicalToStudioDeskProject(record);
-  const documents = canonicalFilesToExperienceDocuments(record);
-  const revisions = canonicalRevisionsToExperienceRevisions(record);
   const isArchived =
     record.metadata.isArchived ||
     record.lifecycle.projectStatus === 'archived';
@@ -170,10 +180,8 @@ export function ProjectDossierShellPage() {
         onOpen3DPlaceholderNote={() =>
           navigate(`/workspace/projects/${record.identity.id}/model`)
         }
-        onOpenInStudioDesk={
-          record.metadata.origin === 'seed-fixture'
-            ? () => navigate(`/workspace?project=${record.identity.id}`)
-            : undefined
+        onOpenInStudioDesk={() =>
+          navigate(`/workspace?project=${record.identity.id}`)
         }
       />
 
