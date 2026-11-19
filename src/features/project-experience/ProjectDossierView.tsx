@@ -457,6 +457,46 @@ function ProjectDossierViewInner({
     }
   };
 
+  const handleArchiveProject = async () => {
+    if (!onArchiveProject) {
+      return;
+    }
+    setMetadataEditError(null);
+    setMetadataEditStatus(null);
+    try {
+      await onArchiveProject();
+    } catch (error) {
+      setMetadataEditError(
+        error instanceof Error && error.message
+          ? error.message
+          : language === 'en'
+            ? 'Could not archive this project in local browser storage.'
+            : 'Não foi possível arquivar este projecto no armazenamento local deste navegador.',
+      );
+    }
+  };
+
+  const handleRestoreProject = async (
+    nextStatus: Exclude<ProjectStatus, 'archived'>,
+  ) => {
+    if (!onRestoreProject) {
+      return;
+    }
+    setMetadataEditError(null);
+    setMetadataEditStatus(null);
+    try {
+      await onRestoreProject(nextStatus);
+    } catch (error) {
+      setMetadataEditError(
+        error instanceof Error && error.message
+          ? error.message
+          : language === 'en'
+            ? 'Could not restore this project in local browser storage.'
+            : 'Não foi possível restaurar este projecto no armazenamento local deste navegador.',
+      );
+    }
+  };
+
   return (
     <article
       aria-labelledby="dossier-project-heading"
@@ -553,12 +593,22 @@ function ProjectDossierViewInner({
           {onRestoreProject && (
             <button
               type="button"
-              onClick={() => void onRestoreProject('in_progress')}
+              onClick={() => void handleRestoreProject('in_progress')}
               className="min-h-[40px] px-3.5 py-1.5 border border-[#A65D4A] bg-[#A65D4A]/20 hover:bg-[#A65D4A]/35 text-xs font-medium uppercase tracking-[0.13em] text-white cursor-pointer"
             >
               {dict.dossier.identity.restoreCta}
             </button>
           )}
+        </div>
+      )}
+
+      {metadataEditError && activeSection !== 'identity' && (
+        <div
+          role="alert"
+          className="border border-[#A65D4A] bg-[#21100E] px-4 py-3 text-xs sm:text-sm text-[#F5C2B8]"
+        >
+          <strong>{dict.dossier.identity.errorBannerTitle}</strong>{' '}
+          {metadataEditError}
         </div>
       )}
 
@@ -723,7 +773,7 @@ function ProjectDossierViewInner({
                   {!isArchived && onArchiveProject && (
                     <button
                       type="button"
-                      onClick={() => void onArchiveProject()}
+                      onClick={() => void handleArchiveProject()}
                       className="min-h-[40px] px-3 py-1.5 border border-white/16 bg-[#101010] hover:border-white/35 text-[11px] font-medium uppercase tracking-[0.13em] text-[#BDBDBD] hover:text-white cursor-pointer"
                     >
                       {dict.dossier.identity.archiveCta}

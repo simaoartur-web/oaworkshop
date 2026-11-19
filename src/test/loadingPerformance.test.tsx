@@ -22,6 +22,9 @@ import {
 import { FeaturedProjectPlate } from '../features/studio-desk/FeaturedProjectPlate';
 import { STUDIO_DESK_I18N } from '../features/studio-desk/i18n';
 import { ProjectOverviewPanel } from '../features/studio-desk/ProjectOverviewPanel';
+import { ProjectDossierView } from '../features/project-experience/ProjectDossierView';
+import { ProjectDossierShellPage } from '../features/project-library/ProjectDossierShellPage';
+import { DemoNoticeDialog } from '../design-system/DemoNoticeDialog';
 import { pt } from '../locales/pt';
 import {
   formatEditorialDate,
@@ -317,5 +320,171 @@ describe('Phase 04.5B — Bundle Optimization, Loading Experience, Time Cache & 
     } finally {
       consoleErrorSpy.mockRestore();
     }
+  });
+
+  it('F0451-P1-1: resets rejected createRetryableLazy handle when navigating away and recovers cleanly on return', async () => {
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+
+    try {
+      let shouldFail = true;
+      let importAttempts = 0;
+      const flakyChunk = createRetryableLazy<Record<string, never>>(() => {
+        importAttempts += 1;
+        if (shouldFail) {
+          return Promise.reject(new Error('ChunkLoadError: offline on /tasks'));
+        }
+        return Promise.resolve({
+          default: function RecoveredPlannedRoute() {
+            return (
+              <div data-testid="recovered-after-route-away">
+                Prancha recuperada após regresso
+              </div>
+            );
+          },
+        });
+      });
+
+      const FlakyRoute = flakyChunk.Component;
+      const resetSpy = vi.fn(() => {
+        flakyChunk.reset();
+      });
+
+      const { rerender } = render(
+        <RouteChunkErrorBoundary
+          language="pt"
+          resetKey="/workspace/tasks"
+          variant="shell-content"
+          onRetry={resetSpy}
+        >
+          <Suspense fallback={<WorkspaceContentLoadingState language="pt" />}>
+            <FlakyRoute />
+          </Suspense>
+        </RouteChunkErrorBoundary>,
+      );
+
+      // 1. Initial visit fails and shows fallback
+      expect(
+        await screen.findByTestId('route-chunk-error-fallback'),
+      ).toHaveAttribute('role', 'alert');
+      expect(importAttempts).toBe(1);
+
+      // 2. User navigates away to another healthy route WITHOUT clicking "Tentar novamente"
+      rerender(
+        <RouteChunkErrorBoundary
+          language="pt"
+          resetKey="/workspace/projects"
+          variant="shell-content"
+          onRetry={vi.fn()}
+        >
+          <div data-testid="healthy-projects-route">Catálogo</div>
+        </RouteChunkErrorBoundary>,
+      );
+
+      expect(
+        await screen.findByTestId('healthy-projects-route'),
+      ).toBeInTheDocument();
+      expect(resetSpy).toHaveBeenCalledTimes(1);
+
+      // 3. Network recovers and user navigates back to the previously failed route
+      shouldFail = false;
+      rerender(
+        <RouteChunkErrorBoundary
+          language="pt"
+          resetKey="/workspace/calendar"
+          variant="shell-content"
+          onRetry={resetSpy}
+        >
+          <Suspense fallback={<WorkspaceContentLoadingState language="pt" />}>
+            <FlakyRoute />
+          </Suspense>
+        </RouteChunkErrorBoundary>,
+      );
+
+      expect(
+        await screen.findByTestId('recovered-after-route-away'),
+      ).toHaveTextContent('Prancha recuperada após regresso');
+      expect(importAttempts).toBe(2);
+    } finally {
+      consoleErrorSpy.mockRestore();
+    }
+  });
+
+  it('F0451-P1-2: catches QuotaExceededError on Archive and Restore in ProjectDossierView and displays accessible role="alert"', async () => {
+    const user = userEvent.setup();
+    const project = STUDIO_DESK_PROJECTS[0];
+    const quotaError = new Error(
+      'QuotaExceededError: armazenamento local sem espaço disponível.',
+    );
+
+    const { rerender } = render(
+      <ProjectDossierView
+        project={project}
+        language="pt"
+        isArchived={false}
+        onArchiveProject={() => {
+          throw quotaError;
+        }}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: /Arquivar/i }));
+    const archiveAlert = await screen.findByRole('alert');
+    expect(archiveAlert).toHaveTextContent(/QuotaExceededError/i);
+
+    // Also verify Restore from a non-identity tab displays role="alert" visibly
+    rerender(
+      <ProjectDossierView
+        project={{ ...project, projectStatus: 'archived' }}
+        language="pt"
+        initialSection="documentation"
+        isArchived={true}
+        onRestoreProject={() => {
+          throw quotaError;
+        }}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: /Restaurar/i }));
+    const restoreAlert = await screen.findByRole('alert');
+    expect(restoreAlert).toHaveTextContent(/QuotaExceededError/i);
+  });
+
+  it('F0451-P1-3: enforces WCAG 2.2 AA contrast classes on 404 CTA and DemoNoticeDialog eyebrow', () => {
+    seedDemoSession(0);
+
+    const { unmount } = render(
+      <MemoryRouter initialEntries={['/workspace/projects/non-existent-404']}>
+        <WorkspaceSessionProvider>
+          <ProjectDossierShellPage />
+        </WorkspaceSessionProvider>
+      </MemoryRouter>,
+    );
+
+    const createLink = screen.getByRole('link', {
+      name: /Registar novo projecto|Register new project/i,
+    });
+    expect(createLink.className).toContain('bg-[#A65D4A]');
+    expect(createLink.className).toContain('text-white');
+    expect(createLink.className).not.toContain('text-[#050505]');
+    unmount();
+
+    render(
+      <DemoNoticeDialog
+        open={true}
+        onClose={() => {}}
+        code="DEMO-01"
+        title="Aviso demonstrativo"
+        body="Corpo"
+        instruction="Instrução"
+        confirmLabel="Confirmar"
+        closeAriaLabel="Fechar"
+      />,
+    );
+
+    const codeEl = screen.getByText('DEMO-01');
+    expect(codeEl.className).toContain('text-[#CE826D]');
+    expect(codeEl.className).not.toContain('text-[#A65D4A]');
   });
 });
