@@ -90,7 +90,7 @@ Uma alteração material ao âmbito, riscos ou decisões invalida a aprovação 
 | 134 | CANÓNICO | `134-performance-imagens-autoplay-fades.md` |
 | 135 | EM EXECUÇÃO | `135-slideshow-autoplay-sem-playback.md` |
 | 136 | EM VALIDAÇÃO | `136-revisao-landing-oa-nov2026.md` |
-| 137 | PROPOSTO | `137-refinamento-our-team-colaboradores.md` |
+| 137 | EM VALIDAÇÃO | `137-refinamento-our-team-colaboradores.md` |
 
 ## Roteiro proposto
 

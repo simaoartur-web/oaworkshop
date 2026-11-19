@@ -108,7 +108,12 @@ const TeamProfilePanel = ({ member, onDismiss, returnFocusRef, fallbackFocusRef 
             </header>
             <div className="team-panel-content min-h-0 overflow-y-auto overscroll-contain px-6 py-8 md:px-8">
                 <div className="mb-8 flex items-center gap-6">
-                    <TeamAvatar name={member.name} image={member.image} className="aspect-[4/5] w-20 text-4xl" />
+                    <TeamAvatar
+                        name={member.name}
+                        image={member.image}
+                        variant={member.leadership ? 'frame' : 'cutout'}
+                        className={`aspect-[4/5] w-20 text-4xl ${member.leadership ? '' : 'rounded-lg border border-white/15 bg-black-800'}`}
+                    />
                     <p className="text-xs uppercase leading-relaxed tracking-[0.16em] text-gray-400">{t(member.leadership ? 'team.leadership' : 'team.practice')}</p>
                 </div>
                 <h2 id="team-profile-name" className="break-words text-4xl font-light tracking-tight text-white">{member.name}</h2>

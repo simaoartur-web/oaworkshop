@@ -1,10 +1,10 @@
 # Plano 137 — Refinamento Editorial e Visual da Secção Our Team (Colaboradores)
 
-> **Estado:** PROPOSTO
+> **Estado:** EM VALIDAÇÃO — implementado e verificado na branch `codex/feat-refinamento-our-team`; aguarda revisão final antes de integração.
 > **Data:** 2026-11-19
-> **Base de referência (`codex/feat-revisao-landing-oa-nov2026`):** `1aed95a` (`main` intacta em `e468fe7`)
-> **Branch prevista (após aprovação):** `codex/feat-refinamento-our-team` (ramificada de `codex/feat-revisao-landing-oa-nov2026`)
-> **Aprovação:** pendente
+> **Base de referência (`codex/feat-revisao-landing-oa-nov2026`):** `ea3cf31` (`main` intacta em `e468fe7`)
+> **Branch prevista (após aprovação):** `codex/feat-refinamento-our-team`
+> **Aprovação:** concedida em 2026-11-19 (`APROVADO: plans/137-refinamento-our-team-colaboradores.md`)
 > **Referências:** `OA rev OL 161126.pdf` (Pág. 6), `oa_team_portraits_from_pdf.zip`, [AGENTS.md](../AGENTS.md), [PROJECT_MAP.md](../PROJECT_MAP.md), [DESIGN_SYSTEM.md](../docs/DESIGN_SYSTEM.md), [OA_Design_Mastery_Playbook.md](../docs/OA_Design_Mastery_Playbook.md), [QUALITY.md](../docs/QUALITY.md), [Plano 136](136-revisao-landing-oa-nov2026.md).
 
 ---
@@ -117,15 +117,15 @@ Em cumprimento estrito da instrução de **não alterar nomes, cargos ou experi�
 
 ## 7. Critérios de Aceitação
 
-1. Os 6 colaboradores renderizam **numa única linha horizontal equilibrada** em desktop largo (`1366 × 768` e `1440 × 900`).
-2. As **6 fotografias reais** do ZIP estão correctamente associadas aos respectivos membros (com `.webp` optimizado e fundo transparente preservado sobre fundo preto/quase preto).
-3. **Zero duplicação de iniciais** e ausência de monogramas quando existe fotografia carregada.
-4. Retratos monocromáticos proporcionais e **alinhados pela base**, incluindo preservação nítida de `leticia-munguambe.webp`.
-5. Nomes em laranja O+A, funções em branco, informação secundária em cinzento claro e botões `View profile` com alinhamento consistente.
-6. `Discover our team` / `Close team` e abertura/fecho de perfis (`TeamProfilePanel`) funcionais em PT e EN.
-7. Navegação integral por teclado e foco visível preservados.
-8. **Zero overflow horizontal** em `1440 × 900`, `1366 × 768`, `1024 × 768`, `768 × 1024` e `375 × 812`.
-9. Nenhuma regressão nas restantes secções nem nos testes SEO/Slideshow (`npm run lint`, `npm run build`, `npm test`, `git diff --check`).
+- [x] 1. Os 6 colaboradores renderizam **numa única linha horizontal equilibrada** em desktop largo (`1366 × 768`: 6 colunas em `y = 268.75 px`, `188.33 px` cada; `1440 × 900`: 6 colunas em `y = 335.18 px`, `197.33 px` cada).
+- [x] 2. As **6 fotografias reais** do ZIP estão correctamente associadas aos respectivos membros (com `.webp` optimizado e transparência RGBA 4 canais preservada sobre `#070707`).
+- [x] 3. **Zero duplicação de iniciais** (`.team-member-initials` = `0` no DOM) e ausência de monogramas quando existe fotografia carregada.
+- [x] 4. Retratos monocromáticos proporcionais e **alinhados pela base**, mantendo nitidez natural de `leticia-munguambe.webp` (`131 × 198 px`).
+- [x] 5. Nomes em laranja O+A (`#ED7D31`), funções em branco (`#FFFFFF`), área secundária em cinzento claro (`#B8B3AD`) e botões `View profile` alinhados consistentemente.
+- [x] 6. `Discover our team` / `Close team` e abertura/fecho de perfis (`TeamProfilePanel`) funcionais em PT e EN.
+- [x] 7. Navegação integral por teclado (`Tab`, `Enter`, `Escape`) e foco visível preservados.
+- [x] 8. **Zero overflow horizontal** em `1440 × 900`, `1366 × 768`, `1024 × 768`, `768 × 1024` e `375 × 812`.
+- [x] 9. Nenhuma regressão nas restantes secções nem nos testes SEO/Slideshow (`npm run lint`, `npm run build`, `npm test`, `git diff --check`).
 
 ---
 
@@ -145,7 +145,24 @@ Em cumprimento estrito da instrução de **não alterar nomes, cargos ou experi�
 ## 9. Registo de Decisões e Desvios
 
 - **2026-11-19 (v1 — proposta):** Inspecção completa do estado actual no código e no servidor local (`http://127.0.0.1:4173/`) face à Pág. 6 do PDF e ao ZIP `oa_team_portraits_from_pdf.zip`. Proposta registada no Plano 137 (`PROPOSTO`); execução suspensa até aprovação expressa (`APROVADO: plans/137-refinamento-our-team-colaboradores.md`).
+- **2026-11-19 (v2 — execução e validação):**
+  - Ramificada a branch `codex/feat-refinamento-our-team` a partir de `codex/feat-revisao-landing-oa-nov2026` (`ea3cf31`).
+  - Adicionados os 6 PNGs originais em `public/images/team/` e convertidos em `.webp` RGBA (`hasAlpha: true`) via `scripts/optimize-images.mjs` (reduções de `76,2%` a `83,8%`).
+  - Mantido `objectPosition: '50% 18%'` em `src/data/team.ts` para preservar o rosto centrado em `TeamProfilePanel` (`variant="frame"` / `object-cover`), enquanto os colaboradores na faixa principal usam `variant="cutout"` (`object-contain object-bottom`, `opacity: 1`) garantindo alinhamento uniforme pela base sem cortar a cabeça/cabelo de `leticia-munguambe.webp`.
+  - Mantido `Letícia Muguambe` (ortografia de código), nomes, funções e cronologias inalterados; usada a chave existente `team.categories.*` em cinzento claro (`#B8B3AD`) como linha secundária.
+  - Nota de implementação ESLint: para evitar `react-hooks/set-state-in-effect` em `TeamAvatar.tsx`, imagens `variant="cutout"` renderizam com `opacity: 1` imediato (com fallback via `onError`) sem efeitos síncronos.
 
 ## 10. Resultado
 
-*Pendente de aprovação e execução.*
+- **Verificações automáticas (após última edição):**
+  - `npm run lint`: `0` erros (`eslint .`).
+  - `npm run build`: `optimize-images.mjs` (24 imagens WebP optimizadas, 82,1% redução total), `tsc -b`, `vite build` e `prerender.mjs` (64 rotas pré-renderizadas, `sitemap.xml` com 5 URLs canónicos).
+  - `npm test`: **49/49 testes a passar** (`42` em `tests/seo-verification.test.mjs` + suíte `Slideshow regression invariants (Plan 136)` em `tests/slideshow-regression.test.mjs`, `0` falhas, `0` ignorados).
+  - `git diff --check`: `0` problemas.
+- **Verificação visual e funcional no navegador (`http://127.0.0.1:4173/`):**
+  - `1440 × 900` (EN `/`): fechado e expandido (6 colunas horizontais uniformes em `y = 335.18 px`, `width = 197.33 px`), todos os 6 `.webp` carregados (`HTTP 200`, `is-loaded`), `.team-member-initials` = `0`, abertura de `Letícia Muguambe` via `Enter` em `TeamProfilePanel` + fecho `Escape`, recolha funcional (`Close team` → `Discover our team`), `htmlWidth = 1432 <= 1440`.
+  - `1366 × 768` (EN `/`): 6 colunas horizontais numa única linha (`y = 268.75 px`, `width = 188.33 px`), sem corte de texto, `htmlWidth = 1358 <= 1366`.
+  - `1024 × 768` (EN `/`): grelha responsiva de 3 colunas × 2 linhas (`width = 280 px`), `htmlWidth = 1016 <= 1024`.
+  - `768 × 1024` (PT `/pt/`): estados fechado (`Conhecer a equipa`) e expandido (`Fechar equipa`), 3 colunas × 2 linhas (`width = 205.33 px`), incluindo `Tecnologias de Informação e Marketing` sem corte, `htmlWidth = 760 <= 768`.
+  - `375 × 812` (PT `/pt/` e EN `/`): estados fechado e expandido em 2 colunas × 3 linhas (`width = 155.67 px`), `htmlWidth = 367.33 <= 375`, `0` erros de consola e `0` pedidos falhados.
+  - Nota de sandbox: `page.evaluate` está desactivado na sandbox `webview_browser`; dimensões e ausência de overflow foram medidas via `boundingBox()` (`html`, `body`, cartões e textos) e estado `HTTP 200` + inspeção visual directa das capturas.

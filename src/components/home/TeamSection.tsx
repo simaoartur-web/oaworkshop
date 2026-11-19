@@ -105,12 +105,10 @@ const TeamSection = () => {
                     </ul>
                 </div>
 
-                {/* Centered Interactive Toggle Button: Discover our team */}
+                {/* Discreet Interactive Toggle Button: Discover our team */}
                 <div className="team-discover-hub">
                     <span aria-hidden="true" className="team-discover-wing team-discover-wing--left" />
                     <div className="team-discover-center">
-                        <span aria-hidden="true" className="team-discover-ring team-discover-ring--outer" />
-                        <span aria-hidden="true" className="team-discover-ring team-discover-ring--inner" />
                         <button
                             type="button"
                             aria-expanded={isTeamExpanded}
@@ -122,7 +120,7 @@ const TeamSection = () => {
                                 {isTeamExpanded ? t('team.closeTeam') : t('team.discoverTeam')}
                             </span>
                             <ArrowDown
-                                size={16}
+                                size={15}
                                 strokeWidth={1.6}
                                 aria-hidden="true"
                                 className={`team-discover-icon ${isTeamExpanded ? 'is-expanded' : ''}`}
@@ -159,11 +157,7 @@ const TeamSection = () => {
                             }}
                             className="team-collaborators-collapse overflow-hidden"
                         >
-                            <div className="team-collaborators-stem-wrap" aria-hidden="true">
-                                <span className="team-collaborators-stem" />
-                            </div>
-
-                            <div className="team-collaborators-box">
+                            <div className="team-collaborators-band">
                                 <div className="team-box-header">
                                     <h3
                                         id="team-practice"

@@ -5,7 +5,7 @@
 .team-section {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(180deg, #090909 0%, #0b0a09 48%, #0b0b0b 100%);
+    background: linear-gradient(180deg, #090909 0%, #070707 52%, #070707 100%);
     padding: 4.5rem 0 5rem;
 }
 
@@ -49,7 +49,7 @@
     width: min(48vw, 640px);
     height: 220px;
     background-position: center 68%;
-    opacity: 0.28;
+    opacity: 0.1;
     clip-path: polygon(0% 18%, 74% 58%, 100% 100%, 0% 100%);
     -webkit-mask-image: radial-gradient(ellipse 80% 75% at 24% 82%, #000 20%, transparent 76%);
     mask-image: radial-gradient(ellipse 80% 75% at 24% 82%, #000 20%, transparent 76%);
@@ -66,16 +66,16 @@
     right: 6%;
     width: 34rem;
     height: 20rem;
-    background: radial-gradient(circle, rgba(237, 125, 49, 0.14) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(237, 125, 49, 0.12) 0%, transparent 70%);
 }
 
 .team-backdrop-glow--center {
-    top: 46%;
+    top: 42%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 42rem;
     height: 18rem;
-    background: radial-gradient(circle, rgba(237, 125, 49, 0.07) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(237, 125, 49, 0.035) 0%, transparent 70%);
 }
 
 .team-backdrop-glow--bottom {
@@ -83,7 +83,7 @@
     left: 8%;
     width: 28rem;
     height: 14rem;
-    background: radial-gradient(circle, rgba(237, 125, 49, 0.1) 0%, transparent 72%);
+    background: radial-gradient(circle, rgba(237, 125, 49, 0.04) 0%, transparent 72%);
 }
 
 .team-arch-line {
@@ -328,8 +328,10 @@
 }
 
 .team-member-name--collaborator {
-    font-size: clamp(0.95rem, 1.2vw, 1.125rem);
+    font-size: clamp(0.95rem, 1.05vw, 1.0625rem);
+    font-weight: 500;
     line-height: 1.25;
+    color: var(--color-hero-bg);
 }
 
 .team-member-role {
@@ -344,9 +346,24 @@
 }
 
 .team-member-role--collaborator {
-    margin-top: 0.25rem;
-    font-size: 0.78rem;
-    line-height: 1.42;
+    margin-top: 0.3rem;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    line-height: 1.38;
+    color: #ffffff;
+}
+
+.team-member-secondary {
+    margin-top: 0.35rem;
+    margin-bottom: 1.1rem;
+    font-size: 0.75rem;
+    font-weight: 300;
+    line-height: 1.45;
+    color: #b8b3ad;
+}
+
+.team-member-body--collaborator {
+    padding-top: 0.85rem;
 }
 
 .team-member-divider {
@@ -357,7 +374,7 @@
     background: rgba(255, 255, 255, 0.16);
 }
 
-/* Portrait Frame & Monogram Placeholder */
+/* Portrait Frame & Transparent Cutout Stage */
 .team-avatar {
     border-radius: 0.75rem;
     border: 1px solid rgba(237, 125, 49, 0.36);
@@ -370,6 +387,12 @@
         border-color 220ms ease,
         box-shadow 220ms ease,
         transform 220ms ease;
+}
+
+.team-avatar-cutout {
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    color: rgba(244, 236, 228, 0.82);
 }
 
 .team-avatar--leadership {
@@ -388,9 +411,20 @@
 
 .team-avatar--collaborator {
     width: 100%;
-    max-width: 9.75rem;
-    aspect-ratio: 4 / 3.45;
-    font-size: 1.85rem;
+    height: 9.75rem;
+    font-size: 1.75rem;
+}
+
+@media (min-width: 640px) {
+    .team-avatar--collaborator {
+        height: 11.25rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .team-avatar--collaborator {
+        height: 11.75rem;
+    }
 }
 
 .team-avatar-glow {
@@ -424,6 +458,12 @@
     transition: opacity 180ms ease;
 }
 
+.team-avatar-image--cutout {
+    opacity: 1;
+    filter: grayscale(1) contrast(1.06);
+    transition: transform 240ms ease;
+}
+
 .team-avatar-image.is-loaded {
     opacity: 1;
 }
@@ -454,6 +494,18 @@
     border-radius: 0.25rem;
 }
 
+.team-profile-trigger--collaborator {
+    padding: 0.55rem 0.9rem;
+    min-height: 2.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.03);
+    color: #e0e0e0;
+    transition:
+        border-color 180ms ease,
+        background-color 180ms ease,
+        color 180ms ease;
+}
+
 .team-profile-arrow {
     color: #ed7d31;
     transition: transform 180ms ease;
@@ -463,11 +515,11 @@
     color: #ffffff;
 }
 
-/* Discover Our Team Interactive Hub */
+/* Discreet Discover Our Team Control */
 .team-discover-hub {
     position: relative;
     max-width: 68rem;
-    margin: 2.75rem auto 0;
+    margin: 2.25rem auto 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -476,8 +528,8 @@
 
 @media (min-width: 768px) {
     .team-discover-hub {
-        margin-top: 3.5rem;
-        gap: 1.5rem;
+        margin-top: 2.75rem;
+        gap: 1.25rem;
     }
 }
 
@@ -494,11 +546,11 @@
 }
 
 .team-discover-wing--left {
-    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.16) 100%);
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.14) 100%);
 }
 
 .team-discover-wing--right {
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.16) 0%, transparent 100%);
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.14) 0%, transparent 100%);
 }
 
 .team-discover-center {
@@ -508,48 +560,27 @@
     justify-content: center;
 }
 
-.team-discover-ring {
-    position: absolute;
-    border-radius: 9999px;
-    pointer-events: none;
-}
-
-.team-discover-ring--outer {
-    width: 8.5rem;
-    height: 8.5rem;
-    border: 1px solid rgba(237, 125, 49, 0.11);
-}
-
-.team-discover-ring--inner {
-    width: 6rem;
-    height: 6rem;
-    border: 1px solid rgba(237, 125, 49, 0.18);
-}
-
 .team-discover-btn {
     position: relative;
     z-index: 2;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 1.15rem;
-    min-height: 3.1rem;
-    padding: 0.75rem 1.75rem;
-    border-radius: 0.85rem;
-    border: 1px solid rgba(237, 125, 49, 0.62);
-    background: linear-gradient(180deg, #19120e 0%, #0d0a08 100%);
-    box-shadow:
-        0 0 28px rgba(237, 125, 49, 0.16),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    color: #ffffff;
-    font-size: 0.875rem;
+    gap: 0.85rem;
+    min-height: 2.75rem;
+    padding: 0.6rem 1.35rem;
+    border-radius: 0.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.03);
+    color: #e5e2dd;
+    font-size: 0.8125rem;
     font-weight: 400;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
     cursor: pointer;
     transition:
         border-color 200ms ease,
-        box-shadow 200ms ease,
-        transform 200ms ease;
+        background-color 200ms ease,
+        color 200ms ease;
 }
 
 .team-discover-btn:focus-visible {
@@ -566,57 +597,29 @@
     transform: rotate(180deg);
 }
 
-/* Expandable Collaborators Container */
+/* Expandable Collaborators Editorial Band */
 .team-collaborators-collapse {
-    max-width: 74rem;
+    width: 100%;
     margin: 0 auto;
 }
 
-.team-collaborators-stem-wrap {
-    display: flex;
-    justify-content: center;
-}
-
-.team-collaborators-stem {
-    display: block;
-    width: 1px;
-    height: 1.75rem;
-    background: linear-gradient(180deg, rgba(237, 125, 49, 0.6) 0%, rgba(237, 125, 49, 0.2) 100%);
-}
-
-.team-collaborators-box {
-    border-radius: 1.15rem;
-    border: 1px solid rgba(237, 125, 49, 0.25);
-    background: linear-gradient(180deg, rgba(16, 13, 11, 0.92) 0%, rgba(10, 8, 7, 0.94) 100%);
-    box-shadow:
-        0 24px 64px rgba(0, 0, 0, 0.55),
-        inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    padding: 1.35rem;
-}
-
-@media (min-width: 640px) {
-    .team-collaborators-box {
-        padding: 1.85rem 2rem;
-    }
-}
-
-@media (min-width: 1024px) {
-    .team-collaborators-box {
-        padding: 2.25rem 2.5rem;
-    }
+.team-collaborators-band {
+    padding-top: 2rem;
 }
 
 .team-box-header {
     display: flex;
     align-items: center;
     gap: 0.85rem;
-    margin-bottom: 1.5rem;
+    padding: 0.9rem 0 0;
+    margin-bottom: 1.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 @media (min-width: 768px) {
     .team-box-header {
         gap: 1.25rem;
-        margin-bottom: 2rem;
+        margin-bottom: 2.15rem;
     }
 }
 
@@ -639,7 +642,7 @@
 .team-collaborators-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.35rem 1rem;
+    gap: 2rem 1rem;
 }
 
 @media (max-width: 359px) {
@@ -650,15 +653,21 @@
 
 @media (min-width: 640px) {
     .team-collaborators-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 1.75rem 1.5rem;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 2.25rem 1.5rem;
     }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1200px) {
     .team-collaborators-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 2.25rem 2rem;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 1.5rem 1.25rem;
+    }
+}
+
+@media (min-width: 1440px) {
+    .team-collaborators-grid {
+        gap: 1.75rem 1.5rem;
     }
 }
 
@@ -668,12 +677,22 @@
         color: #ffffff;
     }
 
+    .team-member:hover .team-profile-trigger--collaborator {
+        border-color: rgba(237, 125, 49, 0.55);
+        background: rgba(237, 125, 49, 0.08);
+        color: #ffffff;
+    }
+
     .team-member:hover .team-avatar {
         border-color: rgba(237, 125, 49, 0.65);
         box-shadow:
             0 16px 36px rgba(0, 0, 0, 0.58),
             0 0 22px rgba(237, 125, 49, 0.16),
             inset 0 0 26px rgba(237, 125, 49, 0.14);
+    }
+
+    .team-member:hover .team-avatar-image--cutout {
+        transform: translateY(-2px);
     }
 
     .team-member:hover .team-avatar-monogram {
@@ -686,10 +705,9 @@
     }
 
     .team-discover-btn:hover {
-        border-color: rgba(237, 125, 49, 0.9);
-        box-shadow:
-            0 0 34px rgba(237, 125, 49, 0.26),
-            inset 0 1px 0 rgba(255, 255, 255, 0.14);
+        border-color: rgba(237, 125, 49, 0.72);
+        background: rgba(237, 125, 49, 0.08);
+        color: #ffffff;
     }
 
     .team-discover-btn:hover .team-discover-icon:not(.is-expanded) {
@@ -802,6 +820,7 @@
     .team-avatar,
     .team-avatar-monogram,
     .team-avatar-image,
+    .team-avatar-image--cutout,
     .team-discover-btn,
     .team-discover-icon,
     .team-social-link {
@@ -810,6 +829,7 @@
 
     .team-member:hover .team-profile-arrow,
     .team-member:hover .team-avatar-monogram,
+    .team-member:hover .team-avatar-image--cutout,
     .team-discover-btn:hover .team-discover-icon {
         transform: none;
     }

@@ -11,6 +11,7 @@ interface Props {
 const TeamMember = ({ member, onOpen }: Props) => {
     const { t } = useTranslation();
     const initials = getTeamInitials(member.name);
+    const hasPortrait = Boolean(member.image?.src.trim());
     const roleLines = t(`team.roles.${member.role}`).split(' · ');
 
     if (member.leadership) {
@@ -22,9 +23,11 @@ const TeamMember = ({ member, onOpen }: Props) => {
                     className="team-avatar--leadership"
                 />
                 <div className="team-member-body team-member-body--leadership min-w-0">
-                    <span aria-hidden="true" className="team-member-initials team-member-initials--leadership">
-                        {initials}
-                    </span>
+                    {!hasPortrait ? (
+                        <span aria-hidden="true" className="team-member-initials team-member-initials--leadership">
+                            {initials}
+                        </span>
+                    ) : null}
                     <h4 className="team-member-name team-member-name--leadership">
                         {member.name}
                     </h4>
@@ -59,12 +62,15 @@ const TeamMember = ({ member, onOpen }: Props) => {
             <TeamAvatar
                 name={member.name}
                 image={member.image}
+                variant={hasPortrait ? 'cutout' : 'frame'}
                 className="team-avatar--collaborator"
             />
             <div className="team-member-body team-member-body--collaborator flex w-full min-w-0 flex-1 flex-col items-start">
-                <span aria-hidden="true" className="team-member-initials team-member-initials--collaborator">
-                    {initials}
-                </span>
+                {!hasPortrait ? (
+                    <span aria-hidden="true" className="team-member-initials team-member-initials--collaborator">
+                        {initials}
+                    </span>
+                ) : null}
                 <h4 className="team-member-name team-member-name--collaborator">
                     {member.name}
                 </h4>
@@ -73,12 +79,15 @@ const TeamMember = ({ member, onOpen }: Props) => {
                         <p key={index}>{line}</p>
                     ))}
                 </div>
+                <p className="team-member-secondary">
+                    {t(`team.categories.${member.category}`)}
+                </p>
                 <button
                     type="button"
                     aria-haspopup="dialog"
                     aria-label={t('team.openProfile', { name: member.name })}
                     onClick={(event) => onOpen(member.id, event.currentTarget)}
-                    className="team-profile-trigger mt-auto inline-flex min-h-11 items-center gap-2 pt-2 text-xs font-normal tracking-[0.03em] text-gray-200"
+                    className="team-profile-trigger team-profile-trigger--collaborator mt-auto inline-flex min-h-11 items-center gap-2 text-xs font-normal tracking-[0.03em] text-gray-200"
                 >
                     <span>{t('team.viewProfile')}</span>
                     <ArrowUpRight
