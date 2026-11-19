@@ -151,6 +151,7 @@
 | `plans/015-phase-0451-closure.md` | plano técnico da Fase 04.5.1 (reconciliação documental, fecho P1 obrigatórios + performance e Quality Gate) |
 | `docs/audits/phase045-security-qa-final.md` | auditoria independente de segurança e QA da Fase 04.5 (Gemini D · `codex/f045-security-qa-final`) |
 | `docs/agent-reports/phase-045/` | relatórios técnicos publicados da Missão 1 Swarm (`045-ARCH-01-agent-a.md`, `045-UX-01-agent-b.md`, `045-PERF-01-agent-c.md`, `045-QA-01-agent-d.md`) |
+| `docs/agent-reports/phase-0451/` | relatórios técnicos publicados da Fase 04.5.1 (`0451-DATA-01-agent-a.md`, `0451-FE-01-agent-b.md`, `0451-PERF-01-agent-c.md`, `0451-QA-01-agent-d.md`) |
 | `docs/agent-ops/OPERATING_MODEL.md` | modelo operacional da equipa multiagente (`@coordinator`, `@agent-a`–`@agent-d`, RACI, ciclo `Plan → Implement → Integrate → Verify → Approve`, Git Delivery Policy v1, economia de tokens e Board) |
 | `docs/agent-ops/TASK_CONTRACT.md` | modelo reutilizável de contrato de missão (base SHA, worktree/branch, propriedade exclusiva de ficheiros, limites e critérios de aceitação) |
 | `.agents/rules/00-governance-core.md` | regra nativa Antigravity (`trigger: always_on`) com invariantes mínimos de isolamento, aprovação e paragem |
