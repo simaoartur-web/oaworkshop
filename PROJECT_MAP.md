@@ -128,6 +128,7 @@ Equipa: `src/data/team.ts` contém identificadores, nomes públicos, referência
 | `plans/134-performance-imagens-autoplay-fades.md` | plano R06: pipeline de optimização Sharp, autoplay robusto e crossfades |
 | `plans/135-slideshow-autoplay-sem-playback.md` | execução anterior da correcção do autoplay e retirada de Play/Pause |
 | `plans/136-revisao-landing-oa-nov2026.md` | revisão editorial, visual e funcional da landing page O+A (Lotes 1–3) |
+| `plans/137-refinamento-our-team-colaboradores.md` | refinamento editorial e visual da secção `Our Team` (colaboradores, 6 fotografias reais, faixa de 6 colunas em desktop) |
 | `prompts/` | normas e modelos de prompts |
 
 ## Publicação
