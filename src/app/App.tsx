@@ -1,6 +1,6 @@
 import {
-  lazy,
   Suspense,
+  useCallback,
   useEffect,
   type ComponentType,
 } from 'react';
@@ -16,105 +16,92 @@ import {
 import { LoginPage } from '../features/auth-demo/LoginPage';
 import {
   EditorialEntryLoadingFallback,
+  RouteChunkErrorBoundary,
   WorkspaceContentLoadingState,
 } from '../features/loading/RouteLoadingStates';
+import {
+  createRetryableLazy,
+  loadPlannedModuleView,
+  loadProjectCreateEnginePage,
+  loadProjectDossierShellPage,
+  loadProjectLibraryCatalogPage,
+  loadProjectModelEnginePage,
+  loadStudioDeskPage,
+  loadWelcomePage,
+  loadWorkspaceSettingsPage,
+  loadWorkspaceShell,
+  preloadInitialBrowserRoute,
+  preloadMatchedWorkspaceChild,
+  resolveWorkspacePreloadKey,
+  type WorkspacePreloadKey,
+} from './routePreload';
+
+preloadInitialBrowserRoute();
 import {
   WorkspaceSessionProvider,
   useWorkspaceSession,
 } from './WorkspaceSessionContext';
 
-function lazyNamed<
+function retryableLazyNamed<
   T extends ComponentType<Record<string, never>>,
   M extends Record<string, unknown>,
 >(importer: () => Promise<M>, exportName: keyof M) {
-  return lazy(async () => {
+  return createRetryableLazy(async () => {
     const mod = await importer();
     return { default: mod[exportName] as T };
   });
 }
 
-const loadWelcomePage = () => import('../features/welcome/WelcomePage');
-const loadWorkspaceShell = () =>
-  import('../features/workspace-shell/WorkspaceShell');
-const loadStudioDeskPage = () =>
-  import('../features/studio-desk/StudioDeskPage');
-const loadProjectLibraryCatalogPage = () =>
-  import('../features/project-library/ProjectLibraryCatalogPage');
-const loadProjectCreateEnginePage = () =>
-  import('../features/project-library/ProjectCreateEnginePage');
-const loadProjectDossierShellPage = () =>
-  import('../features/project-library/ProjectDossierShellPage');
-const loadProjectModelEnginePage = () =>
-  import('../features/model-engine/ProjectModelEnginePage');
-const loadWorkspaceSettingsPage = () =>
-  import('../features/workspace/WorkspaceSettingsPage');
-const loadPlannedModuleView = () =>
-  import('../features/workspace/PlannedModuleView');
-
-const WelcomePage = lazyNamed(loadWelcomePage, 'WelcomePage');
-const WorkspaceShell = lazy(async () => {
+const welcomeLazy = retryableLazyNamed(loadWelcomePage, 'WelcomePage');
+const workspaceShellLazy = createRetryableLazy(async () => {
   const mod = await loadWorkspaceShell();
   return { default: mod.WorkspaceShell };
 });
-const StudioDeskPage = lazyNamed(loadStudioDeskPage, 'StudioDeskPage');
-const ProjectLibraryCatalogPage = lazyNamed(
+const studioDeskLazy = retryableLazyNamed(loadStudioDeskPage, 'StudioDeskPage');
+const projectLibraryCatalogLazy = retryableLazyNamed(
   loadProjectLibraryCatalogPage,
   'ProjectLibraryCatalogPage',
 );
-const ProjectCreateEnginePage = lazyNamed(
+const projectCreateEngineLazy = retryableLazyNamed(
   loadProjectCreateEnginePage,
   'ProjectCreateEnginePage',
 );
-const ProjectDossierShellPage = lazyNamed(
+const projectDossierShellLazy = retryableLazyNamed(
   loadProjectDossierShellPage,
   'ProjectDossierShellPage',
 );
-const ProjectModelEnginePage = lazy(loadProjectModelEnginePage);
-const WorkspaceSettingsPage = lazyNamed(
+const projectModelEngineLazy = createRetryableLazy(loadProjectModelEnginePage);
+const workspaceSettingsLazy = retryableLazyNamed(
   loadWorkspaceSettingsPage,
   'WorkspaceSettingsPage',
 );
-const PlannedModuleView = lazyNamed(
+const plannedModuleLazy = retryableLazyNamed(
   loadPlannedModuleView,
   'PlannedModuleView',
 );
 
-const preloadedWorkspaceRoutes = new Set<string>();
+const WelcomePage = welcomeLazy.Component;
+const WorkspaceShell = workspaceShellLazy.Component;
+const StudioDeskPage = studioDeskLazy.Component;
+const ProjectLibraryCatalogPage = projectLibraryCatalogLazy.Component;
+const ProjectCreateEnginePage = projectCreateEngineLazy.Component;
+const ProjectDossierShellPage = projectDossierShellLazy.Component;
+const ProjectModelEnginePage = projectModelEngineLazy.Component;
+const WorkspaceSettingsPage = workspaceSettingsLazy.Component;
+const PlannedModuleView = plannedModuleLazy.Component;
 
-function preloadMatchedWorkspaceChild(pathname: string): void {
-  const normalized =
-    pathname.length > 1 && pathname.endsWith('/')
-      ? pathname.slice(0, -1)
-      : pathname;
-  let key = 'planned';
-  let loader: () => Promise<unknown> = loadPlannedModuleView;
-
-  if (normalized === '/workspace') {
-    key = 'desk';
-    loader = loadStudioDeskPage;
-  } else if (normalized === '/workspace/settings') {
-    key = 'settings';
-    loader = loadWorkspaceSettingsPage;
-  } else if (normalized === '/workspace/projects') {
-    key = 'projects';
-    loader = loadProjectLibraryCatalogPage;
-  } else if (normalized === '/workspace/projects/new') {
-    key = 'projects-new';
-    loader = loadProjectCreateEnginePage;
-  } else if (/^\/workspace\/projects\/[^/]+\/model$/.test(normalized)) {
-    key = 'project-model';
-    loader = loadProjectModelEnginePage;
-  } else if (/^\/workspace\/projects\/[^/]+$/.test(normalized)) {
-    key = 'project-dossier';
-    loader = loadProjectDossierShellPage;
-  }
-
-  if (preloadedWorkspaceRoutes.has(key)) {
-    return;
-  }
-  preloadedWorkspaceRoutes.add(key);
-  void loader();
-}
+const WORKSPACE_CHILD_LAZY_RESETTERS: Record<
+  Exclude<WorkspacePreloadKey, 'welcome' | 'shell'>,
+  () => void
+> = {
+  desk: studioDeskLazy.reset,
+  settings: workspaceSettingsLazy.reset,
+  projects: projectLibraryCatalogLazy.reset,
+  'projects-new': projectCreateEngineLazy.reset,
+  'project-dossier': projectDossierShellLazy.reset,
+  'project-model': projectModelEngineLazy.reset,
+  planned: plannedModuleLazy.reset,
+};
 
 function ScrollResetOnRouteChange() {
   const { pathname } = useLocation();
@@ -151,27 +138,60 @@ function WorkspaceShellLayout() {
 
   useEffect(() => {
     if (session && currentUser) {
-      preloadMatchedWorkspaceChild(pathname);
+      void preloadMatchedWorkspaceChild(pathname);
     }
   }, [pathname, session, currentUser]);
+
+  const handleRetryShell = useCallback(() => {
+    workspaceShellLazy.reset();
+  }, []);
+
+  const handleRetryChild = useCallback(() => {
+    const key = resolveWorkspacePreloadKey(pathname);
+    if (key !== 'welcome' && key !== 'shell') {
+      WORKSPACE_CHILD_LAZY_RESETTERS[key]();
+    }
+  }, [pathname]);
 
   if (!session || !currentUser) {
     return <Navigate to="/login" replace />;
   }
 
   return (
-    <Suspense fallback={<EditorialEntryLoadingFallback language={language} />}>
-      <WorkspaceShell>
-        <Suspense fallback={<WorkspaceContentLoadingState language={language} />}>
-          <Outlet />
-        </Suspense>
-      </WorkspaceShell>
-    </Suspense>
+    <RouteChunkErrorBoundary
+      language={language}
+      resetKey="workspace-shell"
+      variant="fullscreen"
+      onRetry={handleRetryShell}
+    >
+      <Suspense fallback={<EditorialEntryLoadingFallback language={language} />}>
+        <WorkspaceShell>
+          <RouteChunkErrorBoundary
+            language={language}
+            resetKey={pathname}
+            variant="shell-content"
+            onRetry={handleRetryChild}
+          >
+            <Suspense
+              key={pathname}
+              fallback={<WorkspaceContentLoadingState language={language} />}
+            >
+              <Outlet />
+            </Suspense>
+          </RouteChunkErrorBoundary>
+        </WorkspaceShell>
+      </Suspense>
+    </RouteChunkErrorBoundary>
   );
 }
 
 export function AppRoutes() {
   const { language } = useWorkspaceSession();
+  const { pathname } = useLocation();
+
+  const handleRetryWelcome = useCallback(() => {
+    welcomeLazy.reset();
+  }, []);
 
   return (
     <>
@@ -182,11 +202,18 @@ export function AppRoutes() {
         <Route
           path="/welcome"
           element={
-            <Suspense
-              fallback={<EditorialEntryLoadingFallback language={language} />}
+            <RouteChunkErrorBoundary
+              language={language}
+              resetKey={pathname}
+              variant="fullscreen"
+              onRetry={handleRetryWelcome}
             >
-              <WelcomePage />
-            </Suspense>
+              <Suspense
+                fallback={<EditorialEntryLoadingFallback language={language} />}
+              >
+                <WelcomePage />
+              </Suspense>
+            </RouteChunkErrorBoundary>
           }
         />
 

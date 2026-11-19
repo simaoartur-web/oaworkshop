@@ -10,6 +10,7 @@ import {
   clearProjectLibraryLocalState,
   createProject,
   getProjectById,
+  getProjectLibrarySnapshot,
   listProjects,
   listStudioDeskCompatibleProjects,
   PROJECT_LIBRARY_LIMITS,
@@ -430,5 +431,67 @@ describe('Phase 04.5A · Data Cache Performance, Global Search & Studio Desk Con
         DEMO_USERS[1],
       ),
     ).toThrow(/50/);
+  });
+
+  it('encapsulates snapshot.lookupMap against external consumer mutation (P2)', () => {
+    const snapshot = getProjectLibrarySnapshot();
+    const initialSize = snapshot.lookupMap.size;
+    expect(initialSize).toBeGreaterThan(0);
+    expect(Object.isFrozen(snapshot.lookupMap)).toBe(true);
+
+    // Mutating methods must not exist on the exposed ReadonlyMap view
+    const unsafeView = snapshot.lookupMap as unknown as Record<string, unknown>;
+    expect(unsafeView.set).toBeUndefined();
+    expect(unsafeView.delete).toBeUndefined();
+    expect(unsafeView.clear).toBeUndefined();
+
+    // Attempting to overwrite or add properties fails under strict frozen object rules
+    expect(() => {
+      unsafeView.get = () => undefined;
+    }).toThrow(TypeError);
+
+    expect(snapshot.lookupMap.size).toBe(initialSize);
+    expect(snapshot.lookupMap.get('sd-proj-oa-26-101')?.identity.code).toBe(
+      'OA-26-101',
+    );
+  });
+
+  it('never presents an archived project as active featured or attention project when all projects are archived (P2)', async () => {
+    const actor = DEMO_USERS[0]; // Director
+    persistDemoSessionForUser(actor);
+    const user = userEvent.setup();
+
+    // Archive every project in the canonical library
+    const all = listProjects({ includeArchived: true });
+    expect(all.length).toBeGreaterThan(0);
+    for (const proj of all) {
+      archiveProject(proj.identity.id, actor);
+    }
+
+    renderAt('/workspace');
+
+    // Featured section must show honest empty-active state, NOT an archived project
+    const emptyFeatured = await screen.findByTestId('featured-all-archived-empty');
+    expect(emptyFeatured).toHaveTextContent(/Sem projectos activos em destaque/i);
+    expect(emptyFeatured).not.toHaveTextContent(/OA-26-101/i);
+
+    // QuickActionsBar featured button must be disabled honestly
+    const disabledFeaturedBtn = screen.getByRole('button', {
+      name: /Sem projecto activo em foco/i,
+    });
+    expect(disabledFeaturedBtn).toBeDisabled();
+
+    // Clicking "Ver projectos arquivados" reveals the archived projects in Overview
+    await user.click(
+      within(emptyFeatured).getByRole('button', {
+        name: /Ver projectos arquivados/i,
+      }),
+    );
+
+    const overviewHeading = await screen.findByRole('heading', {
+      name: /Projectos atribuídos e dossiers/i,
+    });
+    const overviewSection = overviewHeading.closest('section')!;
+    expect(await within(overviewSection).findByText(/OA-26-101/i)).toBeInTheDocument();
   });
 });

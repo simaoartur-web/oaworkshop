@@ -1,3 +1,4 @@
+import { Component, type ReactNode } from 'react';
 import type { AppLanguage } from '../../data/types';
 
 function resolveFallbackLanguage(): AppLanguage {
@@ -114,4 +115,121 @@ export function WorkspaceContentLoadingState({
       </div>
     </section>
   );
+}
+
+interface RouteChunkErrorBoundaryProps {
+  children: ReactNode;
+  language?: AppLanguage;
+  resetKey: string;
+  variant?: 'fullscreen' | 'shell-content';
+  onRetry?: () => void;
+}
+
+interface RouteChunkErrorBoundaryState {
+  hasError: boolean;
+  errorMessage: string;
+}
+
+/**
+ * Architectural Error Boundary for lazy route chunks.
+ * Catches failed dynamic imports without crashing the application or unmounting
+ * WorkspaceShell, resets automatically on route changes, and allows clean retry.
+ */
+export class RouteChunkErrorBoundary extends Component<
+  RouteChunkErrorBoundaryProps,
+  RouteChunkErrorBoundaryState
+> {
+  state: RouteChunkErrorBoundaryState = {
+    hasError: false,
+    errorMessage: '',
+  };
+
+  static getDerivedStateFromError(error: Error): RouteChunkErrorBoundaryState {
+    return {
+      hasError: true,
+      errorMessage: error?.message || 'Chunk load failure',
+    };
+  }
+
+  componentDidCatch(): void {
+    // Handled visibly by fallback UI; avoid noisy re-throws.
+  }
+
+  componentDidUpdate(prevProps: RouteChunkErrorBoundaryProps): void {
+    if (this.state.hasError && prevProps.resetKey !== this.props.resetKey) {
+      this.setState({ hasError: false, errorMessage: '' });
+    }
+  }
+
+  private handleRetry = (): void => {
+    this.props.onRetry?.();
+    this.setState({ hasError: false, errorMessage: '' });
+  };
+
+  private handleReload = (): void => {
+    if (typeof window !== 'undefined' && typeof window.location?.reload === 'function') {
+      window.location.reload();
+    }
+  };
+
+  render(): ReactNode {
+    if (!this.state.hasError) {
+      return this.props.children;
+    }
+
+    const activeLanguage = this.props.language ?? resolveFallbackLanguage();
+    const isEn = activeLanguage === 'en';
+    const eyebrow = isEn
+      ? 'O+A WORKSPACE · MODULE LOADING INTERRUPTED'
+      : 'O+A WORKSPACE · CARREGAMENTO INTERROMPIDO';
+    const heading = isEn
+      ? 'Could not load this workspace module'
+      : 'Não foi possível carregar este módulo';
+    const body = isEn
+      ? 'The module bundle could not be retrieved right now. Your demonstration session remains preserved. Retry loading the module or reload the page.'
+      : 'Não foi possível obter o módulo neste momento. A sua sessão demonstrativa permanece preservada. Tente novamente carregar o módulo ou recarregue a página.';
+    const retryLabel = isEn ? 'Try again' : 'Tentar novamente';
+    const reloadLabel = isEn ? 'Reload page' : 'Recarregar página';
+
+    const containerClass =
+      this.props.variant === 'fullscreen'
+        ? 'min-h-dvh w-full bg-[#050505] text-white flex items-center justify-center px-6 py-10'
+        : 'w-full max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-10 py-8';
+
+    return (
+      <div className={containerClass}>
+        <section
+          role="alert"
+          data-testid="route-chunk-error-fallback"
+          className="w-full max-w-2xl border border-[#A65D4A]/70 bg-[#141110] p-6 sm:p-8 space-y-4 text-white"
+        >
+          <p className="text-[11px] font-mono uppercase tracking-[0.20em] text-[#CE826D]">
+            {eyebrow}
+          </p>
+          <h1 className="text-xl sm:text-2xl font-light tracking-tight text-white">
+            {heading}
+          </h1>
+          <p className="text-xs sm:text-sm text-[#CFCFCF] leading-relaxed">
+            {body}
+          </p>
+          <div className="pt-2 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={this.handleRetry}
+              className="min-h-[44px] px-4 py-2 bg-[#A65D4A] hover:bg-[#B86B57] text-xs font-medium uppercase tracking-[0.16em] text-white transition-colors cursor-pointer"
+            >
+              {retryLabel}
+            </button>
+            <button
+              type="button"
+              onClick={this.handleReload}
+              className="min-h-[44px] px-4 py-2 border border-white/20 bg-transparent hover:border-white/40 text-xs font-medium uppercase tracking-[0.16em] text-[#E6E6E6] transition-colors cursor-pointer"
+            >
+              {reloadLabel}
+            </button>
+          </div>
+        </section>
+      </div>
+    );
+  }
 }

@@ -26,7 +26,7 @@
 | `PROJECT_MAP.md` | este índice estrutural |
 | `README.md` | instruções de instalação, execução, portabilidade E2E e fronteiras do projecto |
 | `package.json` | scripts (`dev`, `build`, `lint`, `test`, `test:e2e`) e dependências frontend |
-| `vite.config.ts` | configuração Vite 7 + Vitest (`jsdom` com timeout calibrado) |
+| `vite.config.ts` | configuração Vite 7 (`manualChunks` isolando React, Router, Icons, Motion, R3F e Three.js) + Vitest (`jsdom`, `maxWorkers: 4`) |
 | `postcss.config.js` | pipeline Tailwind CSS v4 + Autoprefixer |
 | `tsconfig.json`, `tsconfig.app.json`, `tsconfig.node.json` | configuração TypeScript estrita |
 | `eslint.config.js` | análise estática ESLint 9 + TypeScript + React Hooks |
@@ -38,8 +38,10 @@
 |---|---|
 | `src/main.tsx` | montagem React e carregamento de `tokens.css` |
 | `src/vite-env.d.ts` | declarações de tipos de cliente Vite (recursos estáticos e CSS) |
-| `src/app/App.tsx` | rotas (`/login`, `/welcome`, `/workspace/*` protegidas por `RequireDemoSession` dentro de `WorkspaceShell`), navegação e redireccionamentos |
+| `src/app/App.tsx` | rotas lazy com `WorkspaceShell` persistente, `<Suspense key={pathname}>`, `RouteChunkErrorBoundary` e redireccionamentos |
+| `src/app/routePreload.ts` | pré-carregamento seguro de chunks de rota (`preloadRouteKey`, `preloadMatchedWorkspaceChild`, `preloadWorkspaceEntry`, `preloadInitialBrowserRoute`) sem rejeições não tratadas e `createRetryableLazy` |
 | `src/app/WorkspaceSessionContext.tsx` | provider central reactivo de sessão demo, papel activo, idioma, `reduceMotionOverride`, época de reset e limpeza integral |
+| `src/features/loading/RouteLoadingStates.tsx` | estados de carregamento editoriais (`EditorialEntryLoadingFallback`, `WorkspaceContentLoadingState`) e `RouteChunkErrorBoundary` com recuperação *in-place* e recarregamento |
 | `src/design-system/tokens.css` | paleta canónica O+A, grelha técnica, foco acessível WCAG 2.2 AA e reduced-motion |
 | `src/design-system/useDialogFocusTrap.ts` | hook WCAG 2.2 AA com portal, neutralização `inert`/`aria-hidden` de fundo, ciclo `Tab`/`Shift+Tab`, `Escape` e restauro de foco |
 | `src/design-system/OABrandMark.tsx` | monograma oficial O+A adaptado para superfícies escuras com fallback tipográfico |
@@ -50,14 +52,14 @@
 | `src/features/welcome/WelcomePage.tsx` | caderno editorial pós-login com saudação por base de estúdio, estudo em foco e prioridades |
 | `src/features/workspace-shell/shellNavigation.ts` | definição tipada dos 3 grupos e 11 pranchas de navegação do Workspace Shell |
 | `src/features/workspace-shell/shellDemoState.ts` | notificações fictícias harmonizadas com Studio Desk, preferência rail compacto/expandido e reset |
-| `src/features/workspace-shell/globalSearchIndex.ts` | motor de pesquisa local client-side sobre rotas, 6 perfis, projectos canónicos (seed + criados localmente) e departamentos |
+| `src/features/workspace-shell/globalSearchIndex.ts` | motor de pesquisa local client-side com cache versionado `(libraryVersion, language)` e normalização NFD pré-computada (`0` leituras de storage por tecla) |
 | `src/features/workspace-shell/shellUiContext.tsx` | contexto opcional do Shell para sincronização da prancha lateral com `/workspace/settings` |
 | `src/features/workspace-shell/ArchitecturalRail.tsx` | navegação lateral desktop (expandida 264px / compacta 72px) e drawer acessível mobile/tablet |
 | `src/features/workspace-shell/ContextualHeader.tsx` | cabeçalho contextual com identidade O+A, migalha, relógios Maputo/Milão, pesquisa, notificações, `PT/EN`, menu e logout directo |
 | `src/features/workspace-shell/GlobalSearchDialog.tsx` | modal de pesquisa demonstrativa local com navegação por setas, Enter, Escape e estado vazio honesto |
 | `src/features/workspace-shell/NotificationsPopover.tsx` | central de notificações demo com indicador de não lidas e acções para Studio Desk e pranchas planeadas |
 | `src/features/workspace-shell/WorkspaceShell.tsx` | contentor editorial reutilizável que enquadra `<Outlet />` / `children` nas rotas `/workspace/*` |
-| `src/features/studio-desk/StudioDeskPage.tsx` | mesa de trabalho operacional (Mesa de Trabalho / Studio Desk) integrada em `/workspace` |
+| `src/features/studio-desk/StudioDeskPage.tsx` | mesa de trabalho operacional sincronizada com a Biblioteca canónica (`useProjectLibrary`), filtros, deep links `?project=` e estado extremo sem destaques arquivados |
 | `src/features/studio-desk/FeaturedProjectPlate.tsx` | prancha editorial do projecto em destaque com sobreposição de grelha de cota e dossier |
 | `src/features/studio-desk/PrioritiesPanel.tsx` | painel de prioridades com contadores derivados e marcação local de tarefas |
 | `src/features/studio-desk/ProjectOverviewPanel.tsx` | catálogo de projectos activos com filtros por estado e ordenação |
@@ -93,14 +95,14 @@
 | `src/features/project-experience/contracts.ts`, `helpers.ts`, `i18n.ts` | contratos tipados, utilitários sincronizados e dicionário PT/EN da experiência editorial de projectos |
 | `src/data/types.ts` | tipos estritos de domínio (`Role`, `DemoUser`, `DemoSession`, `UserPreferences`, etc.) |
 | `src/data/fixtures.ts` | 6 perfis demonstrativos fictícios, 9 departamentos e projecto de estudo `OA-26-014` |
-| `src/data/projectLibraryTypes.ts`, `projectLibraryAdapter.ts`, `projectLibraryRepository.ts` | camada canónica de projectos, validações, persistência `oa_workspace_project_library_v1` e datas dinâmicas |
+| `src/data/projectLibraryTypes.ts`, `projectLibraryAdapter.ts`, `projectLibraryRepository.ts` | camada canónica de projectos com snapshot imutável em cache (`deepFreezeValue`, `lookupMap` encapsulado `ReadonlyMap`), persistência atómica `oa_workspace_project_library_v1` e invalidação cross-tab |
 | `src/data/modelAssetTypes.ts`, `modelAssetRepository.ts` | tipos e repositório da Fase 04A (3 categorias de modelos 3D, catálogo demo `.glb`/`.gltf`, validação binária/manifesto até 50 MB e ciclo `ObjectURL` em memória) |
 | `src/data/studioDeskTypes.ts` | tipos de domínio da Mesa de Trabalho (`StudioDeskProject`, `DeskPriorityItem`, `DeskActivityItem`, etc.) |
 | `src/data/studioDeskFixtures.ts` | dados demonstrativos fictícios da Mesa de Trabalho (`STUDIO_DESK_PROJECTS`, `STUDIO_DESK_TASKS`, `ROLE_DESK_CONFIGS`) |
 | `src/data/sessionRepository.ts` | persistência local sanitizada (zero passwords em storage, limpeza automática de sessões corrompidas) |
 | `src/locales/pt.ts`, `src/locales/en.ts`, `src/locales/index.ts` | dicionários bilingues com paridade de chaves garantida por TypeScript e testes |
-| `src/utils/timeGreeting.ts` | saudação determinística pela zona horária da `studioBase`, data editorial e relógios dinâmicos `CAT` / `CET` / `CEST` |
-| `src/test/setup.ts` | configuração base Vitest (`jsdom` + mock de `matchMedia`) |
+| `src/utils/timeGreeting.ts` | saudação determinística pela zona horária da `studioBase`, cache de `Intl.DateTimeFormat`, data editorial e relógios dinâmicos `CAT` / `CET` / `CEST` |
+| `src/test/setup.ts` | configuração base Vitest (`jsdom`, mock de `matchMedia` e reposição de caches da biblioteca e pesquisa) |
 | `src/test/entryExperience.test.tsx` | suite de aceitação Fase 01, guardas de rota e invariante zero-password |
 | `src/test/hardeningAndTime.test.tsx` | testes de acessibilidade do modal (`inert`, `Tab`, `Shift+Tab`, `Escape`) e regras `CET`/`CEST` por `studioBase` |
 | `src/test/workspaceShell.test.tsx` | testes de integração do `WorkspaceShell` (rail, drawer mobile, pesquisa, notificações, definições) |
@@ -111,6 +113,8 @@
 | `src/test/modelEngineSecurity.test.tsx` | suite adversarial da Fase 04 Hardening A (allowlist MIME `data:`, inspecção JSON de `.glb`, bloqueio antes do `GLTFLoader` e limpeza de sessão no logout) |
 | `src/test/modelViewer.test.tsx` | suite unitária da Fase 04B (`GLTFLoader` real, telemetria, vistas ortogonais/isométrica, grelha/eixos/malha, ficheiro local sem escala inventada, erros e dispose GPU) |
 | `src/test/projectLibrarySecurity.test.tsx` | suite de integridade documental e quotas da Fase 04 Hardening A (nomes de ficheiro seguros, correspondência extensão/tipo, limites de caracteres/registos e `QuotaExceededError`) |
+| `src/test/projectLibraryConsistency.test.tsx` | suite da Fase 04.5A + P2 (cache imutável, encapsulamento `lookupMap`, 0 leituras/parses na pesquisa, sincronização Studio Desk, estado extremo todos arquivados e escala 200 projectos) |
+| `src/test/loadingPerformance.test.tsx` | suite da Fase 04.5B + P1 (Shell persistente em rotas lazy, cache `Intl`, estados de loading, imagens, `preloadMatchedWorkspaceChild` seguro e recuperação de falha de chunk em `RouteChunkErrorBoundary`) |
 | `src/test/integrationPreview.test.tsx` | suite do Quality Gate de integração (câmara única, 6 papéis, pesquisa integrada, reset e bilinguismo) |
 
 ## Recursos Públicos e Documentação
@@ -139,4 +143,7 @@
 | `plans/008-phase-04a-model-engine.md` | plano da Fase 04A (`codex/f04-model-engine`) — motor de modelos 3D, validação `.glb`/`.gltf`/`.skp` e rota `/workspace/projects/:id/model` |
 | `plans/009-phase-04-integration.md` | plano e registo da integração Fase 04 Equipa 1 (Agentes A+B), correcções P0/P1 e Quality Gate WebGL |
 | `plans/010-phase-04a-security-hardening.md` | plano da Fase 04 Hardening — Agente A (`codex/f04a-security-hardening`): allowlist `data:` URI, inspecção GLB, limpeza logout, nomes documentais e quotas |
+| `plans/011-phase-045a-data-consistency.md` | plano da Fase 04.5A (`codex/f045a-data-consistency`) — cache canónica, pesquisa pré-normalizada e sincronização Studio Desk |
+| `plans/012-phase-045b-loading-performance.md` | plano da Fase 04.5B (`codex/f045b-loading-performance`) — code-splitting, `manualChunks`, loading states, cache `Intl` e imagens |
+| `plans/013-phase-045-integration.md` | plano e relatório da integração Fase 04.5 A+B (`codex/f02-integration-preview`), correcções P1/P2, benchmarks multi-execução e Quality Gate |
 | `scripts/e2e-verify-entry.mjs` | verificação E2E portátil em Chromium/Edge nas larguras 1440px, 680px altura, 768px, 720px (zoom) e 375px |

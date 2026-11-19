@@ -8,6 +8,7 @@ import {
 import { useEffect, useId, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useWorkspaceSession } from '../../app/WorkspaceSessionContext';
+import { preloadWorkspaceEntry } from '../../app/routePreload';
 import {
   DEMO_USERS,
   DEPARTMENTS,
@@ -64,8 +65,7 @@ export function WelcomePage() {
   };
 
   const handleIntentPreloadWorkspace = () => {
-    void import('../workspace-shell/WorkspaceShell');
-    void import('../studio-desk/StudioDeskPage');
+    void preloadWorkspaceEntry();
   };
 
   const handleSignOut = () => {

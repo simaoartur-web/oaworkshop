@@ -518,6 +518,43 @@ function deepFreezeValue<T>(value: T): T {
   return value;
 }
 
+function createImmutableLookupMap<K, V>(
+  source: Map<K, V>,
+): ReadonlyMap<K, V> {
+  const readonlyView: ReadonlyMap<K, V> = {
+    get size() {
+      return source.size;
+    },
+    get(key: K) {
+      return source.get(key);
+    },
+    has(key: K) {
+      return source.has(key);
+    },
+    forEach(
+      callbackfn: (value: V, key: K, map: ReadonlyMap<K, V>) => void,
+      thisArg?: unknown,
+    ) {
+      source.forEach((value, key) => {
+        callbackfn.call(thisArg, value, key, readonlyView);
+      });
+    },
+    entries() {
+      return source.entries();
+    },
+    keys() {
+      return source.keys();
+    },
+    values() {
+      return source.values();
+    },
+    [Symbol.iterator]() {
+      return source[Symbol.iterator]();
+    },
+  };
+  return Object.freeze(readonlyView);
+}
+
 function notifyLibrarySubscribers(): void {
   for (const listener of Array.from(librarySubscribers)) {
     listener();
@@ -629,11 +666,11 @@ function buildLibrarySnapshot(
       record.lifecycle.projectStatus !== 'archived',
   );
 
-  const lookupMap = new Map<string, CanonicalProjectRecord>();
+  const internalLookupMap = new Map<string, CanonicalProjectRecord>();
   const registerKey = (key: string, record: CanonicalProjectRecord) => {
     const normalized = key.trim().toLowerCase();
-    if (normalized && !lookupMap.has(normalized)) {
-      lookupMap.set(normalized, record);
+    if (normalized && !internalLookupMap.has(normalized)) {
+      internalLookupMap.set(normalized, record);
     }
   };
   for (const record of allRecords) {
@@ -641,6 +678,7 @@ function buildLibrarySnapshot(
     registerKey(record.identity.code, record);
     registerKey(record.identity.slug, record);
   }
+  const lookupMap = createImmutableLookupMap(internalLookupMap);
 
   const studioDeskAll = allRecords.map((record) =>
     deepFreezeValue(canonicalToStudioDeskProject(record)),

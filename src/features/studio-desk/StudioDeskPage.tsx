@@ -317,15 +317,15 @@ function AuthenticatedStudioDesk({
     localState.presentationModeByRole?.[activeRole] ??
     roleConfig.defaultPresentationMode;
 
-  const featuredProject = useMemo<StudioDeskProject>(() => {
+  const featuredProject = useMemo<StudioDeskProject | null>(() => {
     return (
       activeDeskProjects.find(
         (proj) => proj.id === roleConfig.featuredProjectId,
       ) ??
       activeDeskProjects[0] ??
-      studioDeskProjects[0]
+      null
     );
-  }, [activeDeskProjects, studioDeskProjects, roleConfig.featuredProjectId]);
+  }, [activeDeskProjects, roleConfig.featuredProjectId]);
 
   const myProjectIds = useMemo(() => {
     return new Set(
@@ -468,7 +468,8 @@ function AuthenticatedStudioDesk({
     return (
       needAttention.find((proj) => myProjectIds.has(proj.id)) ??
       needAttention.find((proj) => proj.assignedRoles.includes(activeRole)) ??
-      featuredProject
+      featuredProject ??
+      undefined
     );
   }, [activeDeskProjects, activeRole, featuredProject, myProjectIds]);
 
@@ -801,6 +802,52 @@ function AuthenticatedStudioDesk({
           />
         );
       case 'featured':
+        if (!featuredProject) {
+          return (
+            <section
+              key="featured"
+              data-testid="featured-all-archived-empty"
+              aria-labelledby="featured-empty-heading"
+              className="border border-white/12 bg-[#0D0D0D] px-5 sm:px-7 py-6 sm:py-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            >
+              <div className="space-y-1.5 max-w-2xl">
+                <p className="text-[11px] font-medium uppercase tracking-[0.20em] text-[#BDBDBD]">
+                  {deskDict.featured.sectionLabel}
+                </p>
+                <h2
+                  id="featured-empty-heading"
+                  className="text-lg sm:text-xl font-light text-white"
+                >
+                  {deskDict.featured.emptyAllArchivedHeading}
+                </h2>
+                <p className="text-xs sm:text-sm text-[#BDBDBD] leading-relaxed">
+                  {deskDict.featured.emptyAllArchivedBody}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setScope('all');
+                  setProjectStatusFilter('archived');
+                  setSearchQuery('');
+                  const heading = document.getElementById(
+                    'project-overview-heading',
+                  );
+                  if (heading && typeof heading.scrollIntoView === 'function') {
+                    heading.scrollIntoView({
+                      behavior: shouldReduceMotion ? 'auto' : 'smooth',
+                      block: 'start',
+                    });
+                  }
+                }}
+                className="min-h-[44px] px-4 py-2 border border-[#A65D4A] bg-[#A65D4A]/18 hover:bg-[#A65D4A]/30 text-xs font-medium uppercase tracking-[0.14em] text-white inline-flex items-center justify-center gap-2 transition-colors cursor-pointer shrink-0"
+              >
+                <span>{deskDict.featured.viewArchivedAction}</span>
+                <ArrowUpRight size={14} strokeWidth={1.6} aria-hidden="true" />
+              </button>
+            </section>
+          );
+        }
         return (
           <FeaturedProjectPlate
             key="featured"
@@ -997,7 +1044,12 @@ function AuthenticatedStudioDesk({
         onPresentationModeChange={handlePresentationModeChange}
         onOpenNextPriority={handleOpenNextPriority}
         hasNextOpenPriority={Boolean(nextPriorityTask)}
-        onInspectFeaturedBrief={() => handleOpenProjectDossier(featuredProject)}
+        onInspectFeaturedBrief={() => {
+          if (featuredProject) {
+            handleOpenProjectDossier(featuredProject);
+          }
+        }}
+        hasFeaturedProject={Boolean(featuredProject)}
         onOpenFutureNotice={(capability) => {
           setDialogState({ type: 'future', capability });
         }}

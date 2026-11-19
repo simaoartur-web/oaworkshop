@@ -1,14 +1,22 @@
+import { Suspense } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppRoutes } from '../app/App';
+import {
+  createRetryableLazy,
+  isWorkspaceRoutePreloaded,
+  preloadMatchedWorkspaceChild,
+  resetWorkspacePreloadStateForTests,
+} from '../app/routePreload';
 import { WorkspaceSessionProvider } from '../app/WorkspaceSessionContext';
 import { DEMO_USERS } from '../data/fixtures';
 import { STORAGE_KEYS } from '../data/sessionRepository';
 import { STUDIO_DESK_PROJECTS } from '../data/studioDeskFixtures';
 import {
   EditorialEntryLoadingFallback,
+  RouteChunkErrorBoundary,
   WorkspaceContentLoadingState,
 } from '../features/loading/RouteLoadingStates';
 import { FeaturedProjectPlate } from '../features/studio-desk/FeaturedProjectPlate';
@@ -203,6 +211,111 @@ describe('Phase 04.5B — Bundle Optimization, Loading Experience, Time Cache & 
     for (const img of cardImgs) {
       expect(img).toHaveAttribute('loading', 'lazy');
       expect(img).toHaveAttribute('decoding', 'async');
+    }
+  });
+
+  it('handles preloadMatchedWorkspaceChild import failures without unhandled rejections, never marks failed routes completed, and retries cleanly on recovery', async () => {
+    resetWorkspacePreloadStateForTests();
+    const unhandledRejections: unknown[] = [];
+    const onUnhandled = (event: PromiseRejectionEvent) => {
+      unhandledRejections.push(event.reason);
+    };
+    window.addEventListener('unhandledrejection', onUnhandled);
+
+    try {
+      let attemptCount = 0;
+      const flakyProjectsLoader = vi.fn(() => {
+        attemptCount += 1;
+        if (attemptCount === 1) {
+          return Promise.reject(new Error('Simulated network chunk failure'));
+        }
+        return Promise.resolve({ ProjectLibraryCatalogPage: () => null });
+      });
+
+      const firstOutcome = await preloadMatchedWorkspaceChild(
+        '/workspace/projects',
+        { projects: flakyProjectsLoader },
+      );
+      expect(firstOutcome).toBe(false);
+      expect(isWorkspaceRoutePreloaded('projects')).toBe(false);
+      expect(flakyProjectsLoader).toHaveBeenCalledTimes(1);
+
+      // Flush microtasks to guarantee no unhandled rejection was emitted
+      await Promise.resolve();
+      expect(unhandledRejections).toHaveLength(0);
+
+      // Second attempt recovers cleanly and marks route as completed
+      const secondOutcome = await preloadMatchedWorkspaceChild(
+        '/workspace/projects',
+        { projects: flakyProjectsLoader },
+      );
+      expect(secondOutcome).toBe(true);
+      expect(isWorkspaceRoutePreloaded('projects')).toBe(true);
+      expect(flakyProjectsLoader).toHaveBeenCalledTimes(2);
+
+      // Third attempt is a cached no-op
+      const thirdOutcome = await preloadMatchedWorkspaceChild(
+        '/workspace/projects',
+        { projects: flakyProjectsLoader },
+      );
+      expect(thirdOutcome).toBe(true);
+      expect(flakyProjectsLoader).toHaveBeenCalledTimes(2);
+    } finally {
+      window.removeEventListener('unhandledrejection', onUnhandled);
+      resetWorkspacePreloadStateForTests();
+    }
+  });
+
+  it('catches lazy route chunk import failures in RouteChunkErrorBoundary and recovers in-place on retry', async () => {
+    const user = userEvent.setup();
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+
+    try {
+      let shouldFail = true;
+      const flakyChunk = createRetryableLazy<Record<string, never>>(() => {
+        if (shouldFail) {
+          return Promise.reject(new Error('ChunkLoadError: simulated offline'));
+        }
+        return Promise.resolve({
+          default: function RecoveredModule() {
+            return <div data-testid="recovered-lazy-module">Módulo recuperado</div>;
+          },
+        });
+      });
+
+      const FlakyComponent = flakyChunk.Component;
+
+      render(
+        <RouteChunkErrorBoundary
+          language="pt"
+          resetKey="/workspace/projects"
+          variant="shell-content"
+          onRetry={() => {
+            shouldFail = false;
+            flakyChunk.reset();
+          }}
+        >
+          <Suspense fallback={<WorkspaceContentLoadingState language="pt" />}>
+            <FlakyComponent />
+          </Suspense>
+        </RouteChunkErrorBoundary>,
+      );
+
+      const alert = await screen.findByTestId('route-chunk-error-fallback');
+      expect(alert).toHaveAttribute('role', 'alert');
+      expect(alert).toHaveTextContent(/Não foi possível carregar este módulo/i);
+
+      await user.click(
+        screen.getByRole('button', { name: /Tentar novamente/i }),
+      );
+
+      expect(
+        await screen.findByTestId('recovered-lazy-module'),
+      ).toHaveTextContent('Módulo recuperado');
+    } finally {
+      consoleErrorSpy.mockRestore();
     }
   });
 });

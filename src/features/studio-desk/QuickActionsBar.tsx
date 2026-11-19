@@ -22,6 +22,7 @@ interface QuickActionsBarProps {
   onOpenNextPriority: () => void;
   hasNextOpenPriority: boolean;
   onInspectFeaturedBrief: () => void;
+  hasFeaturedProject?: boolean;
   onOpenFutureNotice: (kind: 'viewer' | 'publish') => void;
   roleQuickLabel: string;
 }
@@ -35,6 +36,7 @@ export function QuickActionsBar({
   onOpenNextPriority,
   hasNextOpenPriority,
   onInspectFeaturedBrief,
+  hasFeaturedProject = true,
   onOpenFutureNotice,
   roleQuickLabel,
 }: QuickActionsBarProps) {
@@ -77,10 +79,19 @@ export function QuickActionsBar({
           <button
             type="button"
             onClick={onInspectFeaturedBrief}
-            className="min-h-[44px] px-3.5 py-2 border border-white/18 bg-[#151515] hover:border-[#A65D4A] text-xs font-medium uppercase tracking-[0.14em] text-white inline-flex items-center gap-2 transition-colors cursor-pointer"
+            disabled={!hasFeaturedProject}
+            className={`min-h-[44px] px-3.5 py-2 border text-xs font-medium uppercase tracking-[0.14em] inline-flex items-center gap-2 transition-colors ${
+              hasFeaturedProject
+                ? 'border-white/18 bg-[#151515] hover:border-[#A65D4A] text-white cursor-pointer'
+                : 'border-white/12 bg-[#141414] text-[#9E9E9E] cursor-not-allowed'
+            }`}
           >
             <Eye size={14} strokeWidth={1.45} aria-hidden="true" />
-            <span>{deskDict.quickActions.openFeaturedBrief}</span>
+            <span>
+              {hasFeaturedProject
+                ? deskDict.quickActions.openFeaturedBrief
+                : deskDict.quickActions.noActiveFeaturedProject}
+            </span>
           </button>
         </div>
 

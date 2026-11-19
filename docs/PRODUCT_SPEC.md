@@ -10,10 +10,10 @@ O **O+A Workspace** é o ambiente digital interno de trabalho da **O+A Arquitect
 |---|---|---|
 | **Fase 00** | Isolamento de repositório, direcção de arte, `DESIGN_BRIEF`, tokens, contratos mock e arquitectura base | **Concluída** |
 | **Fase 01** | Experiência de entrada (`/login`, `/welcome`), sessão mock, 6 perfis demo, PT/EN, preferências locais, recuperação demo honesta e destino `/workspace` | **Concluída e revista (Fase 02A)** |
-| **Fase 02A (Argon A)** | Hardening da Fase 01 (modal `inert`/focus trap, E2E portátil, fuso `CET`/`CEST` dinâmico, auditoria de acesso demo) + **Workspace Shell** (rail, cabeçalho contextual, pesquisa local, notificações demo, `/workspace/settings` e slot `/workspace`) | **Implementada (`codex/f02-shell-hardening`)** |
-| **Fase 02B (Argon B)** | Página operacional `StudioDeskPage` para encaixe no slot `/workspace` | Em paralelo noutra branch |
-| **Fase 03** | Biblioteca de projectos (galeria + lista técnica), criação guiada e dossier vivo | **Concluída e integrada (`codex/f02-integration-preview`)** |
-| **Fase 04** | Motor de modelos 3D (`.glb`/`.gltf`), distinção de referências `.skp` documentais e visualizador Web 3D | **Fase 04A implementada (`codex/f04-model-engine`)** |
+| **Fase 02 / 02.1** | Hardening de acessibilidade, **Workspace Shell** (rail, cabeçalho contextual, pesquisa local, notificações demo, `/workspace/settings`) e **Studio Desk** (`/workspace`) integrados com ergonomia de scroll e foco | **Concluída e integrada (`codex/f02-integration-preview`)** |
+| **Fase 03** | Biblioteca de projectos (galeria + lista técnica), criação guiada de 4 passos e dossier vivo de 6 secções | **Concluída e integrada (`codex/f02-integration-preview`)** |
+| **Fase 04** | Motor de modelos 3D (`.glb`/`.gltf`), distinção de referências `.skp` documentais, visualizador WebGL interactivo e hardening de segurança/memória WebGL | **Concluída e integrada (`codex/f02-integration-preview`)** |
+| **Fase 04.5** | Cache canónica imutável de projectos, pesquisa pré-normalizada sem leituras de storage por tecla, sincronização Studio Desk ↔ Biblioteca, code-splitting de rotas, `manualChunks`, recuperação de falhas de chunk e estados de carregamento em Shell persistente | **Concluída e integrada (`codex/f02-integration-preview`)** |
 | **Fase 05** | Operação de equipa: tarefas (lista/board acessível), calendário, departamentos, equipa e biblioteca | Planeada |
 | **Fase 06** | Fila editorial de publicação, pré-visualização local do site e relatórios derivados | Planeada |
 | **Fase 07** | Auditoria final UX, WCAG 2.2 AA, performance, i18n e regressão | Planeada |
@@ -21,12 +21,12 @@ O **O+A Workspace** é o ambiente digital interno de trabalho da **O+A Arquitect
 ## 3. Mapa de Rotas Previstas
 
 - `/login` — Câmara de acesso interno demonstrativo (**activa**).
-- `/welcome` — Caderno editorial de boas-vindas pós-login (**activa**).
-- `/workspace` — Contentor reutilizável **`WorkspaceShell`** com slot index para **`StudioDeskPage`** (na Fase 02A aloja o placeholder `WorkspaceEntryGatePage`).
-- `/workspace/settings` — Preferências locais da sessão demo (`PT/EN`, `skipWelcomeOnLogin`, `reduceMotionOverride`, rail expandido/compacto, papéis e diagnóstico storage) (**activa na Fase 02A**).
-- `/workspace/projects`, `/workspace/projects/new`, `/workspace/projects/:id`, `/workspace/projects/:id/model` — Módulo central de projectos e 3D (Fases 03–04; prancha honesta de módulo planeado na Fase 02A).
-- `/workspace/tasks`, `/workspace/calendar`, `/workspace/departments`, `/workspace/team`, `/workspace/library` — Operação de atelier (Fase 05; pranchas honestas na Fase 02A).
-- `/workspace/publications`, `/workspace/activity`, `/workspace/reports` — Editorial e síntese (Fases 05–06; pranchas honestas na Fase 02A).
+- `/welcome` — Caderno editorial de boas-vindas pós-login (**activa**, lazy-loaded).
+- `/workspace` — Contentor reutilizável **`WorkspaceShell`** persistente com **`StudioDeskPage`** sincronizada com a Biblioteca canónica (**activa**).
+- `/workspace/settings` — Preferências locais da sessão demo (`PT/EN`, `skipWelcomeOnLogin`, `reduceMotionOverride`, rail expandido/compacto, papéis e diagnóstico storage) (**activa**).
+- `/workspace/projects`, `/workspace/projects/new`, `/workspace/projects/:id`, `/workspace/projects/:id/model` — Biblioteca de projectos, criação guiada, dossier vivo e visualizador 3D WebGL real (**activas**, lazy-loaded sem transferência 3D antecipada fora de `/model`).
+- `/workspace/tasks`, `/workspace/calendar`, `/workspace/departments`, `/workspace/team`, `/workspace/library` — Operação de atelier (Fase 05; pranchas honestas `PlannedModuleView`).
+- `/workspace/publications`, `/workspace/activity`, `/workspace/reports` — Editorial e síntese (Fases 05–06; pranchas honestas `PlannedModuleView`).
 
 ## 4. Papéis Demonstrativos (`Role`)
 

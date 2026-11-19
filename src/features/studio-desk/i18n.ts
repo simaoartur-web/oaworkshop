@@ -49,6 +49,7 @@ export const pt = {
     openNextPriority: 'Abrir próxima prioridade',
     noOpenPriorities: 'Sem prioridades em aberto',
     openFeaturedBrief: 'Abrir projecto em foco',
+    noActiveFeaturedProject: 'Sem projecto activo em foco',
     secondaryGroupLabel: 'Preferências da vista e módulos futuros',
     viewPrefix: 'Vista',
     modeEditorial: 'Modo Editorial',
@@ -77,6 +78,10 @@ export const pt = {
     leadLabel: 'Coordenação',
     openDetailsCta: 'Abrir dossier do projecto',
     deliverablesHeading: 'Entregas previstas neste dossier',
+    emptyAllArchivedHeading: 'Sem projectos activos em destaque',
+    emptyAllArchivedBody:
+      'Todos os projectos desta sessão demonstrativa encontram-se actualmente arquivados. Restaure um projecto ou consulte o filtro Arquivado no panorama abaixo.',
+    viewArchivedAction: 'Ver projectos arquivados',
   },
   priorities: {
     sectionCode: '01 · PRIORIDADES & TAREFAS',
@@ -275,6 +280,7 @@ export const en: StudioDeskDictionary = {
     openNextPriority: 'Open next priority',
     noOpenPriorities: 'No open priorities',
     openFeaturedBrief: 'Open featured project',
+    noActiveFeaturedProject: 'No active featured project',
     secondaryGroupLabel: 'View preferences and planned modules',
     viewPrefix: 'View',
     modeEditorial: 'Editorial View',
@@ -303,6 +309,10 @@ export const en: StudioDeskDictionary = {
     leadLabel: 'Lead',
     openDetailsCta: 'Open project dossier',
     deliverablesHeading: 'Planned deliverables in this dossier',
+    emptyAllArchivedHeading: 'No active featured projects',
+    emptyAllArchivedBody:
+      'All projects in this demonstration session are currently archived. Restore a project or switch to the Archived filter in the overview below.',
+    viewArchivedAction: 'View archived projects',
   },
   priorities: {
     sectionCode: '01 · PRIORITIES & TASKS',
