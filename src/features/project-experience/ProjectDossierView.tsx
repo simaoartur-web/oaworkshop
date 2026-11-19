@@ -568,6 +568,9 @@ function ProjectDossierViewInner({
           <img
             src={project.imageSrc}
             alt={pickText(project.imageAlt, language)}
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
             className="w-full h-full object-cover opacity-90"
           />
           <div className="absolute inset-x-0 bottom-0 px-4 py-2.5 bg-gradient-to-t from-black/85 to-transparent flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#E0E0E0] tabular-nums">

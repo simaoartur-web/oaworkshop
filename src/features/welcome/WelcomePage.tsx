@@ -1,4 +1,3 @@
-import { motion, useReducedMotion } from 'framer-motion';
 import {
   ArrowRight,
   Compass,
@@ -36,7 +35,10 @@ export function WelcomePage() {
     setSkipWelcomeOnLogin,
   } = useWorkspaceSession();
   const navigate = useNavigate();
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion =
+    typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false;
   const shouldReduceMotion =
     prefersReducedMotion || preferences.reduceMotionOverride === 'reduce';
 
@@ -59,6 +61,11 @@ export function WelcomePage() {
 
   const handleEnterWorkspace = () => {
     navigate('/workspace');
+  };
+
+  const handleIntentPreloadWorkspace = () => {
+    void import('../workspace-shell/WorkspaceShell');
+    void import('../studio-desk/StudioDeskPage');
   };
 
   const handleSignOut = () => {
@@ -132,17 +139,10 @@ export function WelcomePage() {
         className="flex-1 w-full max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 py-6 sm:py-9 lg:py-11 flex flex-col justify-between gap-8"
       >
         {/* Editorial Greeting & Collaborator Context Header */}
-        <motion.section
-          initial={{
-            opacity: shouldReduceMotion ? 1 : 0,
-            y: shouldReduceMotion ? 0 : 10,
-          }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: shouldReduceMotion ? 0 : 0.45,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-          className="pb-6 sm:pb-8 oa-hairline-b flex flex-col lg:flex-row lg:items-end justify-between gap-5"
+        <section
+          className={`pb-6 sm:pb-8 oa-hairline-b flex flex-col lg:flex-row lg:items-end justify-between gap-5 ${
+            shouldReduceMotion ? '' : 'transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]'
+          }`}
         >
           <div>
             <div className="flex flex-wrap items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.22em] text-[#A65D4A]">
@@ -184,24 +184,16 @@ export function WelcomePage() {
               {t.common.localSavedBadge}
             </span>
           </div>
-        </motion.section>
+        </section>
 
         {/* ASYMMETRIC 12-COLUMN EDITORIAL WORKSHEET */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
           {/* LEFT 7 COLUMNS — Featured Studio Study & Croquis Overlay */}
-          <motion.section
-            initial={{
-              opacity: shouldReduceMotion ? 1 : 0,
-              y: shouldReduceMotion ? 0 : 12,
-            }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: shouldReduceMotion ? 0 : 0.5,
-              delay: shouldReduceMotion ? 0 : 0.06,
-              ease: [0.22, 1, 0.36, 1],
-            }}
+          <section
             aria-labelledby="featured-study-heading"
-            className="lg:col-span-7 flex flex-col border border-white/12 bg-[#080808]"
+            className={`lg:col-span-7 flex flex-col border border-white/12 bg-[#080808] ${
+              shouldReduceMotion ? '' : 'transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]'
+            }`}
           >
             {/* Plate Header */}
             <div className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-6 py-3.5 oa-hairline-b bg-[#0D0D0D]">
@@ -243,6 +235,7 @@ export function WelcomePage() {
                 className="h-full w-full object-cover object-center"
                 loading="eager"
                 decoding="async"
+                fetchPriority="high"
               />
               <div
                 aria-hidden="true"
@@ -411,22 +404,14 @@ export function WelcomePage() {
                 </p>
               </blockquote>
             </div>
-          </motion.section>
+          </section>
 
           {/* RIGHT 5 COLUMNS — Role Briefing, Entry CTA & Local Welcome Preference */}
-          <motion.section
-            initial={{
-              opacity: shouldReduceMotion ? 1 : 0,
-              y: shouldReduceMotion ? 0 : 12,
-            }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: shouldReduceMotion ? 0 : 0.5,
-              delay: shouldReduceMotion ? 0 : 0.12,
-              ease: [0.22, 1, 0.36, 1],
-            }}
+          <section
             aria-labelledby="role-briefing-heading"
-            className="lg:col-span-5 flex flex-col gap-6"
+            className={`lg:col-span-5 flex flex-col gap-6 ${
+              shouldReduceMotion ? '' : 'transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]'
+            }`}
           >
             {/* Primary Action Plinth — Positioned high on mobile & desktop for effortless entry */}
             <div className="border border-white/14 bg-[#161616] p-5 sm:p-7">
@@ -446,6 +431,8 @@ export function WelcomePage() {
                 <button
                   type="button"
                   onClick={handleEnterWorkspace}
+                  onPointerEnter={handleIntentPreloadWorkspace}
+                  onFocus={handleIntentPreloadWorkspace}
                   className="w-full min-h-[52px] px-6 py-3.5 bg-[#A65D4A] hover:bg-[#B86B57] active:bg-[#96513F] text-xs sm:text-[13px] font-medium uppercase tracking-[0.22em] text-white inline-flex items-center justify-between transition-colors cursor-pointer"
                 >
                   <span>{t.welcome.primaryEnterCta}</span>
@@ -455,6 +442,8 @@ export function WelcomePage() {
                 <button
                   type="button"
                   onClick={handleEnterWorkspace}
+                  onPointerEnter={handleIntentPreloadWorkspace}
+                  onFocus={handleIntentPreloadWorkspace}
                   className="w-full min-h-[44px] px-4 py-2.5 border border-white/16 bg-transparent hover:border-white/35 text-xs font-medium uppercase tracking-[0.18em] text-[#E0E0E0] inline-flex items-center justify-center transition-colors cursor-pointer"
                 >
                   {t.welcome.secondaryDirectCta}
@@ -556,7 +545,7 @@ export function WelcomePage() {
                 })}
               </div>
             </div>
-          </motion.section>
+          </section>
         </div>
       </main>
     </div>
