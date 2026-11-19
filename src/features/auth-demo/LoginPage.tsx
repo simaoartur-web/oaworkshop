@@ -261,7 +261,7 @@ export function LoginPage() {
           {/* Editorial Lower Plinth */}
           <div className="relative z-20 px-4 sm:px-8 lg:px-12 py-5 sm:py-7 lg:py-10 bg-gradient-to-t from-[#050505] via-[#050505]/92 to-transparent">
             <div className="max-w-xl">
-              <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-[#A65D4A]">
+              <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-[#CE826D]">
                 {t.common.axisLabel}
               </p>
               <p className="mt-2 font-serif italic text-xl sm:text-2xl lg:text-[2rem] leading-snug text-white">
@@ -469,7 +469,7 @@ export function LoginPage() {
                       className="flex-1 min-w-0 min-h-[54px] px-3 py-2 text-left flex flex-col justify-center cursor-pointer"
                     >
                       <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-[11px] font-semibold tracking-[0.14em] text-[#A65D4A] whitespace-nowrap shrink-0">
+                        <span className="text-[11px] font-semibold tracking-[0.14em] text-[#CE826D] whitespace-nowrap shrink-0">
                           {profile.code}
                         </span>
                         <span className="text-xs sm:text-[13px] font-medium text-white truncate">
