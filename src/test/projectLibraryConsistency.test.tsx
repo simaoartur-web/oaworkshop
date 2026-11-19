@@ -3,8 +3,17 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppRoutes } from '../app/App';
-import { WorkspaceSessionProvider } from '../app/WorkspaceSessionContext';
+import {
+  useWorkspaceSession,
+  WorkspaceSessionProvider,
+} from '../app/WorkspaceSessionContext';
 import { DEMO_USERS } from '../data/fixtures';
+import {
+  clearAllSessionModels,
+  createMinimalValidGlbBytes,
+  getSessionModelForProject,
+  selectSessionModelFile,
+} from '../data/modelAssetRepository';
 import {
   archiveProject,
   clearProjectLibraryLocalState,
@@ -22,12 +31,17 @@ import {
 import {
   persistDemoSessionForUser,
   resetDemoWorkspaceState,
+  STORAGE_KEYS,
 } from '../data/sessionRepository';
-import { STUDIO_DESK_TASKS } from '../data/studioDeskFixtures';
+import {
+  STUDIO_DESK_STORAGE_KEY,
+  STUDIO_DESK_TASKS,
+} from '../data/studioDeskFixtures';
 import {
   clearWorkspaceSearchIndexCache,
   searchWorkspaceDemo,
 } from '../features/workspace-shell/globalSearchIndex';
+import { SHELL_STORAGE_KEYS } from '../features/workspace-shell/shellDemoState';
 
 function renderAt(initialPath: string) {
   return render(
@@ -493,5 +507,117 @@ describe('Phase 04.5A · Data Cache Performance, Global Search & Studio Desk Con
     });
     const overviewSection = overviewHeading.closest('section')!;
     expect(await within(overviewSection).findByText(/OA-26-101/i)).toBeInTheDocument();
+  });
+
+  it('F0451-P1-7: decoupled signOut() and resetAllDemoData() revoke session ObjectURLs and synchronize caches deterministically', async () => {
+    function SessionLifecycleHarness() {
+      const { signOut, resetAllDemoData, session } = useWorkspaceSession();
+      return (
+        <div>
+          <span data-testid="harness-session">{session ? 'on' : 'off'}</span>
+          <button type="button" onClick={signOut}>
+            Harness SignOut
+          </button>
+          <button type="button" onClick={resetAllDemoData}>
+            Harness Reset
+          </button>
+        </div>
+      );
+    }
+
+    const actor = DEMO_USERS[1];
+    persistDemoSessionForUser(actor);
+    const revokeSpy = vi.spyOn(URL, 'revokeObjectURL');
+    const user = userEvent.setup();
+
+    // 1. Create a persisted local project so PROJECT_LIBRARY_STORAGE_KEY is non-null
+    const created = createProject(
+      {
+        titlePt: 'Ponte Pedonal do Índico',
+        subtitlePt: 'Teste de limpeza desacoplada em logout e reset.',
+        departmentId: 'architecture',
+        disciplinePt: 'Arquitectura Pública',
+        studioBase: 'Maputo',
+        projectStatus: 'design',
+        phasePt: 'Anteprojecto',
+        nextMilestoneTitlePt: 'Entrega estrutural',
+        nextMilestoneDateIso: '2026-12-20',
+        leadUserId: actor.id,
+      },
+      actor,
+    );
+    expect(window.localStorage.getItem(PROJECT_LIBRARY_STORAGE_KEY)).not.toBeNull();
+
+    // Attach a temporary local .glb session model while local projects exist in storage
+    const glbFile1 = new File([createMinimalValidGlbBytes()], 'logout-test.glb', {
+      type: 'model/gltf-binary',
+    });
+    const reg1 = await selectSessionModelFile(created.identity.id, glbFile1);
+    expect(reg1.ok).toBe(true);
+    const blobUrl1 = getSessionModelForProject(created.identity.id)!.objectUrl;
+
+    const { unmount } = render(
+      <WorkspaceSessionProvider>
+        <SessionLifecycleHarness />
+      </WorkspaceSessionProvider>,
+    );
+
+    // signOut() revokes ObjectURL & clears session model while preserving persisted local projects
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: 'Harness SignOut' }));
+    });
+    await waitFor(() => {
+      expect(getSessionModelForProject(created.identity.id)).toBeNull();
+    });
+    expect(revokeSpy).toHaveBeenCalledWith(blobUrl1);
+    expect(window.localStorage.getItem(STORAGE_KEYS.SESSION)).toBeNull();
+    expect(getProjectById(created.identity.id)).not.toBeNull();
+    unmount();
+
+    // 2. Seed all auxiliary keys + a fresh session model, then invoke resetAllDemoData()
+    persistDemoSessionForUser(actor);
+    window.localStorage.setItem(SHELL_STORAGE_KEYS.NOTIFICATIONS, '[]');
+    window.localStorage.setItem(SHELL_STORAGE_KEYS.RAIL_COMPACT, 'compact');
+    window.localStorage.setItem(STUDIO_DESK_STORAGE_KEY, '{"showDatumOverlay":false}');
+    expect(
+      searchWorkspaceDemo('Ponte Pedonal', 'pt').some(
+        (entry) => entry.id === `project-${created.identity.id}`,
+      ),
+    ).toBe(true);
+
+    const glbFile2 = new File([createMinimalValidGlbBytes()], 'reset-test.glb', {
+      type: 'model/gltf-binary',
+    });
+    const reg2 = await selectSessionModelFile(created.identity.id, glbFile2);
+    expect(reg2.ok).toBe(true);
+    const blobUrl2 = getSessionModelForProject(created.identity.id)!.objectUrl;
+
+    render(
+      <WorkspaceSessionProvider>
+        <SessionLifecycleHarness />
+      </WorkspaceSessionProvider>,
+    );
+
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: 'Harness Reset' }));
+    });
+
+    // Synchronous reset clears all storage keys, invalidates project & search caches, and revokes ObjectURL
+    expect(window.localStorage.getItem(STORAGE_KEYS.SESSION)).toBeNull();
+    expect(window.localStorage.getItem(SHELL_STORAGE_KEYS.NOTIFICATIONS)).toBeNull();
+    expect(window.localStorage.getItem(SHELL_STORAGE_KEYS.RAIL_COMPACT)).toBeNull();
+    expect(window.localStorage.getItem(STUDIO_DESK_STORAGE_KEY)).toBeNull();
+    expect(window.localStorage.getItem(PROJECT_LIBRARY_STORAGE_KEY)).toBeNull();
+    expect(listProjects({ includeArchived: true })).toHaveLength(5);
+    expect(getProjectById(created.identity.id)).toBeNull();
+    expect(
+      searchWorkspaceDemo('Ponte Pedonal', 'pt').some(
+        (entry) => entry.id === `project-${created.identity.id}`,
+      ),
+    ).toBe(false);
+    expect(getSessionModelForProject(created.identity.id)).toBeNull();
+    expect(revokeSpy).toHaveBeenCalledWith(blobUrl2);
+
+    clearAllSessionModels();
   });
 });

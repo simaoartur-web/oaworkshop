@@ -19,9 +19,6 @@ import {
   switchDemoRole,
   type AuthAttemptResult,
 } from '../data/sessionRepository';
-import { clearAllSessionModels } from '../data/modelAssetRepository';
-import { clearProjectLibraryLocalState } from '../data/projectLibraryRepository';
-import { clearStudioDeskLocalState } from '../data/studioDeskFixtures';
 import type {
   AppLanguage,
   DemoSession,
@@ -29,8 +26,18 @@ import type {
   Role,
   UserPreferences,
 } from '../data/types';
-import { resetShellLocalState } from '../features/workspace-shell/shellDemoState';
 import { DICTIONARIES, type TranslationDictionary } from '../locales';
+
+// Keep entry bundle decoupled from heavy workspace repositories (`modelAssetRepository`,
+// `projectLibraryRepository`, `studioDeskFixtures`, `shellDemoState`) on `/login` & `/welcome`.
+const AUXILIARY_DEMO_STORAGE_KEYS = [
+  'oa_workspace_demo_notifications_v1',
+  'oa_workspace_shell_rail_v1',
+  'oa_workspace_studio_desk_v1',
+  'oa_workspace_project_library_v1',
+] as const;
+
+const PROJECT_LIBRARY_UPDATED_EVENT_NAME = 'oa:project-library-updated';
 
 interface WorkspaceSessionContextValue {
   session: DemoSession | null;
@@ -107,9 +114,15 @@ export function WorkspaceSessionProvider({
   }, []);
 
   const signOut = useCallback(() => {
-    clearAllSessionModels();
     clearDemoSession();
     setSession(null);
+    void import('../data/modelAssetRepository')
+      .then(({ clearAllSessionModels }) => {
+        clearAllSessionModels();
+      })
+      .catch(() => {
+        // Ignore dynamic import failures when model repository chunk is unavailable offline
+      });
   }, []);
 
   const setLanguage = useCallback((nextLanguage: AppLanguage) => {
@@ -128,11 +141,19 @@ export function WorkspaceSessionProvider({
   }, []);
 
   const resetAllDemoData = useCallback(() => {
-    clearAllSessionModels();
     const freshPrefs = resetDemoWorkspaceState();
-    resetShellLocalState();
-    clearStudioDeskLocalState();
-    clearProjectLibraryLocalState();
+    if (typeof window !== 'undefined') {
+      try {
+        for (const key of AUXILIARY_DEMO_STORAGE_KEYS) {
+          window.localStorage.removeItem(key);
+        }
+      } catch {
+        // Ignore storage removal errors in restricted browsing modes
+      }
+      // Synchronously invalidates loaded project library & search caches, and triggers
+      // modelAssetRepository's reset listener to revoke/clear all temporary session ObjectURLs.
+      window.dispatchEvent(new CustomEvent(PROJECT_LIBRARY_UPDATED_EVENT_NAME));
+    }
     setSession(null);
     setPreferences(freshPrefs);
     setDemoResetEpoch((prev) => prev + 1);
