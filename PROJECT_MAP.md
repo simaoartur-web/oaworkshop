@@ -133,6 +133,7 @@
 | `docs/INTEGRATION_FUTURE.md` | contrato documental de publicação futura para `oa-workshop.com` |
 | `docs/PHASE_04_MODEL_ENGINE_CONTRACT.md` | contrato de integração Fase 04 entre o motor de modelos 3D (Agente A) e o visualizador WebGL (Agente B) |
 | `docs/DECISIONS.md` | registo de decisões arquitecturais (ADR-001 a ADR-010) |
+| `docs/audits/phase045-performance-final.md` | auditoria independente de performance da Fase 04.5 (Agente C — A/B Base `37265d5` vs Preview `4197c2e`, fontes/CPU/rede controladas, escala 50/200 e classificação P0/P1/P2) |
 | `plans/001-phase-00-01-foundation-and-entry.md` | plano da Fase 00 e Fase 01 |
 | `plans/002-phase-02a-shell-hardening.md` | plano da Fase 02A (`codex/f02-shell-hardening`) |
 | `plans/003-phase-02-integration.md` | plano de integração técnica e Quality Gate da Fase 02 |
