@@ -127,15 +127,11 @@ Qualquer agente deve parar imediatamente e publicar `@coordinator [blocked]` per
 
 ---
 
-## 10. Model Governance Policy v1
+## 10. Model Governance & Adaptive Reasoning Policy v1.1
 
-1. **Ordem de selecção autorizada:**
-   - **1.º Claude Opus** (versão mais recente no selector — preferencial para coordenação técnica e implementação).
-   - **2.º Modelos GPT proprietários da OpenAI** (apenas quando efectivamente disponíveis e identificados no selector — preferencial para verificações independentes; **nunca confundir `GPT-OSS` com modelos proprietários do ChatGPT/OpenAI**).
-   - **3.º Modelos Gemini não-Argon** (ex.: `Gemini 4 Neon`, `Gemini 4 Hydrogen`, `Gemini 3.8 Flash`) **apenas** quando Claude Opus e GPT proprietário não estiverem disponíveis.
-2. **Proibição explícita:** Nunca utilizar `Gemini 4 Argon`, `Orchestrator (Argon)`, qualquer variante futura de Argon ou qualquer fallback para Argon (mesmo perante esgotamento de quota de Opus/GPT), salvo autorização humana expressa e específica.
-3. **Execução e auditoria:**
-   - Não interromper execuções válidas apenas para trocar modelo; aplicar quando o trabalhador estiver em `waiting` ou no próximo turno.
-   - Confirmar a troca via `swarm{action:"status"}` antes de declarar a alteração aplicada.
-   - Registar obrigatoriamente o **modelo efectivamente utilizado** em cada relatório em `docs/agent-reports/<fase>/<task-id>-<agente>.md`.
-   - Se nenhum modelo autorizado estiver disponível, classificar a missão como **`BLOCKED`** e pedir decisão humana.
+Fonte normativa completa em `.agents/rules/50-model-governance.md` (sem duplicação extensiva):
+
+1. **Hierarquia autorizada:** (1) **Claude Opus** disponível → (2) **GPT proprietário da OpenAI** no selector (nunca confundir `GPT-OSS`) → (3) **Gemini não-Argon** apenas quando Opus e GPT proprietários estão indisponíveis ou sem quota (`Gemini 4 Hydrogen` Low/Medium para T0/T1; `Gemini 4 Neon` Medium/High para T1–T3; `Orchestrator (Neon/Carbon)` com **esforço fixo** apenas em missões T3 longas verificavelmente sem Argon).
+2. **Proibições absolutas:** Nunca usar `Gemini 4 Argon`, `Orchestrator (Argon)`, encaminhamento desconhecido que possa invocar Argon, nem níveis `Extra` / `Extra High` / `xhigh` / `max`. Nunca atribuir esforço fictício a modelos de configuração fixa.
+3. **Protocolo adaptativo do Coordenador:** Antes de atribuir qualquer tarefa, o `@coordinator` classifica a complexidade/risco (**`T0`** Simples, **`T1`** Moderada, **`T2`** Complexa, **`T3`** Crítica) e regista o bloco compacto `ID | Classe T0–T3 | Risco | Modelo | Esforço (ou fixo) | Justificação breve | Alternativa permitida`. Nenhum trabalhador pode elevar esforço, trocar fornecedor ou activar Orchestrator por iniciativa própria.
+4. **Controlo e relatórios:** Não interromper execuções válidas só para trocar modelo; confirmar alterações em `swarm{action:"status"}`; registar classe, modelo e esforço (inicial e efectivo) e motivo de fallback em `docs/agent-reports/<fase>/<task-id>-<agente>.md`; sem modelo autorizado disponível, marcar **`BLOCKED`** e pedir decisão humana.
