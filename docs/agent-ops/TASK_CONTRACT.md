@@ -14,6 +14,7 @@
 - **Repositório:** `simaoartur-web/oaworkshop` (linha O+A Workspace)
 - **Branch Base & Commit SHA:** `origin/codex/f02-integration-preview` (`<40-char-sha>`)
 - **Branch / Worktree de Trabalho:** `codex/<tipo>-<descrição-curta>` (`<caminho-worktree>` ou `read-only`)
+- **Modelo Autorizado / Efectivamente Utilizado:** `<ex.: Claude Opus 5.5 (High) | Gemini 4 Neon (Medium) — Argon proibido>`
 - **Estado de Aprovação Humana:** `AGUARDA APROVAÇÃO` | `APROVADO: <referência do plano>`
 
 ---
