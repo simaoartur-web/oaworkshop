@@ -14,7 +14,10 @@
 - **Repositório:** `simaoartur-web/oaworkshop` (linha O+A Workspace)
 - **Branch Base & Commit SHA:** `origin/codex/f02-integration-preview` (`<40-char-sha>`)
 - **Branch / Worktree de Trabalho:** `codex/<tipo>-<descrição-curta>` (`<caminho-worktree>` ou `read-only`)
-- **Modelo Autorizado / Efectivamente Utilizado:** `<ex.: Claude Opus 5.5 (High) | Gemini 4 Neon (Medium) — Argon proibido>`
+- **Classificação de Complexidade & Risco:** `T0` | `T1` | `T2` | `T3` — `<risco breve>`
+- **Modelo Escolhido & Nível de Esforço:** `<modelo real no selector>` · `<Low | Medium | High | fixo/não configurável>` *(nunca Argon, nunca Extra/xhigh/max)*
+- **Justificação da Selecção:** `<1 frase sobre capacidade, risco e custo>`
+- **Alternativa / Fallback Permitido:** `<modelo autorizado e esforço caso indisponível; caso contrário BLOCKED>`
 - **Estado de Aprovação Humana:** `AGUARDA APROVAÇÃO` | `APROVADO: <referência do plano>`
 
 ---
@@ -63,6 +66,7 @@ Nenhuma tarefa é considerada `DONE` sem os 5 elementos: **Trabalho terminado + 
 
 1. **Relatório no repositório:** `docs/agent-reports/<fase>/<task-id>-<agente>.md` contendo:
    - Identificador da tarefa, Nome do agente, Objectivo e âmbito, Branch e commit base
+   - Classe `T0–T3`, Modelo e esforço (inicialmente seleccionados e efectivamente utilizados), desvios e motivo de fallback
    - Ficheiros modificados, Trabalho executado, Testes realizados e resultados reais
    - Problemas `P0` / `P1` / `P2`, Limitações e pendências
    - Estado verdadeiro: `PASSED` | `FAILED` | `BLOCKED`
