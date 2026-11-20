@@ -150,6 +150,11 @@
 | `plans/014-agent-governance-v1.md` | plano e registo da Governança Multiagente v1 (`codex/docs-agent-governance-v1`) |
 | `plans/015-phase-0451-closure.md` | plano técnico da Fase 04.5.1 (reconciliação documental, fecho P1 obrigatórios + performance e Quality Gate) |
 | `plans/016-model-governance-v1.md` | plano e registo da Model Governance Policy v1 (`codex/docs-model-governance-v1`) |
+| `plans/017-phase-05-tasks-calendar.md` | plano e registo da Fase 05 · Módulo 1: Tarefas (`/workspace/tasks`) e Calendário (`/workspace/calendar`) |
+| `docs/agent-reports/phase-05/` | relatórios técnicos publicados da Fase 05 · Módulo 1 (`05-DATA-01-agent-a.md`, `05-FE-01-agent-b.md`, `05-QA-01-agent-d.md`) |
+| `src/data/operationsTypes.ts`, `tasksRepository.ts`, `calendarSelector.ts` | camada canónica da Fase 05 · Módulo 1 (tarefas locais `oa_workspace_tasks_v1` com snapshot imutável/sync cross-tab e selector derivado de calendário) |
+| `src/features/operations/` | módulo UI da Fase 05 · Módulo 1 (`useStudioOperations.ts`, `TasksPage.tsx`, `TaskBoardView.tsx`, `TaskEditorDialog.tsx`, `CalendarPage.tsx`, `i18n.ts`) |
+| `src/test/studioOperations.test.tsx`, `operationsExperience.test.tsx` | suites de testes da Fase 05 · Módulo 1 (repositório canónico, quota, cross-tab, UI Tarefas/Calendário e sincronização Studio Desk) |
 | `docs/audits/phase045-security-qa-final.md` | auditoria independente de segurança e QA da Fase 04.5 (Gemini D · `codex/f045-security-qa-final`) |
 | `docs/agent-reports/phase-045/` | relatórios técnicos publicados da Missão 1 Swarm (`045-ARCH-01-agent-a.md`, `045-UX-01-agent-b.md`, `045-PERF-01-agent-c.md`, `045-QA-01-agent-d.md`) |
 | `docs/agent-reports/phase-0451/` | relatórios técnicos publicados da Fase 04.5.1 (`0451-DATA-01-agent-a.md`, `0451-FE-01-agent-b.md`, `0451-PERF-01-agent-c.md`, `0451-QA-01-agent-d.md`) |
