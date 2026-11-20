@@ -124,3 +124,18 @@ Qualquer agente deve parar imediatamente e publicar `@coordinator [blocked]` per
    - Em tarefas de auditoria somente leitura, o commit inclui **exclusivamente** o relatório e eventuais artefactos de teste autorizados (nunca alterações funcionais artificiais).
 4. **Coordenação de `PROJECT_MAP.md` e controlo de tokens:** A actualização global de `PROJECT_MAP.md` ocorre na integração para evitar conflitos. Nunca re-executar tarefas ou suites completas apenas para gerar relatórios; reutilizar evidências já recolhidas e não iniciar novas missões após o `push`.
 5. **Verificação e resumo ao Responsável Humano:** Antes de declarar `DONE`, o `@coordinator` confirma branch remota, SHA, âmbito do diff, correspondência do relatório e ausência de conflitos, apresentando o resumo canónico com links verificáveis do GitHub (`AGENTE / TAREFA / ESTADO / BRANCH / COMMIT SHA / RELATÓRIO / TESTES / PENDÊNCIAS / RECOMENDAÇÃO`).
+
+---
+
+## 10. Model Governance Policy v1
+
+1. **Ordem de selecção autorizada:**
+   - **1.º Claude Opus** (versão mais recente no selector — preferencial para coordenação técnica e implementação).
+   - **2.º Modelos GPT proprietários da OpenAI** (apenas quando efectivamente disponíveis e identificados no selector — preferencial para verificações independentes; **nunca confundir `GPT-OSS` com modelos proprietários do ChatGPT/OpenAI**).
+   - **3.º Modelos Gemini não-Argon** (ex.: `Gemini 4 Neon`, `Gemini 4 Hydrogen`, `Gemini 3.8 Flash`) **apenas** quando Claude Opus e GPT proprietário não estiverem disponíveis.
+2. **Proibição explícita:** Nunca utilizar `Gemini 4 Argon`, `Orchestrator (Argon)`, qualquer variante futura de Argon ou qualquer fallback para Argon (mesmo perante esgotamento de quota de Opus/GPT), salvo autorização humana expressa e específica.
+3. **Execução e auditoria:**
+   - Não interromper execuções válidas apenas para trocar modelo; aplicar quando o trabalhador estiver em `waiting` ou no próximo turno.
+   - Confirmar a troca via `swarm{action:"status"}` antes de declarar a alteração aplicada.
+   - Registar obrigatoriamente o **modelo efectivamente utilizado** em cada relatório em `docs/agent-reports/<fase>/<task-id>-<agente>.md`.
+   - Se nenhum modelo autorizado estiver disponível, classificar a missão como **`BLOCKED`** e pedir decisão humana.

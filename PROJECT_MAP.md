@@ -149,6 +149,7 @@
 | `plans/013-phase-045-integration.md` | plano e relatório da integração Fase 04.5 A+B (`codex/f02-integration-preview`), correcções P1/P2, benchmarks multi-execução e Quality Gate |
 | `plans/014-agent-governance-v1.md` | plano e registo da Governança Multiagente v1 (`codex/docs-agent-governance-v1`) |
 | `plans/015-phase-0451-closure.md` | plano técnico da Fase 04.5.1 (reconciliação documental, fecho P1 obrigatórios + performance e Quality Gate) |
+| `plans/016-model-governance-v1.md` | plano e registo da Model Governance Policy v1 (`codex/docs-model-governance-v1`) |
 | `docs/audits/phase045-security-qa-final.md` | auditoria independente de segurança e QA da Fase 04.5 (Gemini D · `codex/f045-security-qa-final`) |
 | `docs/agent-reports/phase-045/` | relatórios técnicos publicados da Missão 1 Swarm (`045-ARCH-01-agent-a.md`, `045-UX-01-agent-b.md`, `045-PERF-01-agent-c.md`, `045-QA-01-agent-d.md`) |
 | `docs/agent-ops/OPERATING_MODEL.md` | modelo operacional da equipa multiagente (`@coordinator`, `@agent-a`–`@agent-d`, RACI, ciclo `Plan → Implement → Integrate → Verify → Approve`, Git Delivery Policy v1, economia de tokens e Board) |
@@ -158,5 +159,6 @@
 | `.agents/rules/20-frontend-ux-webgl.md` | regra nativa Antigravity (`trigger: glob`) para o domínio de frontend, WCAG 2.2 AA, chunking e WebGL (`@agent-b`) |
 | `.agents/rules/30-audit-qa-security.md` | regra nativa Antigravity (`trigger: model_decision`) para auditorias independentes e Quality Gates (`@agent-c`, `@agent-d`) |
 | `.agents/rules/40-swarm-coordination-and-releases.md` | regra nativa Antigravity (`trigger: model_decision`) para coordenação multiagente, Board e aprovações de release (`@coordinator`) |
+| `.agents/rules/50-model-governance.md` | regra nativa Antigravity (`trigger: model_decision`) com a Model Governance Policy v1 (hierarquia Opus → GPT → Gemini não-Argon e proibição absoluta de Argon) |
 | `.github/workflows/workspace-quality-gate.yml` | Quality Gate automatizado GitHub Actions exclusivo da linha O+A Workspace (`codex/f02-integration-preview` e `codex/**`, incluindo E2E visual em PR) |
 | `scripts/e2e-verify-entry.mjs` | verificação E2E portátil em Chromium/Edge nas larguras 1440px, 680px altura, 768px, 720px (zoom) e 375px |
