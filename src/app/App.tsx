@@ -21,12 +21,14 @@ import {
 } from '../features/loading/RouteLoadingStates';
 import {
   createRetryableLazy,
+  loadCalendarPage,
   loadPlannedModuleView,
   loadProjectCreateEnginePage,
   loadProjectDossierShellPage,
   loadProjectLibraryCatalogPage,
   loadProjectModelEnginePage,
   loadStudioDeskPage,
+  loadTasksPage,
   loadWelcomePage,
   loadWorkspaceSettingsPage,
   loadWorkspaceShell,
@@ -75,6 +77,8 @@ const workspaceSettingsLazy = retryableLazyNamed(
   loadWorkspaceSettingsPage,
   'WorkspaceSettingsPage',
 );
+const tasksPageLazy = retryableLazyNamed(loadTasksPage, 'TasksPage');
+const calendarPageLazy = retryableLazyNamed(loadCalendarPage, 'CalendarPage');
 const plannedModuleLazy = retryableLazyNamed(
   loadPlannedModuleView,
   'PlannedModuleView',
@@ -88,6 +92,8 @@ const ProjectCreateEnginePage = projectCreateEngineLazy.Component;
 const ProjectDossierShellPage = projectDossierShellLazy.Component;
 const ProjectModelEnginePage = projectModelEngineLazy.Component;
 const WorkspaceSettingsPage = workspaceSettingsLazy.Component;
+const TasksPage = tasksPageLazy.Component;
+const CalendarPage = calendarPageLazy.Component;
 const PlannedModuleView = plannedModuleLazy.Component;
 
 const WORKSPACE_CHILD_LAZY_RESETTERS: Record<
@@ -100,6 +106,8 @@ const WORKSPACE_CHILD_LAZY_RESETTERS: Record<
   'projects-new': projectCreateEngineLazy.reset,
   'project-dossier': projectDossierShellLazy.reset,
   'project-model': projectModelEngineLazy.reset,
+  tasks: tasksPageLazy.reset,
+  calendar: calendarPageLazy.reset,
   planned: plannedModuleLazy.reset,
 };
 
@@ -226,8 +234,8 @@ export function AppRoutes() {
           <Route path="projects/:id" element={<ProjectDossierShellPage />} />
           <Route path="projects/:id/model" element={<ProjectModelEnginePage />} />
           <Route path="projects/*" element={<PlannedModuleView />} />
-          <Route path="tasks" element={<PlannedModuleView />} />
-          <Route path="calendar" element={<PlannedModuleView />} />
+          <Route path="tasks" element={<TasksPage />} />
+          <Route path="calendar" element={<CalendarPage />} />
           <Route path="departments" element={<PlannedModuleView />} />
           <Route path="team" element={<PlannedModuleView />} />
           <Route path="library" element={<PlannedModuleView />} />
