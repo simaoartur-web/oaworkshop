@@ -35,9 +35,11 @@ const AUXILIARY_DEMO_STORAGE_KEYS = [
   'oa_workspace_shell_rail_v1',
   'oa_workspace_studio_desk_v1',
   'oa_workspace_project_library_v1',
+  'oa_workspace_tasks_v1',
 ] as const;
 
 const PROJECT_LIBRARY_UPDATED_EVENT_NAME = 'oa:project-library-updated';
+const TASKS_UPDATED_EVENT_NAME = 'oa:tasks-updated';
 
 interface WorkspaceSessionContextValue {
   session: DemoSession | null;
@@ -150,9 +152,10 @@ export function WorkspaceSessionProvider({
       } catch {
         // Ignore storage removal errors in restricted browsing modes
       }
-      // Synchronously invalidates loaded project library & search caches, and triggers
+      // Synchronously invalidates loaded project library, tasks & search caches, and triggers
       // modelAssetRepository's reset listener to revoke/clear all temporary session ObjectURLs.
       window.dispatchEvent(new CustomEvent(PROJECT_LIBRARY_UPDATED_EVENT_NAME));
+      window.dispatchEvent(new CustomEvent(TASKS_UPDATED_EVENT_NAME));
     }
     setSession(null);
     setPreferences(freshPrefs);

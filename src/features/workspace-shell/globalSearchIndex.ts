@@ -7,6 +7,10 @@ import {
   getProjectLibrarySnapshot,
   subscribeProjectLibraryChanges,
 } from '../../data/projectLibraryRepository';
+import {
+  getTasksSnapshot,
+  subscribeTasksChanges,
+} from '../../data/tasksRepository';
 import type { AppLanguage, Role } from '../../data/types';
 import { pickLocalized } from '../../locales';
 import { WORKSPACE_NAV_ITEMS } from './shellNavigation';
@@ -26,6 +30,7 @@ export interface WorkspaceSearchEntry {
   subtitle: string;
   targetPath: string;
   switchToRole?: Role;
+  taskId?: string;
   searchText: string;
   isPlannedRoute?: boolean;
 }
@@ -35,8 +40,9 @@ interface IndexedWorkspaceSearchEntry extends WorkspaceSearchEntry {
   normTitle: string;
 }
 
-interface CachedProjectSearchBucket {
+interface CachedDynamicSearchBucket {
   libraryVersion: number;
+  tasksVersion: number;
   language: AppLanguage;
   entries: readonly IndexedWorkspaceSearchEntry[];
 }
@@ -66,17 +72,21 @@ interface StaticSearchBuckets {
 }
 
 const staticBucketsByLanguage = new Map<AppLanguage, StaticSearchBuckets>();
-const projectBucketsByLanguage = new Map<
+const dynamicBucketsByLanguage = new Map<
   AppLanguage,
-  CachedProjectSearchBucket
+  CachedDynamicSearchBucket
 >();
 
 subscribeProjectLibraryChanges(() => {
-  projectBucketsByLanguage.clear();
+  dynamicBucketsByLanguage.clear();
+});
+
+subscribeTasksChanges(() => {
+  dynamicBucketsByLanguage.clear();
 });
 
 export function clearWorkspaceSearchIndexCache(): void {
-  projectBucketsByLanguage.clear();
+  dynamicBucketsByLanguage.clear();
 }
 
 function getStaticBuckets(language: AppLanguage): StaticSearchBuckets {
@@ -210,10 +220,15 @@ function getIndexedSearchEntries(
 ): readonly IndexedWorkspaceSearchEntry[] {
   const staticBuckets = getStaticBuckets(language);
   const snapshot = getProjectLibrarySnapshot();
-  const cachedProjects = projectBucketsByLanguage.get(language);
+  const tasksSnapshot = getTasksSnapshot();
+  const cachedDynamic = dynamicBucketsByLanguage.get(language);
 
-  if (cachedProjects && cachedProjects.libraryVersion === snapshot.version) {
-    return cachedProjects.entries;
+  if (
+    cachedDynamic &&
+    cachedDynamic.libraryVersion === snapshot.version &&
+    cachedDynamic.tasksVersion === tasksSnapshot.version
+  ) {
+    return cachedDynamic.entries;
   }
 
   const projectEntries: IndexedWorkspaceSearchEntry[] = snapshot.allRecords.map(
@@ -262,15 +277,55 @@ function getIndexedSearchEntries(
     },
   );
 
+  const taskEntries: IndexedWorkspaceSearchEntry[] = tasksSnapshot.activeTasks.map(
+    (task) => {
+      const dept = DEPARTMENTS[task.departmentId];
+      return withNormalizedMeta({
+        id: `task-${task.id}`,
+        category: 'route',
+        code: `${task.code} · ${task.projectCode}`,
+        title: pickLocalized(task.title, language),
+        subtitle: `${task.assigneeLabel} · ${pickLocalized(task.dueLabel, language)} · ${pickLocalized(task.referenceTag, language)}`,
+        targetPath: `/workspace/tasks?task=${task.id}`,
+        taskId: task.id,
+        isPlannedRoute: false,
+        searchText: normalizeForSearch(
+          [
+            task.id,
+            task.code,
+            task.projectCode,
+            task.title.pt,
+            task.title.en,
+            task.detail.pt,
+            task.detail.en,
+            task.assigneeLabel,
+            task.dueDateIso,
+            task.dueLabel.pt,
+            task.dueLabel.en,
+            task.referenceTag.pt,
+            task.referenceTag.en,
+            task.priority,
+            task.status,
+            dept.code,
+            dept.name.pt,
+            dept.name.en,
+          ].join(' '),
+        ),
+      });
+    },
+  );
+
   const combinedEntries: readonly IndexedWorkspaceSearchEntry[] = [
     ...staticBuckets.routeEntries,
     ...staticBuckets.profileEntries,
     ...projectEntries,
+    ...taskEntries,
     ...staticBuckets.studyAndDepartmentEntries,
   ];
 
-  projectBucketsByLanguage.set(language, {
+  dynamicBucketsByLanguage.set(language, {
     libraryVersion: snapshot.version,
+    tasksVersion: tasksSnapshot.version,
     language,
     entries: combinedEntries,
   });
