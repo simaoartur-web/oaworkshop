@@ -27,15 +27,12 @@ export function TeamPage() {
   const dict = STUDIO_STRUCTURE_I18N[language];
 
   const rawDeptParam = searchParams.get('dept');
-  const initialDept: 'all' | DepartmentId =
+  const departmentFilter: 'all' | DepartmentId =
     rawDeptParam && VALID_DEPARTMENTS.has(rawDeptParam as DepartmentId)
       ? (rawDeptParam as DepartmentId)
       : 'all';
 
   const [roleFilter, setRoleFilter] = useState<'all' | Role>('all');
-  const [departmentFilter, setDepartmentFilter] = useState<'all' | DepartmentId>(
-    initialDept,
-  );
   const [studioBaseFilter, setStudioBaseFilter] = useState<
     'all' | 'Maputo' | 'Milão'
   >('all');
@@ -115,11 +112,36 @@ export function TeamPage() {
     );
   };
 
+  const handleDepartmentFilterChange = (nextDept: 'all' | DepartmentId) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (nextDept === 'all') {
+          next.delete('dept');
+        } else {
+          next.set('dept', nextDept);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
   const handleResetFilters = () => {
     setRoleFilter('all');
-    setDepartmentFilter('all');
     setStudioBaseFilter('all');
     setSearchQuery('');
+    setSearchParams(
+      (prev) => {
+        if (!prev.has('dept')) {
+          return prev;
+        }
+        const next = new URLSearchParams(prev);
+        next.delete('dept');
+        return next;
+      },
+      { replace: true },
+    );
   };
 
   if (!currentUser) {
@@ -228,7 +250,9 @@ export function TeamPage() {
               id="team-filter-department"
               value={departmentFilter}
               onChange={(e) =>
-                setDepartmentFilter(e.target.value as 'all' | DepartmentId)
+                handleDepartmentFilterChange(
+                  e.target.value as 'all' | DepartmentId,
+                )
               }
               className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
             >

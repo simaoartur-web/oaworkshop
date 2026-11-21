@@ -44,19 +44,16 @@ export function TechnicalLibraryPage() {
   const dict = STUDIO_STRUCTURE_I18N[language];
 
   const rawDeptParam = searchParams.get('dept');
-  const initialDept: 'all' | DepartmentId =
+  const departmentFilter: 'all' | DepartmentId =
     rawDeptParam && VALID_DEPARTMENTS.has(rawDeptParam as DepartmentId)
       ? (rawDeptParam as DepartmentId)
       : 'all';
-  const initialProject = searchParams.get('project') ?? 'all';
+  const rawProjectParam = searchParams.get('project')?.trim() ?? '';
+  const projectFilter: string = rawProjectParam || 'all';
 
   const [categoryFilter, setCategoryFilter] = useState<
     'all' | TechnicalLibraryCategory
   >('all');
-  const [departmentFilter, setDepartmentFilter] = useState<'all' | DepartmentId>(
-    initialDept,
-  );
-  const [projectFilter, setProjectFilter] = useState<string>(initialProject);
   const [searchQuery, setSearchQuery] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dismissedInvalidRef, setDismissedInvalidRef] = useState<string | null>(
@@ -154,11 +151,51 @@ export function TechnicalLibraryPage() {
     [createTechnicalReference, dict.library.createdAnnouncement],
   );
 
+  const handleDepartmentFilterChange = (nextDept: 'all' | DepartmentId) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (nextDept === 'all') {
+          next.delete('dept');
+        } else {
+          next.set('dept', nextDept);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
+  const handleProjectFilterChange = (nextProject: string) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (nextProject === 'all' || !nextProject.trim()) {
+          next.delete('project');
+        } else {
+          next.set('project', nextProject);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
   const handleResetFilters = () => {
     setCategoryFilter('all');
-    setDepartmentFilter('all');
-    setProjectFilter('all');
     setSearchQuery('');
+    setSearchParams(
+      (prev) => {
+        if (!prev.has('dept') && !prev.has('project')) {
+          return prev;
+        }
+        const next = new URLSearchParams(prev);
+        next.delete('dept');
+        next.delete('project');
+        return next;
+      },
+      { replace: true },
+    );
   };
 
   if (!currentUser) {
@@ -347,7 +384,9 @@ export function TechnicalLibraryPage() {
               id="library-filter-department"
               value={departmentFilter}
               onChange={(e) =>
-                setDepartmentFilter(e.target.value as 'all' | DepartmentId)
+                handleDepartmentFilterChange(
+                  e.target.value as 'all' | DepartmentId,
+                )
               }
               className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
             >
@@ -370,7 +409,7 @@ export function TechnicalLibraryPage() {
             <select
               id="library-filter-project"
               value={projectFilter}
-              onChange={(e) => setProjectFilter(e.target.value)}
+              onChange={(e) => handleProjectFilterChange(e.target.value)}
               className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
             >
               <option value="all">{dict.common.allOption}</option>
