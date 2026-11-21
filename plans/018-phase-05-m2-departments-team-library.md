@@ -2,9 +2,9 @@
 
 - **Branch de planeamento:** `codex/docs-f05-m2-plan`
 - **Commit base (Módulo 1 validado):** `d07fc72314e26fc478bbf3814dd02734ccabfb62` (`origin/codex/f05-m1-integration-candidate`)
-- **Estado do Preview (`origin/codex/f02-integration-preview`):** `7d9f61db7d36f3ac9a879886e45776371a65badd` *(Nota: o Módulo 1 foi aprovado funcionalmente pelo responsável humano e validado a 100% PASS em `05-QA-01` @ `faf433d`, mas o merge Git de `d07fc72` em `codex/f02-integration-preview` aguarda ainda o fecho do PR no GitHub.)*
+- **Estado do Preview (`origin/codex/f02-integration-preview`):** `f56469023fc23269e44a6d416775f1b6fc923c81` *(Módulo 1 integrado e publicado no preview em 2026-11-21).*
 - **Estado de `main` / Website Público:** `e468fe7cb043844855c529477616f6e873c45190` *(100% intocado)*
-- **Aprovação humana:** `AGUARDA APROVAÇÃO` — **nenhum código funcional será alterado antes da aprovação expressa deste Plano 018 e da confirmação do encerramento Git do Módulo 1 no preview.**
+- **Aprovação humana:** `APROVADO: plans/018-phase-05-m2-departments-team-library.md` *(autorização expressa registada em `2026-11-21 16:51+02:00` no chat de coordenação pelo responsável humano — grafada «PROVADO: plans/018-phase-05-m2-departments-team-library.md» e confirmada na revisão de `dc538d5` em `2026-11-21 17:46+02:00`).*
 - **Fase 06:** Não iniciada e estritamente fora de âmbito.
 
 ---
