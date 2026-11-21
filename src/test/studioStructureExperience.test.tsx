@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppRoutes } from '../app/App';
 import { WorkspaceSessionProvider } from '../app/WorkspaceSessionContext';
@@ -222,5 +222,129 @@ describe('Phase 05 · Module 2 — DepartmentsPage, TeamPage & TechnicalLibraryP
     expect(
       await screen.findByRole('heading', { name: /Technical Library/i }),
     ).toBeInTheDocument();
+  });
+
+  it('05-M2-FE-02: syncs ?dept= URL query changes in-place while TeamPage remains mounted', async () => {
+    const user = userEvent.setup();
+    seedDemoSession(0, 'pt');
+
+    function TeamNavHarness() {
+      const navigate = useNavigate();
+      return (
+        <div>
+          <button
+            type="button"
+            onClick={() => navigate('/workspace/team?dept=urbanism')}
+          >
+            Go Urbanism
+          </button>
+          <button type="button" onClick={() => navigate('/workspace/team')}>
+            Clear Dept URL
+          </button>
+          <AppRoutes />
+        </div>
+      );
+    }
+
+    render(
+      <MemoryRouter initialEntries={['/workspace/team?dept=architecture']}>
+        <WorkspaceSessionProvider>
+          <TeamNavHarness />
+        </WorkspaceSessionProvider>
+      </MemoryRouter>,
+    );
+
+    await screen.findByRole('heading', { name: /Equipa do Atelier/i });
+    const deptSelect = screen.getByLabelText(
+      /Departamento/i,
+    ) as HTMLSelectElement;
+    expect(deptSelect.value).toBe('architecture');
+    expect(
+      within(screen.getByTestId('team-directory-list')).getByText(/Mateo Conti/i),
+    ).toBeInTheDocument();
+
+    // Change ?dept= while TeamPage stays mounted -> filter & list update immediately
+    await user.click(screen.getByRole('button', { name: 'Go Urbanism' }));
+    expect(deptSelect.value).toBe('urbanism');
+    expect(
+      within(screen.getByTestId('team-directory-list')).queryByText(/Mateo Conti/i),
+    ).not.toBeInTheDocument();
+
+    // Remove ?dept= while TeamPage stays mounted -> restores all 6 members
+    await user.click(screen.getByRole('button', { name: 'Clear Dept URL' }));
+    expect(deptSelect.value).toBe('all');
+    expect(
+      within(screen.getByTestId('team-directory-list')).getAllByRole('button'),
+    ).toHaveLength(6);
+  });
+
+  it('05-M2-FE-02: syncs ?dept= and ?project= URL query changes in-place while TechnicalLibraryPage remains mounted', async () => {
+    const user = userEvent.setup();
+    seedDemoSession(0, 'pt');
+
+    function LibraryNavHarness() {
+      const navigate = useNavigate();
+      return (
+        <div>
+          <button
+            type="button"
+            onClick={() =>
+              navigate(
+                '/workspace/library?dept=interiors&project=sd-proj-oa-26-119',
+              )
+            }
+          >
+            Go Interiors 119
+          </button>
+          <button type="button" onClick={() => navigate('/workspace/library')}>
+            Clear Library URL
+          </button>
+          <AppRoutes />
+        </div>
+      );
+    }
+
+    render(
+      <MemoryRouter initialEntries={['/workspace/library?dept=architecture']}>
+        <WorkspaceSessionProvider>
+          <LibraryNavHarness />
+        </WorkspaceSessionProvider>
+      </MemoryRouter>,
+    );
+
+    await screen.findByRole('heading', { name: /Biblioteca Técnica/i });
+    const deptSelect = screen.getByLabelText(
+      /Departamento/i,
+    ) as HTMLSelectElement;
+    const projectSelect = screen.getByLabelText(
+      /Projecto associado/i,
+    ) as HTMLSelectElement;
+
+    expect(deptSelect.value).toBe('architecture');
+    expect(projectSelect.value).toBe('all');
+    expect(
+      screen.getByTestId('tech-ref-card-tech-mat-001'),
+    ).toBeInTheDocument();
+
+    // Change both ?dept= and ?project= while TechnicalLibraryPage remains mounted
+    await user.click(screen.getByRole('button', { name: 'Go Interiors 119' }));
+    expect(deptSelect.value).toBe('interiors');
+    expect(projectSelect.value).toBe('sd-proj-oa-26-119');
+    expect(
+      screen.queryByTestId('tech-ref-card-tech-mat-001'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByTestId('tech-ref-card-tech-mat-002'),
+    ).toBeInTheDocument();
+
+    // Clear query params while mounted -> both selects return to 'all'
+    await user.click(screen.getByRole('button', { name: 'Clear Library URL' }));
+    expect(deptSelect.value).toBe('all');
+    expect(projectSelect.value).toBe('all');
+    expect(
+      within(screen.getByTestId('technical-library-grid')).getAllByRole(
+        'article',
+      ).length,
+    ).toBeGreaterThanOrEqual(8);
   });
 });
