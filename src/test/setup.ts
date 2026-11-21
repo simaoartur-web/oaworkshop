@@ -10,8 +10,8 @@ beforeEach(() => {
   clearWorkspaceSearchIndexCache();
 });
 
-// Allow sufficient time for React.lazy route chunks under parallel Vitest execution
-configure({ asyncUtilTimeout: 5000 });
+// Allow sufficient time for cold React.lazy route chunks under parallel Vitest execution on Windows
+configure({ asyncUtilTimeout: 15000 });
 
 window.scrollTo = () => {};
 

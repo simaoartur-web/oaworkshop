@@ -45,7 +45,8 @@ import { ModelViewerControls } from './ModelViewerControls';
 import { ModelViewerFallback } from './ModelViewerFallback';
 
 // Lazy-load the WebGL / R3F stage so the 3D engine only mounts when needed
-const LazyModelViewerStage = lazy(() => import('./ModelViewerStage'));
+const loadModelViewerStage = () => import('./ModelViewerStage');
+const LazyModelViewerStage = lazy(loadModelViewerStage);
 
 const INITIAL_STAGE_SETTINGS: ModelStageViewSettings = {
   cameraPreset: 'isometric',
@@ -308,6 +309,12 @@ export function ArchitecturalModelViewer({
       setIsContextLost(false);
       setStatus('loading');
       setErrorDetail(null);
+
+      // Overlap ModelViewerStage + vendor-r3f chunk download with .glb/.gltf fetch and parse
+      // strictly inside /model when WebGL is supported (0 B impact outside /model).
+      void loadModelViewerStage().catch(() => {
+        // Stage chunk failures are surfaced cleanly when Suspense mounts LazyModelViewerStage.
+      });
 
       try {
         const encodedEmbeddedGltf = sourceToLoad.embeddedGltfJson

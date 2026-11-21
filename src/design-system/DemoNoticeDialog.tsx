@@ -61,7 +61,7 @@ export function DemoNoticeDialog({
       >
         <div className="flex items-start justify-between gap-4 pb-4 oa-hairline-b">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-[#A65D4A]">
+            <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-[#CE826D]">
               {code}
             </p>
             <h2

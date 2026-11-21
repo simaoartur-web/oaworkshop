@@ -36,7 +36,7 @@ export function PlannedModuleView() {
     if (!modelProject) {
       return (
         <div className="w-full max-w-[1040px] mx-auto px-4 sm:px-6 lg:px-10 py-10 space-y-6">
-          <p className="text-[11px] font-mono uppercase tracking-[0.20em] text-[#A65D4A]">
+          <p className="text-[11px] font-mono uppercase tracking-[0.20em] text-[#CE826D]">
             404 · {t.common.axisLabel}
           </p>
           <h1 className="text-2xl sm:text-3xl font-light text-white">
@@ -123,7 +123,7 @@ export function PlannedModuleView() {
           <div className="pt-3 flex flex-wrap gap-3">
             <Link
               to={`/workspace/projects/${modelProject.identity.id}`}
-              className="min-h-[44px] px-4 py-2.5 bg-[#A65D4A] hover:bg-[#B86A56] text-xs font-medium uppercase tracking-[0.14em] text-[#050505] inline-flex items-center gap-2 transition-colors"
+              className="min-h-[44px] px-4 py-2.5 bg-[#A65D4A] hover:bg-[#B86B57] text-xs font-medium uppercase tracking-[0.14em] text-white inline-flex items-center gap-2 transition-colors"
             >
               <ArrowLeft size={14} strokeWidth={1.6} aria-hidden="true" />
               <span>
@@ -145,7 +145,7 @@ export function PlannedModuleView() {
   if (!activeItem) {
     return (
       <div className="w-full max-w-[1040px] mx-auto px-4 sm:px-6 lg:px-10 py-10 space-y-6">
-        <p className="text-[11px] font-mono uppercase tracking-[0.20em] text-[#A65D4A]">
+        <p className="text-[11px] font-mono uppercase tracking-[0.20em] text-[#CE826D]">
           404 · {t.common.axisLabel}
         </p>
         <h1 className="text-2xl sm:text-3xl font-light text-white">

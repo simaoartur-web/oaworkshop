@@ -157,6 +157,7 @@ export class RouteChunkErrorBoundary extends Component<
 
   componentDidUpdate(prevProps: RouteChunkErrorBoundaryProps): void {
     if (this.state.hasError && prevProps.resetKey !== this.props.resetKey) {
+      prevProps.onRetry?.();
       this.setState({ hasError: false, errorMessage: '' });
     }
   }

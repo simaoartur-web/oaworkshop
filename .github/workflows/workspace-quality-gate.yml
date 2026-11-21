@@ -71,8 +71,7 @@ jobs:
           echo "OK: Initial entry preloads contain 0 B of vendor-three, vendor-r3f, and vendor-motion."
 
       - name: Unit & integration tests (Vitest)
-        # TODO(F0451-P1-4): switch to 'npm run test' upon integration of F04.5.1 stabilization.
-        run: npx vitest run --no-file-parallelism
+        run: npm run test
 
       - name: Production dependency security audit
         run: npm audit --omit=dev --audit-level=high

@@ -116,14 +116,14 @@ describe('O+A Workspace — Phase 02 Integrated Quality Gate Suite', () => {
     });
     const searchInput = within(dialog).getByRole('combobox');
 
-    // Search for project code "OA-26-101"
+    // Search for project code "OA-26-101" (matches both the project and its indexed Phase 05 tasks)
     await user.type(searchInput, 'OA-26-101');
     expect(
-      await within(dialog).findByText(/Galeria Cívica/i),
-    ).toBeInTheDocument();
+      (await within(dialog).findAllByText(/Galeria Cívica/i)).length,
+    ).toBeGreaterThan(0);
     expect(
-      within(dialog).getByText(/OA-26-101/i),
-    ).toBeInTheDocument();
+      within(dialog).getAllByText(/OA-26-101/i).length,
+    ).toBeGreaterThan(0);
 
     // Search for another project: "Costa"
     await user.clear(searchInput);

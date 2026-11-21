@@ -304,9 +304,19 @@ function validateCanonicalRecord(raw: unknown): CanonicalProjectRecord | null {
     typeof classification.departmentId !== 'string' ||
     !VALID_DEPARTMENTS.has(classification.departmentId as DepartmentId) ||
     !isLocalizedText(classification.discipline) ||
+    classification.discipline.pt.trim().length >
+      PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH ||
+    classification.discipline.en.trim().length >
+      PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH ||
     typeof classification.scale !== 'string' ||
+    classification.scale.trim().length >
+      PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH ||
     typeof classification.areaSqm !== 'string' ||
-    typeof classification.elevationDatum !== 'string'
+    classification.areaSqm.trim().length >
+      PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH ||
+    typeof classification.elevationDatum !== 'string' ||
+    classification.elevationDatum.trim().length >
+      PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH
   ) {
     return null;
   }
@@ -421,9 +431,9 @@ function validateCanonicalRecord(raw: unknown): CanonicalProjectRecord | null {
         classification.discipline,
         classification.discipline,
       ),
-      scale: classification.scale,
-      areaSqm: classification.areaSqm,
-      elevationDatum: classification.elevationDatum,
+      scale: classification.scale.trim(),
+      areaSqm: classification.areaSqm.trim(),
+      elevationDatum: classification.elevationDatum.trim(),
     },
     ownership: {
       leadUserId: ownership.leadUserId,
@@ -1165,6 +1175,24 @@ export function createProject(
       'Disciplina (EN)',
       PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
     ) || department.name.en;
+  const scale =
+    assertWithinMaxLength(
+      input.scale ?? '',
+      'Escala de estudo',
+      PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
+    ) || '1 : 100';
+  const areaSqm =
+    assertWithinMaxLength(
+      input.areaSqm ?? '',
+      'Área aproximada',
+      PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
+    ) || 'Por definir (Demo)';
+  const elevationDatum =
+    assertWithinMaxLength(
+      input.elevationDatum ?? '',
+      'Cota de referência',
+      PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
+    ) || '±0.00 m NMM';
   const visualAsset = pickDefaultVisualAsset(departmentId);
 
   const dossierNotesPt =
@@ -1227,9 +1255,9 @@ export function createProject(
     classification: {
       departmentId,
       discipline: { pt: disciplinePt, en: disciplineEn },
-      scale: input.scale?.trim() || '1 : 100',
-      areaSqm: input.areaSqm?.trim() || 'Por definir (Demo)',
-      elevationDatum: input.elevationDatum?.trim() || '±0.00 m NMM',
+      scale,
+      areaSqm,
+      elevationDatum,
     },
     ownership: {
       leadUserId: leadUser.id,
@@ -1410,6 +1438,42 @@ export function updateProjectMetadata(
       PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
     );
   }
+  if (patch.discipline) {
+    assertWithinMaxLength(
+      patch.discipline.pt,
+      'Disciplina',
+      PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
+    );
+    assertWithinMaxLength(
+      patch.discipline.en,
+      'Disciplina (EN)',
+      PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
+    );
+  }
+  const nextScale =
+    patch.scale !== undefined
+      ? assertWithinMaxLength(
+          patch.scale,
+          'Escala de estudo',
+          PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
+        ) || existing.classification.scale
+      : existing.classification.scale;
+  const nextAreaSqm =
+    patch.areaSqm !== undefined
+      ? assertWithinMaxLength(
+          patch.areaSqm,
+          'Área aproximada',
+          PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
+        ) || existing.classification.areaSqm
+      : existing.classification.areaSqm;
+  const nextElevationDatum =
+    patch.elevationDatum !== undefined
+      ? assertWithinMaxLength(
+          patch.elevationDatum,
+          'Cota de referência',
+          PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH,
+        ) || existing.classification.elevationDatum
+      : existing.classification.elevationDatum;
   if (patch.nextMilestone?.title) {
     assertWithinMaxLength(
       patch.nextMilestone.title.pt,
@@ -1457,10 +1521,9 @@ export function updateProjectMetadata(
             existing.classification.discipline,
           )
         : existing.classification.discipline,
-      scale: patch.scale?.trim() || existing.classification.scale,
-      areaSqm: patch.areaSqm?.trim() || existing.classification.areaSqm,
-      elevationDatum:
-        patch.elevationDatum?.trim() || existing.classification.elevationDatum,
+      scale: nextScale,
+      areaSqm: nextAreaSqm,
+      elevationDatum: nextElevationDatum,
     },
     ownership: {
       leadUserId: leadUser?.id ?? existing.ownership.leadUserId,

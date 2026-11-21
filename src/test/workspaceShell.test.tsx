@@ -262,10 +262,10 @@ describe('Phase 02A — Workspace Shell Architecture, Search, Notifications & Na
 
     // Navigate to a future module -> displays plain availability explanation & direct Desk return
     await user.click(
-      within(nav).getByRole('link', { name: /Tarefas/i }),
+      within(nav).getByRole('link', { name: /Publicações/i }),
     );
     expect(
-      await screen.findByRole('heading', { name: 'Tarefas' }),
+      await screen.findByRole('heading', { name: 'Publicações' }),
     ).toBeInTheDocument();
     expect(
       screen.getByText(/Esta área ainda não está operacional nesta demonstração/i),

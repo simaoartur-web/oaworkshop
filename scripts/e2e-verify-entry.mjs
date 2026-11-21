@@ -419,6 +419,10 @@ async function main() {
       await page.waitForTimeout(80);
       await page.getByRole('link', { name: /Definições/i }).first().click();
       await page.waitForURL(`${BASE_URL}/workspace/settings`);
+      const settingsHeading = page.getByRole('heading', {
+        name: /Configuração local do ambiente demonstrativo/i,
+      });
+      await settingsHeading.waitFor({ state: 'visible' });
       const afterRouteScroll = await page.evaluate(
         () => document.getElementById('workspace-main-scroll')?.scrollTop ?? -1,
       );
@@ -432,6 +436,7 @@ async function main() {
       assertCondition(backScroll >= 800, `Browser Back must restore Studio Desk scroll position (got ${backScroll})`);
       await page.goForward();
       await page.waitForURL(`${BASE_URL}/workspace/settings`);
+      await settingsHeading.waitFor({ state: 'visible' });
       const forwardScroll = await page.evaluate(
         () => document.getElementById('workspace-main-scroll')?.scrollTop ?? -1,
       );

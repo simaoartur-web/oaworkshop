@@ -145,7 +145,7 @@ export function WelcomePage() {
           }`}
         >
           <div>
-            <div className="flex flex-wrap items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.22em] text-[#A65D4A]">
+            <div className="flex flex-wrap items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.22em] text-[#CE826D]">
               <span>{department.code}</span>
               <span aria-hidden="true" className="text-white/25">
                 ·
@@ -198,7 +198,7 @@ export function WelcomePage() {
             {/* Plate Header */}
             <div className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-6 py-3.5 oa-hairline-b bg-[#0D0D0D]">
               <div className="flex flex-wrap items-center gap-2.5">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#A65D4A]">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#CE826D]">
                   {FEATURED_STUDY_PROJECT.code}
                 </span>
                 <span aria-hidden="true" className="text-white/25">
@@ -396,7 +396,7 @@ export function WelcomePage() {
 
               {/* Editorial Studio Quote */}
               <blockquote className="border-l-2 border-[#A65D4A] pl-4 py-0.5">
-                <p className="text-[11px] uppercase tracking-[0.22em] text-[#A65D4A] mb-1.5">
+                <p className="text-[11px] uppercase tracking-[0.22em] text-[#CE826D] mb-1.5">
                   {t.welcome.editorialQuoteLabel}
                 </p>
                 <p className="font-serif italic text-lg sm:text-xl leading-relaxed text-[#F5F5F5]">
@@ -490,7 +490,7 @@ export function WelcomePage() {
                 {currentUser.welcomePriorities.map((item) => (
                   <li key={item.id} className="py-3.5 first:pt-0 last:pb-0">
                     <div className="flex items-center justify-between gap-2 text-[11px] uppercase tracking-[0.18em]">
-                      <span className="font-semibold text-[#A65D4A]">
+                      <span className="font-semibold text-[#CE826D]">
                         {item.code}
                       </span>
                       <span className="text-[#9E9E9E]">

@@ -114,7 +114,7 @@ export function ProjectDossierShellPage() {
           </Link>
           <Link
             to="/workspace/projects/new"
-            className="min-h-[44px] px-4 py-2.5 border border-[#A65D4A] bg-[#A65D4A] text-xs font-medium uppercase tracking-[0.14em] text-[#050505] inline-flex items-center transition-colors"
+            className="min-h-[44px] px-4 py-2.5 border border-[#A65D4A] bg-[#A65D4A] hover:bg-[#B86B57] text-xs font-medium uppercase tracking-[0.14em] text-white inline-flex items-center transition-colors"
           >
             {dict.dossier.createProjectLink}
           </Link>
@@ -158,10 +158,16 @@ export function ProjectDossierShellPage() {
           }
         }}
         onArchiveProject={() => {
-          archive(record.identity.id);
+          const result = archive(record.identity.id);
+          if (!result) {
+            throw new Error(dict.dossier.notFoundTitle);
+          }
         }}
         onRestoreProject={(nextStatus) => {
-          restore(record.identity.id, nextStatus);
+          const result = restore(record.identity.id, nextStatus);
+          if (!result) {
+            throw new Error(dict.dossier.notFoundTitle);
+          }
         }}
         onAddRevision={(revInput) => {
           const result = addRevision(record.identity.id, {

@@ -9,6 +9,8 @@ export type WorkspacePreloadKey =
   | 'projects-new'
   | 'project-dossier'
   | 'project-model'
+  | 'tasks'
+  | 'calendar'
   | 'planned';
 
 export type RouteLoaderMap = Record<WorkspacePreloadKey, () => Promise<unknown>>;
@@ -28,6 +30,9 @@ export const loadProjectModelEnginePage = () =>
   import('../features/model-engine/ProjectModelEnginePage');
 export const loadWorkspaceSettingsPage = () =>
   import('../features/workspace/WorkspaceSettingsPage');
+export const loadTasksPage = () => import('../features/operations/TasksPage');
+export const loadCalendarPage = () =>
+  import('../features/operations/CalendarPage');
 export const loadPlannedModuleView = () =>
   import('../features/workspace/PlannedModuleView');
 
@@ -40,6 +45,8 @@ const DEFAULT_ROUTE_LOADERS: RouteLoaderMap = {
   'projects-new': loadProjectCreateEnginePage,
   'project-dossier': loadProjectDossierShellPage,
   'project-model': loadProjectModelEnginePage,
+  tasks: loadTasksPage,
+  calendar: loadCalendarPage,
   planned: loadPlannedModuleView,
 };
 
@@ -63,6 +70,12 @@ export function resolveWorkspacePreloadKey(pathname: string): WorkspacePreloadKe
   }
   if (normalized === '/workspace/projects/new') {
     return 'projects-new';
+  }
+  if (normalized === '/workspace/tasks') {
+    return 'tasks';
+  }
+  if (normalized === '/workspace/calendar') {
+    return 'calendar';
   }
   if (/^\/workspace\/projects\/[^/]+\/model$/.test(normalized)) {
     return 'project-model';

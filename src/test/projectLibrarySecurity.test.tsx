@@ -11,6 +11,8 @@ import {
   clearProjectLibraryLocalState,
   createProject,
   getProjectById,
+  getProjectLibrarySnapshot,
+  listProjects,
   PROJECT_LIBRARY_LIMITS,
   PROJECT_LIBRARY_STORAGE_KEY,
   updateProjectMetadata,
@@ -355,5 +357,113 @@ describe('Phase 04 Hardening · Agent A Project Library Integrity & Quotas (P1.6
       screen.queryByText(/Referência documental adicionada apenas/i),
     ).not.toBeInTheDocument();
     uiQuotaSpy.mockRestore();
+  });
+
+  it('F0451-P1-5: enforces MAX_SHORT_FIELD_LENGTH on scale, areaSqm, elevationDatum, and discipline without corrupting cache or storage', () => {
+    const actor = DEMO_USERS[1];
+    const targetId = 'sd-proj-oa-26-101';
+    const maxLen = PROJECT_LIBRARY_LIMITS.MAX_SHORT_FIELD_LENGTH;
+    const tooLong = 'X'.repeat(maxLen + 1);
+    const exactLimit = 'V'.repeat(maxLen);
+
+    const baseCreateInput = {
+      titlePt: 'Projecto Limites Metadados',
+      subtitlePt: 'Validação rigorosa de campos curtos técnicos.',
+      departmentId: 'architecture' as const,
+      disciplinePt: 'Arquitectura',
+      studioBase: 'Maputo' as const,
+      projectStatus: 'concept' as const,
+      phasePt: 'Estudo Prévio',
+      nextMilestoneTitlePt: 'Entrega técnica',
+      nextMilestoneDateIso: '2026-12-15',
+      leadUserId: actor.id,
+    };
+
+    const initialSnapshot = getProjectLibrarySnapshot();
+    const initialCount = listProjects({ includeArchived: true }).length;
+
+    // Oversized scale, areaSqm, elevationDatum rejected in createProject without polluting cache
+    for (const badField of [
+      { scale: tooLong },
+      { areaSqm: tooLong },
+      { elevationDatum: tooLong },
+    ]) {
+      expect(() =>
+        createProject({ ...baseCreateInput, ...badField }, actor),
+      ).toThrow(new RegExp(String(maxLen)));
+      expect(getProjectLibrarySnapshot().version).toBe(initialSnapshot.version);
+      expect(listProjects({ includeArchived: true })).toHaveLength(initialCount);
+    }
+
+    // Exact boundary values succeed on createProject
+    const created = createProject(
+      {
+        ...baseCreateInput,
+        scale: exactLimit,
+        areaSqm: exactLimit,
+        elevationDatum: exactLimit,
+      },
+      actor,
+    );
+    expect(created.classification.scale).toBe(exactLimit);
+    expect(created.classification.areaSqm).toBe(exactLimit);
+    expect(created.classification.elevationDatum).toBe(exactLimit);
+
+    const afterCreateSnapshot = getProjectLibrarySnapshot();
+    const seedBefore = getProjectById(targetId)!;
+
+    // Oversized scale, areaSqm, elevationDatum, discipline.pt, discipline.en rejected in updateProjectMetadata
+    const invalidUpdates = [
+      { scale: tooLong },
+      { areaSqm: tooLong },
+      { elevationDatum: tooLong },
+      { discipline: { pt: tooLong, en: 'Architecture' } },
+      { discipline: { pt: 'Arquitectura', en: tooLong } },
+    ];
+    for (const patch of invalidUpdates) {
+      expect(() => updateProjectMetadata(targetId, patch, actor)).toThrow(
+        new RegExp(String(maxLen)),
+      );
+      expect(getProjectLibrarySnapshot().version).toBe(
+        afterCreateSnapshot.version,
+      );
+      const current = getProjectById(targetId)!;
+      expect(current.classification.scale).toBe(seedBefore.classification.scale);
+      expect(current.classification.areaSqm).toBe(
+        seedBefore.classification.areaSqm,
+      );
+      expect(current.classification.elevationDatum).toBe(
+        seedBefore.classification.elevationDatum,
+      );
+      expect(current.classification.discipline).toEqual(
+        seedBefore.classification.discipline,
+      );
+    }
+
+    // Tampered storage records exceeding MAX_SHORT_FIELD_LENGTH are discarded safely by validateCanonicalRecord
+    const tamperedRecord = {
+      ...created,
+      identity: {
+        id: 'proj-tampered-short-field',
+        code: 'OA-99-TAMP',
+        slug: 'oa-99-tamp',
+      },
+      classification: {
+        ...created.classification,
+        scale: tooLong,
+      },
+    };
+    window.localStorage.setItem(
+      PROJECT_LIBRARY_STORAGE_KEY,
+      JSON.stringify({
+        version: 1,
+        overridesById: {},
+        createdRecords: [tamperedRecord],
+      }),
+    );
+    window.dispatchEvent(
+      new StorageEvent('storage', { key: PROJECT_LIBRARY_STORAGE_KEY }),
+    );
+    expect(getProjectById('proj-tampered-short-field')).toBeNull();
   });
 });

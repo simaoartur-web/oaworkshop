@@ -20,6 +20,11 @@ import {
   STUDIO_DESK_TASKS,
 } from '../../data/studioDeskFixtures';
 import { useProjectLibrary } from '../project-library/useProjectLibrary';
+import { useStudioOperations } from '../operations/useStudioOperations';
+import {
+  TASKS_STORAGE_KEY,
+  TASKS_UPDATED_EVENT,
+} from '../../data/tasksRepository';
 import type {
   DeskActivityKind,
   DeskFilterScope,
@@ -199,11 +204,46 @@ function AuthenticatedStudioDesk({
   const activeRole = currentUser.role;
   const roleConfig = ROLE_DESK_CONFIGS[activeRole];
   const { studioDeskProjects } = useProjectLibrary();
+  const { activeTasks: canonicalTasks, transitionTaskStatus } =
+    useStudioOperations();
   const activeDeskProjects = useMemo(
     () =>
       studioDeskProjects.filter((proj) => proj.projectStatus !== 'archived'),
     [studioDeskProjects],
   );
+
+  // Keep canonical task cache reconciled if localStorage was cleared externally (e.g. isolated test runs).
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    try {
+      if (window.localStorage.getItem(TASKS_STORAGE_KEY) !== null) {
+        return;
+      }
+    } catch {
+      return;
+    }
+    const defaults = createInitialTaskStatusMap();
+    const hasDivergentCache =
+      canonicalTasks.length !== STUDIO_DESK_TASKS.length ||
+      canonicalTasks.some(
+        (task) =>
+          task.origin === 'local-created' ||
+          task.status !== defaults[task.id],
+      );
+    if (hasDivergentCache) {
+      window.dispatchEvent(new CustomEvent(TASKS_UPDATED_EVENT));
+    }
+  }, [canonicalTasks]);
+
+  const canonicalTaskStatuses = useMemo<Record<string, DeskTaskStatus>>(() => {
+    const map: Record<string, DeskTaskStatus> = {};
+    for (const task of canonicalTasks) {
+      map[task.id] = task.status;
+    }
+    return map;
+  }, [canonicalTasks]);
 
   const [localState, setLocalState] = useState<StudioDeskLocalState>(() =>
     loadStudioDeskLocalState(),
@@ -299,8 +339,10 @@ function AuthenticatedStudioDesk({
 
   const hasLocalChanges = useMemo(() => {
     const defaults = createInitialTaskStatusMap();
-    const taskStatusChanged = STUDIO_DESK_TASKS.some(
-      (task) => localState.taskStatuses[task.id] !== defaults[task.id],
+    const taskStatusChanged = canonicalTasks.some(
+      (task) =>
+        task.origin === 'local-created' ||
+        canonicalTaskStatuses[task.id] !== defaults[task.id],
     );
     const hasPresentationOverride = Boolean(
       localState.presentationModeByRole &&
@@ -311,7 +353,7 @@ function AuthenticatedStudioDesk({
       hasPresentationOverride ||
       localState.showDatumOverlay === false
     );
-  }, [localState]);
+  }, [canonicalTaskStatuses, canonicalTasks, localState]);
 
   const effectivePresentationMode: DeskPresentationMode =
     localState.presentationModeByRole?.[activeRole] ??
@@ -341,24 +383,24 @@ function AuthenticatedStudioDesk({
 
   // Direct assignments for the active profile (drives top operational summary cleanly).
   const myAssignedTasks = useMemo(() => {
-    return STUDIO_DESK_TASKS.filter(
+    return canonicalTasks.filter(
       (task) => task.assigneeUserId === currentUser.id,
     );
-  }, [currentUser.id]);
+  }, [canonicalTasks, currentUser.id]);
 
   const myWorkCounts = useMemo<DerivedPriorityCounts>(() => {
     return myAssignedTasks.reduce<DerivedPriorityCounts>(
       (acc, task) => {
-        const status = localState.taskStatuses[task.id] ?? task.status;
+        const status = canonicalTaskStatuses[task.id] ?? task.status;
         acc[status] += 1;
         return acc;
       },
       { pending: 0, in_progress: 0, completed: 0 },
     );
-  }, [localState.taskStatuses, myAssignedTasks]);
+  }, [canonicalTaskStatuses, myAssignedTasks]);
 
   const scopedTasks = useMemo(() => {
-    const byScope = STUDIO_DESK_TASKS.filter((task) => {
+    const byScope = canonicalTasks.filter((task) => {
       if (scope === 'my_work') {
         return task.assigneeUserId === currentUser.id;
       }
@@ -369,7 +411,7 @@ function AuthenticatedStudioDesk({
         );
       }
       if (scope === 'attention') {
-        const status = localState.taskStatuses[task.id] ?? task.status;
+        const status = canonicalTaskStatuses[task.id] ?? task.status;
         return (
           status !== 'completed' &&
           (task.priority === 'high' ||
@@ -381,8 +423,8 @@ function AuthenticatedStudioDesk({
     });
 
     return [...byScope].sort((a, b) => {
-      const statusA = localState.taskStatuses[a.id] ?? a.status;
-      const statusB = localState.taskStatuses[b.id] ?? b.status;
+      const statusA = canonicalTaskStatuses[a.id] ?? a.status;
+      const statusB = canonicalTaskStatuses[b.id] ?? b.status;
       const doneA = statusA === 'completed' ? 1 : 0;
       const doneB = statusB === 'completed' ? 1 : 0;
       if (doneA !== doneB) {
@@ -408,27 +450,27 @@ function AuthenticatedStudioDesk({
 
       return a.dueDateIso.localeCompare(b.dueDateIso);
     });
-  }, [activeRole, currentUser.id, localState.taskStatuses, scope]);
+  }, [activeRole, canonicalTaskStatuses, canonicalTasks, currentUser.id, scope]);
 
   const priorityCounts = useMemo<DerivedPriorityCounts>(() => {
     return scopedTasks.reduce<DerivedPriorityCounts>(
       (acc, task) => {
-        const status = localState.taskStatuses[task.id] ?? task.status;
+        const status = canonicalTaskStatuses[task.id] ?? task.status;
         acc[status] += 1;
         return acc;
       },
       { pending: 0, in_progress: 0, completed: 0 },
     );
-  }, [localState.taskStatuses, scopedTasks]);
+  }, [canonicalTaskStatuses, scopedTasks]);
 
   const visibleTasks = useMemo(() => {
     if (taskStatusFilter === 'all') {
       return scopedTasks;
     }
     return scopedTasks.filter(
-      (task) => (localState.taskStatuses[task.id] ?? task.status) === taskStatusFilter,
+      (task) => (canonicalTaskStatuses[task.id] ?? task.status) === taskStatusFilter,
     );
-  }, [localState.taskStatuses, scopedTasks, taskStatusFilter]);
+  }, [canonicalTaskStatuses, scopedTasks, taskStatusFilter]);
 
   // Top actionable open priority tailored to user first, then role, then studio open work.
   const nextPriorityTask = useMemo<StudioDeskTask | undefined>(() => {
@@ -442,7 +484,7 @@ function AuthenticatedStudioDesk({
       });
 
     const isOpen = (task: StudioDeskTask) =>
-      (localState.taskStatuses[task.id] ?? task.status) !== 'completed';
+      (canonicalTaskStatuses[task.id] ?? task.status) !== 'completed';
 
     const directOpen = sortOpen(myAssignedTasks.filter(isOpen));
     if (directOpen.length > 0) {
@@ -450,7 +492,7 @@ function AuthenticatedStudioDesk({
     }
 
     const roleOpen = sortOpen(
-      STUDIO_DESK_TASKS.filter(
+      canonicalTasks.filter(
         (task) => isOpen(task) && task.primaryRoles.includes(activeRole),
       ),
     );
@@ -458,8 +500,8 @@ function AuthenticatedStudioDesk({
       return roleOpen[0];
     }
 
-    return sortOpen(STUDIO_DESK_TASKS.filter(isOpen))[0];
-  }, [activeRole, localState.taskStatuses, myAssignedTasks]);
+    return sortOpen(canonicalTasks.filter(isOpen))[0];
+  }, [activeRole, canonicalTaskStatuses, canonicalTasks, myAssignedTasks]);
 
   const attentionProject = useMemo<StudioDeskProject | undefined>(() => {
     const needAttention = activeDeskProjects.filter(
@@ -599,6 +641,11 @@ function AuthenticatedStudioDesk({
 
   const handleSetTaskStatus = useCallback(
     (taskId: string, nextStatus: DeskTaskStatus) => {
+      try {
+        transitionTaskStatus(taskId, nextStatus);
+      } catch {
+        // Fallback gracefully if storage quota is exceeded in restricted contexts
+      }
       updateLocalState((prev) => ({
         ...prev,
         taskStatuses: {
@@ -608,47 +655,70 @@ function AuthenticatedStudioDesk({
       }));
       setLiveAnnouncement(deskDict.quickActions.feedbackTaskUpdated);
     },
-    [deskDict.quickActions.feedbackTaskUpdated, updateLocalState],
+    [
+      deskDict.quickActions.feedbackTaskUpdated,
+      transitionTaskStatus,
+      updateLocalState,
+    ],
   );
 
   const handleToggleTaskComplete = useCallback(
     (taskId: string) => {
-      const targetTask = STUDIO_DESK_TASKS.find((item) => item.id === taskId);
-      const fallbackStatus = targetTask?.status ?? 'pending';
-      updateLocalState((prev) => {
-        const current = prev.taskStatuses[taskId] ?? fallbackStatus;
-        const nextStatus: DeskTaskStatus =
-          current === 'completed' ? 'pending' : 'completed';
-        return {
-          ...prev,
-          taskStatuses: {
-            ...prev.taskStatuses,
-            [taskId]: nextStatus,
-          },
-        };
-      });
+      const targetTask = canonicalTasks.find((item) => item.id === taskId);
+      const current =
+        canonicalTaskStatuses[taskId] ?? targetTask?.status ?? 'pending';
+      const nextStatus: DeskTaskStatus =
+        current === 'completed' ? 'pending' : 'completed';
+      try {
+        transitionTaskStatus(taskId, nextStatus);
+      } catch {
+        // Fallback gracefully if storage quota is exceeded in restricted contexts
+      }
+      updateLocalState((prev) => ({
+        ...prev,
+        taskStatuses: {
+          ...prev.taskStatuses,
+          [taskId]: nextStatus,
+        },
+      }));
       setLiveAnnouncement(deskDict.quickActions.feedbackTaskUpdated);
     },
-    [deskDict.quickActions.feedbackTaskUpdated, updateLocalState],
+    [
+      canonicalTaskStatuses,
+      canonicalTasks,
+      deskDict.quickActions.feedbackTaskUpdated,
+      transitionTaskStatus,
+      updateLocalState,
+    ],
   );
 
   const handleCycleTaskStatus = useCallback(
     (taskId: string) => {
-      const targetTask = STUDIO_DESK_TASKS.find((item) => item.id === taskId);
-      const fallbackStatus = targetTask?.status ?? 'pending';
-      updateLocalState((prev) => {
-        const current = prev.taskStatuses[taskId] ?? fallbackStatus;
-        return {
-          ...prev,
-          taskStatuses: {
-            ...prev.taskStatuses,
-            [taskId]: getNextTaskStatus(current),
-          },
-        };
-      });
+      const targetTask = canonicalTasks.find((item) => item.id === taskId);
+      const current =
+        canonicalTaskStatuses[taskId] ?? targetTask?.status ?? 'pending';
+      const nextStatus = getNextTaskStatus(current);
+      try {
+        transitionTaskStatus(taskId, nextStatus);
+      } catch {
+        // Fallback gracefully if storage quota is exceeded in restricted contexts
+      }
+      updateLocalState((prev) => ({
+        ...prev,
+        taskStatuses: {
+          ...prev.taskStatuses,
+          [taskId]: nextStatus,
+        },
+      }));
       setLiveAnnouncement(deskDict.quickActions.feedbackTaskUpdated);
     },
-    [deskDict.quickActions.feedbackTaskUpdated, updateLocalState],
+    [
+      canonicalTaskStatuses,
+      canonicalTasks,
+      deskDict.quickActions.feedbackTaskUpdated,
+      transitionTaskStatus,
+      updateLocalState,
+    ],
   );
 
   const handleInspectTask = useCallback(
@@ -657,7 +727,7 @@ function AuthenticatedStudioDesk({
       if (scope === 'my_work' && task.assigneeUserId !== currentUser.id) {
         setScope(task.primaryRoles.includes(activeRole) ? 'role_focus' : 'all');
       }
-      const taskCurrentStatus = localState.taskStatuses[task.id] ?? task.status;
+      const taskCurrentStatus = canonicalTaskStatuses[task.id] ?? task.status;
       if (taskStatusFilter !== 'all' && taskCurrentStatus !== taskStatusFilter) {
         setTaskStatusFilter('all');
       }
@@ -686,7 +756,7 @@ function AuthenticatedStudioDesk({
       activeRole,
       currentUser.id,
       deskDict.quickActions.feedbackTaskOpened,
-      localState.taskStatuses,
+      canonicalTaskStatuses,
       scope,
       shouldReduceMotion,
       taskStatusFilter,
@@ -780,7 +850,7 @@ function AuthenticatedStudioDesk({
           <PrioritiesPanel
             key="priorities"
             tasks={visibleTasks}
-            taskStatuses={localState.taskStatuses}
+            taskStatuses={canonicalTaskStatuses}
             counts={priorityCounts}
             statusFilter={taskStatusFilter}
             onStatusFilterChange={setTaskStatusFilter}
@@ -1081,7 +1151,7 @@ function AuthenticatedStudioDesk({
       <ProjectDossierDialog
         state={dialogState}
         projects={studioDeskProjects}
-        taskStatuses={localState.taskStatuses}
+        taskStatuses={canonicalTaskStatuses}
         currentUserId={currentUser.id}
         onSetTaskStatus={handleSetTaskStatus}
         onOpenProjectDossier={handleOpenProjectDossier}
