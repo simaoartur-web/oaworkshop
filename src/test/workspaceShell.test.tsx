@@ -249,7 +249,7 @@ describe('Phase 02A — Workspace Shell Architecture, Search, Notifications & Na
     // Available vs unavailable clear groupings
     expect(within(nav).getByText(/Disponível agora/i)).toBeInTheDocument();
     expect(within(nav).getByText(/Em breve · Atelier e Equipa/i)).toBeInTheDocument();
-    expect(within(nav).getAllByText(/Em breve/i).length).toBeGreaterThanOrEqual(8);
+    expect(within(nav).getAllByText(/Em breve/i).length).toBeGreaterThanOrEqual(4);
     // Cryptic F03/F05/F06 codes must not be the primary badge inside rail
     expect(within(nav).queryByText(/^F03$/)).not.toBeInTheDocument();
     expect(within(nav).queryByText(/^F05$/)).not.toBeInTheDocument();

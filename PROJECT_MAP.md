@@ -151,10 +151,13 @@
 | `plans/015-phase-0451-closure.md` | plano técnico da Fase 04.5.1 (reconciliação documental, fecho P1 obrigatórios + performance e Quality Gate) |
 | `plans/016-model-governance-v1.md` | plano e registo da Model Governance Policy v1 (`codex/docs-model-governance-v1`) |
 | `plans/017-phase-05-tasks-calendar.md` | plano e registo da Fase 05 · Módulo 1: Tarefas (`/workspace/tasks`) e Calendário (`/workspace/calendar`) |
-| `docs/agent-reports/phase-05/` | relatórios técnicos publicados da Fase 05 · Módulo 1 (`05-DATA-01-agent-a.md`, `05-FE-01-agent-b.md`, `05-QA-01-agent-d.md`) |
+| `plans/018-phase-05-m2-departments-team-library.md` | plano técnico e funcional da Fase 05 · Módulo 2: Departamentos (`/workspace/departments`), Equipa (`/workspace/team`), Biblioteca Técnica (`/workspace/library`) e backlog Google Calendar |
+| `docs/agent-reports/phase-05/` | relatórios técnicos publicados da Fase 05 (`05-DATA-01`, `05-FE-01`, `05-QA-01`, `05-M2-PLAN-01`, `05-M2-DATA-01`, `05-M2-FE-01`, `05-M2-QA-01`) |
 | `src/data/operationsTypes.ts`, `tasksRepository.ts`, `calendarSelector.ts` | camada canónica da Fase 05 · Módulo 1 (tarefas locais `oa_workspace_tasks_v1` com snapshot imutável/sync cross-tab e selector derivado de calendário) |
 | `src/features/operations/` | módulo UI da Fase 05 · Módulo 1 (`useStudioOperations.ts`, `TasksPage.tsx`, `TaskBoardView.tsx`, `TaskEditorDialog.tsx`, `CalendarPage.tsx`, `i18n.ts`) |
-| `src/test/studioOperations.test.tsx`, `operationsExperience.test.tsx` | suites de testes da Fase 05 · Módulo 1 (repositório canónico, quota, cross-tab, UI Tarefas/Calendário e sincronização Studio Desk) |
+| `src/data/studioStructureTypes.ts`, `studioStructureSelectors.ts`, `technicalLibraryRepository.ts` | camada canónica da Fase 05 · Módulo 2 (selectors derivados de 9 departamentos e 6 perfis sem credenciais, e repositório local de biblioteca técnica `oa_workspace_technical_library_v1` apenas metadados) |
+| `src/features/studio-structure/` | módulo UI da Fase 05 · Módulo 2 (`useStudioStructure.ts`, `DepartmentsPage.tsx`, `TeamPage.tsx`, `TechnicalLibraryPage.tsx`, `TechnicalReferenceDialog.tsx`, `i18n.ts`) |
+| `src/test/studioOperations.test.tsx`, `operationsExperience.test.tsx`, `studioStructure.test.tsx`, `studioStructureExperience.test.tsx` | suites de testes da Fase 05 (Módulo 1 e Módulo 2: dados canónicos, quota, cross-tab, UI, navegação cruzada e PT/EN) |
 | `docs/audits/phase045-security-qa-final.md` | auditoria independente de segurança e QA da Fase 04.5 (Gemini D · `codex/f045-security-qa-final`) |
 | `docs/agent-reports/phase-045/` | relatórios técnicos publicados da Missão 1 Swarm (`045-ARCH-01-agent-a.md`, `045-UX-01-agent-b.md`, `045-PERF-01-agent-c.md`, `045-QA-01-agent-d.md`) |
 | `docs/agent-reports/phase-0451/` | relatórios técnicos publicados da Fase 04.5.1 (`0451-DATA-01-agent-a.md`, `0451-FE-01-agent-b.md`, `0451-PERF-01-agent-c.md`, `0451-QA-01-agent-d.md`) |

@@ -23,3 +23,18 @@ Qualquer integração futura terá de preservar no repositório público:
 - slugs estáveis, rotas bilingues e links `canonical`;
 - pré-renderização estática (`scripts/prerender.mjs`), `sitemap.xml`, Open Graph e JSON-LD;
 - pipeline `sharp` de optimização de imagens WebP.
+
+---
+
+## 4. Backlog Futuro — Integração com Google Calendar (Não Implementada)
+
+> **Estado actual:** Registo conceptual de backlog (Fase futura com backend aprovado via RFC). **Não implementada nesta fase; zero dependências Google, zero tokens, zero APIs externas e zero controlos enganadores na UI.**
+
+Quando existir um backend autenticado aprovado em `docs/DECISIONS.md`, a sincronização entre o calendário operacional interno (`/workspace/calendar`) e o **Google Calendar** deverá respeitar:
+
+1. **Autorização OAuth 2.0 segura:** Fluxo Authorization Code + PKCE gerido por backend dedicado com escopos mínimos (`calendar.events` / leitura selectiva); tokens de acesso e *refresh* encriptados no servidor — **nunca** persistidos em `localStorage`, `sessionStorage` ou código cliente.
+2. **Selecção de calendário:** Permitir ao utilizador/estúdio escolher explicitamente qual o calendário Google alvo (ex.: calendário dedicado «O+A Atelier» em vez do calendário pessoal por omissão).
+3. **Sincronização de eventos:** Mapear de forma explícita e opt-in marcos de projecto (`project_milestone`), prazos de tarefas (`task_deadline`) e revisões de atelier (`studio_review`), distinguindo origem interna vs externa.
+4. **Tratamento rigoroso de fusos horários (`Maputo` / `Milão`):** Persistir e enviar identificadores IANA oficiais (`Africa/Maputo` · `CAT` e `Europe/Rome` · `CET`/`CEST`), respeitando transições DST europeias sem desvios de dia em eventos *all-day* vs horários.
+5. **Consentimento e protecção de credenciais:** Tela de consentimento explícito antes de ligar a conta, mecanismo imediato de revogação/desconexão e segregação estrita de dados privados de clientes.
+6. **Gestão de conflitos e duplicações:** Chave de correlação imutável (`internalEventId` ↔ `googleEventId` + `etag` + `updatedAt`), operações idempotentes na criação/actualização e política explícita de resolução de conflitos sem sobrescrita silenciosa.

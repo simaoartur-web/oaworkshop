@@ -22,6 +22,7 @@ import {
 import {
   createRetryableLazy,
   loadCalendarPage,
+  loadDepartmentsPage,
   loadPlannedModuleView,
   loadProjectCreateEnginePage,
   loadProjectDossierShellPage,
@@ -29,6 +30,8 @@ import {
   loadProjectModelEnginePage,
   loadStudioDeskPage,
   loadTasksPage,
+  loadTeamPage,
+  loadTechnicalLibraryPage,
   loadWelcomePage,
   loadWorkspaceSettingsPage,
   loadWorkspaceShell,
@@ -79,6 +82,15 @@ const workspaceSettingsLazy = retryableLazyNamed(
 );
 const tasksPageLazy = retryableLazyNamed(loadTasksPage, 'TasksPage');
 const calendarPageLazy = retryableLazyNamed(loadCalendarPage, 'CalendarPage');
+const departmentsPageLazy = retryableLazyNamed(
+  loadDepartmentsPage,
+  'DepartmentsPage',
+);
+const teamPageLazy = retryableLazyNamed(loadTeamPage, 'TeamPage');
+const technicalLibraryPageLazy = retryableLazyNamed(
+  loadTechnicalLibraryPage,
+  'TechnicalLibraryPage',
+);
 const plannedModuleLazy = retryableLazyNamed(
   loadPlannedModuleView,
   'PlannedModuleView',
@@ -94,6 +106,9 @@ const ProjectModelEnginePage = projectModelEngineLazy.Component;
 const WorkspaceSettingsPage = workspaceSettingsLazy.Component;
 const TasksPage = tasksPageLazy.Component;
 const CalendarPage = calendarPageLazy.Component;
+const DepartmentsPage = departmentsPageLazy.Component;
+const TeamPage = teamPageLazy.Component;
+const TechnicalLibraryPage = technicalLibraryPageLazy.Component;
 const PlannedModuleView = plannedModuleLazy.Component;
 
 const WORKSPACE_CHILD_LAZY_RESETTERS: Record<
@@ -108,6 +123,9 @@ const WORKSPACE_CHILD_LAZY_RESETTERS: Record<
   'project-model': projectModelEngineLazy.reset,
   tasks: tasksPageLazy.reset,
   calendar: calendarPageLazy.reset,
+  departments: departmentsPageLazy.reset,
+  team: teamPageLazy.reset,
+  library: technicalLibraryPageLazy.reset,
   planned: plannedModuleLazy.reset,
 };
 
@@ -236,9 +254,9 @@ export function AppRoutes() {
           <Route path="projects/*" element={<PlannedModuleView />} />
           <Route path="tasks" element={<TasksPage />} />
           <Route path="calendar" element={<CalendarPage />} />
-          <Route path="departments" element={<PlannedModuleView />} />
-          <Route path="team" element={<PlannedModuleView />} />
-          <Route path="library" element={<PlannedModuleView />} />
+          <Route path="departments" element={<DepartmentsPage />} />
+          <Route path="team" element={<TeamPage />} />
+          <Route path="library" element={<TechnicalLibraryPage />} />
           <Route path="publications" element={<PlannedModuleView />} />
           <Route path="activity" element={<PlannedModuleView />} />
           <Route path="reports" element={<PlannedModuleView />} />

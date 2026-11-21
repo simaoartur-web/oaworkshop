@@ -11,6 +11,9 @@ export type WorkspacePreloadKey =
   | 'project-model'
   | 'tasks'
   | 'calendar'
+  | 'departments'
+  | 'team'
+  | 'library'
   | 'planned';
 
 export type RouteLoaderMap = Record<WorkspacePreloadKey, () => Promise<unknown>>;
@@ -33,6 +36,12 @@ export const loadWorkspaceSettingsPage = () =>
 export const loadTasksPage = () => import('../features/operations/TasksPage');
 export const loadCalendarPage = () =>
   import('../features/operations/CalendarPage');
+export const loadDepartmentsPage = () =>
+  import('../features/studio-structure/DepartmentsPage');
+export const loadTeamPage = () =>
+  import('../features/studio-structure/TeamPage');
+export const loadTechnicalLibraryPage = () =>
+  import('../features/studio-structure/TechnicalLibraryPage');
 export const loadPlannedModuleView = () =>
   import('../features/workspace/PlannedModuleView');
 
@@ -47,6 +56,9 @@ const DEFAULT_ROUTE_LOADERS: RouteLoaderMap = {
   'project-model': loadProjectModelEnginePage,
   tasks: loadTasksPage,
   calendar: loadCalendarPage,
+  departments: loadDepartmentsPage,
+  team: loadTeamPage,
+  library: loadTechnicalLibraryPage,
   planned: loadPlannedModuleView,
 };
 
@@ -76,6 +88,15 @@ export function resolveWorkspacePreloadKey(pathname: string): WorkspacePreloadKe
   }
   if (normalized === '/workspace/calendar') {
     return 'calendar';
+  }
+  if (normalized === '/workspace/departments') {
+    return 'departments';
+  }
+  if (normalized === '/workspace/team') {
+    return 'team';
+  }
+  if (normalized === '/workspace/library') {
+    return 'library';
   }
   if (/^\/workspace\/projects\/[^/]+\/model$/.test(normalized)) {
     return 'project-model';
