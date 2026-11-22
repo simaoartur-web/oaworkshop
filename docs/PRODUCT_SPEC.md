@@ -14,7 +14,7 @@ O **O+A Workspace** é o ambiente digital interno de trabalho da **O+A Arquitect
 | **Fase 03** | Biblioteca de projectos (galeria + lista técnica), criação guiada de 4 passos e dossier vivo de 6 secções | **Concluída e integrada (`codex/f02-integration-preview`)** |
 | **Fase 04** | Motor de modelos 3D (`.glb`/`.gltf`), distinção de referências `.skp` documentais, visualizador WebGL interactivo e hardening de segurança/memória WebGL | **Concluída e integrada (`codex/f02-integration-preview`)** |
 | **Fase 04.5** | Cache canónica imutável de projectos, pesquisa pré-normalizada sem leituras de storage por tecla, sincronização Studio Desk ↔ Biblioteca, code-splitting de rotas, `manualChunks`, recuperação de falhas de chunk e estados de carregamento em Shell persistente | **Concluída e integrada (`codex/f02-integration-preview`)** |
-| **Fase 05** | Operação de equipa: **Módulo 1 (Tarefas `/workspace/tasks` e Calendário `/workspace/calendar` activos)**; Módulo 2 (Departamentos, Equipa e Biblioteca) planeado | **Em curso (Módulo 1 implementado)** |
+| **Fase 05** | Operação de equipa: Módulo 1 (Tarefas `/workspace/tasks` e Calendário `/workspace/calendar`) e Módulo 2 (Departamentos `/workspace/departments`, Equipa `/workspace/team` e Biblioteca Técnica `/workspace/library`) | **Concluída (candidato em Quality Gate final)** |
 | **Fase 06** | Fila editorial de publicação, pré-visualização local do site e relatórios derivados | Planeada |
 | **Fase 07** | Auditoria final UX, WCAG 2.2 AA, performance, i18n e regressão | Planeada |
 
@@ -26,7 +26,7 @@ O **O+A Workspace** é o ambiente digital interno de trabalho da **O+A Arquitect
 - `/workspace/settings` — Preferências locais da sessão demo (`PT/EN`, `skipWelcomeOnLogin`, `reduceMotionOverride`, rail expandido/compacto, papéis e diagnóstico storage) (**activa**).
 - `/workspace/projects`, `/workspace/projects/new`, `/workspace/projects/:id`, `/workspace/projects/:id/model` — Biblioteca de projectos, criação guiada, dossier vivo e visualizador 3D WebGL real (**activas**, lazy-loaded sem transferência 3D antecipada fora de `/model`).
 - `/workspace/tasks`, `/workspace/calendar` — Operação de atelier (Fase 05 · Módulo 1: **activas**, lazy-loaded; lista/board acessível sincronizado com Studio Desk e agenda derivada de marcos + tarefas).
-- `/workspace/departments`, `/workspace/team`, `/workspace/library` — Operação de atelier (Fase 05 · Módulo 2; pranchas honestas `PlannedModuleView`).
+- `/workspace/departments`, `/workspace/team`, `/workspace/library` — Operação de atelier (Fase 05 · Módulo 2: **activas**, lazy-loaded; 9 departamentos derivados, 6 perfis demonstrativos e biblioteca técnica autónoma PT/EN).
 - `/workspace/publications`, `/workspace/activity`, `/workspace/reports` — Editorial e síntese (Fases 05–06; pranchas honestas `PlannedModuleView`).
 
 ## 4. Papéis Demonstrativos (`Role`)

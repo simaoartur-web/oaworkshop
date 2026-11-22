@@ -11,6 +11,10 @@ import {
   getTasksSnapshot,
   subscribeTasksChanges,
 } from '../../data/tasksRepository';
+import {
+  getTechnicalLibrarySnapshot,
+  subscribeTechnicalLibraryChanges,
+} from '../../data/technicalLibraryRepository';
 import type { AppLanguage, Role } from '../../data/types';
 import { pickLocalized } from '../../locales';
 import { WORKSPACE_NAV_ITEMS } from './shellNavigation';
@@ -31,6 +35,8 @@ export interface WorkspaceSearchEntry {
   targetPath: string;
   switchToRole?: Role;
   taskId?: string;
+  memberId?: string;
+  techRefId?: string;
   searchText: string;
   isPlannedRoute?: boolean;
 }
@@ -43,6 +49,7 @@ interface IndexedWorkspaceSearchEntry extends WorkspaceSearchEntry {
 interface CachedDynamicSearchBucket {
   libraryVersion: number;
   tasksVersion: number;
+  techLibraryVersion: number;
   language: AppLanguage;
   entries: readonly IndexedWorkspaceSearchEntry[];
 }
@@ -82,6 +89,10 @@ subscribeProjectLibraryChanges(() => {
 });
 
 subscribeTasksChanges(() => {
+  dynamicBucketsByLanguage.clear();
+});
+
+subscribeTechnicalLibraryChanges(() => {
   dynamicBucketsByLanguage.clear();
 });
 
@@ -165,8 +176,8 @@ function getStaticBuckets(language: AppLanguage): StaticSearchBuckets {
       code: dept.code,
       title: pickLocalized(dept.name, language),
       subtitle: pickLocalized(dept.focus, language),
-      targetPath: '/workspace/departments',
-      isPlannedRoute: true,
+      targetPath: `/workspace/departments?dept=${dept.id}`,
+      isPlannedRoute: false,
       searchText: normalizeForSearch(
         [
           dept.code,
@@ -178,6 +189,40 @@ function getStaticBuckets(language: AppLanguage): StaticSearchBuckets {
         ].join(' '),
       ),
     }),
+  );
+
+  const teamDirectoryEntries: IndexedWorkspaceSearchEntry[] = DEMO_USERS.map(
+    (user) => {
+      const dept = DEPARTMENTS[user.departmentId];
+      return withNormalizedMeta({
+        id: `team-${user.id}`,
+        category: 'route',
+        code: `${language === 'pt' ? 'EQUIPA' : 'TEAM'} · ${user.code}`,
+        title: `${user.name} · ${language === 'pt' ? 'Directório' : 'Directory'}`,
+        subtitle: `${pickLocalized(dept.name, language)} · ${user.studioBase}`,
+        targetPath: `/workspace/team?member=${user.id}`,
+        memberId: user.id,
+        isPlannedRoute: false,
+        searchText: normalizeForSearch(
+          [
+            'equipa',
+            'team',
+            'colaborador',
+            'member',
+            user.id,
+            user.code,
+            user.name,
+            user.studioBase,
+            user.role,
+            user.roleLabel.pt,
+            user.roleLabel.en,
+            dept.code,
+            dept.name.pt,
+            dept.name.en,
+          ].join(' '),
+        ),
+      });
+    },
   );
 
   const studyEntry: IndexedWorkspaceSearchEntry = withNormalizedMeta({
@@ -209,7 +254,11 @@ function getStaticBuckets(language: AppLanguage): StaticSearchBuckets {
   const bucket: StaticSearchBuckets = {
     routeEntries,
     profileEntries,
-    studyAndDepartmentEntries: [studyEntry, ...departmentEntries],
+    studyAndDepartmentEntries: [
+      studyEntry,
+      ...departmentEntries,
+      ...teamDirectoryEntries,
+    ],
   };
   staticBucketsByLanguage.set(language, bucket);
   return bucket;
@@ -221,12 +270,14 @@ function getIndexedSearchEntries(
   const staticBuckets = getStaticBuckets(language);
   const snapshot = getProjectLibrarySnapshot();
   const tasksSnapshot = getTasksSnapshot();
+  const techSnapshot = getTechnicalLibrarySnapshot();
   const cachedDynamic = dynamicBucketsByLanguage.get(language);
 
   if (
     cachedDynamic &&
     cachedDynamic.libraryVersion === snapshot.version &&
-    cachedDynamic.tasksVersion === tasksSnapshot.version
+    cachedDynamic.tasksVersion === tasksSnapshot.version &&
+    cachedDynamic.techLibraryVersion === techSnapshot.version
   ) {
     return cachedDynamic.entries;
   }
@@ -315,17 +366,55 @@ function getIndexedSearchEntries(
     },
   );
 
+  const techRefEntries: IndexedWorkspaceSearchEntry[] =
+    techSnapshot.allReferences.map((ref) => {
+      const dept = DEPARTMENTS[ref.departmentId];
+      return withNormalizedMeta({
+        id: `techref-${ref.id}`,
+        category: 'route',
+        code: `${ref.code} · ${dept.code}`,
+        title: pickLocalized(ref.title, language),
+        subtitle: `${ref.standardsTag} · ${pickLocalized(ref.originRegion, language)}`,
+        targetPath: `/workspace/library?ref=${ref.id}`,
+        techRefId: ref.id,
+        isPlannedRoute: false,
+        searchText: normalizeForSearch(
+          [
+            ref.id,
+            ref.code,
+            ref.category,
+            ref.standardsTag,
+            ref.title.pt,
+            ref.title.en,
+            ref.summary.pt,
+            ref.summary.en,
+            ref.technicalSpecs.pt,
+            ref.technicalSpecs.en,
+            ref.originRegion.pt,
+            ref.originRegion.en,
+            ref.referenceCitation.pt,
+            ref.referenceCitation.en,
+            dept.code,
+            dept.name.pt,
+            dept.name.en,
+          ].join(' '),
+        ),
+      });
+    });
+
   const combinedEntries: readonly IndexedWorkspaceSearchEntry[] = [
     ...staticBuckets.routeEntries,
     ...staticBuckets.profileEntries,
     ...projectEntries,
     ...taskEntries,
+    ...techRefEntries,
     ...staticBuckets.studyAndDepartmentEntries,
   ];
 
   dynamicBucketsByLanguage.set(language, {
     libraryVersion: snapshot.version,
     tasksVersion: tasksSnapshot.version,
+    techLibraryVersion: techSnapshot.version,
     language,
     entries: combinedEntries,
   });

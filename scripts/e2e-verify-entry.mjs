@@ -93,9 +93,14 @@ async function findBrowserExecutable() {
   );
 }
 
-async function waitForServer(url, timeoutMs = 15000) {
+async function waitForServer(url, serverState, timeoutMs = 15000) {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
+    if (serverState?.exited) {
+      throw new Error(
+        `Preview server exited prematurely before responding at ${url} (code=${serverState.exitCode}, signal=${serverState.exitSignal}).${serverState.formatDiagnostics()}`,
+      );
+    }
     try {
       const response = await fetch(url);
       if (response.ok) return;
@@ -104,7 +109,8 @@ async function waitForServer(url, timeoutMs = 15000) {
     }
     await new Promise((r) => setTimeout(r, 250));
   }
-  throw new Error(`Preview server did not respond at ${url} within ${timeoutMs}ms`);
+  const diagnostics = serverState ? serverState.formatDiagnostics() : '';
+  throw new Error(`Preview server did not respond at ${url} within ${timeoutMs}ms.${diagnostics}`);
 }
 
 function assertCondition(condition, message) {
@@ -183,11 +189,40 @@ async function main() {
     { stdio: 'pipe' },
   );
 
+  const stderrChunks = [];
+  const stdoutChunks = [];
+  const serverState = {
+    exited: false,
+    exitCode: null,
+    exitSignal: null,
+    spawnError: null,
+    formatDiagnostics() {
+      const parts = [];
+      if (this.spawnError) parts.push(`spawnError=${this.spawnError}`);
+      const stderrText = stderrChunks.join('').trim();
+      const stdoutText = stdoutChunks.join('').trim();
+      if (stderrText) parts.push(`stderr:\n${stderrText}`);
+      if (stdoutText) parts.push(`stdout:\n${stdoutText}`);
+      return parts.length > 0 ? `\n--- vite preview diagnostics ---\n${parts.join('\n')}` : '';
+    },
+  };
+  serverProc.stderr?.on('data', (chunk) => stderrChunks.push(String(chunk)));
+  serverProc.stdout?.on('data', (chunk) => stdoutChunks.push(String(chunk)));
+  serverProc.on('error', (err) => {
+    serverState.exited = true;
+    serverState.spawnError = err.message;
+  });
+  serverProc.on('exit', (code, signal) => {
+    serverState.exited = true;
+    serverState.exitCode = code;
+    serverState.exitSignal = signal;
+  });
+
   const unexpectedRequests = [];
   const runtimeErrors = [];
 
   try {
-    await waitForServer(`${BASE_URL}/`);
+    await waitForServer(`${BASE_URL}/`, serverState);
 
     const browser = await chromium.launch({
       executablePath,
@@ -603,6 +638,7 @@ async function main() {
       });
       await page.getByRole('link', { name: /Voltar ao Dossier/i }).click();
       await page.waitForURL(createdUrl);
+      await page.locator('[data-testid="architectural-model-viewer"]').waitFor({ state: 'detached' });
       await page.getByRole('heading', { name: 'Pavilhão E2E Maputo' }).waitFor({ state: 'visible' });
 
       // Archive locally -> disappears from 'Todos' chip, visible under 'Arquivado' -> reopen & restore
