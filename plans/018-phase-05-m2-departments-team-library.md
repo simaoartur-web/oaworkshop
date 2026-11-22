@@ -2,7 +2,7 @@
 
 - **Branch de planeamento:** `codex/docs-f05-m2-plan`
 - **Commit base (Módulo 1 validado):** `d07fc72314e26fc478bbf3814dd02734ccabfb62` (`origin/codex/f05-m1-integration-candidate`)
-- **Estado do Preview (`origin/codex/f02-integration-preview`):** `f56469023fc23269e44a6d416775f1b6fc923c81` *(Módulo 1 integrado e publicado no preview em 2026-11-21).*
+- **Estado do Preview (`origin/codex/f02-integration-preview`):** `b384928235d62373a50ce96b858bd8a6db94f747` (`b384928`) — **CONCLUÍDA** *(Módulo 1 integrado em `f564690`; Módulo 2 integrado via PR `#1` em `b384928` a partir do candidato aprovado `672daedc`, com Quality Gate e E2E 100% PASS em `2026-11-22`).*
 - **Estado de `main` / Website Público:** `e468fe7cb043844855c529477616f6e873c45190` *(100% intocado)*
 - **Aprovação humana:** `APROVADO: plans/018-phase-05-m2-departments-team-library.md` *(autorização expressa registada em `2026-11-21 16:51+02:00` no chat de coordenação pelo responsável humano — grafada «PROVADO: plans/018-phase-05-m2-departments-team-library.md» e confirmada na revisão de `dc538d5` em `2026-11-21 17:46+02:00`).*
 - **Fase 06:** Não iniciada e estritamente fora de âmbito.

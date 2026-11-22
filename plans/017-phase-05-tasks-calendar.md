@@ -5,7 +5,7 @@
 - **Agente A (`codex/f05-task-agent-a`):** `5ce97cd8bfd90df89c74a1383ab86dd77a5e5a0f` (`05-DATA-01`, `T2`, `Gemini 4 Neon (Medium)`)
 - **Agente B (`codex/f05-task-agent-b`):** `ac13b86c2a81bcbb20829fe65bc6b013f140fedb` (`05-FE-01`, `T2`, `Gemini 4 Neon (Medium)`)
 - **Aprovação humana:** `APROVADO: phase_05_tasks_calendar_plan.md`
-- **Estado:** Implementação A + B concluída (`15/15` suites · `114/114` testes, `lint` e `build` verdes); em verificação final independente (`05-QA-01`, `@agent-d`).
+- **Estado:** **CONCLUÍDA** — verificada (`05-QA-01`, `faf433d`) e integrada em `codex/f02-integration-preview` (`f564690`).
 
 ---
 
