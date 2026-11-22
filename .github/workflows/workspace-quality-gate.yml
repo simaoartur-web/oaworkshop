@@ -98,5 +98,8 @@ jobs:
       - name: Ensure Chromium browser for Playwright
         run: npx playwright install --with-deps chromium
 
+      - name: Build production bundle
+        run: npm run build
+
       - name: Run E2E verification across critical viewports
         run: npm run test:e2e
