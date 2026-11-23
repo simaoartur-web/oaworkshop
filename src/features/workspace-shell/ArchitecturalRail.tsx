@@ -86,6 +86,9 @@ export function ArchitecturalRail({
       const groupItems = WORKSPACE_NAV_ITEMS.filter(
         (item) => item.group === groupId,
       );
+      if (groupItems.length === 0) {
+        return null;
+      }
       const isAvailableGroup = groupId === 'atelier';
 
       return (
