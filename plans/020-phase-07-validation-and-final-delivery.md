@@ -1,6 +1,6 @@
 # Plano 020 · Fase 07 — Validação Transversal e Entrega Final da Versão Demonstrativa
 
-- **Estado:** **EM PLANEAMENTO** *(aguarda aprovação expressa `APROVADO: plans/020-phase-07-validation-and-final-delivery.md` antes de iniciar a execução)*
+- **Estado:** **APROVADO — EM EXECUÇÃO** *(autorização expressa `APROVADO: plans/020-phase-07-validation-and-final-delivery.md` sobre `4564fcc` registada em `2026-11-23 17:46+02:00` pelo responsável humano)*
 - **Branch de planeamento:** `codex/docs-f07-plan-020`
 - **Base canónica (`origin/codex/f02-integration-preview`):** `174b24a8964496c96480bc7e9018dcd79d153f03` (`174b24a`, contendo Fases 00–06 concluídas e `11/11` rotas operacionais)
 - **Estado de `main` / Website Público:** `e468fe7cb043844855c529477616f6e873c45190` *(100% intocado)*
