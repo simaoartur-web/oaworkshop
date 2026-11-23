@@ -16,7 +16,7 @@ O **O+A Workspace** é o ambiente digital interno de trabalho da **O+A Arquitect
 | **Fase 04.5** | Cache canónica imutável de projectos, pesquisa pré-normalizada sem leituras de storage por tecla, sincronização Studio Desk ↔ Biblioteca, code-splitting de rotas, `manualChunks`, recuperação de falhas de chunk e estados de carregamento em Shell persistente | **Concluída e integrada (`codex/f02-integration-preview`)** |
 | **Fase 05** | Operação de equipa: Módulo 1 (Tarefas `/workspace/tasks` e Calendário `/workspace/calendar`) e Módulo 2 (Departamentos `/workspace/departments`, Equipa `/workspace/team` e Biblioteca Técnica `/workspace/library`) | **Concluída e integrada (`codex/f02-integration-preview` · `b384928`)** |
 | **Fase 06** | Fila editorial de publicação (`/workspace/publications`), pré-visualização local PT/EN, registo de actividade (`/workspace/activity`) e relatórios derivados (`/workspace/reports`) | **Concluída e integrada (`codex/f02-integration-preview` · `9533d38`, 11/11 rotas activas)** |
-| **Fase 07** | Auditoria final UX, WCAG 2.2 AA, performance, i18n e regressão | Planeada |
+| **Fase 07** | Auditoria final UX, WCAG 2.2 AA, performance, i18n, cobertura E2E `11/11`, matriz de evidências e documentação final de entrega | **Concluída (candidato `codex/f07-integration-candidate` em Quality Gate final)** |
 
 ## 3. Mapa de Rotas Previstas
 

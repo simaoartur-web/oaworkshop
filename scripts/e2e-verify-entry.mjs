@@ -795,6 +795,87 @@ async function main() {
       await markOneButtons.first().click();
       await page.keyboard.press('Escape');
 
+      // Phase 07 E2E Coverage — Remaining 8 operational areas (F05–F06), completing 11/11 active routes
+      // 03. /workspace/tasks
+      await page.locator('aside').getByRole('link', { name: /Tarefas/i }).click();
+      await page.waitForURL(`${BASE_URL}/workspace/tasks`);
+      await page.getByRole('heading', { name: /Tarefas do Atelier/i }).waitFor({ state: 'visible' });
+      await checkNoHorizontalOverflow(page, 'Workspace Tasks List 1440px');
+      await checkHeaderNoClusterOverlap(page, 'Workspace Tasks List 1440px');
+      await page.getByRole('button', { name: /Quadro Operacional/i }).click();
+      await checkNoHorizontalOverflow(page, 'Workspace Tasks Board 1440px');
+      await page.getByRole('button', { name: /Lista Técnica/i }).click();
+
+      // 04. /workspace/calendar
+      await page.locator('aside').getByRole('link', { name: /Calendário/i }).click();
+      await page.waitForURL(`${BASE_URL}/workspace/calendar`);
+      await page.getByRole('heading', { name: /Calendário Operacional/i }).waitFor({ state: 'visible' });
+      await checkNoHorizontalOverflow(page, 'Workspace Calendar 1440px');
+      await checkHeaderNoClusterOverlap(page, 'Workspace Calendar 1440px');
+      await page.getByRole('button', { name: /Agenda/i }).click();
+      await checkNoHorizontalOverflow(page, 'Workspace Calendar Agenda 1440px');
+
+      // 05. /workspace/departments
+      await page.locator('aside').getByRole('link', { name: /Departamentos/i }).click();
+      await page.waitForURL(`${BASE_URL}/workspace/departments`);
+      await page.getByRole('heading', { name: /^Departamentos$/i }).waitFor({ state: 'visible' });
+      await page.getByText(/Unidades disciplinares \(9\)/i).waitFor({ state: 'visible' });
+      await checkNoHorizontalOverflow(page, 'Workspace Departments 1440px');
+      await checkHeaderNoClusterOverlap(page, 'Workspace Departments 1440px');
+
+      // 06. /workspace/team
+      await page.locator('aside').getByRole('link', { name: /Equipa/i }).click();
+      await page.waitForURL(`${BASE_URL}/workspace/team`);
+      await page.getByRole('heading', { name: /Equipa do Atelier/i }).waitFor({ state: 'visible' });
+      await page.getByText(/Helena Mondlane/i).first().waitFor({ state: 'visible' });
+      await page.getByText(/Mateo Conti/i).first().waitFor({ state: 'visible' });
+      await checkNoHorizontalOverflow(page, 'Workspace Team 1440px');
+      await checkHeaderNoClusterOverlap(page, 'Workspace Team 1440px');
+
+      // 07. /workspace/library
+      await page.locator('aside').getByRole('link', { name: /Biblioteca/i }).click();
+      await page.waitForURL(`${BASE_URL}/workspace/library`);
+      await page.getByRole('heading', { name: /Biblioteca Técnica/i }).waitFor({ state: 'visible' });
+      await checkNoHorizontalOverflow(page, 'Workspace Technical Library 1440px');
+      await checkHeaderNoClusterOverlap(page, 'Workspace Technical Library 1440px');
+
+      // 08. /workspace/publications (+ PublicationPreviewDialog PT/EN, Escape & focus restoration)
+      await page.locator('aside').getByRole('link', { name: /Publicações/i }).click();
+      await page.waitForURL(`${BASE_URL}/workspace/publications`);
+      await page.getByRole('heading', { name: /Fila Editorial & Pré-visualização/i }).waitFor({ state: 'visible' });
+      await checkNoHorizontalOverflow(page, 'Workspace Publications 1440px');
+      await checkHeaderNoClusterOverlap(page, 'Workspace Publications 1440px');
+      const previewTrigger = page.getByRole('button', { name: /Pré-visualizar portfólio \(local\)/i }).first();
+      await previewTrigger.click();
+      const previewDialog = page.getByRole('dialog');
+      await previewDialog.waitFor({ state: 'visible' });
+      await previewDialog.getByRole('button', { name: /^EN$/i }).click();
+      await page.keyboard.press('Escape');
+      await previewDialog.waitFor({ state: 'hidden' });
+      const previewFocusRestored = await page.evaluate(() =>
+        /Pré-visualizar portfólio \(local\)/i.test(document.activeElement?.textContent || ''),
+      );
+      assertCondition(
+        previewFocusRestored,
+        'Focus must return to PublicationPreviewDialog trigger button on Escape',
+      );
+
+      // 09. /workspace/activity
+      await page.locator('aside').getByRole('link', { name: /Actividade/i }).click();
+      await page.waitForURL(`${BASE_URL}/workspace/activity`);
+      await page.getByRole('heading', { name: /Linha de Actividade do Atelier/i }).waitFor({ state: 'visible' });
+      await checkNoHorizontalOverflow(page, 'Workspace Activity 1440px');
+      await checkHeaderNoClusterOverlap(page, 'Workspace Activity 1440px');
+
+      // 10. /workspace/reports
+      await page.locator('aside').getByRole('link', { name: /Relatórios/i }).click();
+      await page.waitForURL(`${BASE_URL}/workspace/reports`);
+      await page.getByRole('heading', { name: /Relatórios & Síntese Operacional/i }).waitFor({ state: 'visible' });
+      await page.locator('table').getByText('ADM', { exact: true }).waitFor({ state: 'visible' });
+      await page.locator('table').getByText('RHU', { exact: true }).waitFor({ state: 'visible' });
+      await checkNoHorizontalOverflow(page, 'Workspace Reports 1440px');
+      await checkHeaderNoClusterOverlap(page, 'Workspace Reports 1440px');
+
       // Navigate via rail to Definições (/workspace/settings) & verify reload persistence
       await page.locator('aside').getByRole('link', { name: /Definições/i }).click();
       await page.waitForURL(`${BASE_URL}/workspace/settings`);
@@ -876,6 +957,19 @@ async function main() {
         path: path.join(ARTIFACT_DIR, 'oa_projects_catalog_tablet_768.png'),
         fullPage: false,
       });
+
+      // Representative F05–F06 responsive checks at Tablet 768px
+      for (const routeCheck of [
+        { path: '/workspace/tasks', heading: /Tarefas do Atelier/i, label: 'Workspace Tasks Tablet 768px' },
+        { path: '/workspace/departments', heading: /^Departamentos$/i, label: 'Workspace Departments Tablet 768px' },
+        { path: '/workspace/publications', heading: /Fila Editorial & Pré-visualização/i, label: 'Workspace Publications Tablet 768px' },
+        { path: '/workspace/reports', heading: /Relatórios & Síntese Operacional/i, label: 'Workspace Reports Tablet 768px' },
+      ]) {
+        await tabletPage.goto(`${BASE_URL}${routeCheck.path}`, { waitUntil: 'load' });
+        await tabletPage.getByRole('heading', { name: routeCheck.heading }).waitFor({ state: 'visible' });
+        await checkNoHorizontalOverflow(tabletPage, routeCheck.label);
+        await checkHeaderNoClusterOverlap(tabletPage, routeCheck.label);
+      }
       await tabletContext.close();
 
       // 3. MOBILE 375x812 + Reduced Motion — Entry + Shell + Drawer + Popovers
@@ -972,6 +1066,19 @@ async function main() {
         path: path.join(ARTIFACT_DIR, 'oa_projects_catalog_mobile_375.png'),
         fullPage: false,
       });
+
+      // Representative F05–F06 responsive checks at Mobile 375px
+      for (const routeCheck of [
+        { path: '/workspace/tasks', heading: /Tarefas do Atelier/i, label: 'Workspace Tasks Mobile 375px' },
+        { path: '/workspace/departments', heading: /^Departamentos$/i, label: 'Workspace Departments Mobile 375px' },
+        { path: '/workspace/publications', heading: /Fila Editorial & Pré-visualização/i, label: 'Workspace Publications Mobile 375px' },
+        { path: '/workspace/reports', heading: /Relatórios & Síntese Operacional/i, label: 'Workspace Reports Mobile 375px' },
+      ]) {
+        await mobilePage.goto(`${BASE_URL}${routeCheck.path}`, { waitUntil: 'load' });
+        await mobilePage.getByRole('heading', { name: routeCheck.heading }).waitFor({ state: 'visible' });
+        await checkNoHorizontalOverflow(mobilePage, routeCheck.label);
+        await checkHeaderNoClusterOverlap(mobilePage, routeCheck.label);
+      }
       await mobileContext.close();
 
       assertCondition(
