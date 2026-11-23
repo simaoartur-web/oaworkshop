@@ -163,6 +163,9 @@
 | `src/test/editorialControl.test.tsx`, `editorialControlExperience.test.tsx` | suites de testes da Fase 06 (fila editorial, transições, quota, cross-tab, preview modal acessível, sincronização URL em montagem, actividade e relatórios/exportação JSON) |
 | `plans/019-phase-06-publications-activity-reports.md` | plano técnico e funcional da Fase 06: Publicações (`/workspace/publications`), Actividade (`/workspace/activity`) e Relatórios (`/workspace/reports`) |
 | `docs/agent-reports/phase-06/` | relatórios técnicos publicados da Fase 06 (`06-DATA-01`, `06-FE-01`, `06-QA-01`) |
+| `plans/020-phase-07-validation-and-final-delivery.md` | plano da Fase 07: Validação transversal (`11/11` rotas, `6/6` perfis, matriz de evidências) e entrega final |
+| `docs/agent-reports/phase-07/` | relatórios técnicos publicados da Fase 07 (`07-E2E-01`, `07-QA-01`) |
+| `docs/DELIVERY_SUMMARY.md` | resumo final de entrega da versão demonstrativa O+A Workspace (matriz de evidências `11/11`, `6` perfis, execução local e limitações demo) |
 | `docs/audits/phase045-security-qa-final.md` | auditoria independente de segurança e QA da Fase 04.5 (Gemini D · `codex/f045-security-qa-final`) |
 | `docs/agent-reports/phase-045/` | relatórios técnicos publicados da Missão 1 Swarm (`045-ARCH-01-agent-a.md`, `045-UX-01-agent-b.md`, `045-PERF-01-agent-c.md`, `045-QA-01-agent-d.md`) |
 | `docs/agent-reports/phase-0451/` | relatórios técnicos publicados da Fase 04.5.1 (`0451-DATA-01-agent-a.md`, `0451-FE-01-agent-b.md`, `0451-PERF-01-agent-c.md`, `0451-QA-01-agent-d.md`) |
