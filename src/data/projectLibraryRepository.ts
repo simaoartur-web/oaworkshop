@@ -401,11 +401,10 @@ function validateCanonicalRecord(raw: unknown): CanonicalProjectRecord | null {
       typeof entry === 'string' && VALID_ROLES.has(entry as Role),
   );
 
-  // Guard privacy invariant for locally created projects even if storage was tampered with
+  // publication.publicationStatus is already validated against VALID_PUBLICATION_STATUSES above;
+  // newly created projects always start as 'private' in createProject() and only transition via updateProjectPublicationStatus().
   const safePublicationStatus: PublicationStatus =
-    metadata.origin === 'local-created'
-      ? 'private'
-      : (publication.publicationStatus as PublicationStatus);
+    publication.publicationStatus as PublicationStatus;
 
   return {
     identity: {
@@ -1612,6 +1611,48 @@ export function restoreProjectFromArchive(
     { projectStatus: nextStatus },
     actorUser,
   );
+}
+
+/**
+ * Controlled Phase 06 publication-status transition for a canonical project.
+ * Strictly isolated from `lifecycle.projectStatus` and `metadata.isArchived`.
+ */
+export function updateProjectPublicationStatus(
+  projectId: string,
+  nextStatus: PublicationStatus,
+  actorUserId: string,
+): CanonicalProjectRecord | null {
+  if (!VALID_PUBLICATION_STATUSES.has(nextStatus)) {
+    throw new Error(`Estado de publicação inválido: "${String(nextStatus)}".`);
+  }
+  const cleanActorId = actorUserId.trim();
+  if (!cleanActorId) {
+    throw new Error(
+      'Identificador de colaborador demonstrativo obrigatório para actualizar estado de publicação.',
+    );
+  }
+  const existing = getProjectById(projectId);
+  if (!existing) {
+    return null;
+  }
+
+  const resolvedActor = findDemoUserById(cleanActorId);
+  const nowIso = new Date().toISOString();
+
+  const updated: CanonicalProjectRecord = {
+    ...existing,
+    publication: {
+      publicationStatus: nextStatus,
+    },
+    metadata: {
+      ...existing.metadata,
+      updatedAtIso: nowIso,
+      updatedByUserId: resolvedActor?.id ?? cleanActorId,
+    },
+  };
+
+  persistMutatedRecord(updated);
+  return updated;
 }
 
 export function addProjectRevision(

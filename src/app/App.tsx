@@ -21,6 +21,7 @@ import {
 } from '../features/loading/RouteLoadingStates';
 import {
   createRetryableLazy,
+  loadActivityPage,
   loadCalendarPage,
   loadDepartmentsPage,
   loadPlannedModuleView,
@@ -28,6 +29,8 @@ import {
   loadProjectDossierShellPage,
   loadProjectLibraryCatalogPage,
   loadProjectModelEnginePage,
+  loadPublicationsPage,
+  loadReportsPage,
   loadStudioDeskPage,
   loadTasksPage,
   loadTeamPage,
@@ -91,6 +94,12 @@ const technicalLibraryPageLazy = retryableLazyNamed(
   loadTechnicalLibraryPage,
   'TechnicalLibraryPage',
 );
+const publicationsPageLazy = retryableLazyNamed(
+  loadPublicationsPage,
+  'PublicationsPage',
+);
+const activityPageLazy = retryableLazyNamed(loadActivityPage, 'ActivityPage');
+const reportsPageLazy = retryableLazyNamed(loadReportsPage, 'ReportsPage');
 const plannedModuleLazy = retryableLazyNamed(
   loadPlannedModuleView,
   'PlannedModuleView',
@@ -109,6 +118,9 @@ const CalendarPage = calendarPageLazy.Component;
 const DepartmentsPage = departmentsPageLazy.Component;
 const TeamPage = teamPageLazy.Component;
 const TechnicalLibraryPage = technicalLibraryPageLazy.Component;
+const PublicationsPage = publicationsPageLazy.Component;
+const ActivityPage = activityPageLazy.Component;
+const ReportsPage = reportsPageLazy.Component;
 const PlannedModuleView = plannedModuleLazy.Component;
 
 const WORKSPACE_CHILD_LAZY_RESETTERS: Record<
@@ -126,6 +138,9 @@ const WORKSPACE_CHILD_LAZY_RESETTERS: Record<
   departments: departmentsPageLazy.reset,
   team: teamPageLazy.reset,
   library: technicalLibraryPageLazy.reset,
+  publications: publicationsPageLazy.reset,
+  activity: activityPageLazy.reset,
+  reports: reportsPageLazy.reset,
   planned: plannedModuleLazy.reset,
 };
 
@@ -257,9 +272,9 @@ export function AppRoutes() {
           <Route path="departments" element={<DepartmentsPage />} />
           <Route path="team" element={<TeamPage />} />
           <Route path="library" element={<TechnicalLibraryPage />} />
-          <Route path="publications" element={<PlannedModuleView />} />
-          <Route path="activity" element={<PlannedModuleView />} />
-          <Route path="reports" element={<PlannedModuleView />} />
+          <Route path="publications" element={<PublicationsPage />} />
+          <Route path="activity" element={<ActivityPage />} />
+          <Route path="reports" element={<ReportsPage />} />
           <Route path="*" element={<PlannedModuleView />} />
         </Route>
 

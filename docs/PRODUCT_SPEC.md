@@ -15,7 +15,7 @@ O **O+A Workspace** é o ambiente digital interno de trabalho da **O+A Arquitect
 | **Fase 04** | Motor de modelos 3D (`.glb`/`.gltf`), distinção de referências `.skp` documentais, visualizador WebGL interactivo e hardening de segurança/memória WebGL | **Concluída e integrada (`codex/f02-integration-preview`)** |
 | **Fase 04.5** | Cache canónica imutável de projectos, pesquisa pré-normalizada sem leituras de storage por tecla, sincronização Studio Desk ↔ Biblioteca, code-splitting de rotas, `manualChunks`, recuperação de falhas de chunk e estados de carregamento em Shell persistente | **Concluída e integrada (`codex/f02-integration-preview`)** |
 | **Fase 05** | Operação de equipa: Módulo 1 (Tarefas `/workspace/tasks` e Calendário `/workspace/calendar`) e Módulo 2 (Departamentos `/workspace/departments`, Equipa `/workspace/team` e Biblioteca Técnica `/workspace/library`) | **Concluída e integrada (`codex/f02-integration-preview` · `b384928`)** |
-| **Fase 06** | Fila editorial de publicação, pré-visualização local do site e relatórios derivados | Planeada |
+| **Fase 06** | Fila editorial de publicação (`/workspace/publications`), pré-visualização local PT/EN, registo de actividade (`/workspace/activity`) e relatórios derivados (`/workspace/reports`) | **Em curso (`codex/f06-task-agent-b`, 11/11 rotas activas)** |
 | **Fase 07** | Auditoria final UX, WCAG 2.2 AA, performance, i18n e regressão | Planeada |
 
 ## 3. Mapa de Rotas Previstas
@@ -27,7 +27,7 @@ O **O+A Workspace** é o ambiente digital interno de trabalho da **O+A Arquitect
 - `/workspace/projects`, `/workspace/projects/new`, `/workspace/projects/:id`, `/workspace/projects/:id/model` — Biblioteca de projectos, criação guiada, dossier vivo e visualizador 3D WebGL real (**activas**, lazy-loaded sem transferência 3D antecipada fora de `/model`).
 - `/workspace/tasks`, `/workspace/calendar` — Operação de atelier (Fase 05 · Módulo 1: **activas**, lazy-loaded; lista/board acessível sincronizado com Studio Desk e agenda derivada de marcos + tarefas).
 - `/workspace/departments`, `/workspace/team`, `/workspace/library` — Operação de atelier (Fase 05 · Módulo 2: **activas**, lazy-loaded; 9 departamentos derivados, 6 perfis demonstrativos e biblioteca técnica autónoma PT/EN).
-- `/workspace/publications`, `/workspace/activity`, `/workspace/reports` — Editorial e síntese (Fases 05–06; pranchas honestas `PlannedModuleView`).
+- `/workspace/publications`, `/workspace/activity`, `/workspace/reports` — Editorial e controlo (Fase 06: **activas**, lazy-loaded; fila editorial com estados e pré-visualização local PT/EN sem envio público, feed cronológico unificado derivado e relatórios derivados com exportação JSON local e impressão limpa; `11/11` módulos do Shell activos).
 
 ## 4. Papéis Demonstrativos (`Role`)
 

@@ -237,7 +237,7 @@ describe('Phase 02A — Workspace Shell Architecture, Search, Notifications & Na
     expect(menuButton).toHaveFocus();
   });
 
-  it('groups available modules clearly first, marks upcoming features plainly, and offers direct return to Studio Desk', async () => {
+  it('groups all 11 active workspace modules clearly under Disponível agora, activates Phase 06 routes, and offers direct return to Studio Desk', async () => {
     const user = userEvent.setup();
     seedDemoSession(0);
     renderWorkspaceShellApp('/workspace');
@@ -246,29 +246,37 @@ describe('Phase 02A — Workspace Shell Architecture, Search, Notifications & Na
       name: /Navegação principal do O\+A Workspace/i,
     });
 
-    // Available vs unavailable clear groupings
+    // All 11/11 workspace modules are now active in Phase 06; no empty upcoming groups or phase badges
     expect(within(nav).getByText(/Disponível agora/i)).toBeInTheDocument();
-    expect(within(nav).getByText(/Em breve · Atelier e Equipa/i)).toBeInTheDocument();
-    expect(within(nav).getAllByText(/Em breve/i).length).toBeGreaterThanOrEqual(4);
-    // Cryptic F03/F05/F06 codes must not be the primary badge inside rail
+    expect(within(nav).queryByText(/Em breve · Atelier e Equipa/i)).not.toBeInTheDocument();
+    expect(within(nav).queryByText(/Em breve · Gestão e Arquivo/i)).not.toBeInTheDocument();
+    expect(within(nav).queryByText(/^Em breve$/i)).not.toBeInTheDocument();
     expect(within(nav).queryByText(/^F03$/)).not.toBeInTheDocument();
     expect(within(nav).queryByText(/^F05$/)).not.toBeInTheDocument();
     expect(within(nav).queryByText(/^F06$/)).not.toBeInTheDocument();
 
-    // Projectos route is now active in Phase 03A
+    // Projectos, Publicações, Actividade and Relatórios are all active routes
     expect(
       within(nav).getByRole('link', { name: /Projectos/i }),
     ).toHaveAttribute('href', '/workspace/projects');
+    expect(
+      within(nav).getByRole('link', { name: /Publicações/i }),
+    ).toHaveAttribute('href', '/workspace/publications');
+    expect(
+      within(nav).getByRole('link', { name: /Actividade/i }),
+    ).toHaveAttribute('href', '/workspace/activity');
+    expect(
+      within(nav).getByRole('link', { name: /Relatórios/i }),
+    ).toHaveAttribute('href', '/workspace/reports');
 
-    // Navigate to a future module -> displays plain availability explanation & direct Desk return
+    // Navigate to Publicações (Phase 06 active route)
     await user.click(
       within(nav).getByRole('link', { name: /Publicações/i }),
     );
     expect(
-      await screen.findByRole('heading', { name: 'Publicações' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Esta área ainda não está operacional nesta demonstração/i),
+      await screen.findByRole('heading', {
+        name: /Fila Editorial & Pré-visualização/i,
+      }),
     ).toBeInTheDocument();
 
     // Contextual header breadcrumb includes direct clickable Studio Desk link
