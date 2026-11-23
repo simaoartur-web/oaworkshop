@@ -15,7 +15,7 @@ O **O+A Workspace** é o ambiente digital interno de trabalho da **O+A Arquitect
 | **Fase 04** | Motor de modelos 3D (`.glb`/`.gltf`), distinção de referências `.skp` documentais, visualizador WebGL interactivo e hardening de segurança/memória WebGL | **Concluída e integrada (`codex/f02-integration-preview`)** |
 | **Fase 04.5** | Cache canónica imutável de projectos, pesquisa pré-normalizada sem leituras de storage por tecla, sincronização Studio Desk ↔ Biblioteca, code-splitting de rotas, `manualChunks`, recuperação de falhas de chunk e estados de carregamento em Shell persistente | **Concluída e integrada (`codex/f02-integration-preview`)** |
 | **Fase 05** | Operação de equipa: Módulo 1 (Tarefas `/workspace/tasks` e Calendário `/workspace/calendar`) e Módulo 2 (Departamentos `/workspace/departments`, Equipa `/workspace/team` e Biblioteca Técnica `/workspace/library`) | **Concluída e integrada (`codex/f02-integration-preview` · `b384928`)** |
-| **Fase 06** | Fila editorial de publicação (`/workspace/publications`), pré-visualização local PT/EN, registo de actividade (`/workspace/activity`) e relatórios derivados (`/workspace/reports`) | **Em curso (`codex/f06-task-agent-b`, 11/11 rotas activas)** |
+| **Fase 06** | Fila editorial de publicação (`/workspace/publications`), pré-visualização local PT/EN, registo de actividade (`/workspace/activity`) e relatórios derivados (`/workspace/reports`) | **Concluída e integrada (`codex/f02-integration-preview` · `9533d38`, 11/11 rotas activas)** |
 | **Fase 07** | Auditoria final UX, WCAG 2.2 AA, performance, i18n e regressão | Planeada |
 
 ## 3. Mapa de Rotas Previstas
@@ -39,3 +39,9 @@ O **O+A Workspace** é o ambiente digital interno de trabalho da **O+A Arquitect
 6. `staff` — Equipa Técnica & Investigação (tarefas atribuídas, referências e documentação).
 
 > **Aviso obrigatório na UI:** A selecção de papéis altera apenas a vista e os controlos demonstrativos no navegador; não constitui controlo de acesso real nem protecção de dados.
+
+## 5. Limitações Demonstrativas (Permissões e Persistência)
+
+1. **Permissões e Papéis (`Role`):** A troca entre os 6 perfis demonstrativos e os seus papéis (`director`, `architect`, `project_manager`, `department_lead`, `communications`, `staff`) controla apenas a vista editorial, os destaques do Studio Desk e a sinalização de acções na fila de publicações. Não existe autenticação real, gestão de contas, controlo de acesso server-side (RBAC) nem isolamento de dados entre utilizadores.
+2. **Persistência Local (`localStorage`):** Sessão demo, preferências, projectos locais, tarefas, referências da Biblioteca Técnica e histórico editorial (`oa_workspace_*_v1`) são guardados exclusivamente no navegador actual, sujeitos à quota do dispositivo (com tratamento explícito de `QuotaExceededError` e rollback atómico) e limpos integralmente por `resetAllDemoData()`. Não existe base de dados remota, sincronização entre dispositivos nem envio de dados para o website público `oaworkshop`.
+3. **Ficheiros 3D e Integrações Externas:** Os modelos `.glb`/`.gltf` são carregados apenas em memória local da sessão (sem upload remoto) e a integração com Google Calendar permanece exclusivamente em backlog documental (`docs/INTEGRATION_FUTURE.md`).

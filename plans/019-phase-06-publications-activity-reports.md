@@ -1,6 +1,6 @@
 # Plano 019 · Fase 06 — Publicações, Actividade e Relatórios (Conclusão da Versão Demonstrativa)
 
-- **Estado:** **APROVADO — EM EXECUÇÃO** *(autorização expressa `APROVADO: plans/019-phase-06-publications-activity-reports.md` registada em `2026-11-23 15:51+02:00` pelo responsável humano)*
+- **Estado:** **CONCLUÍDA** *(integrada em `codex/f02-integration-preview` via PR `#2` · `9533d38` a partir do candidato `e6d2711`, com `06-QA-01` PASSED `0` P0/P1/P2 e GitHub Actions `quality-gate` + `e2e-visual` 100% PASS em `2026-11-23`; `11/11` rotas operacionais)*
 - **Branch de planeamento:** `codex/docs-f06-plan-019`
 - **Base canónica (`origin/codex/f02-integration-preview`):** `fea794ba24af58061dd86435dc6a2dd71725ab47` (`fea794b`, contendo Fase 05 concluída via PR `#1` · `b384928`)
 - **Estado de `main` / Website Público:** `e468fe7cb043844855c529477616f6e873c45190` *(100% intocado)*
