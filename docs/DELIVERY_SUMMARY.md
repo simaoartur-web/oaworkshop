@@ -1,8 +1,8 @@
 # Resumo de Entrega Final — O+A Workspace (Versão Demonstrativa Frontend)
 
-- **Estado do Produto:** **Versão Demonstrativa Concluída (Fases 00–07)**
+- **Estado do Produto:** **Versão Demonstrativa Oficialmente Encerrada (Fases 00–07)**
 - **Rotas Operacionais:** **`11/11` pranchas activas** + Entrada (`/login`, `/welcome`)
-- **Base de Preview:** `codex/f02-integration-preview` (`174b24a`) ← Candidato Fase 07 (`codex/f07-integration-candidate`)
+- **Preview Integrado:** `codex/f02-integration-preview` (merge PR `#3`: `baa57258f1c3accd54ac5856b439d28363229803` · candidato `0e86ee1`)
 - **Isolamento do Website Público:** `origin/main` (`e468fe7cb043844855c529477616f6e873c45190`) e website público `oaworkshop` **100% intocados**
 - **Relatórios Fase 07:** [07-E2E-01-agent-b.md](agent-reports/phase-07/07-E2E-01-agent-b.md) · [07-QA-01-agent-d.md](agent-reports/phase-07/07-QA-01-agent-d.md)
 
@@ -21,7 +21,10 @@ O **O+A Workspace** conclui integralmente o seu ciclo de desenvolvimento **Front
 
 ## 2. Matriz Consolidada de Evidências por Módulo (`Entrada` + `11/11` Pranchas)
 
-*(Evidência verificada em `07-QA-01` sobre `32187b9` — zero resultados fabricados.)*
+> **Distinção metodológica obrigatória das evidências:**
+> 1. **Testes E2E reproduzíveis (`npm run test:e2e` / `scripts/e2e-verify-entry.mjs`):** Executados automaticamente no GitHub Actions (`e2e-visual`) e localmente sobre as `11/11` áreas operacionais em `1440px` e amostra representativa responsiva em `768px` e `375px` (`0` overflow horizontal, `0` sobreposição de cabeçalho, `0` erros de consola/runtime e `0` pedidos de rede inesperados).
+> 2. **Verificações Chromium adicionais (`07-QA-01`, `@agent-d`):** Execução dirigida sobre `vite preview` cobrindo ponta-a-ponta os `6/6` perfis demonstrativos (`DIR-01`..`INV-06`), a paridade `EN` na Fase 06 e a validação complementar de overflow em `375px`/`768px`/`1440px` nas rotas não repetidas no mobile/tablet do script E2E base (complementar à suite Vitest `19/19` · `133/133`).
+> 3. **Âmbito da validação WCAG 2.2 AA:** Verificação técnica (automatizada em Vitest/Playwright e revisão dirigida de código/DOM) de semântica HTML/landmarks, focus trap/`inert`/`Escape`/restauro de foco em diálogos e drawers, alvos tácteis ≥ 44px, `aria-live`/`[role="alert"]`, contraste de tokens (`docs/DESIGN_SYSTEM.md`) e `prefers-reduced-motion` — não substitui uma certificação jurídica externa com leitores de ecrã assistivos (NVDA/JAWS/VoiceOver).
 
 | Módulo / Rota | Fluxo | Resultado | Idioma (PT/EN) | Viewport (375 / 768 / 1440) | Acessibilidade (WCAG 2.2 AA) | Eventuais Problemas |
 | --- | --- | --- | --- | --- | --- | --- |
