@@ -8,6 +8,10 @@ import {
   subscribeProjectLibraryChanges,
 } from '../../data/projectLibraryRepository';
 import {
+  getPublicationAuditSnapshot,
+  subscribePublications,
+} from '../../data/publicationsRepository';
+import {
   getTasksSnapshot,
   subscribeTasksChanges,
 } from '../../data/tasksRepository';
@@ -37,6 +41,7 @@ export interface WorkspaceSearchEntry {
   taskId?: string;
   memberId?: string;
   techRefId?: string;
+  publicationProjectId?: string;
   searchText: string;
   isPlannedRoute?: boolean;
 }
@@ -50,6 +55,7 @@ interface CachedDynamicSearchBucket {
   libraryVersion: number;
   tasksVersion: number;
   techLibraryVersion: number;
+  publicationsVersion: number;
   language: AppLanguage;
   entries: readonly IndexedWorkspaceSearchEntry[];
 }
@@ -93,6 +99,10 @@ subscribeTasksChanges(() => {
 });
 
 subscribeTechnicalLibraryChanges(() => {
+  dynamicBucketsByLanguage.clear();
+});
+
+subscribePublications(() => {
   dynamicBucketsByLanguage.clear();
 });
 
@@ -271,13 +281,15 @@ function getIndexedSearchEntries(
   const snapshot = getProjectLibrarySnapshot();
   const tasksSnapshot = getTasksSnapshot();
   const techSnapshot = getTechnicalLibrarySnapshot();
+  const pubSnapshot = getPublicationAuditSnapshot();
   const cachedDynamic = dynamicBucketsByLanguage.get(language);
 
   if (
     cachedDynamic &&
     cachedDynamic.libraryVersion === snapshot.version &&
     cachedDynamic.tasksVersion === tasksSnapshot.version &&
-    cachedDynamic.techLibraryVersion === techSnapshot.version
+    cachedDynamic.techLibraryVersion === techSnapshot.version &&
+    cachedDynamic.publicationsVersion === pubSnapshot.version
   ) {
     return cachedDynamic.entries;
   }
@@ -402,12 +414,52 @@ function getIndexedSearchEntries(
       });
     });
 
+  // Index only projects actively in the editorial publication queue (non-private),
+  // avoiding duplicate search hits for private-by-default projects.
+  const publicationEntries: IndexedWorkspaceSearchEntry[] = snapshot.allRecords
+    .filter((record) => record.publication.publicationStatus !== 'private')
+    .map((record) => {
+      const dept = DEPARTMENTS[record.classification.departmentId];
+      const latestAudit =
+        pubSnapshot.entriesByProjectId.get(record.identity.id)?.[0] ?? null;
+      return withNormalizedMeta({
+        id: `pub-${record.identity.id}`,
+        category: 'route',
+        code: `PUB · ${record.identity.code}`,
+        title: `${language === 'pt' ? 'Publicação' : 'Publication'} · ${pickLocalized(record.editorial.title, language)}`,
+        subtitle: `${record.publication.publicationStatus} · ${pickLocalized(dept.name, language)}`,
+        targetPath: `/workspace/publications?project=${record.identity.id}`,
+        publicationProjectId: record.identity.id,
+        isPlannedRoute: false,
+        searchText: normalizeForSearch(
+          [
+            'publicacao',
+            'publicacoes',
+            'publications',
+            'editorial',
+            'portfolio',
+            record.identity.id,
+            record.identity.code,
+            record.editorial.title.pt,
+            record.editorial.title.en,
+            record.publication.publicationStatus,
+            dept.code,
+            dept.name.pt,
+            dept.name.en,
+            latestAudit?.note.pt ?? '',
+            latestAudit?.note.en ?? '',
+          ].join(' '),
+        ),
+      });
+    });
+
   const combinedEntries: readonly IndexedWorkspaceSearchEntry[] = [
     ...staticBuckets.routeEntries,
     ...staticBuckets.profileEntries,
     ...projectEntries,
     ...taskEntries,
     ...techRefEntries,
+    ...publicationEntries,
     ...staticBuckets.studyAndDepartmentEntries,
   ];
 
@@ -415,6 +467,7 @@ function getIndexedSearchEntries(
     libraryVersion: snapshot.version,
     tasksVersion: tasksSnapshot.version,
     techLibraryVersion: techSnapshot.version,
+    publicationsVersion: pubSnapshot.version,
     language,
     entries: combinedEntries,
   });
