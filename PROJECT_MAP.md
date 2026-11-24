@@ -166,6 +166,9 @@
 | `plans/020-phase-07-validation-and-final-delivery.md` | plano da Fase 07: Validação transversal (`11/11` rotas, `6/6` perfis, matriz de evidências) e entrega final |
 | `docs/agent-reports/phase-07/` | relatórios técnicos publicados da Fase 07 (`07-E2E-01`, `07-QA-01`) |
 | `docs/DELIVERY_SUMMARY.md` | resumo final de entrega da versão demonstrativa O+A Workspace (matriz de evidências `11/11`, `6` perfis, execução local e limitações demo) |
+| `plans/021-phase-08-product-refinement-and-user-experience.md` | plano da Fase 08: Product Refinement & User Experience (matriz `R-01`..`R-11` e missões incrementais `08.2`–`08.5`) |
+| `docs/PRODUCT_EVOLUTION_ROADMAP.md` | roadmap estratégico futuro das Fases 09–14 (Backend/RFC, Auth/RBAC, Gestão Documental/3D, Colaboração & Google Calendar, Pipeline Editorial e Produção) |
+| `docs/agent-reports/phase-08/` | relatórios técnicos publicados da Fase 08 (`08-PLAN-01-coordinator.md`) |
 | `docs/audits/phase045-security-qa-final.md` | auditoria independente de segurança e QA da Fase 04.5 (Gemini D · `codex/f045-security-qa-final`) |
 | `docs/agent-reports/phase-045/` | relatórios técnicos publicados da Missão 1 Swarm (`045-ARCH-01-agent-a.md`, `045-UX-01-agent-b.md`, `045-PERF-01-agent-c.md`, `045-QA-01-agent-d.md`) |
 | `docs/agent-reports/phase-0451/` | relatórios técnicos publicados da Fase 04.5.1 (`0451-DATA-01-agent-a.md`, `0451-FE-01-agent-b.md`, `0451-PERF-01-agent-c.md`, `0451-QA-01-agent-d.md`) |
