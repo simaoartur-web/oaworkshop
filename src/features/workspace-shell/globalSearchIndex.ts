@@ -240,9 +240,9 @@ function getStaticBuckets(language: AppLanguage): StaticSearchBuckets {
     subtitle: `${pickLocalized(
       FEATURED_STUDY_PROJECT.discipline,
       language,
-    )} · ${FEATURED_STUDY_PROJECT.scale} · (Fases 03–04)`,
+    )} · ${FEATURED_STUDY_PROJECT.scale}`,
     targetPath: '/workspace/projects',
-    isPlannedRoute: true,
+    isPlannedRoute: false,
     searchText: normalizeForSearch(
       [
         FEATURED_STUDY_PROJECT.code,
