@@ -325,7 +325,7 @@ const en: EditorialControlDictionary = {
   },
   publications: {
     pageTitle: 'Publications — O+A Workspace',
-    eyebrow: 'SHEET 08 · EDITORIAL QUEUE · DEMO MODE',
+    eyebrow: 'PLATE 08 · EDITORIAL QUEUE · DEMO MODE',
     heading: 'Editorial Queue & Preview',
     subtitle:
       'Private-by-default editorial governance with bilingual PT/EN review and local portfolio preview — never connected to or modifying the real oaworkshop public website.',
@@ -373,7 +373,7 @@ const en: EditorialControlDictionary = {
   },
   activity: {
     pageTitle: 'Activity — O+A Workspace',
-    eyebrow: 'SHEET 09 · UNIFIED ACTIVITY · DEMO MODE',
+    eyebrow: 'PLATE 09 · UNIFIED ACTIVITY · DEMO MODE',
     heading: 'Studio Activity Timeline',
     subtitle:
       'Chronological ledger 100% derived from project revisions, tasks, technical library sheets, and local editorial decisions.',
@@ -395,7 +395,7 @@ const en: EditorialControlDictionary = {
   },
   reports: {
     pageTitle: 'Reports — O+A Workspace',
-    eyebrow: 'SHEET 10 · DERIVED REPORTS · DEMO MODE',
+    eyebrow: 'PLATE 10 · DERIVED REPORTS · DEMO MODE',
     heading: 'Operational Reports & Summary',
     subtitle:
       'Indicators 100% derived from local O+A Workspace repositories — zero invented metrics, empty departments honestly reported as 0.',

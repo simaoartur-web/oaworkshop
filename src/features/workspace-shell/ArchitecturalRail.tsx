@@ -242,17 +242,11 @@ export function ArchitecturalRail({
                         </span>
 
                         {available ? (
-                          <span
-                            className={`text-[11px] font-medium px-1.5 py-0.5 leading-none shrink-0 ${
-                              active
-                                ? 'border border-[#A65D4A]/70 bg-[#A65D4A]/22 text-white'
-                                : 'text-[#CE826D]'
-                            }`}
-                          >
-                            {active
-                              ? t.shell.availability.currentTag
-                              : t.shell.availability.activeNow}
-                          </span>
+                          active ? (
+                            <span className="text-[11px] font-medium px-1.5 py-0.5 leading-none shrink-0 border border-[#A65D4A]/70 bg-[#A65D4A]/22 text-white">
+                              {t.shell.availability.currentTag}
+                            </span>
+                          ) : null
                         ) : (
                           <span className="inline-flex items-center border border-dashed border-white/20 bg-white/[0.02] px-1.5 py-0.5 text-[11px] leading-none text-[#B8B8B8] shrink-0">
                             {t.shell.availability.unavailableTag}

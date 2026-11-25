@@ -180,7 +180,7 @@ const pt: StudioStructureDictionary = {
   },
   departments: {
     pageTitle: 'Departamentos — O+A Workspace',
-    eyebrow: 'FOLHA 05 · DEPARTAMENTOS · MODO DEMO',
+    eyebrow: 'PRANCHA 05 · DEPARTAMENTOS · MODO DEMO',
     heading: 'Departamentos',
     subtitle:
       'Estrutura disciplinar canónica do atelier (9 frentes entre Maputo e Milão) com contadores 100% derivados dos projectos, tarefas e fichas técnicas activas.',
@@ -210,7 +210,7 @@ const pt: StudioStructureDictionary = {
   },
   team: {
     pageTitle: 'Equipa — O+A Workspace',
-    eyebrow: 'FOLHA 06 · EQUIPA · MODO DEMO',
+    eyebrow: 'PRANCHA 06 · EQUIPA · MODO DEMO',
     heading: 'Equipa do Atelier',
     subtitle:
       'Perfis operacionais fictícios do eixo Maputo–Milão ligados aos projectos e tarefas canónicas do workspace.',
@@ -250,7 +250,7 @@ const pt: StudioStructureDictionary = {
   },
   library: {
     pageTitle: 'Biblioteca Técnica — O+A Workspace',
-    eyebrow: 'FOLHA 07 · BIBLIOTECA TÉCNICA · MODO DEMO',
+    eyebrow: 'PRANCHA 07 · BIBLIOTECA TÉCNICA · MODO DEMO',
     heading: 'Biblioteca Técnica',
     subtitle:
       'Caderno de matérias, sistemas construtivos e estudos climáticos do atelier — módulo técnico autónomo e distinto do catálogo de projectos.',
@@ -351,7 +351,7 @@ const en: StudioStructureDictionary = {
   },
   departments: {
     pageTitle: 'Departments — O+A Workspace',
-    eyebrow: 'SHEET 05 · DEPARTMENTS · DEMO MODE',
+    eyebrow: 'PLATE 05 · DEPARTMENTS · DEMO MODE',
     heading: 'Departments',
     subtitle:
       'Canonical studio disciplinary structure (9 tracks across Maputo and Milan) with 100% derived counters from active projects, tasks, and technical references.',
@@ -381,7 +381,7 @@ const en: StudioStructureDictionary = {
   },
   team: {
     pageTitle: 'Team — O+A Workspace',
-    eyebrow: 'SHEET 06 · TEAM · DEMO MODE',
+    eyebrow: 'PLATE 06 · TEAM · DEMO MODE',
     heading: 'Studio Team',
     subtitle:
       'Fictive operational profiles across the Maputo–Milan axis linked to canonical workspace projects and tasks.',
@@ -421,7 +421,7 @@ const en: StudioStructureDictionary = {
   },
   library: {
     pageTitle: 'Technical Library — O+A Workspace',
-    eyebrow: 'SHEET 07 · TECHNICAL LIBRARY · DEMO MODE',
+    eyebrow: 'PLATE 07 · TECHNICAL LIBRARY · DEMO MODE',
     heading: 'Technical Library',
     subtitle:
       'Studio index of materials, constructive systems, and climate studies — an autonomous technical module distinct from the project catalog.',

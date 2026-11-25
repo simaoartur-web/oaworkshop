@@ -88,6 +88,17 @@
   border-left: 1px solid var(--oa-border-hairline);
 }
 
+/* Tectonic surface hierarchy utilities */
+.oa-surface-card {
+  background-color: #141414;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.oa-surface-elevated {
+  background-color: var(--oa-bg-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
 /* Architectural input control */
 .oa-field-input {
   width: 100%;

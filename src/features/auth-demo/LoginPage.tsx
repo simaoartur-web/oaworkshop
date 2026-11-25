@@ -132,7 +132,7 @@ export function LoginPage() {
   const passwordErrorText = resolvePasswordErrorText();
 
   return (
-    <div className="min-h-dvh lg:h-dvh lg:overflow-hidden w-full bg-[#111111] text-white flex flex-col lg:grid lg:grid-cols-12 lg:grid-rows-[auto_1fr]">
+    <div className="min-h-dvh lg:h-dvh lg:overflow-hidden overflow-x-clip w-full bg-[#111111] text-white flex flex-col lg:grid lg:grid-cols-12 lg:grid-rows-[auto_1fr]">
       <a
         href="#login-main-chamber"
         className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:bg-[#A65D4A] focus:px-4 focus:py-2.5 focus:text-xs focus:uppercase focus:tracking-[0.2em] focus:text-white"
@@ -141,8 +141,12 @@ export function LoginPage() {
       </a>
 
       {/* SINGLE SEMANTIC HEADER — Row 1 on Mobile/Tablet; Right Chamber Top Bar on Desktop */}
-      <header className="lg:col-start-8 lg:col-span-5 lg:row-start-1 flex items-center justify-between gap-3 px-4 sm:px-8 lg:px-9 py-3.5 lg:py-4 bg-[#0E0E0E] oa-hairline-b">
-        <OABrandMark subtitle={t.common.workspaceTitle} size="md" />
+      <header className="lg:col-start-8 lg:col-span-5 lg:row-start-1 min-w-0 flex items-center justify-between gap-2 sm:gap-3 px-4 sm:px-8 lg:px-9 py-3.5 lg:py-4 bg-[#0E0E0E] oa-hairline-b">
+        <OABrandMark
+          subtitle={t.common.workspaceTitle}
+          size="md"
+          hideDetailsOnMobile
+        />
         <LanguageToggle
           language={language}
           onChange={setLanguage}
@@ -154,16 +158,16 @@ export function LoginPage() {
       {/* ZONE A — ARCHITECTURAL SPATIAL STAGE (58% Left Full-Height Desktop / Row 2 Mobile & Tablet) */}
       <aside
         aria-label={t.login.plateCode}
-        className="relative lg:col-start-1 lg:col-span-7 lg:row-start-1 lg:row-span-2 bg-[#050505] lg:h-dvh flex flex-col justify-between overflow-hidden oa-hairline-b lg:border-b-0 lg:oa-hairline-r"
+        className="relative min-w-0 lg:col-start-1 lg:col-span-7 lg:row-start-1 lg:row-span-2 bg-[#050505] lg:h-dvh flex flex-col justify-between overflow-hidden oa-hairline-b lg:border-b-0 lg:oa-hairline-r"
       >
         {/* Top Datum & Mode Bar */}
-        <div className="relative z-20 flex flex-wrap items-center justify-between gap-3 px-4 sm:px-8 lg:px-10 py-3.5 lg:py-5 bg-[#050505]/85 oa-hairline-b">
-          <div className="flex items-center gap-3">
+        <div className="relative z-20 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 px-4 sm:px-8 lg:px-10 py-3 lg:py-5 bg-[#050505]/85 oa-hairline-b">
+          <div className="flex items-center gap-2.5 min-w-0">
             <span
               aria-hidden="true"
-              className="inline-block h-2 w-2 bg-[#A65D4A]"
+              className="inline-block h-2 w-2 bg-[#A65D4A] shrink-0"
             />
-            <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#E0E0E0]">
+            <span className="text-[11px] font-medium uppercase tracking-[0.18em] sm:tracking-[0.22em] text-[#E0E0E0] truncate">
               {t.login.plateCode}
             </span>
           </div>
@@ -180,33 +184,33 @@ export function LoginPage() {
           <div
             role="group"
             aria-label={t.login.plateCode}
-            className="inline-flex items-center border border-white/15 bg-[#101010]"
+            className="w-full sm:w-auto flex sm:inline-flex items-center border border-white/15 bg-[#101010]"
           >
             <button
               type="button"
               onClick={() => setVisualMode('photo')}
               aria-pressed={visualMode === 'photo'}
-              className={`min-h-[44px] px-3 inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] transition-colors cursor-pointer ${
+              className={`flex-1 sm:flex-initial min-h-[44px] px-2 sm:px-3 inline-flex items-center justify-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.08em] sm:tracking-[0.16em] transition-colors cursor-pointer ${
                 visualMode === 'photo'
                   ? 'bg-white/12 text-white border-b-2 border-[#A65D4A]'
                   : 'text-[#BDBDBD] hover:text-white'
               }`}
             >
-              <Layers size={14} strokeWidth={1.35} aria-hidden="true" />
+              <Layers size={14} strokeWidth={1.35} className="shrink-0" aria-hidden="true" />
               <span>{t.login.viewPhoto}</span>
             </button>
-            <span aria-hidden="true" className="h-5 w-px bg-white/12" />
+            <span aria-hidden="true" className="h-5 w-px bg-white/12 shrink-0" />
             <button
               type="button"
               onClick={() => setVisualMode('section')}
               aria-pressed={visualMode === 'section'}
-              className={`min-h-[44px] px-3 inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] transition-colors cursor-pointer ${
+              className={`flex-1 sm:flex-initial min-h-[44px] px-2 sm:px-3 inline-flex items-center justify-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.08em] sm:tracking-[0.16em] transition-colors cursor-pointer ${
                 visualMode === 'section'
                   ? 'bg-white/12 text-white border-b-2 border-[#A65D4A]'
                   : 'text-[#BDBDBD] hover:text-white'
               }`}
             >
-              <Compass size={14} strokeWidth={1.35} aria-hidden="true" />
+              <Compass size={14} strokeWidth={1.35} className="shrink-0" aria-hidden="true" />
               <span>{t.login.viewSection}</span>
             </button>
           </div>
@@ -278,7 +282,7 @@ export function LoginPage() {
       {/* ZONE B — AUTHENTICATION & STUDIO ROLE CHAMBER (42% Right Desktop / Row 3 Mobile & Tablet) */}
       <main
         id="login-main-chamber"
-        className="lg:col-start-8 lg:col-span-5 lg:row-start-2 bg-[#111111] flex flex-col justify-between lg:overflow-y-auto"
+        className="min-w-0 lg:col-start-8 lg:col-span-5 lg:row-start-2 bg-[#111111] flex flex-col justify-between lg:overflow-y-auto"
       >
         {/* Form & Demo Role Index */}
         <div className="flex-1 px-4 sm:px-8 lg:px-9 py-6 sm:py-7 lg:py-6 flex flex-col justify-center">
@@ -449,14 +453,14 @@ export function LoginPage() {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {DEMO_USERS.map((profile) => {
                 const isSelected = selectedProfileId === profile.id;
                 const dept = DEPARTMENTS[profile.departmentId];
                 return (
                   <div
                     key={profile.id}
-                    className={`flex items-stretch justify-between border transition-colors ${
+                    className={`min-w-0 flex items-stretch justify-between border transition-colors ${
                       isSelected
                         ? 'border-[#A65D4A] bg-white/[0.04]'
                         : 'border-white/10 bg-[#161616] hover:border-white/24'
@@ -466,33 +470,35 @@ export function LoginPage() {
                       type="button"
                       onClick={() => handleSelectProfileToFill(profile)}
                       aria-pressed={isSelected}
-                      className="flex-1 min-w-0 min-h-[54px] px-3 py-2 text-left flex flex-col justify-center cursor-pointer"
+                      className="flex-1 min-w-0 min-h-[64px] px-3 py-2 text-left flex flex-col justify-center gap-0.5 cursor-pointer"
                     >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-[11px] font-semibold tracking-[0.14em] text-[#CE826D] whitespace-nowrap shrink-0">
+                      <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.14em]">
+                        <span className="font-semibold text-[#CE826D] shrink-0">
                           {profile.code}
                         </span>
-                        <span className="text-xs sm:text-[13px] font-medium text-white truncate">
-                          {profile.name}
-                        </span>
-                      </div>
-                      <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-[#BDBDBD] truncate">
-                        <span className="truncate">{pickLocalized(dept.name, language)}</span>
-                        <span aria-hidden="true" className="text-white/25 shrink-0">
+                        <span aria-hidden="true" className="text-white/25">
                           ·
                         </span>
-                        <span className="shrink-0">{profile.studioBase}</span>
+                        <span className="text-[#BDBDBD]">
+                          {profile.studioBase}
+                        </span>
                       </div>
+                      <span className="text-[12.5px] font-medium text-white leading-snug">
+                        {profile.name}
+                      </span>
+                      <span className="text-[11px] text-[#BDBDBD] leading-snug">
+                        {pickLocalized(dept.name, language)}
+                      </span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => handleDirectProfileEnter(profile)}
                       aria-label={`${t.login.profileQuickEnter} ${profile.name}`}
-                      className="min-h-[54px] min-w-[68px] px-2.5 border-l border-white/10 text-[10px] font-medium uppercase tracking-[0.16em] text-[#E0E0E0] hover:bg-[#A65D4A] hover:text-white inline-flex items-center justify-center gap-1 transition-colors cursor-pointer shrink-0"
+                      title={`${t.login.profileQuickEnter} ${profile.name}`}
+                      className="min-h-[64px] min-w-[44px] px-2.5 border-l border-white/10 text-[10px] font-medium uppercase tracking-[0.14em] text-[#E0E0E0] hover:bg-[#A65D4A] hover:text-white inline-flex items-center justify-center transition-colors cursor-pointer shrink-0"
                     >
-                      <span>{language === 'pt' ? 'Entrar' : 'Enter'}</span>
-                      <ArrowRight size={12} strokeWidth={1.5} aria-hidden="true" />
+                      <ArrowRight size={14} strokeWidth={1.5} aria-hidden="true" />
                     </button>
                   </div>
                 );

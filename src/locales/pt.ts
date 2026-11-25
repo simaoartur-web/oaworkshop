@@ -175,8 +175,9 @@ export const pt = {
       },
       actions: {
         openRoute: 'Abrir secção',
-        viewProject: 'Abrir no Studio Desk',
+        viewProject: 'Abrir dossier',
         activateProfile: 'Activar perfil',
+        activeProfile: 'Perfil activo',
         viewStudy: 'Ver no Atelier',
       },
       roleSwitchedAnnouncement: 'Perfil demonstrativo actualizado via pesquisa local.',

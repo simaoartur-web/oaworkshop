@@ -123,10 +123,7 @@ function getStaticBuckets(language: AppLanguage): StaticSearchBuckets {
         category: 'route',
         code: `${item.plateNumber} · ${item.shortTag}`,
         title: pickLocalized(item.label, language),
-        subtitle: `${pickLocalized(item.description, language)} (${pickLocalized(
-          item.targetPhase,
-          language,
-        )})`,
+        subtitle: pickLocalized(item.description, language),
         targetPath: item.path,
         isPlannedRoute: item.status === 'planned',
         searchText: normalizeForSearch(
