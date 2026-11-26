@@ -1,4 +1,4 @@
-import { ArrowLeft, RotateCcw, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, LogOut, RotateCcw, ShieldCheck } from 'lucide-react';
 import { useEffect, useId } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useWorkspaceSession } from '../../app/WorkspaceSessionContext';
@@ -7,6 +7,7 @@ import { PROJECT_LIBRARY_STORAGE_KEY } from '../../data/projectLibraryRepository
 import { STORAGE_KEYS } from '../../data/sessionRepository';
 import { STUDIO_DESK_STORAGE_KEY } from '../../data/studioDeskFixtures';
 import { LanguageToggle } from '../../design-system/LanguageToggle';
+import { PlateHeader } from '../../design-system/PlateHeader';
 import { pickLocalized } from '../../locales';
 import { SHELL_STORAGE_KEYS } from '../workspace-shell/shellDemoState';
 import { useOptionalWorkspaceShellUi } from '../workspace-shell/shellUiContext';
@@ -21,6 +22,7 @@ export function WorkspaceSettingsPage() {
     setSkipWelcomeOnLogin,
     setReduceMotionOverride,
     switchRole,
+    signOut,
     resetAllDemoData,
   } = useWorkspaceSession();
   const shellUi = useOptionalWorkspaceShellUi();
@@ -40,28 +42,28 @@ export function WorkspaceSettingsPage() {
     navigate('/login', { replace: true });
   };
 
+  const handleSignOut = () => {
+    signOut();
+    navigate('/login', { replace: true });
+  };
+
   return (
     <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-10 space-y-8">
-      <header className="pb-6 oa-hairline-b space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-[11px] font-medium uppercase tracking-[0.20em] text-[#CE826D]">
-            {t.shell.settings.eyebrow}
-          </p>
+      <PlateHeader
+        eyebrow={t.shell.settings.eyebrow}
+        title={t.shell.settings.heading}
+        subtitle={t.shell.settings.description}
+        demoBadgeLabel={t.common.localSavedBadge}
+        actions={
           <Link
             to="/workspace"
-            className="min-h-[40px] px-3.5 py-1.5 border border-white/16 bg-[#141414] hover:border-[#A65D4A] text-xs font-medium uppercase tracking-[0.14em] text-white inline-flex items-center gap-2 transition-colors"
+            className="min-h-[44px] px-4 py-2 border border-white/16 bg-[#141414] hover:border-[#A65D4A] text-xs font-medium uppercase tracking-[0.16em] text-[#E0E0E0] hover:text-white inline-flex items-center gap-2 transition-colors"
           >
-            <ArrowLeft size={14} strokeWidth={1.5} aria-hidden="true" />
+            <ArrowLeft size={14} strokeWidth={1.4} aria-hidden="true" />
             <span>{t.shell.availability.returnToDeskAction}</span>
           </Link>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-white">
-          {t.shell.settings.heading}
-        </h1>
-        <p className="text-sm text-[#CCCCCC] max-w-2xl">
-          {t.shell.settings.description}
-        </p>
-      </header>
+        }
+      />
 
       {/* Interface Preferences Matrix */}
       <section
@@ -299,7 +301,16 @@ export function WorkspaceSettingsPage() {
           </ul>
         </div>
 
-        <div className="pt-2">
+        <div className="pt-2 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="min-h-[44px] px-4 py-2.5 border border-white/18 bg-[#141414] hover:border-[#A65D4A] text-xs font-medium uppercase tracking-[0.16em] text-[#E0E0E0] hover:text-white inline-flex items-center gap-2 transition-colors cursor-pointer"
+          >
+            <LogOut size={14} strokeWidth={1.4} aria-hidden="true" />
+            <span>{t.common.logout}</span>
+          </button>
+
           <button
             type="button"
             onClick={handleResetDemo}

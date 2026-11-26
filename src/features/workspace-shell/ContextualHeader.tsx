@@ -200,7 +200,7 @@ export function ContextualHeader({
         >
           <Search size={15} strokeWidth={1.35} aria-hidden="true" />
           <span className="hidden xl:inline">{t.shell.search.triggerLabel}</span>
-          <kbd className="hidden 2xl:inline-block border border-white/16 bg-[#0B0B0B] px-1.5 py-0.5 text-[11px] font-mono text-[#BDBDBD]">
+          <kbd className="hidden xl:inline-block border border-white/16 bg-[#0B0B0B] px-1.5 py-0.5 text-[11px] font-mono text-[#BDBDBD]">
             {t.shell.search.triggerShortcut}
           </kbd>
         </button>
@@ -324,17 +324,6 @@ export function ContextualHeader({
             </div>
           )}
         </div>
-
-        {/* Direct Logout Icon Action on Tablet/Desktop (>= 768px) */}
-        <button
-          type="button"
-          onClick={handleLogout}
-          aria-label={t.common.logout}
-          title={t.common.logout}
-          className="hidden md:inline-flex min-h-[44px] min-w-[44px] px-2.5 border border-white/14 bg-transparent hover:border-[#A65D4A] text-xs uppercase tracking-[0.12em] text-[#BDBDBD] hover:text-white items-center justify-center transition-colors cursor-pointer"
-        >
-          <LogOut size={15} strokeWidth={1.35} aria-hidden="true" />
-        </button>
       </div>
     </header>
   );

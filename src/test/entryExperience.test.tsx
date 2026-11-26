@@ -219,9 +219,14 @@ describe('O+A Workspace — Phase 01 Entry & Access Verification Suite', () => {
       }),
     ).toBeInTheDocument();
 
-    // Terminar sessão demo directly from ContextualHeader
+    // Terminar sessão demo via User Menu in ContextualHeader (no duplicate icon-only logout button)
     await user.click(
-      screen.getByRole('button', { name: /Terminar sessão demo/i }),
+      screen.getByRole('button', {
+        name: /Abrir menu do utilizador demonstrativo e sessão/i,
+      }),
+    );
+    await user.click(
+      screen.getByRole('menuitem', { name: /Terminar sessão demo/i }),
     );
     expect(
       await screen.findByRole('heading', {

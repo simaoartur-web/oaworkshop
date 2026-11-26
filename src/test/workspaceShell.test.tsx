@@ -47,7 +47,7 @@ describe('Phase 02A — Workspace Shell Architecture, Search, Notifications & Na
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/FOLHA 02 · MESA DE TRABALHO · MODO DEMO/i),
+      screen.getByText(/PRANCHA 01 · MESA DE TRABALHO · MODO DEMO/i),
     ).toBeInTheDocument();
 
     // Desktop rail navigation items are present & Studio Desk is active
@@ -246,14 +246,32 @@ describe('Phase 02A — Workspace Shell Architecture, Search, Notifications & Na
       name: /Navegação principal do O\+A Workspace/i,
     });
 
-    // All 11/11 workspace modules are now active in Phase 06; no empty upcoming groups or phase badges
+    // All 11/11 workspace modules are active in strict 01..11 order with zero redundant "Activa" badges
     expect(within(nav).getByText(/Disponível agora/i)).toBeInTheDocument();
     expect(within(nav).queryByText(/Em breve · Atelier e Equipa/i)).not.toBeInTheDocument();
     expect(within(nav).queryByText(/Em breve · Gestão e Arquivo/i)).not.toBeInTheDocument();
     expect(within(nav).queryByText(/^Em breve$/i)).not.toBeInTheDocument();
+    expect(within(nav).queryByText(/^Activa$/i)).not.toBeInTheDocument();
     expect(within(nav).queryByText(/^F03$/)).not.toBeInTheDocument();
     expect(within(nav).queryByText(/^F05$/)).not.toBeInTheDocument();
     expect(within(nav).queryByText(/^F06$/)).not.toBeInTheDocument();
+
+    const orderedHrefs = within(nav)
+      .getAllByRole('link')
+      .map((link) => link.getAttribute('href'));
+    expect(orderedHrefs).toEqual([
+      '/workspace',
+      '/workspace/projects',
+      '/workspace/tasks',
+      '/workspace/calendar',
+      '/workspace/departments',
+      '/workspace/team',
+      '/workspace/library',
+      '/workspace/publications',
+      '/workspace/activity',
+      '/workspace/reports',
+      '/workspace/settings',
+    ]);
 
     // Projectos, Publicações, Actividade and Relatórios are all active routes
     expect(
@@ -330,5 +348,41 @@ describe('Phase 02A — Workspace Shell Architecture, Search, Notifications & Na
     });
     await user.click(skipLink);
     expect(document.getElementById('workspace-main-content')).toHaveFocus();
+  });
+
+  it('Phase 08.2 (R-01/R-02/R-12): removes obsolete phase copy from search, marks active profile as Perfil activo, labels projects as Abrir dossier, and renders PlateHeader/DemoBadge on Settings', async () => {
+    const user = userEvent.setup();
+    seedDemoSession(0);
+    renderWorkspaceShellApp('/workspace/settings');
+
+    // PlateHeader + DemoBadge render cleanly on Settings
+    expect(
+      await screen.findByText(/PRANCHA 11 · PREFERÊNCIAS DA SESSÃO DEMO/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Guardado neste navegador \(demo\)/i),
+    ).toBeInTheDocument();
+
+    // Open Global Search via header trigger
+    await user.click(
+      screen.getByRole('button', { name: /Abrir pesquisa demonstrativa local/i }),
+    );
+    const dialog = await screen.findByRole('dialog');
+
+    // No obsolete Fase 02 / Fases 02-03 copy in search results
+    expect(within(dialog).queryByText(/Fase 02|Fases 02–03/i)).not.toBeInTheDocument();
+
+    // Active profile (DIR-01) displays 'Perfil activo' instead of 'Activar perfil'
+    const searchInput = within(dialog).getByRole('combobox');
+    await user.type(searchInput, 'DIR-01');
+    expect(await within(dialog).findByText(/Perfil activo/i)).toBeInTheDocument();
+
+    // Project result displays 'Abrir dossier' instead of 'Abrir no Studio Desk'
+    await user.clear(searchInput);
+    await user.type(searchInput, 'OA-26-101');
+    expect(await within(dialog).findByText(/Abrir dossier/i)).toBeInTheDocument();
+    expect(
+      within(dialog).queryByText(/Abrir no Studio Desk/i),
+    ).not.toBeInTheDocument();
   });
 });

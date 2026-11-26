@@ -30,7 +30,7 @@ function GlobalSearchModalContent({
   onClose,
   onAnnounce,
 }: Omit<GlobalSearchDialogProps, 'open'>) {
-  const { language, t, switchRole } = useWorkspaceSession();
+  const { currentUser, language, t, switchRole } = useWorkspaceSession();
   const navigate = useNavigate();
 
   const [query, setQuery] = useState('');
@@ -224,9 +224,15 @@ function GlobalSearchModalContent({
                 {results.map((entry, idx) => {
                   const isHighlighted = idx === safeActiveIndex;
                   const categoryLabel = t.shell.search.categories[entry.category];
+                  const isActiveProfile =
+                    entry.category === 'profile' &&
+                    Boolean(entry.switchToRole) &&
+                    entry.switchToRole === currentUser?.role;
                   const actionLabel =
                     entry.category === 'profile'
-                      ? t.shell.search.actions.activateProfile
+                      ? isActiveProfile
+                        ? t.shell.search.actions.activeProfile
+                        : t.shell.search.actions.activateProfile
                       : entry.category === 'project'
                         ? t.shell.search.actions.viewProject
                         : entry.category === 'study'

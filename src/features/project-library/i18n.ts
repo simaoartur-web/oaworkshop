@@ -154,7 +154,7 @@ export const PROJECT_LIBRARY_I18N: Record<
   pt: {
     catalog: {
       pageTitle: 'Projectos · Biblioteca Técnica — O+A Workspace',
-      eyebrow: 'SECÇÃO 02 · BIBLIOTECA DE PROJECTOS (DEMO)',
+      eyebrow: 'PRANCHA 02 · BIBLIOTECA DE PROJECTOS · MODO DEMO',
       heading: 'Catálogo técnico de projectos.',
       subtitle:
         'Base canónica local dos estudos e dossiers do atelier entre Maputo e Milão. Registos guardados exclusivamente neste navegador.',
@@ -327,7 +327,7 @@ export const PROJECT_LIBRARY_I18N: Record<
   en: {
     catalog: {
       pageTitle: 'Projects · Technical Library — O+A Workspace',
-      eyebrow: 'SECTION 02 · PROJECT LIBRARY (DEMO)',
+      eyebrow: 'PLATE 02 · PROJECT LIBRARY · DEMO MODE',
       heading: 'Technical project catalog.',
       subtitle:
         'Local canonical archive for Maputo and Milan studies and dossiers. Changes persist strictly in this browser.',

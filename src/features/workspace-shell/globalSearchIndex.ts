@@ -123,10 +123,7 @@ function getStaticBuckets(language: AppLanguage): StaticSearchBuckets {
         category: 'route',
         code: `${item.plateNumber} · ${item.shortTag}`,
         title: pickLocalized(item.label, language),
-        subtitle: `${pickLocalized(item.description, language)} (${pickLocalized(
-          item.targetPhase,
-          language,
-        )})`,
+        subtitle: pickLocalized(item.description, language),
         targetPath: item.path,
         isPlannedRoute: item.status === 'planned',
         searchText: normalizeForSearch(
@@ -243,9 +240,9 @@ function getStaticBuckets(language: AppLanguage): StaticSearchBuckets {
     subtitle: `${pickLocalized(
       FEATURED_STUDY_PROJECT.discipline,
       language,
-    )} · ${FEATURED_STUDY_PROJECT.scale} · (Fases 03–04)`,
+    )} · ${FEATURED_STUDY_PROJECT.scale}`,
     targetPath: '/workspace/projects',
-    isPlannedRoute: true,
+    isPlannedRoute: false,
     searchText: normalizeForSearch(
       [
         FEATURED_STUDY_PROJECT.code,

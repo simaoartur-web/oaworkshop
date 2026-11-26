@@ -210,18 +210,18 @@ export function NotificationsPopover({
                       {item.studioTag}
                     </span>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                       {!item.read ? (
                         <button
                           type="button"
                           onClick={() => handleMarkSingle(item.id)}
-                          className="min-h-[36px] px-2.5 border border-white/16 bg-[#111111] hover:border-[#A65D4A] text-[11px] uppercase tracking-[0.12em] text-[#E6E6E6] hover:text-white inline-flex items-center gap-1 transition-colors cursor-pointer"
+                          className="min-h-[36px] px-2.5 border border-white/16 bg-[#111111] hover:border-[#A65D4A] text-[11px] uppercase tracking-[0.12em] text-[#E6E6E6] hover:text-white inline-flex items-center gap-1 whitespace-nowrap transition-colors cursor-pointer"
                         >
                           <Check size={12} strokeWidth={1.6} aria-hidden="true" />
                           <span>{t.shell.notifications.markOneRead}</span>
                         </button>
                       ) : (
-                        <span className="text-[11px] uppercase tracking-[0.12em] text-[#B0B0B0]">
+                        <span className="text-[11px] uppercase tracking-[0.12em] text-[#B0B0B0] whitespace-nowrap">
                           {t.shell.notifications.readLabel}
                         </span>
                       )}
@@ -235,7 +235,7 @@ export function NotificationsPopover({
                           item.title,
                           language,
                         )}`}
-                        className={`min-h-[36px] px-2.5 border text-[11px] uppercase tracking-[0.12em] inline-flex items-center gap-1 transition-colors cursor-pointer ${
+                        className={`min-h-[36px] px-2.5 border text-[11px] uppercase tracking-[0.12em] inline-flex items-center gap-1 whitespace-nowrap transition-colors cursor-pointer ${
                           item.isFutureModuleDemo
                             ? 'border-dashed border-white/24 bg-[#161616] text-[#D0D0D0] hover:text-white hover:border-white/45'
                             : 'border-white/16 bg-transparent hover:border-white/40 text-[#D0D0D0] hover:text-white'

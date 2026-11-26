@@ -67,7 +67,7 @@ describe('O+A Workspace — Phase 02 Integrated Quality Gate Suite', () => {
 
     // Studio Desk content inside main
     expect(
-      within(mains[0]).getByText(/FOLHA 02 · MESA DE TRABALHO · MODO DEMO/i),
+      within(mains[0]).getByText(/PRANCHA 01 · MESA DE TRABALHO · MODO DEMO/i),
     ).toBeInTheDocument();
     expect(
       within(mains[0]).getAllByText(/Galeria Cívica & Pátio da Ponta Vermelha/i).length,
@@ -194,9 +194,15 @@ describe('O+A Workspace — Phase 02 Integrated Quality Gate Suite', () => {
       within(popover).getByText(/Oficina de Leitura em Terra Compactada/i),
     ).toBeInTheDocument();
 
-    // Future module previews carry planned action button
-    const plannedBadges = within(popover).getAllByText(/Ver Prancha Planeada/i);
-    expect(plannedBadges.length).toBeGreaterThan(0);
+    // All notifications now point to active modules — zero obsolete "Ver Prancha Planeada" or phase copy
+    expect(
+      within(popover).queryByText(/Ver Prancha Planeada/i),
+    ).not.toBeInTheDocument();
+    expect(
+      within(popover).queryByText(/Fases 03–04|Fase 05|Fase 06/i),
+    ).not.toBeInTheDocument();
+    const activeLinks = within(popover).getAllByText(/Abrir secção/i);
+    expect(activeLinks.length).toBeGreaterThanOrEqual(4);
   });
 
   it('harmonizes global demo reset across all 5 localStorage keys', async () => {
@@ -257,7 +263,7 @@ describe('O+A Workspace — Phase 02 Integrated Quality Gate Suite', () => {
     renderIntegratedApp('/workspace');
 
     expect(
-      await screen.findByText(/FOLHA 02 · MESA DE TRABALHO · MODO DEMO/i),
+      await screen.findByText(/PRANCHA 01 · MESA DE TRABALHO · MODO DEMO/i),
     ).toBeInTheDocument();
 
     // Switch to EN
@@ -267,7 +273,7 @@ describe('O+A Workspace — Phase 02 Integrated Quality Gate Suite', () => {
     await user.click(enButton);
 
     expect(
-      await screen.findByText(/SHEET 02 · STUDIO DESK · DEMO MODE/i),
+      await screen.findByText(/PLATE 01 · STUDIO DESK · DEMO MODE/i),
     ).toBeInTheDocument();
     expect(
       screen.getByText(/FEATURED PROJECT · ACTIVE DRAWING PLATE/i),

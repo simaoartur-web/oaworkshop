@@ -176,8 +176,9 @@ export const en: TranslationDictionary = {
       },
       actions: {
         openRoute: 'Open section',
-        viewProject: 'Open at Studio Desk',
+        viewProject: 'Open dossier',
         activateProfile: 'Activate profile',
+        activeProfile: 'Active profile',
         viewStudy: 'Open in Studio',
       },
       roleSwitchedAnnouncement: 'Demonstrative profile switched via local search.',
@@ -210,7 +211,7 @@ export const en: TranslationDictionary = {
     },
     settings: {
       pageTitle: 'O+A Workspace — Settings & Preferences (Demo)',
-      eyebrow: 'SHEET 11 · DEMO SESSION PREFERENCES',
+      eyebrow: 'PLATE 11 · DEMO SESSION PREFERENCES',
       heading: 'Local configuration for the demonstrative environment.',
       description:
         'Changes take effect immediately in this browser. No real admin permissions or remote persistence exist.',

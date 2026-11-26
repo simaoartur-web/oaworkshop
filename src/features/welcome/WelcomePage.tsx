@@ -82,8 +82,8 @@ export function WelcomePage() {
         {t.common.skipToMain}
       </a>
 
-      {/* TOP ARCHITECTURAL DATUM BAR — Fast-track & Session Controls immediately reachable */}
-      <header className="w-full bg-[#0A0A0A] oa-hairline-b px-4 sm:px-8 lg:px-12 py-3.5">
+      {/* TOP ARCHITECTURAL DATUM BAR — Session & Language Controls */}
+      <header className="w-full bg-[#0A0A0A] oa-hairline-b px-4 sm:px-8 lg:px-12 py-3">
         <div className="max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-4">
             <OABrandMark subtitle={t.common.workspaceTitle} size="sm" />
@@ -97,22 +97,6 @@ export function WelcomePage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <button
-              type="button"
-              onClick={handleEnterWorkspace}
-              aria-label={t.welcome.fastTrackCta}
-              className="min-h-[44px] px-3 sm:px-3.5 py-2 border border-white/18 bg-[#161616] hover:border-[#A65D4A] hover:text-white text-xs font-medium uppercase tracking-[0.16em] text-[#E0E0E0] inline-flex items-center gap-2 transition-colors cursor-pointer"
-            >
-              <span className="hidden sm:inline">{t.welcome.fastTrackCta}</span>
-              <span className="sm:hidden">Workspace</span>
-              <ArrowRight
-                size={14}
-                strokeWidth={1.5}
-                className="text-[#A65D4A]"
-                aria-hidden="true"
-              />
-            </button>
-
             <LanguageToggle
               language={language}
               onChange={setLanguage}
@@ -136,11 +120,11 @@ export function WelcomePage() {
       {/* MAIN THRESHOLD SHEET */}
       <main
         id="welcome-main-sheet"
-        className="flex-1 w-full max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 py-6 sm:py-9 lg:py-11 flex flex-col justify-between gap-8"
+        className="flex-1 w-full max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 py-5 sm:py-6 lg:py-7 flex flex-col justify-between gap-5 lg:gap-6"
       >
         {/* Editorial Greeting & Collaborator Context Header */}
         <section
-          className={`pb-6 sm:pb-8 oa-hairline-b flex flex-col lg:flex-row lg:items-end justify-between gap-5 ${
+          className={`pb-4 sm:pb-5 oa-hairline-b flex flex-col lg:flex-row lg:items-end justify-between gap-4 ${
             shouldReduceMotion ? '' : 'transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]'
           }`}
         >
@@ -413,9 +397,9 @@ export function WelcomePage() {
               shouldReduceMotion ? '' : 'transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]'
             }`}
           >
-            {/* Primary Action Plinth — Positioned high on mobile & desktop for effortless entry */}
-            <div className="border border-white/14 bg-[#161616] p-5 sm:p-7">
-              <div className="flex items-center justify-between gap-2 pb-4 oa-hairline-b">
+            {/* Primary Action Plinth — Single authoritative CTA positioned above the fold */}
+            <div className="border border-white/14 bg-[#161616] p-4 sm:p-5">
+              <div className="flex items-center justify-between gap-2 pb-3 oa-hairline-b">
                 <span className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#E0E0E0]">
                   {pickLocalized(currentUser.roleLabel, language)}
                 </span>
@@ -427,31 +411,21 @@ export function WelcomePage() {
                 />
               </div>
 
-              <div className="mt-5 flex flex-col gap-3">
+              <div className="mt-4">
                 <button
                   type="button"
                   onClick={handleEnterWorkspace}
                   onPointerEnter={handleIntentPreloadWorkspace}
                   onFocus={handleIntentPreloadWorkspace}
-                  className="w-full min-h-[52px] px-6 py-3.5 bg-[#A65D4A] hover:bg-[#B86B57] active:bg-[#96513F] text-xs sm:text-[13px] font-medium uppercase tracking-[0.22em] text-white inline-flex items-center justify-between transition-colors cursor-pointer"
+                  className="w-full min-h-[50px] px-5 py-3 bg-[#A65D4A] hover:bg-[#B86B57] active:bg-[#96513F] text-xs sm:text-[13px] font-medium uppercase tracking-[0.22em] text-white inline-flex items-center justify-between transition-colors cursor-pointer"
                 >
                   <span>{t.welcome.primaryEnterCta}</span>
                   <ArrowRight size={18} strokeWidth={1.5} aria-hidden="true" />
                 </button>
-
-                <button
-                  type="button"
-                  onClick={handleEnterWorkspace}
-                  onPointerEnter={handleIntentPreloadWorkspace}
-                  onFocus={handleIntentPreloadWorkspace}
-                  className="w-full min-h-[44px] px-4 py-2.5 border border-white/16 bg-transparent hover:border-white/35 text-xs font-medium uppercase tracking-[0.18em] text-[#E0E0E0] inline-flex items-center justify-center transition-colors cursor-pointer"
-                >
-                  {t.welcome.secondaryDirectCta}
-                </button>
               </div>
 
               {/* Persistent Local Skip-Welcome Preference */}
-              <div className="mt-5 pt-4 oa-hairline-t">
+              <div className="mt-4 pt-3.5 oa-hairline-t">
                 <label
                   htmlFor={skipPrefInputId}
                   className="min-h-[44px] flex items-start gap-3 cursor-pointer select-none"

@@ -174,7 +174,7 @@ const pt: OperationsDictionary = {
   },
   tasks: {
     pageTitle: 'Tarefas — O+A Workspace',
-    eyebrow: 'FOLHA 03 · TAREFAS · MODO DEMO',
+    eyebrow: 'PRANCHA 03 · TAREFAS · MODO DEMO',
     heading: 'Tarefas do Atelier',
     subtitle:
       'Lista técnica e quadro operacional sincronizados com o Studio Desk e o Calendário. Alterações guardadas apenas neste navegador (demo).',
@@ -269,7 +269,7 @@ const pt: OperationsDictionary = {
   },
   calendar: {
     pageTitle: 'Calendário — O+A Workspace',
-    eyebrow: 'FOLHA 04 · CALENDÁRIO · MODO DEMO',
+    eyebrow: 'PRANCHA 04 · CALENDÁRIO · MODO DEMO',
     heading: 'Calendário Operacional',
     subtitle:
       'Consolidação cronológica de marcos de projecto, prazos de tarefas e revisões conjuntas Maputo–Milão.',
@@ -353,7 +353,7 @@ const en: OperationsDictionary = {
   },
   tasks: {
     pageTitle: 'Tasks — O+A Workspace',
-    eyebrow: 'SHEET 03 · TASKS · DEMO MODE',
+    eyebrow: 'PLATE 03 · TASKS · DEMO MODE',
     heading: 'Studio Tasks',
     subtitle:
       'Technical list and operational board synchronized with Studio Desk and Calendar. Changes saved locally in this browser (demo).',
@@ -448,7 +448,7 @@ const en: OperationsDictionary = {
   },
   calendar: {
     pageTitle: 'Calendar — O+A Workspace',
-    eyebrow: 'SHEET 04 · CALENDAR · DEMO MODE',
+    eyebrow: 'PLATE 04 · CALENDAR · DEMO MODE',
     heading: 'Operational Calendar',
     subtitle:
       'Chronological consolidation of project milestones, task deadlines, and joint Maputo–Milan studio reviews.',
