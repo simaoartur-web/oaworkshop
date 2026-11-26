@@ -5,7 +5,6 @@ import {
   List,
   Pencil,
   Plus,
-  Search,
   X,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -19,7 +18,13 @@ import type {
 } from '../../data/operationsTypes';
 import type { DeskPriorityLevel, DeskTaskStatus } from '../../data/studioDeskTypes';
 import type { DepartmentId } from '../../data/types';
+import {
+  FILTER_CONTROL_CLASS,
+  FILTER_LABEL_CLASS,
+  FilterBar,
+} from '../../design-system/FilterBar';
 import { pickLocalized } from '../../locales';
+import { formatEditorialDate } from '../../utils/editorialFormatting';
 import { useProjectLibrary } from '../project-library/useProjectLibrary';
 import { OPERATIONS_I18N } from './i18n';
 import { TaskBoardView } from './TaskBoardView';
@@ -446,11 +451,8 @@ export function TasksPage() {
       )}
 
       {/* Filters Toolbar */}
-      <section
-        aria-label={dict.tasks.filters.scopeAria}
-        className="border border-white/12 bg-[#141414] p-4 space-y-4"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <FilterBar
+        topSlot={
           <div
             role="group"
             aria-label={dict.tasks.filters.scopeAria}
@@ -475,131 +477,109 @@ export function TasksPage() {
               );
             })}
           </div>
-
-          <span className="text-xs font-mono text-[#BDBDBD] tabular-nums">
-            {dict.tasks.counters.showingPrefix}: {visibleTasks.length} /{' '}
-            {activeTasks.length}
-          </span>
+        }
+        summaryText={`${dict.tasks.counters.showingPrefix}: ${visibleTasks.length} / ${activeTasks.length}`}
+        hasActiveFilters={
+          scope !== 'all' ||
+          statusFilter !== 'all' ||
+          priorityFilter !== 'all' ||
+          departmentFilter !== 'all' ||
+          projectFilter !== 'all' ||
+          searchQuery.trim().length > 0
+        }
+        resetLabel={dict.common.resetFilters}
+        onReset={handleResetFilters}
+        controlsGridClass="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3"
+        search={{
+          id: 'tasks-filter-search',
+          label: dict.tasks.filters.searchLabel,
+          value: searchQuery,
+          placeholder: dict.tasks.filters.searchPlaceholder,
+          onChange: setSearchQuery,
+        }}
+      >
+        <div>
+          <label htmlFor="tasks-filter-status" className={FILTER_LABEL_CLASS}>
+            {dict.tasks.filters.statusLabel}
+          </label>
+          <select
+            id="tasks-filter-status"
+            value={statusFilter}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as 'all' | DeskTaskStatus)
+            }
+            className={FILTER_CONTROL_CLASS}
+          >
+            <option value="all">{dict.common.allOption}</option>
+            <option value="pending">{dict.statuses.pending}</option>
+            <option value="in_progress">{dict.statuses.in_progress}</option>
+            <option value="completed">{dict.statuses.completed}</option>
+          </select>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-          <div>
-            <label
-              htmlFor="tasks-filter-search"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.tasks.filters.searchLabel}
-            </label>
-            <div className="relative flex items-center">
-              <Search
-                size={14}
-                strokeWidth={1.5}
-                aria-hidden="true"
-                className="absolute left-3 text-[#9E9E9E] pointer-events-none"
-              />
-              <input
-                id="tasks-filter-search"
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={dict.tasks.filters.searchPlaceholder}
-                className="w-full min-h-[44px] pl-9 pr-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white placeholder:text-[#9E9E9E] focus:border-[#A65D4A] focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="tasks-filter-status"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.tasks.filters.statusLabel}
-            </label>
-            <select
-              id="tasks-filter-status"
-              value={statusFilter}
-              onChange={(e) =>
-                setStatusFilter(e.target.value as 'all' | DeskTaskStatus)
-              }
-              className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
-            >
-              <option value="all">{dict.common.allOption}</option>
-              <option value="pending">{dict.statuses.pending}</option>
-              <option value="in_progress">{dict.statuses.in_progress}</option>
-              <option value="completed">{dict.statuses.completed}</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="tasks-filter-priority"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.tasks.filters.priorityLabel}
-            </label>
-            <select
-              id="tasks-filter-priority"
-              value={priorityFilter}
-              onChange={(e) =>
-                setPriorityFilter(e.target.value as 'all' | DeskPriorityLevel)
-              }
-              className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
-            >
-              <option value="all">{dict.common.allOption}</option>
-              <option value="high">{dict.priorities.high}</option>
-              <option value="medium">{dict.priorities.medium}</option>
-              <option value="base">{dict.priorities.base}</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="tasks-filter-department"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.tasks.filters.departmentLabel}
-            </label>
-            <select
-              id="tasks-filter-department"
-              value={departmentFilter}
-              onChange={(e) =>
-                setDepartmentFilter(e.target.value as 'all' | DepartmentId)
-              }
-              className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
-            >
-              <option value="all">{dict.common.allOption}</option>
-              {departmentEntries.map((dept) => (
-                <option key={dept.id} value={dept.id}>
-                  {dept.code} · {pickLocalized(dept.name, language)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="tasks-filter-project"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.tasks.filters.projectLabel}
-            </label>
-            <select
-              id="tasks-filter-project"
-              value={projectFilter}
-              onChange={(e) => setProjectFilter(e.target.value)}
-              className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
-            >
-              <option value="all">{dict.common.allOption}</option>
-              {projects.map((proj) => (
-                <option key={proj.identity.id} value={proj.identity.id}>
-                  {proj.identity.code} ·{' '}
-                  {pickLocalized(proj.editorial.title, language)}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div>
+          <label htmlFor="tasks-filter-priority" className={FILTER_LABEL_CLASS}>
+            {dict.tasks.filters.priorityLabel}
+          </label>
+          <select
+            id="tasks-filter-priority"
+            value={priorityFilter}
+            onChange={(e) =>
+              setPriorityFilter(e.target.value as 'all' | DeskPriorityLevel)
+            }
+            className={FILTER_CONTROL_CLASS}
+          >
+            <option value="all">{dict.common.allOption}</option>
+            <option value="high">{dict.priorities.high}</option>
+            <option value="medium">{dict.priorities.medium}</option>
+            <option value="base">{dict.priorities.base}</option>
+          </select>
         </div>
-      </section>
+
+        <div>
+          <label
+            htmlFor="tasks-filter-department"
+            className={FILTER_LABEL_CLASS}
+          >
+            {dict.tasks.filters.departmentLabel}
+          </label>
+          <select
+            id="tasks-filter-department"
+            value={departmentFilter}
+            onChange={(e) =>
+              setDepartmentFilter(e.target.value as 'all' | DepartmentId)
+            }
+            className={FILTER_CONTROL_CLASS}
+          >
+            <option value="all">{dict.common.allOption}</option>
+            {departmentEntries.map((dept) => (
+              <option key={dept.id} value={dept.id}>
+                {dept.code} · {pickLocalized(dept.name, language)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="tasks-filter-project" className={FILTER_LABEL_CLASS}>
+            {dict.tasks.filters.projectLabel}
+          </label>
+          <select
+            id="tasks-filter-project"
+            value={projectFilter}
+            onChange={(e) => setProjectFilter(e.target.value)}
+            className={FILTER_CONTROL_CLASS}
+          >
+            <option value="all">{dict.common.allOption}</option>
+            {projects.map((proj) => (
+              <option key={proj.identity.id} value={proj.identity.id}>
+                {proj.identity.code} ·{' '}
+                {pickLocalized(proj.editorial.title, language)}
+              </option>
+            ))}
+          </select>
+        </div>
+      </FilterBar>
 
       {/* Main Content: Board vs Technical List */}
       {visibleTasks.length === 0 ? (
@@ -691,8 +671,8 @@ export function TasksPage() {
                     {pickLocalized(task.detail, language)}
                   </p>
                   <p className="text-[11px] text-[#9E9E9E] tabular-nums">
-                    {task.assigneeLabel} · {pickLocalized(task.dueLabel, language)}{' '}
-                    ({task.dueDateIso}) · {pickLocalized(task.referenceTag, language)}
+                    {task.assigneeLabel} · {formatEditorialDate(task.dueDateIso, language)}{' '}
+                    · {pickLocalized(task.referenceTag, language)}
                   </p>
                 </div>
 

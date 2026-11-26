@@ -13,6 +13,7 @@ import { DEPARTMENTS } from '../../data/fixtures';
 import { LanguageToggle } from '../../design-system/LanguageToggle';
 import { OABrandMark } from '../../design-system/OABrandMark';
 import { pickLocalized } from '../../locales';
+import { formatStudioBaseLabel } from '../../utils/editorialFormatting';
 import { formatStudioClocks } from '../../utils/timeGreeting';
 import { NotificationsPopover } from './NotificationsPopover';
 import type { DemoNotificationItem } from './shellDemoState';
@@ -247,7 +248,8 @@ export function ContextualHeader({
                 {currentUser.name.replace(' (Demo)', '')}
               </span>
               <span className="text-[11px] uppercase tracking-[0.10em] text-[#BDBDBD] truncate max-w-full">
-                {currentUser.code} · {currentUser.studioBase}
+                {currentUser.code} ·{' '}
+                {formatStudioBaseLabel(currentUser.studioBase, language)}
               </span>
             </span>
             <ChevronDown
@@ -277,7 +279,8 @@ export function ContextualHeader({
                 </p>
                 <p className="text-[11px] text-[#BDBDBD]">
                   {t.shell.header.activeDepartmentLabel}:{' '}
-                  {pickLocalized(department.name, language)} ({currentUser.studioBase})
+                  {pickLocalized(department.name, language)} (
+                  {formatStudioBaseLabel(currentUser.studioBase, language)})
                 </p>
               </div>
 

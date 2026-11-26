@@ -1,10 +1,16 @@
-import { ArrowUpRight, Search } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useWorkspaceSession } from '../../app/WorkspaceSessionContext';
 import { DEPARTMENTS } from '../../data/fixtures';
 import type { DepartmentId, Role } from '../../data/types';
+import {
+  FILTER_CONTROL_CLASS,
+  FILTER_LABEL_CLASS,
+  FilterBar,
+} from '../../design-system/FilterBar';
 import { pickLocalized } from '../../locales';
+import { formatStudioBaseLabel } from '../../utils/editorialFormatting';
 import { STUDIO_STRUCTURE_I18N } from './i18n';
 import { useStudioStructure } from './useStudioStructure';
 
@@ -176,123 +182,94 @@ export function TeamPage() {
       </header>
 
       {/* Filters Toolbar */}
-      <section className="border border-white/12 bg-[#141414] p-4 space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-[#BDBDBD]">
-          <span>
-            {dict.team.showingPrefix}: {filteredMembers.length} /{' '}
-            {teamMembers.length}
-          </span>
-          <button
-            type="button"
-            onClick={handleResetFilters}
-            className="min-h-[38px] px-3 py-1 border border-white/14 bg-transparent hover:border-white/35 text-[11px] uppercase tracking-[0.14em] text-[#E0E0E0] hover:text-white cursor-pointer"
+      <FilterBar
+        summaryText={`${dict.team.showingPrefix}: ${filteredMembers.length} / ${teamMembers.length}`}
+        hasActiveFilters={
+          roleFilter !== 'all' ||
+          departmentFilter !== 'all' ||
+          studioBaseFilter !== 'all' ||
+          searchQuery.trim().length > 0
+        }
+        resetLabel={dict.common.resetFilters}
+        onReset={handleResetFilters}
+        controlsGridClass="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
+        search={{
+          id: 'team-filter-search',
+          label: dict.team.filters.searchLabel,
+          value: searchQuery,
+          placeholder: dict.team.filters.searchPlaceholder,
+          onChange: setSearchQuery,
+        }}
+      >
+        <div>
+          <label htmlFor="team-filter-role" className={FILTER_LABEL_CLASS}>
+            {dict.team.filters.roleLabel}
+          </label>
+          <select
+            id="team-filter-role"
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value as 'all' | Role)}
+            className={FILTER_CONTROL_CLASS}
           >
-            {dict.common.resetFilters}
-          </button>
+            <option value="all">{dict.common.allOption}</option>
+            {roleEntries.map((roleKey) => (
+              <option key={roleKey} value={roleKey}>
+                {dict.roles[roleKey]}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <div>
-            <label
-              htmlFor="team-filter-search"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.team.filters.searchLabel}
-            </label>
-            <div className="relative flex items-center">
-              <Search
-                size={14}
-                strokeWidth={1.5}
-                aria-hidden="true"
-                className="absolute left-3 text-[#9E9E9E] pointer-events-none"
-              />
-              <input
-                id="team-filter-search"
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={dict.team.filters.searchPlaceholder}
-                className="w-full min-h-[44px] pl-9 pr-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white placeholder:text-[#9E9E9E] focus:border-[#A65D4A] focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="team-filter-role"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.team.filters.roleLabel}
-            </label>
-            <select
-              id="team-filter-role"
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value as 'all' | Role)}
-              className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
-            >
-              <option value="all">{dict.common.allOption}</option>
-              {roleEntries.map((roleKey) => (
-                <option key={roleKey} value={roleKey}>
-                  {dict.roles[roleKey]}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="team-filter-department"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.team.filters.departmentLabel}
-            </label>
-            <select
-              id="team-filter-department"
-              value={departmentFilter}
-              onChange={(e) =>
-                handleDepartmentFilterChange(
-                  e.target.value as 'all' | DepartmentId,
-                )
-              }
-              className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
-            >
-              <option value="all">{dict.common.allOption}</option>
-              {departmentEntries.map((dept) => (
-                <option key={dept.id} value={dept.id}>
-                  {dept.code} · {pickLocalized(dept.name, language)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="team-filter-base"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.team.filters.studioBaseLabel}
-            </label>
-            <select
-              id="team-filter-base"
-              value={studioBaseFilter}
-              onChange={(e) =>
-                setStudioBaseFilter(
-                  e.target.value as 'all' | 'Maputo' | 'Milão',
-                )
-              }
-              className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
-            >
-              <option value="all">{dict.team.filters.studioBases.all}</option>
-              <option value="Maputo">
-                {dict.team.filters.studioBases.Maputo}
+        <div>
+          <label
+            htmlFor="team-filter-department"
+            className={FILTER_LABEL_CLASS}
+          >
+            {dict.team.filters.departmentLabel}
+          </label>
+          <select
+            id="team-filter-department"
+            value={departmentFilter}
+            onChange={(e) =>
+              handleDepartmentFilterChange(
+                e.target.value as 'all' | DepartmentId,
+              )
+            }
+            className={FILTER_CONTROL_CLASS}
+          >
+            <option value="all">{dict.common.allOption}</option>
+            {departmentEntries.map((dept) => (
+              <option key={dept.id} value={dept.id}>
+                {dept.code} · {pickLocalized(dept.name, language)}
               </option>
-              <option value="Milão">
-                {dict.team.filters.studioBases.Milão}
-              </option>
-            </select>
-          </div>
+            ))}
+          </select>
         </div>
-      </section>
+
+        <div>
+          <label htmlFor="team-filter-base" className={FILTER_LABEL_CLASS}>
+            {dict.team.filters.studioBaseLabel}
+          </label>
+          <select
+            id="team-filter-base"
+            value={studioBaseFilter}
+            onChange={(e) =>
+              setStudioBaseFilter(
+                e.target.value as 'all' | 'Maputo' | 'Milão',
+              )
+            }
+            className={FILTER_CONTROL_CLASS}
+          >
+            <option value="all">{dict.team.filters.studioBases.all}</option>
+            <option value="Maputo">
+              {dict.team.filters.studioBases.Maputo}
+            </option>
+            <option value="Milão">
+              {dict.team.filters.studioBases.Milão}
+            </option>
+          </select>
+        </div>
+      </FilterBar>
 
       {filteredMembers.length === 0 ? (
         <section
@@ -342,7 +319,8 @@ export function TeamPage() {
                   <div className="min-w-0 flex-1 space-y-1">
                     <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono uppercase tracking-[0.14em]">
                       <span className="text-[#CE826D] font-semibold">
-                        {profile.user.code} · {profile.user.studioBase}
+                        {profile.user.code} ·{' '}
+                        {formatStudioBaseLabel(profile.user.studioBase, language)}
                       </span>
                       <span className="text-[#BDBDBD] tabular-nums">
                         {profile.allRelatedProjects.length}P ·{' '}
@@ -409,7 +387,7 @@ export function TeamPage() {
                     {dict.team.profile.baseLabel}
                   </dt>
                   <dd className="mt-1 text-white font-medium">
-                    {selectedProfile.user.studioBase}
+                    {formatStudioBaseLabel(selectedProfile.user.studioBase, language)}
                   </dd>
                 </div>
                 <div className="border border-white/12 bg-[#161616] p-3">

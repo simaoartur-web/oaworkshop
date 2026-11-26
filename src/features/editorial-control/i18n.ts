@@ -177,7 +177,7 @@ const pt: EditorialControlDictionary = {
     activeRolePrefix: 'Papel demo activo',
     filters: {
       searchLabel: 'Pesquisar projectos na fila',
-      searchPlaceholder: 'Código, título, disciplina ou nota editorial…',
+      searchPlaceholder: 'Código, título ou nota…',
       statusLabel: 'Estado editorial',
       departmentLabel: 'Departamento',
       projectLabel: 'Projecto',
@@ -223,7 +223,7 @@ const pt: EditorialControlDictionary = {
     filters: {
       domainAria: 'Filtrar actividade por domínio',
       searchLabel: 'Pesquisar actividade',
-      searchPlaceholder: 'Código, título, autor ou resumo…',
+      searchPlaceholder: 'Código, título ou autor…',
       departmentLabel: 'Departamento',
       memberLabel: 'Colaborador',
       projectLabel: 'Projecto',
@@ -334,7 +334,7 @@ const en: EditorialControlDictionary = {
     activeRolePrefix: 'Active demo role',
     filters: {
       searchLabel: 'Search queued projects',
-      searchPlaceholder: 'Code, title, discipline, or editorial note…',
+      searchPlaceholder: 'Code, title or note…',
       statusLabel: 'Editorial status',
       departmentLabel: 'Department',
       projectLabel: 'Project',
@@ -380,7 +380,7 @@ const en: EditorialControlDictionary = {
     filters: {
       domainAria: 'Filter activity by domain',
       searchLabel: 'Search activity',
-      searchPlaceholder: 'Code, title, actor, or summary…',
+      searchPlaceholder: 'Code, title or actor…',
       departmentLabel: 'Department',
       memberLabel: 'Collaborator',
       projectLabel: 'Project',

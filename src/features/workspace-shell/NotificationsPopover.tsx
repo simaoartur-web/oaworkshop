@@ -210,7 +210,7 @@ export function NotificationsPopover({
                       {item.studioTag}
                     </span>
 
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex flex-wrap items-center gap-2 shrink-0 max-w-full">
                       {!item.read ? (
                         <button
                           type="button"

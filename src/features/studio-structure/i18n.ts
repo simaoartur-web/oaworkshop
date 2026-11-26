@@ -218,7 +218,7 @@ const pt: StudioStructureDictionary = {
       'Directório demonstrativo local com 6 perfis fictícios — independente de autenticação real e sem credenciais expostas.',
     filters: {
       searchLabel: 'Pesquisar colaborador',
-      searchPlaceholder: 'Nome, código, função ou departamento…',
+      searchPlaceholder: 'Nome, código ou papel…',
       roleLabel: 'Função',
       departmentLabel: 'Departamento',
       studioBaseLabel: 'Base de Estúdio',
@@ -260,7 +260,7 @@ const pt: StudioStructureDictionary = {
     filters: {
       categoryAria: 'Filtrar por categoria técnica',
       searchLabel: 'Pesquisar fichas técnicas',
-      searchPlaceholder: 'Código, matéria, norma ou especificação…',
+      searchPlaceholder: 'Código, norma ou material…',
       departmentLabel: 'Departamento',
       projectLabel: 'Projecto associado',
     },
@@ -389,7 +389,7 @@ const en: StudioStructureDictionary = {
       'Local demonstrative directory with 6 fictive profiles — distinct from real authentication and with zero exposed credentials.',
     filters: {
       searchLabel: 'Search collaborator',
-      searchPlaceholder: 'Name, code, role, or department…',
+      searchPlaceholder: 'Name, code or role…',
       roleLabel: 'Role',
       departmentLabel: 'Department',
       studioBaseLabel: 'Studio Base',
@@ -431,7 +431,7 @@ const en: StudioStructureDictionary = {
     filters: {
       categoryAria: 'Filter by technical category',
       searchLabel: 'Search technical sheets',
-      searchPlaceholder: 'Code, material, standard, or specification…',
+      searchPlaceholder: 'Code, standard or material…',
       departmentLabel: 'Department',
       projectLabel: 'Linked project',
     },

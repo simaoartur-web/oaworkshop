@@ -280,20 +280,20 @@ export function ProjectGalleryView({
 
       {/* Search & Status Filter Strip */}
       <div className="bg-[#141414] border border-white/12 p-4 sm:p-5 space-y-4">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
           <div className="flex-1 min-w-0">
             <label
               htmlFor="project-gallery-search"
-              className="block text-[11px] font-medium uppercase tracking-[0.16em] text-[#BDBDBD]"
+              className="block text-[11px] font-medium uppercase tracking-[0.16em] text-[#BDBDBD] mb-1"
             >
               {dict.gallery.searchLabel}
             </label>
-            <div className="relative mt-1 flex items-center">
+            <div className="relative flex items-center">
               <Search
                 size={15}
                 strokeWidth={1.6}
                 aria-hidden="true"
-                className="text-[#9E9E9E] shrink-0 mr-2.5"
+                className="absolute left-3 text-[#9E9E9E] pointer-events-none"
               />
               <input
                 id="project-gallery-search"
@@ -301,14 +301,14 @@ export function ProjectGalleryView({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={dict.gallery.searchPlaceholder}
-                className="oa-field-input pr-9"
+                className="w-full h-11 min-h-[44px] pl-9 pr-10 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white placeholder:text-[#9E9E9E] focus:border-[#A65D4A] focus:outline-none"
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
                   aria-label={dict.gallery.clearSearchLabel}
-                  className="min-h-[36px] min-w-[36px] inline-flex items-center justify-center text-[#BDBDBD] hover:text-white cursor-pointer"
+                  className="absolute right-1 min-h-[36px] min-w-[36px] inline-flex items-center justify-center text-[#BDBDBD] hover:text-white cursor-pointer"
                 >
                   <X size={14} aria-hidden="true" />
                 </button>
@@ -316,11 +316,17 @@ export function ProjectGalleryView({
             </div>
           </div>
 
-          {hasActiveFilters && filteredProjects.length > 0 && (
+          {(!hasActiveFilters || filteredProjects.length > 0) && (
             <button
               type="button"
               onClick={handleResetFilters}
-              className="min-h-[44px] px-3.5 py-2 border border-white/16 bg-[#181818] hover:border-white/35 text-[11px] font-medium uppercase tracking-[0.14em] text-[#E0E0E0] hover:text-white inline-flex items-center gap-2 shrink-0 cursor-pointer"
+              disabled={!hasActiveFilters}
+              aria-disabled={!hasActiveFilters}
+              className={`h-11 min-h-[44px] px-3.5 py-2 border text-[11px] font-medium uppercase tracking-[0.14em] inline-flex items-center gap-2 shrink-0 whitespace-nowrap transition-colors ${
+                hasActiveFilters
+                  ? 'border-white/18 bg-[#181818] hover:border-[#A65D4A] text-[#E0E0E0] hover:text-white cursor-pointer'
+                  : 'border-white/8 bg-[#101010] text-[#7A7A7A] opacity-60 cursor-not-allowed'
+              }`}
             >
               <X size={13} aria-hidden="true" />
               <span>{dict.common.clearFilters}</span>

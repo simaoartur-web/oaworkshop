@@ -194,7 +194,7 @@ const pt: OperationsDictionary = {
       departmentLabel: 'Departamento',
       projectLabel: 'Projecto',
       searchLabel: 'Pesquisar tarefas',
-      searchPlaceholder: 'Código, título, projecto ou colaborador…',
+      searchPlaceholder: 'Código, título ou projecto…',
     },
     counters: {
       pending: 'Pendentes',
@@ -373,7 +373,7 @@ const en: OperationsDictionary = {
       departmentLabel: 'Department',
       projectLabel: 'Project',
       searchLabel: 'Search tasks',
-      searchPlaceholder: 'Code, title, project, or collaborator…',
+      searchPlaceholder: 'Code, title or project…',
     },
     counters: {
       pending: 'Pending',

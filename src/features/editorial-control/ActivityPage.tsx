@@ -1,4 +1,4 @@
-import { ArrowUpRight, Search } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useWorkspaceSession } from '../../app/WorkspaceSessionContext';
@@ -9,7 +9,13 @@ import {
 import type { ActivityDomain } from '../../data/editorialReportsTypes';
 import { DEMO_USERS, DEPARTMENTS } from '../../data/fixtures';
 import type { DepartmentId } from '../../data/types';
+import {
+  FILTER_CONTROL_CLASS,
+  FILTER_LABEL_CLASS,
+  FilterBar,
+} from '../../design-system/FilterBar';
 import { pickLocalized } from '../../locales';
+import { formatEditorialDate } from '../../utils/editorialFormatting';
 import { useProjectLibrary } from '../project-library/useProjectLibrary';
 import { EDITORIAL_CONTROL_I18N } from './i18n';
 import { useEditorialControl } from './useEditorialControl';
@@ -152,8 +158,8 @@ export function ActivityPage() {
       </header>
 
       {/* Filters Toolbar */}
-      <section className="border border-white/12 bg-[#141414] p-4 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <FilterBar
+        topSlot={
           <div
             role="group"
             aria-label={dict.activity.filters.domainAria}
@@ -190,116 +196,84 @@ export function ActivityPage() {
               );
             })}
           </div>
-
-          <div className="flex items-center gap-3 text-xs font-mono text-[#BDBDBD]">
-            <span className="tabular-nums">
-              {dict.activity.showingPrefix}: {filteredEvents.length} /{' '}
-              {activityEvents.length}
-            </span>
-            <button
-              type="button"
-              onClick={handleResetFilters}
-              className="min-h-[38px] px-3 py-1 border border-white/14 bg-transparent hover:border-white/35 text-[11px] uppercase tracking-[0.14em] text-[#E0E0E0] hover:text-white cursor-pointer"
-            >
-              {dict.common.resetFilters}
-            </button>
-          </div>
+        }
+        summaryText={`${dict.activity.showingPrefix}: ${filteredEvents.length} / ${activityEvents.length}`}
+        hasActiveFilters={
+          domainFilter !== 'all' ||
+          departmentFilter !== 'all' ||
+          memberFilter !== 'all' ||
+          projectFilter !== 'all' ||
+          searchQuery.trim().length > 0
+        }
+        resetLabel={dict.common.resetFilters}
+        onReset={handleResetFilters}
+        controlsGridClass="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
+        search={{
+          id: 'act-filter-search',
+          label: dict.activity.filters.searchLabel,
+          value: searchQuery,
+          placeholder: dict.activity.filters.searchPlaceholder,
+          onChange: setSearchQuery,
+        }}
+      >
+        <div>
+          <label htmlFor="act-filter-dept" className={FILTER_LABEL_CLASS}>
+            {dict.activity.filters.departmentLabel}
+          </label>
+          <select
+            id="act-filter-dept"
+            value={departmentFilter}
+            onChange={(e) => updateQueryParam('dept', e.target.value)}
+            className={FILTER_CONTROL_CLASS}
+          >
+            <option value="all">{dict.common.allOption}</option>
+            {departmentEntries.map((dept) => (
+              <option key={dept.id} value={dept.id}>
+                {dept.code} · {pickLocalized(dept.name, language)}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <div>
-            <label
-              htmlFor="act-filter-search"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.activity.filters.searchLabel}
-            </label>
-            <div className="relative flex items-center">
-              <Search
-                size={14}
-                strokeWidth={1.5}
-                aria-hidden="true"
-                className="absolute left-3 text-[#9E9E9E] pointer-events-none"
-              />
-              <input
-                id="act-filter-search"
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={dict.activity.filters.searchPlaceholder}
-                className="w-full min-h-[44px] pl-9 pr-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white placeholder:text-[#9E9E9E] focus:border-[#A65D4A] focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="act-filter-dept"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.activity.filters.departmentLabel}
-            </label>
-            <select
-              id="act-filter-dept"
-              value={departmentFilter}
-              onChange={(e) => updateQueryParam('dept', e.target.value)}
-              className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
-            >
-              <option value="all">{dict.common.allOption}</option>
-              {departmentEntries.map((dept) => (
-                <option key={dept.id} value={dept.id}>
-                  {dept.code} · {pickLocalized(dept.name, language)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="act-filter-member"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.activity.filters.memberLabel}
-            </label>
-            <select
-              id="act-filter-member"
-              value={memberFilter}
-              onChange={(e) => updateQueryParam('member', e.target.value)}
-              className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
-            >
-              <option value="all">{dict.common.allOption}</option>
-              {DEMO_USERS.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.code} · {user.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="act-filter-project"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.activity.filters.projectLabel}
-            </label>
-            <select
-              id="act-filter-project"
-              value={projectFilter}
-              onChange={(e) => updateQueryParam('project', e.target.value)}
-              className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
-            >
-              <option value="all">{dict.common.allOption}</option>
-              {projects.map((proj) => (
-                <option key={proj.identity.id} value={proj.identity.id}>
-                  {proj.identity.code} ·{' '}
-                  {pickLocalized(proj.editorial.title, language)}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div>
+          <label htmlFor="act-filter-member" className={FILTER_LABEL_CLASS}>
+            {dict.activity.filters.memberLabel}
+          </label>
+          <select
+            id="act-filter-member"
+            value={memberFilter}
+            onChange={(e) => updateQueryParam('member', e.target.value)}
+            className={FILTER_CONTROL_CLASS}
+          >
+            <option value="all">{dict.common.allOption}</option>
+            {DEMO_USERS.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.code} · {user.name}
+              </option>
+            ))}
+          </select>
         </div>
-      </section>
+
+        <div>
+          <label htmlFor="act-filter-project" className={FILTER_LABEL_CLASS}>
+            {dict.activity.filters.projectLabel}
+          </label>
+          <select
+            id="act-filter-project"
+            value={projectFilter}
+            onChange={(e) => updateQueryParam('project', e.target.value)}
+            className={FILTER_CONTROL_CLASS}
+          >
+            <option value="all">{dict.common.allOption}</option>
+            {projects.map((proj) => (
+              <option key={proj.identity.id} value={proj.identity.id}>
+                {proj.identity.code} ·{' '}
+                {pickLocalized(proj.editorial.title, language)}
+              </option>
+            ))}
+          </select>
+        </div>
+      </FilterBar>
 
       {/* Date-Grouped Chronological Timeline */}
       {groupedByDate.length === 0 ? (
@@ -330,7 +304,7 @@ export function ActivityPage() {
             >
               <div className="pb-2.5 oa-hairline-b flex items-center justify-between gap-2">
                 <h2 className="text-sm font-mono font-semibold uppercase tracking-[0.16em] text-[#CE826D] tabular-nums">
-                  {group.dateIso}
+                  {formatEditorialDate(group.dateIso, language)}
                 </h2>
                 <span className="text-xs font-mono text-[#BDBDBD] tabular-nums">
                   {dict.activity.eventsCountLabel(group.events.length)}

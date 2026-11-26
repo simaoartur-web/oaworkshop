@@ -17,6 +17,7 @@ import {
 import { LanguageToggle } from '../../design-system/LanguageToggle';
 import { OABrandMark } from '../../design-system/OABrandMark';
 import { pickLocalized } from '../../locales';
+import { formatStudioBaseLabel } from '../../utils/editorialFormatting';
 import {
   formatEditorialDate,
   formatGreetingForTime,
@@ -139,7 +140,8 @@ export function WelcomePage() {
                 ·
               </span>
               <span className="text-[#BDBDBD]">
-                {t.welcome.studioBasePrefix}: {currentUser.studioBase}
+                {t.welcome.studioBasePrefix}:{' '}
+                {formatStudioBaseLabel(currentUser.studioBase, language)}
               </span>
             </div>
 
@@ -158,7 +160,9 @@ export function WelcomePage() {
               {formattedDate}
             </span>
             <span className="tracking-[0.14em] text-[#9E9E9E]">
-              MAPUTO {clocks.maputo} · MILÃO {clocks.milan}
+              MAPUTO {clocks.maputo} ·{' '}
+              {formatStudioBaseLabel('Milão', language).toUpperCase()}{' '}
+              {clocks.milan}
             </span>
             <span className="inline-flex items-center gap-1.5 border border-white/14 bg-[#181818] px-2.5 py-1 text-[11px] uppercase tracking-[0.16em] text-[#E0E0E0] mt-1">
               <span

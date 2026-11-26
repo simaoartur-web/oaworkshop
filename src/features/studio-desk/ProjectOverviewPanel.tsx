@@ -1,6 +1,7 @@
 import { ArrowUpRight, Columns2, LayoutGrid, Search } from 'lucide-react';
 import { useId } from 'react';
 import { pickLocalized } from '../../locales';
+import { formatStudioBaseLabel } from '../../utils/editorialFormatting';
 import type {
   DeskPresentationMode,
   DeskSortBy,
@@ -264,7 +265,9 @@ export function ProjectOverviewPanel({
                     <div className="p-4 sm:p-5 space-y-3">
                       <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD]">
                         <span>{pickLocalized(project.discipline, language)}</span>
-                        <span>{project.studioBase}</span>
+                        <span>
+                          {formatStudioBaseLabel(project.studioBase, language)}
+                        </span>
                       </div>
 
                       <h3 className="text-base sm:text-lg font-light text-white leading-snug">
@@ -385,7 +388,8 @@ export function ProjectOverviewPanel({
                             {project.code}
                           </span>
                           <span className="text-[11px] text-[#9E9E9E]">
-                            {project.scale} · {project.studioBase}
+                            {project.scale} ·{' '}
+                            {formatStudioBaseLabel(project.studioBase, language)}
                           </span>
                         </td>
 
@@ -485,7 +489,7 @@ export function ProjectOverviewPanel({
                     </h3>
                     <p className="text-xs text-[#BDBDBD] mt-0.5">
                       {pickLocalized(project.discipline, language)} ·{' '}
-                      {project.studioBase}
+                      {formatStudioBaseLabel(project.studioBase, language)}
                     </p>
                   </div>
 

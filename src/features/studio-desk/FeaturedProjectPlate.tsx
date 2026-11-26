@@ -1,5 +1,6 @@
 import { ArrowUpRight, Grid } from 'lucide-react';
 import { pickLocalized } from '../../locales';
+import { formatStudioBaseLabel } from '../../utils/editorialFormatting';
 import type { StudioDeskProject } from '../../data/studioDeskTypes';
 import type { AppLanguage, Role } from '../../data/types';
 import type { StudioDeskDictionary } from './i18n';
@@ -141,7 +142,8 @@ export function FeaturedProjectPlate({
                   letterSpacing="2"
                 >
                   {project.elevationDatum} · {deskDict.featured.scaleLabel.toUpperCase()}{' '}
-                  {project.scale} · {project.studioBase.toUpperCase()}
+                  {project.scale} ·{' '}
+                  {formatStudioBaseLabel(project.studioBase, language).toUpperCase()}
                 </text>
               </svg>
             )}
@@ -173,7 +175,8 @@ export function FeaturedProjectPlate({
           <div className="space-y-4">
             <div>
               <p className="text-[11px] font-medium uppercase tracking-[0.20em] text-[#BDBDBD]">
-                {pickLocalized(project.discipline, language)} · {project.studioBase}
+                {pickLocalized(project.discipline, language)} ·{' '}
+                {formatStudioBaseLabel(project.studioBase, language)}
               </p>
               <h2
                 id="featured-desk-project-title"

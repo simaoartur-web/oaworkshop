@@ -5,6 +5,7 @@ import type { PublicationQueueItem } from '../../data/editorialReportsTypes';
 import type { AppLanguage } from '../../data/types';
 import { useDialogFocusTrap } from '../../design-system/useDialogFocusTrap';
 import { pickLocalized } from '../../locales';
+import { formatStudioBaseLabel } from '../../utils/editorialFormatting';
 import { EDITORIAL_CONTROL_I18N } from './i18n';
 
 interface PublicationPreviewDialogProps {
@@ -163,7 +164,10 @@ function PublicationPreviewDialogContent({
                 {dict.preview.studioBaseLabel}
               </dt>
               <dd className="mt-1 text-sm text-white">
-                {canonicalRecord.location.studioBase}
+                {formatStudioBaseLabel(
+                  canonicalRecord.location.studioBase,
+                  previewLang,
+                )}
               </dd>
             </div>
             <div>

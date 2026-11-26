@@ -1,5 +1,6 @@
 import { Component, type ReactNode } from 'react';
 import type { AppLanguage } from '../../data/types';
+import { formatStudioBaseLabel } from '../../utils/editorialFormatting';
 
 function resolveFallbackLanguage(): AppLanguage {
   if (typeof document !== 'undefined') {
@@ -42,7 +43,7 @@ export function EditorialEntryLoadingFallback({
           O+A Workshop
         </span>
         <span className="text-[10px] font-mono uppercase tracking-[0.20em] text-[#9E9E9E]">
-          Milão · Maputo
+          {formatStudioBaseLabel('Milão', activeLanguage)} · Maputo
         </span>
       </div>
 

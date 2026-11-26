@@ -51,6 +51,7 @@
 | `src/design-system/DemoBadge.tsx` | selo local-demo canónico sem middot órfão em `375px`–`1440px` |
 | `src/design-system/PlateHeader.tsx` | cabeçalho editorial canónico reutilizável (`PRANCHA 01..11` / `PLATE 01..11`, H1, subtítulo, `DemoBadge` e acções) |
 | `src/design-system/KpiTile.tsx` | bloco KPI tectónico reutilizável com `tabular-nums` e variante de destaque |
+| `src/design-system/FilterBar.tsx` | barra de filtros canónica (`R-05`) com altura uniforme `44px`, estado desactivado em `Limpar filtros` e wrapping responsivo `375/768/1440px` |
 | `src/features/auth-demo/LoginPage.tsx` | câmara de entrada assimétrica 58/42, validação, 6 perfis demo e corte técnico |
 | `src/features/welcome/WelcomePage.tsx` | caderno editorial pós-login com saudação por base de estúdio, estudo em foco e prioridades |
 | `src/features/workspace-shell/shellNavigation.ts` | definição tipada dos 3 grupos e 11 pranchas de navegação do Workspace Shell |

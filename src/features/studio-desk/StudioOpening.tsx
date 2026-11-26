@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
 import { pickLocalized } from '../../locales';
+import { formatStudioBaseLabel } from '../../utils/editorialFormatting';
 import { DEPARTMENTS } from '../../data/fixtures';
 import type {
   RoleDeskConfig,
@@ -117,7 +118,8 @@ export function StudioOpening({
               ·
             </span>
             <span className="text-[#E0E0E0] capitalize">
-              {currentUser.studioBase} · {formattedDate}
+              {formatStudioBaseLabel(currentUser.studioBase, language)} ·{' '}
+              {formattedDate}
             </span>
           </div>
 

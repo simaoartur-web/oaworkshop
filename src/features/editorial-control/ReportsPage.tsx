@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useWorkspaceSession } from '../../app/WorkspaceSessionContext';
 import { serializeReportSnapshotJson } from '../../data/reportsSelector';
 import { pickLocalized } from '../../locales';
+import { formatStudioBaseLabel } from '../../utils/editorialFormatting';
 import { EDITORIAL_CONTROL_I18N } from './i18n';
 import { useEditorialControl } from './useEditorialControl';
 
@@ -224,7 +225,7 @@ export function ReportsPage() {
               >
                 <div className="flex items-center justify-between gap-2">
                   <h3 className="text-base font-medium text-white print:text-black">
-                    {base.studioBase}
+                    {formatStudioBaseLabel(base.studioBase, language)}
                   </h3>
                   <span className="text-xs font-mono text-[#CE826D] tabular-nums print:text-black">
                     {base.milestoneProgressPct}%

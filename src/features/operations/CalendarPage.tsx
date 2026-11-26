@@ -20,7 +20,16 @@ import type {
   StudioCalendarEvent,
 } from '../../data/operationsTypes';
 import type { DepartmentId } from '../../data/types';
+import {
+  FILTER_CONTROL_CLASS,
+  FILTER_LABEL_CLASS,
+  FilterBar,
+} from '../../design-system/FilterBar';
 import { pickLocalized } from '../../locales';
+import {
+  formatEditorialDate,
+  formatStudioBaseLabel,
+} from '../../utils/editorialFormatting';
 import { useProjectLibrary } from '../project-library/useProjectLibrary';
 import { OPERATIONS_I18N } from './i18n';
 import { useStudioOperations } from './useStudioOperations';
@@ -179,7 +188,9 @@ export function CalendarPage() {
           >
             {dict.calendar.kindLabels[event.kind]}
           </span>
-          <span className="text-[#BDBDBD] tabular-nums">{event.dateIso}</span>
+          <span className="text-[#BDBDBD] tabular-nums">
+            {formatEditorialDate(event.dateIso, language)}
+          </span>
         </div>
 
         <h3 className="text-sm font-medium text-white leading-snug">
@@ -192,7 +203,10 @@ export function CalendarPage() {
         <div className="pt-2 oa-hairline-t flex flex-wrap items-center justify-between gap-2 text-[11px]">
           <span className="text-[#9E9E9E] font-mono">
             {dept ? dept.code : event.departmentId} ·{' '}
-            {dict.calendar.detailPanel.studioBasePrefix}: {event.studioBase}
+            {dict.calendar.detailPanel.studioBasePrefix}:{' '}
+            {event.studioBase === 'Maputo' || event.studioBase === 'Milão'
+              ? formatStudioBaseLabel(event.studioBase, language)
+              : event.studioBase}
           </span>
           <Link
             to={event.targetRoute}
@@ -269,8 +283,8 @@ export function CalendarPage() {
       </header>
 
       {/* Filters Toolbar */}
-      <section className="border border-white/12 bg-[#141414] p-4 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <FilterBar
+        topSlot={
           <div
             role="group"
             aria-label={dict.calendar.filters.kindsAria}
@@ -295,92 +309,80 @@ export function CalendarPage() {
               );
             })}
           </div>
-
-          <button
-            type="button"
-            onClick={handleResetFilters}
-            className="min-h-[44px] px-3 py-2 border border-white/14 bg-transparent hover:border-white/35 text-xs uppercase tracking-[0.14em] text-[#BDBDBD] hover:text-white cursor-pointer"
+        }
+        hasActiveFilters={
+          activeKinds.length !== ALL_KINDS.length ||
+          departmentFilter !== 'all' ||
+          projectFilter !== 'all' ||
+          studioBaseFilter !== 'all'
+        }
+        resetLabel={dict.common.resetFilters}
+        onReset={handleResetFilters}
+        controlsGridClass="grid grid-cols-1 sm:grid-cols-3 gap-3"
+      >
+        <div>
+          <label htmlFor="cal-filter-department" className={FILTER_LABEL_CLASS}>
+            {dict.calendar.filters.departmentLabel}
+          </label>
+          <select
+            id="cal-filter-department"
+            value={departmentFilter}
+            onChange={(e) =>
+              setDepartmentFilter(e.target.value as 'all' | DepartmentId)
+            }
+            className={FILTER_CONTROL_CLASS}
           >
-            {dict.common.resetFilters}
-          </button>
+            <option value="all">{dict.common.allOption}</option>
+            {departmentEntries.map((dept) => (
+              <option key={dept.id} value={dept.id}>
+                {dept.code} · {pickLocalized(dept.name, language)}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label
-              htmlFor="cal-filter-department"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.calendar.filters.departmentLabel}
-            </label>
-            <select
-              id="cal-filter-department"
-              value={departmentFilter}
-              onChange={(e) =>
-                setDepartmentFilter(e.target.value as 'all' | DepartmentId)
-              }
-              className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
-            >
-              <option value="all">{dict.common.allOption}</option>
-              {departmentEntries.map((dept) => (
-                <option key={dept.id} value={dept.id}>
-                  {dept.code} · {pickLocalized(dept.name, language)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="cal-filter-project"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.calendar.filters.projectLabel}
-            </label>
-            <select
-              id="cal-filter-project"
-              value={projectFilter}
-              onChange={(e) => setProjectFilter(e.target.value)}
-              className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
-            >
-              <option value="all">{dict.common.allOption}</option>
-              {projects.map((proj) => (
-                <option key={proj.identity.id} value={proj.identity.id}>
-                  {proj.identity.code} ·{' '}
-                  {pickLocalized(proj.editorial.title, language)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="cal-filter-base"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.calendar.filters.studioBaseLabel}
-            </label>
-            <select
-              id="cal-filter-base"
-              value={studioBaseFilter}
-              onChange={(e) =>
-                setStudioBaseFilter(
-                  e.target.value as 'all' | CalendarStudioBase,
-                )
-              }
-              className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
-            >
-              <option value="all">{dict.calendar.filters.studioBases.all}</option>
-              <option value="Maputo">
-                {dict.calendar.filters.studioBases.Maputo}
+        <div>
+          <label htmlFor="cal-filter-project" className={FILTER_LABEL_CLASS}>
+            {dict.calendar.filters.projectLabel}
+          </label>
+          <select
+            id="cal-filter-project"
+            value={projectFilter}
+            onChange={(e) => setProjectFilter(e.target.value)}
+            className={FILTER_CONTROL_CLASS}
+          >
+            <option value="all">{dict.common.allOption}</option>
+            {projects.map((proj) => (
+              <option key={proj.identity.id} value={proj.identity.id}>
+                {proj.identity.code} ·{' '}
+                {pickLocalized(proj.editorial.title, language)}
               </option>
-              <option value="Milão">
-                {dict.calendar.filters.studioBases.Milão}
-              </option>
-            </select>
-          </div>
+            ))}
+          </select>
         </div>
-      </section>
+
+        <div>
+          <label htmlFor="cal-filter-base" className={FILTER_LABEL_CLASS}>
+            {dict.calendar.filters.studioBaseLabel}
+          </label>
+          <select
+            id="cal-filter-base"
+            value={studioBaseFilter}
+            onChange={(e) =>
+              setStudioBaseFilter(e.target.value as 'all' | CalendarStudioBase)
+            }
+            className={FILTER_CONTROL_CLASS}
+          >
+            <option value="all">{dict.calendar.filters.studioBases.all}</option>
+            <option value="Maputo">
+              {dict.calendar.filters.studioBases.Maputo}
+            </option>
+            <option value="Milão">
+              {dict.calendar.filters.studioBases.Milão}
+            </option>
+          </select>
+        </div>
+      </FilterBar>
 
       {/* Month View vs Chronological Agenda */}
       {viewMode === 'month' ? (
@@ -445,7 +447,7 @@ export function CalendarPage() {
                     type="button"
                     onClick={() => setSelectedDateIso(cell.dateIso)}
                     aria-pressed={isSelected}
-                    aria-label={`${cell.dateIso} (${dict.calendar.detailPanel.eventsCountLabel(cellEvents.length)})`}
+                    aria-label={`${formatEditorialDate(cell.dateIso, language)} (${dict.calendar.detailPanel.eventsCountLabel(cellEvents.length)})`}
                     data-testid={`calendar-cell-${cell.dateIso}`}
                     className={`min-h-[58px] sm:min-h-[78px] p-1.5 sm:p-2 border-r border-b border-white/8 text-left flex flex-col justify-between transition-colors cursor-pointer ${
                       isSelected
@@ -510,7 +512,9 @@ export function CalendarPage() {
                     : dict.calendar.detailPanel.allMonthEyebrow}
                 </p>
                 <h2 className="mt-1 text-base font-medium text-white tabular-nums">
-                  {selectedDateIso ?? activeMonthLabel}
+                  {selectedDateIso
+                    ? formatEditorialDate(selectedDateIso, language)
+                    : activeMonthLabel}
                 </h2>
               </div>
               <span className="text-xs font-mono text-[#BDBDBD] tabular-nums">
@@ -569,7 +573,7 @@ export function CalendarPage() {
               >
                 <div className="pb-2.5 oa-hairline-b flex items-center justify-between gap-2">
                   <h2 className="text-sm font-mono font-semibold uppercase tracking-[0.16em] text-[#CE826D] tabular-nums">
-                    {dateIso}
+                    {formatEditorialDate(dateIso, language)}
                   </h2>
                   <span className="text-xs font-mono text-[#BDBDBD] tabular-nums">
                     {dict.calendar.detailPanel.eventsCountLabel(

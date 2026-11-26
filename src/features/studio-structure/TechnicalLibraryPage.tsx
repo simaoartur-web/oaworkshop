@@ -1,4 +1,4 @@
-import { ArrowUpRight, Plus, Search, X } from 'lucide-react';
+import { ArrowUpRight, Plus, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useWorkspaceSession } from '../../app/WorkspaceSessionContext';
@@ -8,6 +8,11 @@ import type {
   TechnicalLibraryCategory,
 } from '../../data/studioStructureTypes';
 import type { DepartmentId } from '../../data/types';
+import {
+  FILTER_CONTROL_CLASS,
+  FILTER_LABEL_CLASS,
+  FilterBar,
+} from '../../design-system/FilterBar';
 import { pickLocalized } from '../../locales';
 import { useProjectLibrary } from '../project-library/useProjectLibrary';
 import { STUDIO_STRUCTURE_I18N } from './i18n';
@@ -302,8 +307,8 @@ export function TechnicalLibraryPage() {
       )}
 
       {/* Category & Filter Bar */}
-      <section className="border border-white/12 bg-[#141414] p-4 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <FilterBar
+        topSlot={
           <div
             role="group"
             aria-label={dict.library.filters.categoryAria}
@@ -340,89 +345,74 @@ export function TechnicalLibraryPage() {
               );
             })}
           </div>
-
-          <span className="text-xs font-mono text-[#BDBDBD] tabular-nums">
-            {dict.library.showingPrefix}: {filteredReferences.length} /{' '}
-            {technicalReferences.length}
-          </span>
+        }
+        summaryText={`${dict.library.showingPrefix}: ${filteredReferences.length} / ${technicalReferences.length}`}
+        hasActiveFilters={
+          categoryFilter !== 'all' ||
+          departmentFilter !== 'all' ||
+          projectFilter !== 'all' ||
+          searchQuery.trim().length > 0
+        }
+        resetLabel={dict.common.resetFilters}
+        onReset={handleResetFilters}
+        controlsGridClass="grid grid-cols-1 sm:grid-cols-3 gap-3"
+        search={{
+          id: 'library-filter-search',
+          label: dict.library.filters.searchLabel,
+          value: searchQuery,
+          placeholder: dict.library.filters.searchPlaceholder,
+          onChange: setSearchQuery,
+        }}
+      >
+        <div>
+          <label
+            htmlFor="library-filter-department"
+            className={FILTER_LABEL_CLASS}
+          >
+            {dict.library.filters.departmentLabel}
+          </label>
+          <select
+            id="library-filter-department"
+            value={departmentFilter}
+            onChange={(e) =>
+              handleDepartmentFilterChange(
+                e.target.value as 'all' | DepartmentId,
+              )
+            }
+            className={FILTER_CONTROL_CLASS}
+          >
+            <option value="all">{dict.common.allOption}</option>
+            {departmentEntries.map((dept) => (
+              <option key={dept.id} value={dept.id}>
+                {dept.code} · {pickLocalized(dept.name, language)}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label
-              htmlFor="library-filter-search"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.library.filters.searchLabel}
-            </label>
-            <div className="relative flex items-center">
-              <Search
-                size={14}
-                strokeWidth={1.5}
-                aria-hidden="true"
-                className="absolute left-3 text-[#9E9E9E] pointer-events-none"
-              />
-              <input
-                id="library-filter-search"
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={dict.library.filters.searchPlaceholder}
-                className="w-full min-h-[44px] pl-9 pr-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white placeholder:text-[#9E9E9E] focus:border-[#A65D4A] focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="library-filter-department"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.library.filters.departmentLabel}
-            </label>
-            <select
-              id="library-filter-department"
-              value={departmentFilter}
-              onChange={(e) =>
-                handleDepartmentFilterChange(
-                  e.target.value as 'all' | DepartmentId,
-                )
-              }
-              className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
-            >
-              <option value="all">{dict.common.allOption}</option>
-              {departmentEntries.map((dept) => (
-                <option key={dept.id} value={dept.id}>
-                  {dept.code} · {pickLocalized(dept.name, language)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="library-filter-project"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.library.filters.projectLabel}
-            </label>
-            <select
-              id="library-filter-project"
-              value={projectFilter}
-              onChange={(e) => handleProjectFilterChange(e.target.value)}
-              className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
-            >
-              <option value="all">{dict.common.allOption}</option>
-              {projects.map((proj) => (
-                <option key={proj.identity.id} value={proj.identity.id}>
-                  {proj.identity.code} ·{' '}
-                  {pickLocalized(proj.editorial.title, language)}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div>
+          <label
+            htmlFor="library-filter-project"
+            className={FILTER_LABEL_CLASS}
+          >
+            {dict.library.filters.projectLabel}
+          </label>
+          <select
+            id="library-filter-project"
+            value={projectFilter}
+            onChange={(e) => handleProjectFilterChange(e.target.value)}
+            className={FILTER_CONTROL_CLASS}
+          >
+            <option value="all">{dict.common.allOption}</option>
+            {projects.map((proj) => (
+              <option key={proj.identity.id} value={proj.identity.id}>
+                {proj.identity.code} ·{' '}
+                {pickLocalized(proj.editorial.title, language)}
+              </option>
+            ))}
+          </select>
         </div>
-      </section>
+      </FilterBar>
 
       {/* Technical Specification Sheets Ledger */}
       {filteredReferences.length === 0 ? (

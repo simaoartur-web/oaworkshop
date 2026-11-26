@@ -1,4 +1,4 @@
-import { AlertCircle, ArrowUpRight, Eye, Lock, Search } from 'lucide-react';
+import { AlertCircle, ArrowUpRight, Eye, Lock } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useWorkspaceSession } from '../../app/WorkspaceSessionContext';
@@ -6,7 +6,13 @@ import type { PublicationQueueItem } from '../../data/editorialReportsTypes';
 import { DEPARTMENTS } from '../../data/fixtures';
 import { PUBLICATIONS_LIMITS } from '../../data/publicationsRepository';
 import type { DepartmentId, PublicationStatus } from '../../data/types';
+import {
+  FILTER_CONTROL_CLASS,
+  FILTER_LABEL_CLASS,
+  FilterBar,
+} from '../../design-system/FilterBar';
 import { pickLocalized } from '../../locales';
+import { formatStudioBaseLabel } from '../../utils/editorialFormatting';
 import { EDITORIAL_CONTROL_I18N } from './i18n';
 import { PublicationPreviewDialog } from './PublicationPreviewDialog';
 import { useEditorialControl } from './useEditorialControl';
@@ -241,118 +247,86 @@ export function PublicationsPage() {
       )}
 
       {/* Filters Toolbar */}
-      <section className="border border-white/12 bg-[#141414] p-4 space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-[#BDBDBD]">
-          <span>
-            {dict.publications.showingPrefix}: {filteredItems.length} /{' '}
-            {queueItems.length}
-          </span>
-          <button
-            type="button"
-            onClick={handleResetFilters}
-            className="min-h-[38px] px-3 py-1 border border-white/14 bg-transparent hover:border-white/35 text-[11px] uppercase tracking-[0.14em] text-[#E0E0E0] hover:text-white cursor-pointer"
+      <FilterBar
+        summaryText={`${dict.publications.showingPrefix}: ${filteredItems.length} / ${queueItems.length}`}
+        hasActiveFilters={
+          statusFilter !== 'all' ||
+          departmentFilter !== 'all' ||
+          projectFilter !== 'all' ||
+          searchQuery.trim().length > 0
+        }
+        resetLabel={dict.common.resetFilters}
+        onReset={handleResetFilters}
+        controlsGridClass="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
+        search={{
+          id: 'pub-filter-search',
+          label: dict.publications.filters.searchLabel,
+          value: searchQuery,
+          placeholder: dict.publications.filters.searchPlaceholder,
+          onChange: setSearchQuery,
+        }}
+      >
+        <div>
+          <label htmlFor="pub-filter-status" className={FILTER_LABEL_CLASS}>
+            {dict.publications.filters.statusLabel}
+          </label>
+          <select
+            id="pub-filter-status"
+            value={statusFilter}
+            onChange={(e) => updateQueryParam('status', e.target.value)}
+            className={FILTER_CONTROL_CLASS}
           >
-            {dict.common.resetFilters}
-          </button>
+            <option value="all">{dict.common.allOption}</option>
+            {ALL_PUBLICATION_STATUSES.map((st) => (
+              <option key={st} value={st}>
+                {dict.publicationStatuses[st]}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <div>
-            <label
-              htmlFor="pub-filter-search"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.publications.filters.searchLabel}
-            </label>
-            <div className="relative flex items-center">
-              <Search
-                size={14}
-                strokeWidth={1.5}
-                aria-hidden="true"
-                className="absolute left-3 text-[#9E9E9E] pointer-events-none"
-              />
-              <input
-                id="pub-filter-search"
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={dict.publications.filters.searchPlaceholder}
-                className="w-full min-h-[44px] pl-9 pr-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white placeholder:text-[#9E9E9E] focus:border-[#A65D4A] focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="pub-filter-status"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.publications.filters.statusLabel}
-            </label>
-            <select
-              id="pub-filter-status"
-              value={statusFilter}
-              onChange={(e) => updateQueryParam('status', e.target.value)}
-              className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
-            >
-              <option value="all">{dict.common.allOption}</option>
-              {ALL_PUBLICATION_STATUSES.map((st) => (
-                <option key={st} value={st}>
-                  {dict.publicationStatuses[st]}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="pub-filter-dept"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.publications.filters.departmentLabel}
-            </label>
-            <select
-              id="pub-filter-dept"
-              value={departmentFilter}
-              onChange={(e) => updateQueryParam('dept', e.target.value)}
-              className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
-            >
-              <option value="all">{dict.common.allOption}</option>
-              {departmentEntries.map((dept) => (
-                <option key={dept.id} value={dept.id}>
-                  {dept.code} · {pickLocalized(dept.name, language)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="pub-filter-project"
-              className="block text-[11px] uppercase tracking-[0.14em] text-[#BDBDBD] mb-1"
-            >
-              {dict.publications.filters.projectLabel}
-            </label>
-            <select
-              id="pub-filter-project"
-              value={projectFilter}
-              onChange={(e) => updateQueryParam('project', e.target.value)}
-              className="w-full min-h-[44px] px-3 bg-[#0B0B0B] border border-white/16 text-xs sm:text-sm text-white focus:border-[#A65D4A] focus:outline-none"
-            >
-              <option value="all">{dict.common.allOption}</option>
-              {queueItems.map((item) => (
-                <option
-                  key={item.canonicalRecord.identity.id}
-                  value={item.canonicalRecord.identity.id}
-                >
-                  {item.canonicalRecord.identity.code} ·{' '}
-                  {pickLocalized(item.canonicalRecord.editorial.title, language)}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div>
+          <label htmlFor="pub-filter-dept" className={FILTER_LABEL_CLASS}>
+            {dict.publications.filters.departmentLabel}
+          </label>
+          <select
+            id="pub-filter-dept"
+            value={departmentFilter}
+            onChange={(e) => updateQueryParam('dept', e.target.value)}
+            className={FILTER_CONTROL_CLASS}
+          >
+            <option value="all">{dict.common.allOption}</option>
+            {departmentEntries.map((dept) => (
+              <option key={dept.id} value={dept.id}>
+                {dept.code} · {pickLocalized(dept.name, language)}
+              </option>
+            ))}
+          </select>
         </div>
-      </section>
+
+        <div>
+          <label htmlFor="pub-filter-project" className={FILTER_LABEL_CLASS}>
+            {dict.publications.filters.projectLabel}
+          </label>
+          <select
+            id="pub-filter-project"
+            value={projectFilter}
+            onChange={(e) => updateQueryParam('project', e.target.value)}
+            className={FILTER_CONTROL_CLASS}
+          >
+            <option value="all">{dict.common.allOption}</option>
+            {queueItems.map((item) => (
+              <option
+                key={item.canonicalRecord.identity.id}
+                value={item.canonicalRecord.identity.id}
+              >
+                {item.canonicalRecord.identity.code} ·{' '}
+                {pickLocalized(item.canonicalRecord.editorial.title, language)}
+              </option>
+            ))}
+          </select>
+        </div>
+      </FilterBar>
 
       {/* Editorial Queue List */}
       {filteredItems.length === 0 ? (
@@ -396,7 +370,11 @@ export function PublicationsPage() {
                       </span>
                       <span className="text-[#BDBDBD]">
                         {dept ? dept.code : item.canonicalRecord.classification.departmentId}{' '}
-                        · {item.canonicalRecord.location.studioBase}
+                        ·{' '}
+                        {formatStudioBaseLabel(
+                          item.canonicalRecord.location.studioBase,
+                          language,
+                        )}
                       </span>
                       <span
                         data-testid={`publication-status-${projId}`}

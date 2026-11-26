@@ -21,6 +21,7 @@ import { DemoNoticeDialog } from '../../design-system/DemoNoticeDialog';
 import { LanguageToggle } from '../../design-system/LanguageToggle';
 import { OABrandMark } from '../../design-system/OABrandMark';
 import { pickLocalized } from '../../locales';
+import { formatStudioBaseLabel } from '../../utils/editorialFormatting';
 import { formatStudioClocks } from '../../utils/timeGreeting';
 
 type VisualMode = 'photo' | 'section';
@@ -177,7 +178,10 @@ export function LoginPage() {
             <span aria-hidden="true" className="text-white/25">
               /
             </span>
-            <span>MILÃO {clocks.milan}</span>
+            <span>
+              {formatStudioBaseLabel('Milão', language).toUpperCase()}{' '}
+              {clocks.milan}
+            </span>
           </div>
 
           {/* Interactive Spatial Photograph vs 1:100 Section Toggle */}
@@ -480,7 +484,7 @@ export function LoginPage() {
                           ·
                         </span>
                         <span className="text-[#BDBDBD]">
-                          {profile.studioBase}
+                          {formatStudioBaseLabel(profile.studioBase, language)}
                         </span>
                       </div>
                       <span className="text-[12.5px] font-medium text-white leading-snug">
