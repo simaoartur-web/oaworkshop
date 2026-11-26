@@ -1,6 +1,6 @@
 # Plano 021 · Fase 08 — Product Refinement & User Experience
 
-- **Estado:** **APROVADO — EM EXECUÇÃO (Fase 08.2)** *(autorização expressa `APROVADO: plans/021-phase-08-product-refinement-and-user-experience.md` sobre `37daad0` registada em `2026-11-25 11:27+02:00` pelo responsável humano)*
+- **Estado:** **FASE 08.2 CONCLUÍDA (`PR #4` · `af9d596`, candidato `01675b8`) · FASE 08.3 EM EXECUÇÃO** *(aprovação inicial `37daad0` em `2026-11-25 11:27+02:00`; autorização de merge da Fase 08.2 e arranque da Fase 08.3 em `2026-11-26 19:06+02:00`)*
 - **Branch documental:** `codex/docs-f08-plan-021`
 - **Base canónica preservada (`origin/codex/f02-integration-preview`):** `1abaa9d26bc10bc44a65584479d36781494c9e60` (`1abaa9d` — Versão Demonstrativa Fases 00–07 oficialmente encerrada)
 - **Estado de `main` / Website Público (`oaworkshop`):** `e468fe7cb043844855c529477616f6e873c45190` *(100% intocado)*
