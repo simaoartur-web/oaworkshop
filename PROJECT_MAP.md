@@ -105,6 +105,7 @@
 | `src/data/sessionRepository.ts` | persistência local sanitizada (zero passwords em storage, limpeza automática de sessões corrompidas) |
 | `src/locales/pt.ts`, `src/locales/en.ts`, `src/locales/index.ts` | dicionários bilingues com paridade de chaves garantida por TypeScript e testes |
 | `src/utils/timeGreeting.ts` | saudação determinística pela zona horária da `studioBase`, cache de `Intl.DateTimeFormat`, data editorial e relógios dinâmicos `CAT` / `CET` / `CEST` |
+| `src/utils/editorialFormatting.ts` | utilitários puros de formatação editorial PT/EN com `Intl.DateTimeFormat` em cache (`formatEditorialDate`, `formatStudioBaseLabel`, formatadores de enums canónicos e `formatDemoAuthorDisplay`) |
 | `src/test/setup.ts` | configuração base Vitest (`jsdom`, mock de `matchMedia` e reposição de caches da biblioteca e pesquisa) |
 | `src/test/entryExperience.test.tsx` | suite de aceitação Fase 01, guardas de rota e invariante zero-password |
 | `src/test/hardeningAndTime.test.tsx` | testes de acessibilidade do modal (`inert`, `Tab`, `Shift+Tab`, `Escape`) e regras `CET`/`CEST` por `studioBase` |
@@ -164,6 +165,7 @@
 | `src/features/editorial-control/` | módulo UI da Fase 06 (`useEditorialControl.ts`, `PublicationsPage.tsx`, `PublicationPreviewDialog.tsx`, `ActivityPage.tsx`, `ReportsPage.tsx`, `i18n.ts`) |
 | `src/test/studioOperations.test.tsx`, `operationsExperience.test.tsx`, `studioStructure.test.tsx`, `studioStructureExperience.test.tsx` | suites de testes da Fase 05 (Módulo 1 e Módulo 2: dados canónicos, quota, cross-tab, UI, navegação cruzada e PT/EN) |
 | `src/test/editorialControl.test.tsx`, `editorialControlExperience.test.tsx` | suites de testes da Fase 06 (fila editorial, transições, quota, cross-tab, preview modal acessível, sincronização URL em montagem, actividade e relatórios/exportação JSON) |
+| `src/test/editorialFormatting.test.tsx` | suite de testes da Fase 08.3 (`editorialFormatting.ts`: datas `YYYY-MM-DD` sem desvio de fuso, timestamps ISO, `Milão`/`Milan`, enums PT/EN, `(Demo)` sem duplicação e ausência de enums/datas ISO crus em `activitySelector.ts`) |
 | `plans/019-phase-06-publications-activity-reports.md` | plano técnico e funcional da Fase 06: Publicações (`/workspace/publications`), Actividade (`/workspace/activity`) e Relatórios (`/workspace/reports`) |
 | `docs/agent-reports/phase-06/` | relatórios técnicos publicados da Fase 06 (`06-DATA-01`, `06-FE-01`, `06-QA-01`) |
 | `plans/020-phase-07-validation-and-final-delivery.md` | plano da Fase 07: Validação transversal (`11/11` rotas, `6/6` perfis, matriz de evidências) e entrega final |

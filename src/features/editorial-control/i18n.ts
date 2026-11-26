@@ -243,7 +243,7 @@ const pt: EditorialControlDictionary = {
     subtitle:
       'Indicadores 100% derivados dos repositórios locais do O+A Workspace — zero métricas inventadas, departamentos vazios apresentados honestamente a 0.',
     honestBanner:
-      'Síntese demonstrativa local (mode: local-demo). A exportação JSON e a impressão utilizam apenas os dados guardados neste navegador.',
+      'Síntese demonstrativa local. A exportação JSON e a impressão utilizam apenas os dados guardados neste navegador.',
     exportJsonCta: 'Exportar JSON (demo)',
     printCta: 'Imprimir síntese',
     exportAnnouncement: 'Síntese JSON demonstrativa exportada localmente.',
@@ -400,7 +400,7 @@ const en: EditorialControlDictionary = {
     subtitle:
       'Indicators 100% derived from local O+A Workspace repositories — zero invented metrics, empty departments honestly reported as 0.',
     honestBanner:
-      'Local demonstrative summary (mode: local-demo). JSON export and printing use only data stored in this browser.',
+      'Local demonstrative summary. JSON export and printing use only data stored in this browser.',
     exportJsonCta: 'Export JSON (demo)',
     printCta: 'Print summary',
     exportAnnouncement: 'Demonstrative JSON report exported locally.',

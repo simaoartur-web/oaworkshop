@@ -1,3 +1,9 @@
+import {
+  formatDemoAuthorDisplay,
+  formatEditorialDate,
+  formatPublicationStatusLabel,
+  formatTaskStatusLabel,
+} from '../utils/editorialFormatting';
 import { findDemoUserById } from './fixtures';
 import type {
   ActivityEvent,
@@ -21,10 +27,11 @@ function extractDateIso(timestampIso: string): string {
 }
 
 function resolveActorName(userId: string, fallbackName?: string): string {
-  if (fallbackName && fallbackName.trim().length > 0) {
-    return fallbackName.trim();
-  }
-  return findDemoUserById(userId)?.name ?? userId;
+  const resolved =
+    fallbackName && fallbackName.trim().length > 0
+      ? fallbackName.trim()
+      : (findDemoUserById(userId)?.name ?? userId);
+  return formatDemoAuthorDisplay(resolved);
 }
 
 /**
@@ -139,8 +146,8 @@ export function buildUnifiedActivityEvents(
       code: `${task.code} · ${task.projectCode}`,
       title: { ...task.title },
       summary: {
-        pt: `${task.detail.pt} (Estado: ${task.status} · Prazo: ${task.dueDateIso})`,
-        en: `${task.detail.en} (Status: ${task.status} · Due: ${task.dueDateIso})`,
+        pt: `${task.detail.pt} (Estado: ${formatTaskStatusLabel(task.status, 'pt')} · Prazo: ${formatEditorialDate(task.dueDateIso, 'pt')})`,
+        en: `${task.detail.en} (Status: ${formatTaskStatusLabel(task.status, 'en')} · Due: ${formatEditorialDate(task.dueDateIso, 'en')})`,
       },
       timestampIso: task.updatedAt,
       dateIso: extractDateIso(task.updatedAt),
@@ -179,10 +186,10 @@ export function buildUnifiedActivityEvents(
     pushUnique({
       id: `act-pub-${entry.id}`,
       domain: 'publication',
-      code: `${entry.projectCode} · ${entry.toStatus.toUpperCase()}`,
+      code: `${entry.projectCode} · PUB`,
       title: {
-        pt: `Fila Editorial · ${entry.projectTitle.pt}`,
-        en: `Editorial Queue · ${entry.projectTitle.en}`,
+        pt: `Fila Editorial · ${entry.projectTitle.pt} (${formatPublicationStatusLabel(entry.toStatus, 'pt')})`,
+        en: `Editorial Queue · ${entry.projectTitle.en} (${formatPublicationStatusLabel(entry.toStatus, 'en')})`,
       },
       summary: { ...entry.note },
       timestampIso: entry.timestampIso,

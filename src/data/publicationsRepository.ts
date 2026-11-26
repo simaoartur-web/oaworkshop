@@ -1,3 +1,4 @@
+import { formatPublicationStatusLabel } from '../utils/editorialFormatting';
 import { findDemoUserById } from './fixtures';
 import type {
   PublicationActionResult,
@@ -461,8 +462,8 @@ function defaultTransitionNote(
   toStatus: PublicationStatus,
 ): LocalizedText {
   return {
-    pt: `Estado editorial actualizado localmente de "${fromStatus}" para "${toStatus}" (modo demonstrativo — sem alteração ao website público).`,
-    en: `Editorial status updated locally from "${fromStatus}" to "${toStatus}" (demonstrative mode — no changes to the public website).`,
+    pt: `Estado editorial actualizado localmente de "${formatPublicationStatusLabel(fromStatus, 'pt')}" para "${formatPublicationStatusLabel(toStatus, 'pt')}" (modo demonstrativo — sem alteração ao website público).`,
+    en: `Editorial status updated locally from "${formatPublicationStatusLabel(fromStatus, 'en')}" to "${formatPublicationStatusLabel(toStatus, 'en')}" (demonstrative mode — no changes to the public website).`,
   };
 }
 
